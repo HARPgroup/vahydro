@@ -1,0 +1,624 @@
+<?php
+// loads these needed for ajax calls
+module_load_include('inc', 'dh_wsp', 'dh_wsp.custom_forms');
+
+// dh_wsp
+// legacy VWUDS functions
+// SIC Handling
+// patch SIC up
+/* 
+  update dh_properties set propvalue = propcode::integer, 
+  propcode = CASE 
+    WHEN a."CATEGORY" = 'AGR' THEN 'agriculture' 
+    WHEN a."CATEGORY" = 'COM' THEN 'commercial' 
+    WHEN a."CATEGORY" = 'MAN' THEN 'manufacturing' 
+    WHEN a."CATEGORY" = 'MIN' THEN 'mining' 
+    WHEN a."CATEGORY" = 'PWS' THEN 'municipal' 
+    WHEN a."CATEGORY" = 'IRR' THEN 'irrigation' 
+    WHEN a."CATEGORY" = 'PF' THEN 'fossilpower' 
+    WHEN a."CATEGORY" = 'PH' THEN 'hydropower' 
+    WHEN a."CATEGORY" = 'PN' THEN 'nuclearpower' 
+    WHEN a."CATEGORY" = 'OTH' THEN 'other' 
+    WHEN a."CATEGORY" = 'CST' THEN 'contractors' 
+  END
+  from vwuds_sic_codes as a 
+  where dh_properties.propcode = a.sic
+  and propcode ~ '^[0-9]+$'
+  ;
+  update dh_properties_revision set propvalue = propcode::integer, 
+  propcode = CASE 
+    WHEN a."CATEGORY" = 'AGR' THEN 'agriculture' 
+    WHEN a."CATEGORY" = 'COM' THEN 'commercial' 
+    WHEN a."CATEGORY" = 'MAN' THEN 'manufacturing' 
+    WHEN a."CATEGORY" = 'MIN' THEN 'mining' 
+    WHEN a."CATEGORY" = 'PWS' THEN 'municipal' 
+    WHEN a."CATEGORY" = 'IRR' THEN 'irrigation' 
+    WHEN a."CATEGORY" = 'PF' THEN 'fossilpower' 
+    WHEN a."CATEGORY" = 'PH' THEN 'hydropower' 
+    WHEN a."CATEGORY" = 'PN' THEN 'nuclearpower' 
+    WHEN a."CATEGORY" = 'OTH' THEN 'other' 
+    WHEN a."CATEGORY" = 'CST' THEN 'contractors' 
+  END
+  from vwuds_sic_codes as a 
+  where dh_properties_revision.propcode = a.sic
+  and propcode ~ '^[0-9]+$'
+  ;
+
+*/
+function dh_wsp_translate_mpcats($ftype) {
+  // translate old abbrev to new ftype label
+  $ftypes = array(  
+    'agriculture' => 'AGR',
+    'commercial' => 'COM',
+    'manufacturing' => 'MAN',
+    'mining' => 'MIN',
+    'municipal' => 'PWS',
+    'irrigation' => 'IRR',
+    'fossilpower' => 'PF',
+    'hydropower' => 'PH',
+    'nuclearpower' => 'PN',
+    'other' => 'OTH',
+    'contractors' => 'CST',
+  );
+  return $ftypes[$ftype];
+}
+
+function dh_wsp_get_sic_cats() {
+  $cats = array(
+    'agriculture' => 'Agriculture',
+    'commercial' => 'Commercial',
+    'fossilpower' => 'Fossil Power',
+    'hydropower' => 'Hydro Power',
+    'irrigation' => 'Irrigation',
+    'manufacturing' => 'Manufacturing',
+    'mining' => 'Mining',
+    'nuclearpower' => 'Nuclear Power',
+    'other' => 'Other',
+    'municipal' => 'Public Water Supply',
+    'contractors' => 'Trade/Contractors',
+  );
+  return $cats;
+}
+
+function dh_wsp_get_sic_options($cat_mp) {
+  if (!empty($cat_mp)) {
+   // now, determine if we can screen for cat_mp type
+    $sic_sql = "select sic, \"SICGROUP\" || ' - ' || \"SICIND\" as opt from vwuds_sic_codes WHERE \"CATEGORY\" = '$cat_mp'";
+//dpm($sic_sql,'sic_sql');
+    $options = db_query($sic_sql)->fetchAllKeyed(0,1);
+  } else {
+    return FALSE;
+  }
+  return $options;
+}
+
+function dh_wsp_guess_sic_options($sic_mp) {
+  if (!empty($sic_mp)) {
+   // now, determine if we can screen for cat_mp type
+    $sic_sql = "select sic, \"SIC SICGROUP\" || ' - ' || \"SICIND\" as opt from vwuds_sic_codes WHERE \"CATEGORY\" in (select \"CATEGORY\" from vwuds_sic_codes WHERE sic = '$sic_mp') ";
+    $options = db_query($sic_sql)->fetchAllKeyed(0,1);
+  } else {
+    return FALSE;
+  }
+  return $options;
+}
+
+function dh_rebuild_plugin(&$form, $form_state) {
+  // @todo: don't think this does anything yet??
+  // should it use dh_rebuild_plugin_row below?
+  dpm($form, 'form');
+  $trigger_info = $form_state['triggering_element'];
+  $trigger_val = drupal_array_get_nested_value($form_state['values'], $trigger_info['#parents']);
+  dpm($trigger_info, 'trigger');
+  dpm($trigger_val, 'value ');
+  //return $form;
+}
+
+function dh_monthly_get_next_mp($mpid, $fstatus='active', $bundle = FALSE, $ftype = FALSE) {
+  $mp = entity_load_single('dh_feature', $mpid);
+  $fac = dh_getMpFacilityEntity($mpid);
+  // 
+  $efq = new EntityFieldQuery(); 
+  $efq->entityCondition('entity_type', 'dh_feature');
+  $efq->propertyCondition('name', $mp->name, '>');
+  $efq->propertyCondition('fstatus', $fstatus);
+  if ($bundle) {
+    $efq->propertyCondition('bundle', $bundle);
+  }
+  if ($ftype) {
+    $efq->propertyCondition('ftype', $ftype);
+  }
+  $efq->fieldCondition('dh_link_facility_mps', 'target_id', $fac->hydroid, '=');
+  $efq->propertyOrderBy('name', 'ASC');
+  $rez = $efq->execute();
+  //dpm($efq,'efq');
+  if (isset($rez['dh_feature'])) {
+    $next_feature = array_shift($rez['dh_feature']);
+    return entity_load_single('dh_feature', $next_feature->hydroid);
+  }
+}
+
+function dh_wsp_rebuild_dh_wsp_gwp_monthly_form($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  error_log("%%%%%%%%% Rebuilding form dh_wsp_rebuild_dh_wsp_gwp_monthly_form %%%%%%%%%%%%%");
+  form_load_include($form_state, 'inc', 'entity', 'includes/entity.ui');
+  // does this do anything in this context?
+  // **********************
+  // Load the form
+  // **********************
+  $form = drupal_rebuild_form('dh_wsp_gwp_monthly_form', $form_state, $form);
+  return $form;
+}
+
+function dh_search_form_state($form_state, $parents = array(), $criteria = array(), $matches = array(), $recursive = FALSE, $depth = 0, $maxdepth = 5) {
+  if ($depth > $maxdepth) {
+    watchdog('dh', 'max depth exceeded dh_search_form_state');
+    return $matches;
+  }
+  //error_log("dh_search_form_state depth: $depth");
+  //error_log("dh_search_form_state called with parents: " . print_r($parents,1));
+  //error_log("dh_search_form_state called with criteria: " . print_r($criteria,1));
+  if (!empty($parents)) {
+    $data = drupal_array_get_nested_value($form_state, $parents, $key_exists);
+    if (!$key_exists) {
+      return FALSE;
+    }
+  } else {
+    $data = $form_state;
+  }
+  if (empty($criteria)) {
+    return $data;
+  }
+  //error_log("data #: " . count($data));
+  
+  foreach ($data as $row) {
+    if (is_array($row)) {
+      $matchcount = 0;
+      foreach ($criteria as $key => $value) {
+        if (isset($row[$key]) and ($row[$key] == $value)) {
+          $matchcount++;
+        }
+      }
+      if ($matchcount == count($criteria)) {
+        // we have an exact match
+        $matches[] = $row;
+      }
+      //if ($recursive and is_array($row)) {
+      if (is_array($row)) {
+        // @todo: do recursive by sending matches
+        $depth++;
+        // subsequent searches should have no parents since we should already have drilled down
+        // and now are searching in the remainder
+        $matches = dh_search_form_state($row, array(), $criteria, $matches, $recursive, $depth, $maxdepth);
+      }
+    }
+  }
+  //error_log("Matches: " . print_r($matches,1));
+  return $matches;
+}
+
+function dh_rebuild_plugin_row(&$form, $form_state) {
+  // find who called this
+  $trigger_info = $form_state['triggering_element'];
+  if (!isset($trigger_info['#ajax']['field_name'])) {
+    watchdog('dh_wsp', 'dh_rebuild_plugin_row() requires field_name set in ajax of trigger field to operate');
+    return FALSE;
+  }
+  $element_name = $trigger_info['#ajax']['field_name'];
+  $entity_info = $trigger_info['#parents']; // get ts or prop entity info
+  // find the ts/prop entity containing this by popping the last element off the array
+  array_pop($entity_info);
+  $element_info[] = $element_name;
+  // get the form row
+  $entity_element = drupal_array_get_nested_value($form, $entity_info);
+  $entity_values = drupal_array_get_nested_value($form_state['values'], $entity_info);
+  // get the element to set
+  $element = drupal_array_get_nested_value($form, $element_info);
+  
+  // @todo: be flexible about the entity type
+  $exist_key = 'tstime';
+  $id_key = 'tid';
+  $entity_type = 'dh_timeseries';
+  $entity = FALSE;
+  if (isset($entity_values[$exist_key])) {
+    if (!empty($entity_values[$id_key])) {
+      $entity = entity_load_single($entity_type, $entity_values[$id_key]);
+      foreach ($entity_values as $key => $val) {
+        if (!empty($key)) {
+          $entity->$key = $val;
+        }
+      }
+    } else {
+      $entity = entity_create($entity_type, $entity_values);
+    }
+  }
+  //error_log("Before: " . print_r($element,1));
+  if (is_object($entity)) {
+    dh_variables_getPlugins($entity);
+    $handled = FALSE;
+    foreach ($entity->dh_variables_plugins as $plugin) {
+      if (method_exists($plugin, 'formRowEdit')) {
+        $plugin->formRowEdit($entity_element, $entity);
+      }
+    }
+    error_log("Retrieved Entity ID:" . $entity_values[$id_key]);
+  } else {
+    error_log("Could not retrieve or create  :" . print_r($entity_values,1));
+  }
+  error_log("entity tsvalue: " . print_r($entity->tsvalue,1));
+  error_log("entity tscode: " . print_r($entity->tscode,1));
+  error_log("entity net_wd: " . print_r($entity->net_wd,1));
+  error_log("Form net_wd: " . $entity_element[$element_name]['#default_value']);
+  error_log("Form net_wd #disabled: " . $entity_element[$element_name]['#disabled']);
+  $element['#default_value'] = $entity_element[$element_name]['#default_value'];
+  $element['#value'] = $entity_element[$element_name]['#default_value'];
+  $element['#disabled'] = $entity_element[$element_name]['#disabled'] ? 'disabled' : '';
+  if (empty($element['#disabled'])) {
+    error_log("Enabling Field");
+    unset($element['#disabled']);
+  }
+  $element['#type'] = $entity_element[$element_name]['#type'];
+  //drupal_array_set_nested_value($form, $element_info, $element);
+  error_log("After: " . print_r($element,1));
+  // returns the single element (or group in this case) to be re-rendered
+  return $element;
+}
+
+function dh_get_tree_sibling($base_parents, $sib_name) {
+  $sib_parents = $base_parents;
+  $base_keys = array_keys($base_parents);
+  $last_key = array_pop($base_keys);
+  $sib_parents[$last_key] = $sib_name;
+  error_log("Replacing $base_parents[$last_key] with $sib_parents[$last_key]");
+  return $sib_parents;
+}
+  
+function dh_vwuds_sic_options(&$form, $form_state) {
+  $code_info = $form_state['triggering_element'];
+  // need to get the code var value to use to pass to 
+  $code_val = drupal_array_get_nested_value($form_state['values'], $code_info['#parents']);
+  // iterate through the parents to construct the proper #parents for the value field that we want to overwrite
+  //dpm($form, 'form');
+  //dpm($code_info, 'code info');
+  //dpm($code_val, 'code val');
+  $val_info = dh_get_tree_sibling($code_info['#parents'], 'propvalue');
+  /*
+  error_log('code info' . print_r($code_info,1));
+  error_log('code parents' . print_r($code_info['#parents'],1));
+  $val_info = $code_info['#parents'];
+  error_log('initial val_info' . print_r($val_info,1));
+  
+  foreach ($val_info['#parents'] as $idx => $val) {
+    error_log("$idx - $val");
+    if ($val == 'propcode') {
+      $val = 'propvalue';
+      $val_info["$idx"] = $val;
+    }
+  }
+  */
+  
+  //$val_info[2] = 'propvalue';
+  error_log('val_info' . print_r($val_info,1));
+  $val_el = drupal_array_get_nested_value($form, $val_info);
+  $val_val = drupal_array_get_nested_value($form_state['values'], $val_info);
+  $val_el['#options'] = dh_wsp_get_sic_options(dh_wsp_translate_mpcats($code_val));
+  // we don't need to set this in the form because we only return the element not the whole form
+  error_log('val_el' . print_r($val_el,1));
+  drupal_array_set_nested_value($form, $val_info, $val_el);
+  $val_el['#default_value'] = key(dh_wsp_translate_mpcats($code_val));
+  $val_el['#value'] = key(dh_wsp_translate_mpcats($code_val));
+  //dpm($val_el, 'new val_el');
+  return $val_el;
+}    
+
+function dh_wsp_transfer_update_geometry($dh_feature){
+  // given either end-point of a transfer, update the geometry for the
+  // conveyance shape
+  //SELECT gps.gps_track, ST_MakeLine(gps.the_geom ORDER BY gps_time) As newgeom
+	//FROM gps_points As gps
+	//GROUP BY gps.gps_track;
+  $pieces = dh_get_flow_links($dh_feature->hydroid, $etype = 'dh_feature');
+  $pt_list = implode(',',$pieces);
+  $finfo = field_info_field('dh_geofield');
+  $srid = $finfo['settings']['srid'];
+  // find the two ends and the conveyance, load the centroid of each end
+  // and create a line between them
+  $q = "  select ST_AsText(ST_MakeLine(st_pointonsurface(st_setsrid(pts.dh_geofield_geom,$srid)))) as conv_geom, ";
+  $q .= "   ST_isValid(ST_MakeLine(st_pointonsurface(st_setsrid(pts.dh_geofield_geom,$srid)))) as geom_status ";
+  $q .= " from {dh_feature} as feat ";
+  $q .= " left outer join {field_data_dh_geofield} as pts ";
+  $q .= " on (feat.hydroid = pts.entity_id ";
+  $q .= "   and pts.entity_type = 'dh_feature' ";
+  $q .= " ) ";
+  $q .= " where feat.hydroid in ($pt_list) ";
+  // we exclude the conveyance here since we will replace its geo info
+  $q .= "   and feat.bundle <> 'conveyance' ";
+  //dsm($q);
+  $rez = db_query($q);
+  $rez_obj = $rez->fetchObject();
+  $wkt = $rez_obj->conv_geom;
+  $valid = $rez_obj->geom_status;
+  //dpm($rez_obj,'rez_obj');
+  if ($valid) {
+    $efq = new EntityFieldQuery(); 
+    $efq->entityCondition('entity_type', 'dh_feature');
+    $efq->propertyCondition('bundle', 'conveyance');
+    $efq->propertyCondition('hydroid', $pieces, 'IN');
+    $rez = $efq->execute();
+    if (isset($rez['dh_feature'])) {
+      $rez = array_shift($rez['dh_feature']);
+      $entity_id = $rez->hydroid;
+    }
+    $conv = entity_load_single('dh_feature', $entity_id);
+    if (is_object($conv)) {
+      $conv->dh_geofield = array(
+        LANGUAGE_NONE => array(
+          0 => array(
+            'input_format' => GEOFIELD_INPUT_WKT, 
+            'geom' => $wkt,
+          ),
+        )
+      );
+      //dpm($conv,'after setting geom');
+      $conv->save();
+    } else {
+      watchdog('dh', "Problem trying to load dh_feature $entity_id");
+    }
+  } else {
+    watchdog('dh', "Conveyance Query SQL returned invalid or empty geometry: $q ");
+  }
+}
+
+function dh_wsp_entity_ts_event_types_alter(&$event_types) {
+  // insert ts events for AR fields/properties ()such as startdate, enddate, dh_link_submittal_feature) 
+  // insert ts events for those linked via adminreg 
+  //   system erefs like dh_link_submittal_feature
+  if (!isset($event_types['dh_properties'])) {
+    $event_types['dh_properties'] = array();
+  }
+  $event_types['dh_properties'] += array(
+    'wsp_rate_table' => array(
+      'bundle' => 'wsp_projection', // happens for all
+      'entity_type' => 'dh_properties',
+      'multiplicity' => 'singular',
+      'featureid' => array('value_src_type'=> 'property', 'value' => 'pid'),
+      'map' => array(
+        // object permits sending an integer OR varkey to varid and controller figures it out
+        'varid' => array('value_src_type'=> 'constant', 'value' => 'wsp_rate_table'),
+        'tstime' => array('value_src_type'=> 'token', 'value' => '[current-date:raw]'),
+        'tsvalue' => array('value_src_type' => 'constant', 'value' => NULL),
+        'tscode' => array('value_src_type' => 'constant', 'value' => NULL),
+      ),
+    ),
+  );
+  $event_types['dh_adminreg_feature'] += array(
+    'wsp_event_updated' => array(
+      'bundle' => FALSE, // happens for all
+      'entity_type' => 'dh_adminreg_feature',
+      'multiplicity' => 'singular',
+      'featureid' => array('value_src_type'=> 'property', 'value' => 'adminid'),
+      'map' => array(
+        // object permits sending an integer OR varkey to varid and controller figures it out
+        'varid' => array('value_src_type'=> 'constant', 'value' => 'wsp_event_updated'),
+        'tstime' => array('value_src_type'=> 'property', 'value' => 'modified'),
+        'tsvalue' => array('value_src_type' => 'constant', 'value' => NULL),
+        'tscode' => array('value_src_type' => 'constant', 'value' => NULL),
+      ),
+    ),
+  );
+}
+
+
+// support generic connectivity to_node/from_node type relationships
+function dh_get_eref_tree($field_names, $entity, &$tree = array(), $max = 500) {
+  // Usage:
+  // $field_names = 
+  // $entity_id = 
+  // $entity_type = type of entity doing referencing
+  $field_names = !is_array($field_names) ? array($field_names) : $field_names;
+  foreach ($field_names as $field_name) {
+    $finfo = field_info_field($field_name);
+    //dpm($finfo,'field info');
+    $eref_entity_type = $finfo['settings']['target_type'];
+    if (empty($eref_entity_type)) {
+      return FALSE;
+    }
+    if (property_exists($entity, $field_name)) {
+      foreach ($entity->{$field_name}['und'] as $field_value) {
+        //dpm($field_value, "Found $field_name value");
+        $eref_entity_id = $field_value['target_id'];
+        if (!isset($tree[$eref_entity_type])) {
+          $tree[$eref_entity_type] = array();
+        }
+        if (isset($tree[$eref_entity_type][$eref_entity_id])) {
+          watchdog('dh', "dh_get_eref_tree recursion found for $field_name @ $eref_entity_type, $eref_entity_id");
+          return;
+        }
+        $tree[$eref_entity_type][] = $eref_entity_id;
+        if (count($tree, COUNT_RECURSIVE ) >= $max) {
+          watchdog('dh', "dh_get_eref_tree max $max exceeded for $field_name @ $eref_entity_type, $eref_entity_id");
+          return;
+        }
+        $ref_entity = entity_load_single($eref_entity_type, $eref_entity_id);
+        dh_get_eref_tree($field_names, $ref_entity, $tree);
+      }
+    } else {
+      //dpm($entity, "$field_name not set on entity");
+    }
+  }
+  return TRUE;
+}
+
+function dh_wsp_get_ref_tree($adminid) {
+  // must assemble a list of block hydroids for the selected vineayrd hydroid
+  // then must include them as csv here and remove the eref to the vineyard
+  // then obtain a list of all events that are referencing these blocks so the eref table never need be joined
+  // this is tested as a robust solution for up to 2,048 event IDs (roughly 200 years worth of records)
+  // this will avoid double counting
+  $blocks = dh_get_facility_mps($argument);
+  if (!empty($blocks)) {
+    $eref_config = array();
+    $eref_config['eref_fieldname'] = 'dh_link_feature_submittal';
+    $eref_config['target_entity_id'] = $blocks;
+    $eref_config['entity_type'] = 'dh_adminreg_feature';
+    $eref_config['entity_id_name'] = 'adminid';
+
+    $events = dh_get_reverse_erefs($eref_config);
+    //dpm($events,'events');
+      
+    $handler->argument = implode(',', $events );
+    //dpm($handler->argument,'new arg');
+    return TRUE;
+  }
+  return FALSE;
+}
+  
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function dh_wsp_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/' . $plugin_type;
+  }
+  if ($owner == 'om' && $plugin_type == 'om_components') {
+    return 'plugins/' . $plugin_type;
+  }
+  if ($owner == 'dh' && $plugin_type == 'dh_components') {
+    return 'plugins/' . $plugin_type;
+  }
+  if ($owner == 'dh' && $plugin_type == 'dh_variables') {
+    return 'plugins/' . $plugin_type;
+  }
+}
+
+// @todo: movethese to tablefieldmodule
+
+function tablefield_to_array($trat) {
+  // translate tablefield to associative array
+  $ttrans = array();
+  //dpm($trat,'trat');
+  $rowkey = 0;
+  foreach ($trat as $rowix => $rowvals) {
+    if ($rowix == 'row_0') {
+      // this is the header, do not convert, but make sure it is consistent with
+      // the matrix format or throw an error or try to guess?
+      $colkeys = $rowvals;
+      continue;
+    }
+    foreach ($rowvals as $ix => $val) {
+      $ttrans[$rowkey][$colkeys[$ix]] = $val;
+    }
+    $rowkey++;
+  }
+  return $ttrans;
+}
+
+function dh_tablefield_to_associative($trat) {
+  // translate tablefield to associative array
+  $ttrans = array();
+  //dpm($trat,'trat');
+  foreach ($trat as $rowix => $rowvals) {
+    if ($rowix == 'row_0') {
+      // this is the header, do not convert, but make sure it is consistent with
+      // the matrix format or throw an error or try to guess?
+      $colkeys = $rowvals;
+      continue;
+    }
+    foreach ($rowvals as $ix => $val) {
+      if ($ix == 'col_0') {
+        $rowkey = $val;
+        continue;
+      }
+      if ($ix == 'weight') {
+        // this is part of the sorting
+        continue;
+      }
+      $ttrans[$rowkey][$colkeys[$ix]] = $val;
+    }
+  }
+  return $ttrans;
+}
+
+function tablefield_parse_assoc($data) {
+  // Return tablefield formatted table with values from an array.
+  // difference is that it assumes associative array and will get numeric keys from header row
+  //    then apply these numeric keys to each col_$key_index
+  // Ex:
+  //   $data = array(
+  //     'for' => array(
+  //       1980 => 25.2,
+  //       1985 => 23.5,
+  //       1990 => 20.0,
+  //     ),
+  //     'pas' => array(
+  //       1980 => 129.1,
+  //       1985 => 133.2,
+  //       1990 => 140.0,
+  //     ),
+  //   );
+  $max_col_count = 0;
+  $row_count = 0;
+  $col_keys = array();
+  $imported_tablefield = array();
+  foreach ($data as $row_id => $row) {
+    if ($row_count == 0) {
+      // header row, handle this and set up keys
+      $col_keys = array_combine(array_values($row), array_keys($row));
+      // reshape the row to conform to this lookup
+      $row = array_combine(array_values($row), array_values($row));
+    }
+    $col_count = count($row);
+    if ($col_count > 0) {
+      foreach ($row as $col_id => $col) {
+        $imported_tablefield['row_' . $row_count]['col_' . $col_keys[$col_id]] = $col;
+      }
+      $max_col_count = $col_count > $max_col_count ? $col_count : $max_col_count;
+      $row_count++;
+    }
+  }
+  return array($imported_tablefield, $row_count, $max_col_count);
+}
+
+function dh_tablefield_parse_array($data) {
+  // Return tablefield formatted table with values from an array.
+  //  this assumes the array is akin to a csv, with the first row containing column headers
+  $max_col_count = 0;
+  $row_count = 0;
+  $imported_tablefield = array();
+  foreach ($data as $row_id => $row) {
+    $col_count = count($row);
+    if ($col_count > 0) {
+      foreach ($row as $col_id => $col) {
+        $imported_tablefield['row_' . $row_count]['col_' . $col_id] = $col;
+      }
+      $max_col_count = $col_count > $max_col_count ? $col_count : $max_col_count;
+      $row_count++;
+    }
+  }
+  return array($imported_tablefield, $row_count, $max_col_count);
+}
+
+
+  
+function dh_tablefield_array_to_field(&$entity, $csvtable, $fieldname) {
+  // requires a table to be set in non-associative format (essentially a csv)
+  $instance = field_info_instance($entity->entityType(), $fieldname, $entity->bundle);
+  $field = field_info_field($fieldname);
+  $default = field_get_default_value($entity->entityType(), $entity, $field, $instance);
+  //dpm($default,'default');
+  list($imported_tablefield, $row_count, $max_col_count) = dh_tablefield_parse_array($csvtable);
+  // set some default basics
+  $default[0]['tablefield']['tabledata'] = $imported_tablefield;
+  $default[0]['tablefield']['rebuild']['count_cols'] = $max_col_count;
+  $default[0]['tablefield']['rebuild']['count_rows'] = $row_count;
+  if (function_exists('tablefield_serialize')) {
+    $default[0]['value'] = tablefield_serialize($field, $default[0]['tablefield']);
+  } else {
+    $default[0]['value'] = serialize($default[0]['tablefield']);
+  }
+  $default[0]['format'] = !isset($default[0]['format']) ? NULL : $default[0]['format'];
+  $entity->{$fieldname} = array(
+    'und' => $default
+  );
+}
+?>

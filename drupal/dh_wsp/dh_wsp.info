@@ -1,0 +1,13 @@
+name = Water Supply Tools for Data Handlers Module
+description = Adds support for water supply reporting and data analysis.
+core = 7.x
+php = 5.3.0
+
+; 
+dependencies[] = dh
+
+files[] = dh_wsp.custom_forms.inc
+;files[] = dh_wsp.admin.inc
+;files[] = views/dh_wsp.views_default.inc
+
+version = "7.x-1.0"
