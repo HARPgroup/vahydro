@@ -1,0 +1,130 @@
+<?php
+
+function dh_modflow_schema() {
+  $schema = array();
+  return $schema;
+}
+
+function dh_modflow_install() {
+  dh_modflow_feature_bundles();
+  dh_modflow_fields();
+  dh_modflow_references();
+  dh_define_modflow_bundles();
+}
+
+
+function dh_modflow_bundles() {
+  $typedefs = array(
+    'modflow_grid' => array('bundle' => 'modflow_grid', 'name' => 'MODFLOW Grid & Layer', 'description' => 'dH Vector Features to describe MODFLOW surface cell grid, and layer/HUF intersections.'),
+	);
+
+	foreach ($typedefs as $key => $thistype) {
+		dh_base_feature_type_save($thistype);
+	  //dh_initialize_fields($key);
+	}
+}
+
+function dh_modflow_references() {
+  // add updated references
+  $refdefs = array();
+  
+  // Boreholelog refs
+  $refdefs[] = array(
+    'fieldname' => 'wellid',
+    'src_type' => 'dh_boreholelog',
+    'dest_type' => 'dh_feature',
+    'src_bundle' => 'dh_boreholelog',
+    'dest_bundle' => array('modflow_grid'),
+    'label' => 'MODFLOW Grid ID',
+    'select_type' => 'entityreference_autocomplete'
+  );
+  $bhl2well = field_read_field('wellid');
+  if (!isset($bhl2well['settings']['handler_settings']['target_bundles']['modflow_grid'])) {
+    $bhl2well['settings']['handler_settings']['target_bundles'][] = 'modflow_grid';
+    field_update_field($bhl2well);
+  }
+  $instance_info = field_info_instance('dh_boreholelog', 'wellid', 'dh_boreholelog');
+  if (!isset($instance_info['settings']['handler_settings']['target_bundles']['modflow_grid'])) {
+    $instance_info['settings']['handler_settings']['target_bundles'][] = 'modflow_grid';
+    field_update_instance($instance_info);
+  }
+  
+  // add new references
+  $refdefs = array();
+  // Link a Well Interval to a MODFLOW Layer 
+  $refdefs[] = array(
+    'fieldname' => 'modflow_layer_link',
+    'src_type' => 'dh_boreholelog',
+    'dest_type' => 'dh_boreholelog',
+    'src_bundle' => 'dh_boreholelog',
+    'dest_bundle' => NULL,
+    'label' => 'MODFLOW Grid ID',
+    'select_type' => 'entityreference_autocomplete'
+  );
+  dh_add_references($refdefs);
+}
+
+function dh_modflow_fields() {
+  // set up dh_feature fields here
+  $fields_fields = array(
+    'modflow_grid' => array(
+      'dh_geofield' => array('label' => 'Geometry', 'type' => 'geofield', 'display' => 'geofield_wkt', 'widget' => 'geofield_wkt'),
+    ),
+  );
+  $e = 'dh_feature';
+	foreach ($fields_fields as $key => $thistype) {
+		dh_initialize_fields($key, '', $e, $fields_fields);
+	}
+  
+}
+
+function dh_modflow_boreholelog_bundles() {
+  $typedefs = array(
+    'modflow_model_layer' => array('bundle' => 'modflow_model_layer', 'name' => 'MODFLOW Layer Interval', 'description' => 'Defines bounds for model layer'),
+    'modflow_model_huf' => array('bundle' => 'modflow_model_huf', 'name' => 'MODFLOW HUF Interval', 'description' => 'Defines bounds for model HUF'),
+  );
+  return $typedefs;
+}
+
+function dh_define_modflow_bundles() {
+  $bundles = dh_modflow_boreholelog_bundles();
+  foreach ($bundles as $thistype) {
+    if ($e = entity_create('dh_boreholelog_type', $thistype)) {
+      $e->save();
+    }
+  }
+}
+
+function dh_modflow_update_7101() {
+  $refdefs = array();
+  // Link a Well Interval to a MODFLOW Layer 
+  $refdefs[] = array(
+    'fieldname' => 'modflow_layer_link',
+    'src_type' => 'dh_boreholelog',
+    'dest_type' => 'dh_boreholelog',
+    'src_bundle' => 'dh_boreholelog',
+    'dest_bundle' => NULL,
+    'label' => 'MODFLOW Grid ID',
+    'select_type' => 'entityreference_autocomplete'
+  );
+  dh_add_references($refdefs);
+
+}
+
+function dh_modflow_update_7104() {
+  $refdefs = array();
+  dh_define_modflow_bundles();
+  db_query("UPDATE dh_feature set bundle = 'modflow_model_layer' where ftype = 'modflow_layer' ");
+  db_query("UPDATE field_data_wellid set bundle = 'modflow_model_layer' where wellid_target_id in (select hydroid from dh_feature where ftype = 'modflow_layer') ");
+  db_query("UPDATE dh_feature set bundle = 'modflow_model_huf' where  ftype = 'modflow_huf' ");
+  db_query("UPDATE field_data_wellid set bundle = 'modflow_model_huf' where wellid_target_id in (select hydroid from dh_feature where ftype = 'modflow_huf') ");
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function dh_modflow_uninstall () {
+
+}
+?>

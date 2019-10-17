@@ -1,0 +1,26 @@
+<?php
+
+//Implement hook_entity_info().
+
+function dh_modflow_entity_info() {
+  $return = array();
+  return $return;
+}
+
+// Implements hook_view_data_alter().
+
+function dh_modflow_views_data_alter(&$data) {
+
+  $data['dh_feature']['layerstohuf']['relationship'] = array(
+    'handler' => 'views_handler_relationship',
+    'label' => t('Join MODFLOW Layers Parent to MODFLOW HUF Grid'),
+    'base' => 'dh_feature',
+    'base field' => 'bundle',
+    'relationship field' => 'bundle',
+    'extra' => array(
+      0 => array('left_table' => 'dh_feature', 'field' => 'ftype', 'value' => 'modflow_layers'),
+      1 => array('left_table' => 'dh_feature', 'field' => 'bundle', 'value' => 'modflow_grid'),
+    ),
+  );
+}
+
