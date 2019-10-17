@@ -1,0 +1,9 @@
+name = dH VBO Module
+description = Adds actions compatible with VBO
+core = 7.x
+php = 5.3.0
+
+dependencies[] = views_bulk_operations
+dependencies[] = dh
+
+version = "7.x-1.01"

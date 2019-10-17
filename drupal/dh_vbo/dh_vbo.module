@@ -1,0 +1,390 @@
+<?php /**
+ * @file
+ * Implements a generic entity delete action. Uses Entity API if available.
+ */ function dh_vbo_action_info() {
+  return array(
+    'dh_vbo_prop2bhl' => array(
+      'type' => 'entity',
+      'label' => t('Migrate Serialized Log to Boreholelog Table'),
+      'configurable' => FALSE,
+      'behavior' => array('creates_property'),
+      'triggers' => array('any'),
+    ),
+  );
+}
+function dh_handle_fraction($q){
+  //check for a dash, signifying a whole number with a fraction
+  // replace dash with space
+  if(strrpos(trim($q), '-') > 0){
+    $q = substr(trim($q),0,1) . str_replace('-',' ', substr(trim($q),1));
+  }
+  //check for a space, signifying a whole number with a fraction
+  if(strstr($q, ' ')){
+      $wa = strrev($q);
+      $wb = strrev(strstr($wa, ' '));
+      $whole = true;//this is a whole number
+  }
+  //now check the fraction part
+  if(strstr($q, '/')){
+    if($whole==true){//if whole number, then remove the whole number and space from the calculations
+      $q = strstr($q, ' ');
+    }
+    $b = str_replace("/","",strstr($q, '/'));//this is the divisor
+    //isolate the numerator
+    $c = strrev($q);
+    $d = strstr($c, '/');
+    $e = strrev($d);
+    $a = str_replace("/","",$e);//the pre-final numerator
+    $sign = ($wb < 0) ? -1 : 1;
+    if($whole==true){//add the whole number to the calculations
+      $a = $a+($sign*$wb*$b);//new numerator is whole number multiplied by denominator plus original numerator
+    }
+    $q = $sign * floatval($a/$b);//this is now your decimal
+  }
+  return floatval($q);
+}
+function dh_validate_fraction($q){
+  if (!(strlen(trim($q)) > 0)) {
+    return FALSE;
+  }
+  return is_numeric(dh_handle_fraction($q));
+}
+function dh_handle_time2minutes($q) {
+  // could be minutes or could be hours:minutes
+  $multiplier = 1;
+  $qparts = explode(':', $q);
+  $minutes = 0;
+  while ($part = array_pop($qparts)) {
+    $part = floatval($part) * $multiplier;
+    $multiplier = $multiplier * 60;
+    $minutes += $part;
+  }
+  return $minutes;
+}
+function dh_check_array_allnull($row) {
+  // checks to see if there are a bunch of fields all with null values
+  $allnull = TRUE;
+  foreach ($row as $val) {
+    if (! (($val === NULL) or (trim($val) == ''))) {
+      $allnull = FALSE;
+    }
+  }
+  return $allnull;
+}
+function dh_bhl_well_link_update(&$bhl_entity, $action, $wellid = NULL) {
+  $value = array('target_id' => $wellid);
+  $lang = array_shift(array_keys($bhl_entity->wellid));
+  if (!$lang) {
+    $lang = 'und';
+  }
+  $linked = false;
+  foreach ($bhl_entity->wellid[$lang] as $key => $ref) {
+    if ($ref['target_id'] == $wellid) {
+      $linked = true;
+      $linkey = $key;
+    }
+  }
+  //drupal_set_message("Initial Station links: " . print_r($bhl_entity->wellid,1));
+  switch ($action) {
+    case 'replace':
+      // remove old links, then proceed with add link
+      $bhl_entity->wellid = array(
+        $lang => array(),
+      );
+      $linked = FALSE;
+    case 'add':
+      if (!$linked) {
+        $bhl_entity->wellid[$lang][] = $value;
+        drupal_set_message("Boreholelog $bhl_entity->ftype $bhl_entity->fromdepth to $bhl_entity->todepth linked to well 
+ID $wellid");
+      } else {
+        drupal_set_message("Boreholelog $bhl_entity->ftype $bhl_entity->fromdepth to $bhl_entity->todepth already linked 
+to well ID $wellid");
+      }
+    break;
+    
+    case 'delete':
+    if ($linked) {
+      unset($bhl_entity->wellid[$lang][$linkey]);
+      drupal_set_message("Boreholelog $bhl_entity->ftype removed from well $wellid");
+    }
+    break;
+  }
+}
+function dh_validate_any($value) {
+  return TRUE;
+}
+function dh_validate_posnum($value) {
+  $value = dh_handle_fraction($value);
+  if ((!is_numeric($value) || intval($value) != $value || $value <= 0)) {
+    return FALSE;
+  }
+  return TRUE;
+}
+class ViewsBulkOperationsDHProp2BHL {
+  
+  function getConfig() {
+    $type_map = array(
+      'gw2_hole_intervals' => array(
+        'ftype' => 'hole',
+        'map' => array(
+          1 => array('column' => 'diameter', 'type'=>'numeric', 'format'=>'dh_handle_fraction', 'validate' => 
+'dh_validate_posnum', 'required'=> FALSE),
+          2 => array('column' => 'fromdepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> FALSE, 'default' => 0),
+          3 => array('column' => 'todepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE),
+        ),
+      ),
+      'gw2_casing_intervals' => array(
+        'ftype' => 'casing',
+        'map' => array(
+          1 => array('column' => 'diameter', 'type'=>'numeric', 'format'=>'dh_handle_fraction', 'validate' => 
+'dh_validate_posnum', 'required'=> FALSE),
+          2 => array('column' => 'fromdepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE, 'default' => 0),
+          3 => array('column' => 'todepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE),
+          4 => array('column' => 'material', 'type'=>'varchar', 'validate' => 'dh_validate_any', 'required'=> FALSE),
+          5 => array('entity_type' => 'dh_properties', 'column' => 'well_casing_wgt', 'type'=>'code', 'validate' => 
+'dh_validate_any', 'required'=> FALSE, 'vardef' => array('varkey'=>'well_casing_wgt', 'propname'=>'well_casing_wgt') ),
+          6 => array('entity_type' => 'dh_properties', 'column' => 'well_casing_thickness', 'type'=>'code', 'validate' => 
+'dh_validate_any', 'required'=> FALSE, 'vardef' => array('varkey'=>'well_casing_thickness', 
+'propname'=>'well_casing_thickness')),
+        ),
+      ),
+      'gw2_screen_intervals' => array(
+        'ftype' => 'screen',
+        'map' => array(
+          1 => array('column' => 'diameter', 'type'=>'numeric', 'format'=>'dh_handle_fraction', 'validate' => 
+'dh_validate_posnum', 'required'=> FALSE),
+          2 => array('column' => 'fromdepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE),
+          3 => array('column' => 'todepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE),
+          4 => array('entity_type' => 'dh_properties', 'column' => 'mesh_size', 'format'=>'dh_handle_fraction', 
+'type'=>'numeric', 'validate' => 'dh_validate_any', 'required'=> FALSE, 'vardef' => 
+array('varkey'=>'well_screen_mesh_size', 'propname'=>'well_screen_mesh_size') ),
+          5 => array('column' => 'material', 'type'=>'varchar', 'validate' => 'dh_validate_any', 'required'=> FALSE),
+        ),
+      ),
+      'gw2_waterzone_intervals' => array(
+        'ftype' => 'waterzone',
+        'map' => array(
+          1 => array('column' => 'fromdepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE, 'default' => 0),
+          2 => array('column' => 'todepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE),
+          3 => array('entity_type' => 'dh_properties', 'column' => 'estimated_yield', 'type'=>'numeric', 'validate' => 
+'dh_validate_posnum', 'required'=> FALSE, 'format'=>'dh_handle_fraction', 'vardef' => array('varkey'=>'estimated_yield', 
+'propname'=>'estimated_yield') ),
+        ),
+      ),
+      'gw2_gravelpack_intervals' => array(
+        'ftype' => 'gravelpack',
+        'map' => array(
+          1 => array('column' => 'fromdepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE, 'default' => 0),
+          2 => array('column' => 'todepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE),
+          3 => array('column' => 'material', 'type'=>'varchar', 'validate' => 'dh_validate_any', 'required'=> FALSE),
+          4 => array('column' => 'diameter', 'type'=>'numeric', 'format'=>'dh_handle_fraction', 'validate' => 
+'dh_validate_posnum', 'required'=> FALSE),
+        ),
+      ),
+      'gw2_grout_intervals' => array(
+        'ftype' => 'grout',
+        'map' => array(
+          1 => array('column' => 'material', 'type'=>'varchar', 'validate' => 'dh_validate_any', 'required'=> FALSE),
+          2 => array('column' => 'fromdepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE, 'default' => 0),
+          3 => array('column' => 'todepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE),
+          4 => array('entity_type' => 'dh_properties', 'column' => 'well_grout_method', 'type'=>'varchar', 'validate' => 
+'dh_validate_posnum', 'required'=> FALSE, 'vardef' => array('varkey'=>'well_grout_method', 
+'propname'=>'well_grout_method') ),
+        ),
+      ),
+      'gw2_drillers_log' => array(
+        'ftype' => 'drillers_log',
+        'map' => array(
+          1 => array('column' => 'fromdepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE, 'default' => 0),
+          2 => array('column' => 'todepth', 'type'=>'numeric', 'validate' => 'dh_validate_fraction', 
+'format'=>'dh_handle_fraction', 'required'=> TRUE),
+          3 => array('column' => 'material', 'type'=>'varchar', 'validate' => 'dh_validate_any', 'required'=> FALSE),
+          4 => array('entity_type' => 'dh_properties', 'column' => 'driller_log_comments', 'type'=>'text', 'validate' => 
+'dh_validate_any', 'required'=> FALSE, 'vardef' => array('varkey'=>'driller_log_comments', 
+'propname'=>'driller_log_comments')),
+          5 => array('entity_type' => 'dh_properties', 'column' => 'well_drilling_time', 'type'=>'numeric', 'validate' => 
+'dh_validate_posnum', 'format' => 'dh_handle_time2minutes', 'required'=> FALSE, 'vardef' => 
+array('varkey'=>'well_drilling_time', 'propname'=>'well_drilling_time') ),
+        ),
+      ),
+    );
+    return array('type_map' => $type_map);
+  }
+  
+  function migrate($prop) {
+    $config = $this->getConfig();
+    $type_map = $config['type_map'];
+    $bundle = 'dh_boreholelog';
+    if (property_exists($prop, 'proptext')) {
+      $raw = array_shift($prop->proptext['und']);
+      $table_info = unserialize($raw['value']);
+      $fid = $prop->featureid;
+      if ($table_info) {
+        //dpm($table_info,'table info');
+        $type = $prop->propname;
+        foreach ($table_info as $row) {
+          $props = array();
+          $dh_props = array(); // for attached properties
+          if (is_array($row) and !dh_check_array_allnull($row)) {
+            // process, otherwise it is some garbage from an oold webform bug
+            $config = $type_map[$type];
+            $props['bundle'] = $bundle;
+            $props['ftype'] = $config['ftype'];
+            //dpm($row, 'row');
+            //dpm($config, 'config');
+            //echo "Found property of type $type <br>";
+            if (count($config['map']) > 0) {
+              // we only handle if there are map values
+              $valid = TRUE; // assume good till proven wrong
+              foreach ($config['map'] as $key => $settings) {
+                $col = $settings['column'];
+                //echo "Handling $col: <br>";
+                $entity_type = isset($settings['entity_type']) ? $settings['entity_type'] : 'bhl_property';
+                $valtype = isset($settings['type']) ? $settings['type'] : 'numeric';
+                // validation function
+                $vf = isset($settings['validate']) ? $settings['validate'] : 'dh_validate_any';
+                // format function
+                $ff = isset($settings['format']) ? $settings['format'] : 'trim';
+                $strict_null = isset($settings['strict_null']) ? $settings['strict_null'] : TRUE;
+                $val = trim($row[$key]);
+                if ($vf($val) or !$settings['required'] or isset($settings['default'])) {
+                  //echo "$col, type: $valtype, entity_type: $entity_type : $vf($val) = TRUE, val = $ff($val) = " . 
+$ff($val) . "<br>";
+                  if (!$vf($val)) {
+                    // check for a default to use here
+                    $val = isset($settings['default']) ? $settings['default'] : $val;
+                  }
+                } else {
+                  // create a time series event to log this
+                  $warning = "$key $vf($val) = FALSE - skipping entry $prop->pid on well $prop->featureid" . 
+print_r($row,1);
+                  $valid = FALSE;
+                }
+                switch ($entity_type) {
+                  case 'dh_properties':
+                    $dh_props[$col] = $settings['vardef'];
+                    switch($valtype) {
+                      case 'numeric':
+                      $dh_props[$col]['propvalue'] = $ff($val);
+                      break;
+                      case 'code':
+                      $dh_props[$col]['propcode'] = $ff($val);
+                      break;
+                      case 'text':
+                      $dh_props[$col]['proptext']['und'][] = array('value' => $ff($val));
+                      break;
+                      default:
+                      $dh_props[$col]['propcode'] = $ff($val);
+                      break;
+                    }
+                  break;
+                  
+                  default:
+                    $props[$col] = $ff($val);
+                  break;
+                }
+              }
+              if ($valid) {
+                // see if there is already a matching interval for this
+                // Using:
+                // * ftype, fromdepth, todepth, and well entity_id
+                $efq = new EntityFieldQuery();
+                $efq->entityCondition('entity_type', 'dh_boreholelog');
+                $efq->propertyCondition('ftype', $config['ftype'], '=');
+                $efq->propertyCondition('fromdepth', $props['fromdepth'], '=');
+                $efq->propertyCondition('todepth', $props['todepth'], '=');
+                $efq->fieldCondition('wellid', 'target_id', $fid, '=');
+                // then, either load it, or create a new one to matching
+                //dpm($efq,'loading BHL');
+                $result = $efq->execute();
+                //dpm($props,'applying props');
+                if (isset($result['dh_boreholelog'])) {
+                  $rez = array_shift($result['dh_boreholelog']);
+                  $bhl = entity_load_single('dh_boreholelog', $rez->bhlid);
+                  foreach ($props as $key => $val) {
+                    if (property_exists($bhl,$key)) {
+                      $bhl->$key = $val;
+                    }
+                  }
+                } else {
+                  //echo "No record found - creating new one<br>";
+                  $bhl = entity_create('dh_boreholelog', $props);
+                }
+                //dpm($dh_props,'dh_props');
+                if ($bhl) {
+                 //dpm($bhl,'BHL before saving');
+                  dh_bhl_well_link_update($bhl, 'replace', $fid);
+                  entity_save('dh_boreholelog', $bhl);
+                  // check now to add properties
+                  //dpm($bhl,'BHL after saving');
+                  foreach ($dh_props as $thisprop) {
+                    $thisprop['featureid'] = $bhl->bhlid;
+                    $thisprop['entity_type'] = 'dh_boreholelog';
+                    $thisprop['bundle'] = isset($thisprop['bundle']) ? $thisprop['bundle'] : 'dh_properties';
+                    $vars = dh_varkey2varid($thisprop['varkey']);
+                   //dpm($vars,'var returned');
+                    $thisprop['varid'] = array_shift($vars);
+                    $efq = new EntityFieldQuery();
+                    $efq->entityCondition('entity_type', 'dh_properties');
+                    $efq->propertyCondition('varid', $thisprop['varid'], '=');
+                    $efq->propertyCondition('entity_type', 'dh_boreholelog', '=');
+                    $efq->propertyCondition('featureid', $thisprop['featureid'], '=');
+                    // then, either load it, or create a new one to matching
+                    // validate all fields
+                    // apply data if update/insert is requested
+                    // save BHL entity
+                    //$criteria =
+                    $result = $efq->execute();
+                    if (isset($result['dh_properties'])) {
+                      $prez = array_shift($result['dh_properties']);
+                      $prez = entity_load_single('dh_properties', $prez->pid);
+                      foreach ($thisprop as $key => $val) {
+                        if (property_exists($prez,$key) or ($key == 'proptext')) {
+                          $prez->$key = $val;
+                        }
+                      }
+                    } else {
+                     //dpm($thisprop,'No record found - adding property');
+                      $prez = entity_create('dh_properties', $thisprop);
+                    }
+                   //dpm($prez,'final property');
+                    entity_save('dh_properties', $prez);
+                  }
+                }
+              } else {
+                drupal_set_message($warning, 'warning', FALSE);
+              }
+            }
+          } else {
+            if (dh_check_array_allnull($row) ) {
+             //echo "Null row given, skipping. <br>";
+            }
+          }
+        }
+      } else {
+       //dpm($raw,'could not be unserialized');
+      }
+    }
+  
+  }
+}
+function dh_vbo_prop2bhl($entity, $context) {
+  $info = entity_get_info($context['entity_type']);
+  $entity_id = $entity->{$info['entity keys']['id']};
+  $converter = new ViewsBulkOperationsDHProp2BHL;
+  $converter->migrate($entity);
+}
