@@ -453,10 +453,10 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   }
 
   public function save(&$entity) {
-    if (empty ($entity->propcode)){
+    if (empty ($entity->propcode)) {
       $entity->propcode='automatic';
-      }
-    if ($entity->propcode=='automatic'){
+    }
+    if ($entity->propcode=='automatic') {
       $datatable = $this->tableDefault($entity);
       $this->setCSVTableField($entity, $datatable);
     }
