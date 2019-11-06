@@ -77,6 +77,7 @@ class dHRedundancyReview extends dHVariablePluginDefault {
   
   public function formRowSave(&$rowvalues, &$row) {
     // may call dh_move_timeseries_events
+  if (in_array($row->tscode, array('closed_duplicate_verified','closed_duplicate_apriori'))){
     dh_move_timeseries_events ($row->featureid, $row->tsvalue, $row->entity_type, $row->entity_type, $mindate = FALSE, $maxdate = FALSE);
   }
 }
