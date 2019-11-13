@@ -24,3 +24,11 @@ function dh_modflow_views_data_alter(&$data) {
   );
 }
 
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function dh_modflow_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'dh' && $plugin_type == 'dh_variables') {
+    return 'plugins/' . $plugin_type;
+  }
+}
