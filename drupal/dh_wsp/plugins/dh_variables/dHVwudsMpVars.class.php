@@ -284,6 +284,17 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   var $default_bundle = 'om_data_matrix';
   var $matrix_field = 'field_dh_matrix';
 
+  public function transposeData($data)
+  {
+    $retData = array();
+      foreach ($data as $row => $columns) {
+        foreach ($columns as $row2 => $column2) {
+            $retData[$row2][$row] = $column2;
+        }
+      }
+    return $retData;
+  }
+
   public function hiddenFields() {
     return array('pid', 'startdate', 'enddate', 'varid', 'featureid', 'entity_type', 'bundle','dh_link_admin_pr_condition', 'propvalue');
   }
@@ -444,9 +455,14 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //   3. add clause in SQL to filter entity_type = 'dh_feature'
     //   4. test on d.bet - make sure that the line "if (!empty($historical)) {" in function tableDefault($entity) behaves as expected.
     
+    
     dpm($sql);
     $result = db_query($sql);
 	  dpm($result,'result');
+    
+    
+    $result = transposeData($result);
+    
     $record = $result->fetchAssoc();
 	  dpm($record,'record');
     return array_values($record); 
