@@ -456,15 +456,12 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //   4. test on d.bet - make sure that the line "if (!empty($historical)) {" in function tableDefault($entity) behaves as expected.
     
     
-    dpm($sql);
+    //dpm($sql);
     $result = db_query($sql);
-	  dpm($result,'result');
-    
-    
-    $result = transposeData($result);
-    
+	  //dpm($result,'result');   
+    //$result = transposeData($result);
     $record = $result->fetchAssoc();
-	  dpm($record,'record');
+	  //dpm($record,'record');
     return array_values($record); 
   }
 
