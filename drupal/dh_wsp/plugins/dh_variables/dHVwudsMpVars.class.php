@@ -284,16 +284,16 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   var $default_bundle = 'om_data_matrix';
   var $matrix_field = 'field_dh_matrix';
 
-  public function transposeData($data)
-  {
-    $retData = array();
-      foreach ($data as $row => $columns) {
-        foreach ($columns as $row2 => $column2) {
-            $retData[$row2][$row] = $column2;
-        }
-      }
-    return $retData;
-  }
+//  public function transposeData($data)
+//  {
+//    $retData = array();
+//      foreach ($data as $row => $columns) {
+//        foreach ($columns as $row2 => $column2) {
+//            $retData[$row2][$row] = $column2;
+//        }
+//      }
+//    return $retData;
+//  }
 
   public function hiddenFields() {
     return array('pid', 'startdate', 'enddate', 'varid', 'featureid', 'entity_type', 'bundle','dh_link_admin_pr_condition', 'propvalue');
