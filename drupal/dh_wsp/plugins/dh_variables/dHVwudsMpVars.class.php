@@ -478,7 +478,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
       $datatable = $this->tableDefault($entity);
       dpm($datatable,'datatable');  
       $datatable = transposeData($datatable);
-      dpm($datatable,'datatable');
+      dpm($datatable,'datatable2');
       $this->setCSVTableField($entity, $datatable);
     }
   }
