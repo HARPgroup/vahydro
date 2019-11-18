@@ -292,7 +292,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     // special render handlers when displaying in a grouped property block
     // $row->propvalue = number_format($row->propvalue, 3);
   }
-	
+  
   public function formRowEdit(&$rowform, $entity) {
     // call parent class to insure proper bundle and presence of tablefield
     parent::formRowEdit($rowform, $entity);
@@ -448,9 +448,15 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     $result = db_query($sql);
 	  dpm($result,'result');
     $record = $result->fetchAssoc();
-	  dpm($record,'record');
+	  dpm($record,'record');  
     return array_values($record); 
   }
+
+  public function transpose($record) {
+    array_unshift($record, null);
+    return call_user_func_array('array_map', $record);
+  }
+  dpm($record,'record');
 
   public function save(&$entity) {
     if (empty ($entity->propcode)) {
