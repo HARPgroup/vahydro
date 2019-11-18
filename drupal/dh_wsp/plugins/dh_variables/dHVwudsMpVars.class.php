@@ -340,23 +340,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
       $default_table[1] = $historical;
     }
     dpm($default_table,'default_table');    
-    
-    
-    $transpose = array_reduce(
-        $default_table,
-        function ($acum, $row) {
-            array_walk(
-                $row,
-                public function($column, $index, $acum) {
-                    $acum[$index][] = $column;
-                },
-                &$acum
-            );
-            return $acum;
-        },
-        array()
-    );
-    
+
     
     return $default_table;
   }
