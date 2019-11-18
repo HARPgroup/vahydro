@@ -312,16 +312,16 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     );
   }
   
-   public function transposeData($data)
-  {
-    $retData = array();
-      foreach ($data as $row => $columns) {
-        foreach ($columns as $row2 => $column2) {
-            $retData[$row2][$row] = $column2;
-        }
-      }
-    return $retData;
-  }
+//   public function transposeData($data)
+//  {
+//    $retData = array();
+//      foreach ($data as $row => $columns) {
+//        foreach ($columns as $row2 => $column2) {
+//            $retData[$row2][$row] = $column2;
+//        }
+//      }
+//    return $retData;
+//  }
     
   public function tableDefault($entity) {
     // Returns simple array keyed table
@@ -477,8 +477,6 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     if ($entity->propcode=='automatic') {
       $datatable = $this->tableDefault($entity);
       dpm($datatable,'datatable');  
-      $datatable = transposeData($datatable);
-      dpm($datatable,'datatable2');
       $this->setCSVTableField($entity, $datatable);
     }
   }
