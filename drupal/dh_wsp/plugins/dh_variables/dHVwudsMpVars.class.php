@@ -456,6 +456,19 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     return array_values($record); 
   }
 
+  function transposeData($record)
+  {
+    $retData = array();
+      foreach ($record as $row => $columns) {
+        foreach ($columns as $row2 => $column2) {
+            $retData[$row2][$row] = $column2;
+        }
+      }
+    return $retData;
+  }
+
+  $record = transposeData($record);
+
   public function save(&$entity) {
     if (empty ($entity->propcode)) {
       $entity->propcode='automatic';
