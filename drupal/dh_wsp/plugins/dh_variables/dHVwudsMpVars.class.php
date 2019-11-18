@@ -344,6 +344,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
       $mos, 
       $historical
     );
+    dpm($data3,'data3'); 
     
     return $default_table;
   }
