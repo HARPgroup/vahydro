@@ -339,6 +339,12 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
       $default_table[1] = $historical;
     }
     dpm($default_table,'default_table');  
+    
+    $data3 = array(
+      $default_table[], 
+      $default_table[1]
+    );
+    
     return $default_table;
   }
 
@@ -476,7 +482,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     }
     if ($entity->propcode=='automatic') {
       $datatable = $this->tableDefault($entity);
-      dpm($datatable,'datatable');  
+      //dpm($datatable,'datatable');  
       $this->setCSVTableField($entity, $datatable);
     }
   }
