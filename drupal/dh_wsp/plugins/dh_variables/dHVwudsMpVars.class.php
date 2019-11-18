@@ -347,7 +347,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
         function ($acum, $row) {
             array_walk(
                 $row,
-                function($column, $index, $acum) {
+                public function($column, $index, $acum) {
                     $acum[$index][] = $column;
                 },
                 &$acum
@@ -356,7 +356,6 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
         },
         array()
     );
-    print_r($transpose);
     
     
     return $default_table;
