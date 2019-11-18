@@ -312,7 +312,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     );
   }
   
-   public function transposeData($data)
+/*    public function transposeData($data)
   {
     $retData = array();
       foreach ($data as $row => $columns) {
@@ -322,6 +322,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
       }
     return $retData;
   }
+*/
     
   public function tableDefault($entity) {
     // Returns simple array keyed table
@@ -344,7 +345,6 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
       $mos, 
       $historical
     );
-    $data3 = transposeData($data3);
     dpm($data3,'data3'); 
     
     return $default_table;
