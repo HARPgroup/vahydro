@@ -293,16 +293,6 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     // $row->propvalue = number_format($row->propvalue, 3);
   }
   
-  public function transposeData($record) {
-    $retrecord = array();
-      foreach ($record as $row => $columns) {
-        foreach ($columns as $row2 => $column2) {
-            $retrecord[$row2][$row] = $column2;
-        }
-      }
-    return $retrecord;
-  }
-  
   public function formRowEdit(&$rowform, $entity) {
     // call parent class to insure proper bundle and presence of tablefield
     parent::formRowEdit($rowform, $entity);
@@ -461,10 +451,6 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
 	  dpm($record,'record');  
     return array_values($record); 
   }
-
-  $record = transposeData($record);
-  dpm($record,'record2');
-  
 
   public function save(&$entity) {
     if (empty ($entity->propcode)) {
