@@ -450,24 +450,12 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     $record = $result->fetchAssoc();
 	  dpm($record,'record');  
     
-    $flipped = array_flip($record);
-    dpm($flipped,'flipped');  
+    //$flipped = array_flip($record);
+    //dpm($flipped,'flipped');  
     
     return array_values($record); 
   }
 
-  public function transposeData($data)
-  {
-    $retData = array();
-      foreach ($data as $row => $columns) {
-        foreach ($columns as $row2 => $column2) {
-            $retData[$row2][$row] = $column2;
-        }
-      }
-    return $retData;
-  }
-
-  $record = transposeData($record);
 
   public function save(&$entity) {
     if (empty ($entity->propcode)) {
