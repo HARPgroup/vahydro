@@ -330,6 +330,55 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     return $default_table;
   }
 
+  public function getHistoricalMonthlyDistroRows($entity) {
+    // Put SQL code here and transform into a CSV style array with 12 monthly fraction values.
+    // example: return array(0.0833, 0.0833,...);	
+	  $sql = "  select thismo, ";
+    $sql .= " case ";
+    $sql .= "   when sum_mon.total is null then 0.0000 ";
+    $sql .= "   else cast((sum_mon.total / annual.sum_all) as decimal(10,4)) ";
+    $sql .= " end as pct_of_annual ";
+    $sql .= " from  ";
+    $sql .= "   (select to_char(to_timestamp(tstime), 'MM') as thismo, sum(tsvalue) as total ";
+    $sql .= "   from dh_timeseries as ts ";
+    $sql .= "   inner join dh_variabledefinition as vd on ts.varid = vd.hydroid ";
+    $sql .= "   where featureid in ( ";
+    $sql .= "     select entity_id  ";
+    $sql .= "     from field_data_dh_link_facility_mps   ";
+    $sql .= "     where dh_link_facility_mps_target_id = $entity->featureid  ";
+    $sql .= "     and entity_type = 'dh_feature' ";
+    $sql .= "   ) ";
+    $sql .= "   and vd.varkey = '$this->raw_data_varkey'  ";
+    $sql .= "   and date_part('month',to_timestamp(tstime)) = 1 ";
+    $sql .= " ) as sum_mon ";
+    $sql .= " left outer join (";
+    $sql .= "   select sum(tsvalue) as sum_all ";
+    $sql .= "   from dh_timeseries as ts ";
+    $sql .= "   inner join dh_variabledefinition as vd on ts.varid = vd.hydroid ";
+    $sql .= "   where featureid in ( ";
+    $sql .= "     select entity_id  ";
+    $sql .= "     from field_data_dh_link_facility_mps  ";
+    $sql .= "     where dh_link_facility_mps_target_id = $entity->featureid  ";
+    $sql .= "       and entity_type = 'dh_feature' ";
+    $sql .= "    ) ";
+	  $sql .= "	  and vd.varkey = '$this->raw_data_varkey' ";
+    $sql .= " ) as annual" ;
+	$sql .= "	on (1 = 1) ";
+	$sql .= "	where annual.sum_all > 0 ";
+    // @todo: 
+    //   1. replace all instances of 72023 with $entity->featureid, 
+    //   2. replace all instances of wd_mgm with $this->raw_data_varkey, 
+    //   3. add clause in SQL to filter entity_type = 'dh_feature'
+    //   4. test on d.bet - make sure that the line "if (!empty($historical)) {" in function tableDefault($entity) behaves as expected.
+    
+    //dpm($sql,'sql');
+    $result = db_query($sql);
+	  //dpm($result,'result');
+    $record = $result->fetchAssoc();
+	  //dpm($record,'record');
+    return array_values($record); 
+  }
+
   public function getHistoricalMonthlyDistro($entity) {
     // Put SQL code here and transform into a CSV style array with 12 monthly fraction values.
     // example: return array(0.0833, 0.0833,...);	
