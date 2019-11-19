@@ -1,0 +1,229 @@
+<?php
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function dh_perms_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'access') {
+    return 'plugins/' . $plugin_type;
+  }
+  if ($owner == 'dh' && $plugin_type == 'dh_variables') {
+    return 'plugins/' . $plugin_type;
+  }
+}
+
+function dh_perms_contact_perms($uid, $entity_id, $entity_type, &$entity_id_cache = array(), &$user_perm_cache = array(), $max_depth = 25) {
+  // * check if a contact already exists in contact_user_cache 
+  //   - if so, DO NOT update perms because we assume perms set closest to entity 
+  //     of interest over-ride upstreams settings (whether more or less restrictive).
+  //   - if not, proceed
+  // * We can over-ride this check to obtain full tree by submitting uid = FALSE
+  if ($uid && isset($user_perm_cache[$uid])) {
+    return;
+  }
+  // this just returns an array of users that are connected to this entity
+  // via dh_contact references that are eligible to convey permissions
+  if (count($entity_id_cache) > $max_depth) {
+    // @todo: pop a warning in the system messages and in the dh_timeseries table
+    //  since this should not happen as vast majority of upstream relationships
+    //  should have a single entity per reference type
+    return;
+  }
+ 
+  
+  //*****
+  // 2) Check for infinite loop
+  //*****
+  // return without further ado if this entity_id is in the entity_id_cache
+  if (in_array("$entity_type$entity_id", $entity_id_cache)) {
+    return;
+  }
+  // Do not need to add entity to cache
+  // to save memory since we avoid loading twice anyway
+  $entity_id_cache["$entity_type$entity_id"] = array(
+    'entity_id' => $entity_id, 
+    'entity_type'=>$entity_type,
+  );
+  
+  // obtain list of entity_references that can propagate permissions
+  // @todo: make this administrator settable and stored in a table.  
+  // Hard-wired list:
+  $eligible_erefs = array(
+    'dh_link_admin_location',
+    'dh_link_feature_submittal',
+    'dh_link_admin_reg_holder',
+    'dh_link_admin_fa_or',
+    'dh_link_facility_mps',
+    'dh_link_admin_submittal_pr',
+    'field_dh_link_admin_coverage', // links an AR record for locality to a feature
+    'field_dha_link_modification', // submittal attached to a submittal
+  );
+  
+  // list of entity references that connect  an entity to a dh contact record
+  // @todo: make these administrator settable and stored in a table.  
+  // @todo: forward refs, that is, from a feature to a contact
+  //        these don't exist yet, and while harder to import with feeds,
+  //        better overall from a speed and usability standpoint?
+  $forward_contact_erefs = array(
+  );
+  // list of entity references that connect a dh contact record to an entity
+  // @todo: make these administrator settable and stored in a table.  
+  $reverse_contact_erefs = array(
+    'dh_link_feature_contact',
+    'dh_link_admin_contact',
+  );
+  
+  // obtain list of contact ftypes and their permissions
+  // @todo: make this administrator settable and stored in a table.  
+  // Hard-wired list:
+  // 7 - rwx (read, write, execute - execute means modify contacts
+  //       NO DELETE perms are given with this module, only uid ownership permits
+  //       DELETE
+  //       Care must be taken such that all records created in code should set
+  //       owner to a planner or permit writer in order to deny delete privileges
+  // 6 - rw
+  // 4 - r 
+  $contact_ftype_perms = array(
+    'manager' => '7',
+    'owner' => '7',
+    'primary' => '6',
+    'secondary' => '6',
+    'reporter' => '6',
+    'readonly' => '4',
+  );
+  $perm_text = dh_perms_perm_options();
+  $entity = entity_load_single($entity_type, $entity_id);
+  $finfo = array();
+  if(is_object($entity)) {
+    list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+    $finfo = field_info_instances($entity_type, $bundle);
+    //*****
+    // 3) Get tree of contacts associated with entity
+    // * Check entity for $contact_erefs - if it has them
+    //   * Load all contacts associated with this entity
+    // 
+    foreach ($reverse_contact_erefs as $contact_type) {
+      //dpm($entity->$contact_type, "checking reverse $contact_type");
+      $efq = new EntityFieldQuery();
+      $efq->entityCondition('entity_type', 'dh_adminreg_contact', '=');
+      $efq->fieldCondition($contact_type, 'target_id', $entity_id, '=');
+      if ($uid) {
+        $efq->fieldCondition('dh_link_user_contact', 'target_id', $uid, '=');
+      }
+      $contacts = $efq->execute();
+      //dpm($efq, 'efq object');
+      //dpm($contacts, 'efq result');
+      if (isset($contacts['dh_adminreg_contact'])) {
+        foreach ($contacts['dh_adminreg_contact'] as $ref) {
+          $contact = entity_load_single('dh_adminreg_contact', $ref->contactid);
+          // load them all
+          //dpm($contact,'contact');
+          $cuid = isset($contact->dh_link_user_contact['und']) ? $contact->dh_link_user_contact['und'][0]['target_id'] : 'nullid_' . count($user_perm_cache);
+          $contact->ftype = ($contact->ftype == '') ? 'none' : $contact->ftype;
+          if (!$uid || ($cuid == $uid)) {
+            // we do not overwrite real uid entries, but not all contacts have uid
+            if (!isset($user_perm_cache[$cuid])) {
+              $user_perm_cache[$cuid] = array(
+                'uid' => $cuid,
+                'contactid' => $contact->contactid,
+                'ftype' => $contact->ftype,
+                'perms' => $contact_ftype_perms[$contact->ftype],
+                'perm_text' => $perm_text[$contact_ftype_perms[$contact->ftype]],
+                // provide info on where these permissions came from for debugging
+                'src_entity_type' => $entity_type,
+                'src_entity_bundle' => $bundle,
+                'src_entity_id' => $entity_id,
+              );
+            }
+          }
+        }
+      }
+    }    
+    // @todo: this is not yet implemented, and code is therefore untested
+    foreach ($forward_contact_erefs as $contact_type) {
+     //dpm($entity->$contact_type, "checking $contact_type");
+      $query = new EntityFieldQuery();
+      $entities = $query->execute();
+      if (isset($finfo[$contact_type])) {
+        // load contacts
+        if (!property_exists($entity, $contact_type)) {
+          continue;
+        }
+        $contacts = $entity->$contact_type;
+        // get ref target entity_type 
+        $ctype = $finfo[$thisreftype]['settings']['target_type'];
+        // get ftype of contact record
+        if (isset($contacts['und'])) {
+          foreach ($contacts['und'] as $ref) {
+            $contact = entity_load_single('dh_contact', $ref['target_id']);
+            // load them all
+            $cuid = $contact->dh_link_user_contact['und'][0]['target_id'];
+            $contact->ftype = empty($contact->ftype) ? 'readonly' : $contact->ftype;
+            if (!$uid || ($cuid == $uid)) {
+              $user_perm_cache[$crec['target_id']] = array(
+                'uid' => $crec['target_id'],
+                'ftype' => $contact->ftype,
+                'perms' => $contact_ftype_perms[$contact->ftype],
+                // provide info on where these permissions came from for debugging
+                'src_entity_type' => $entity_type,
+                'src_entity_id' => $entity_id,
+              );
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  //*****
+  // 4) Check entity for $eligible_erefs
+  // * if it has then then recursively call this routine for each entity linked 
+  //   through the eligible eref
+  foreach ($eligible_erefs as $thisreftype) {
+    //dpm($entity->$thisreftype, "checking for $thisreftype");
+    if (isset($finfo[$thisreftype])) {
+      // get all referenced entities
+      // get ref target entity_type 
+      $refs = $entity->$thisreftype;
+      // if the target_type is set on the instance, use that, otherwise look at the field
+      if (isset($finfo[$thisreftype]['settings']['target_type'])) {
+        $ttype = $finfo[$thisreftype]['settings']['target_type'];
+      } else {
+        // @todo: should this be default, that is, should we never check the instance first?
+        // not on the instance, so try field_info_field(field_info_field
+        $finfof = field_info_field("$thisreftype");
+        $ttype = $finfof['settings']['target_type'];
+      }
+      if (isset($refs['und']) and $ttype) {
+        foreach ($refs['und'] as $ref) {
+          $tid = $ref['target_id'];
+          dh_perms_contact_perms($uid, $tid, $ttype, $entity_id_cache, $user_perm_cache, $max_depth);
+        }
+      } else {
+        if (!($ttype) ) {
+          watchdog('dh_perms', "Error: Failed to find target_type for $thisreftype ");
+        }
+      }
+    }
+  }
+}
+
+function dh_perms_user_entities($uid, $entity_type, $entity_id = 'all', &$entity_id_cache = array(), &$user_perm_cache = array(), $max_depth = 25) {
+  
+}
+
+function dh_perms_perm_options($p = FALSE) {
+  $opts = array(
+    0 => 'None (visible to all)',
+    2 => 'Write',
+    4 => 'Read',
+    6 => 'Read/Write',
+    7 => 'Read/Write/Delete',
+  );
+  if ($p) {
+    return $opts[$p];
+  }
+  return $opts;
+}
+
+?>
