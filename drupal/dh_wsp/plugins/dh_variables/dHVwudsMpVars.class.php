@@ -472,7 +472,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
 
 
   public function save(&$entity) {
-    dpm($entity,'entity');  
+    //dpm($entity,'entity');  
     if (empty ($entity->propcode)) {
       $entity->propcode='automatic';
     }
