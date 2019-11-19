@@ -1,0 +1,9 @@
+name = dH Permissions
+description = Adds special permissions inherited from Admin Reg contact features and entity references
+core = 7.x
+php = 5.3.0
+
+; should only need dh_adminreg which can provide all other dependencies
+dependencies[] = dh_adminreg
+
+stylesheets[all][] = dh_perms.css
