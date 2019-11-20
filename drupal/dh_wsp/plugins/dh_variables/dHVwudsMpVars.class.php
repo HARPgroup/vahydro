@@ -315,7 +315,8 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   public function tableDefault($entity) {
     // Returns simple array keyed table
     $default_table = array();
-    $mos = array('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
+    //$mos = array('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
+    $mos = array('mo_num', 'mo_frac');
     $default_table[] = $mos;
     $all_defaults = array_fill_keys(array_keys($mos), 0.0833);
     $default_table[] = $all_defaults;
