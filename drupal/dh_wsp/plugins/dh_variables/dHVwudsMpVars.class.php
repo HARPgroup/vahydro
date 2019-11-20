@@ -363,7 +363,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //$record = $result->fetchAssoc();
     //$record = $result->fetchAll(); //fetchAll() is closer...
     //$record = $result->fetchAllKeyed();
-    $result->fetchAllAssoc('id', PDO::FETCH_ASSOC);
+    $result->fetchAllAssocfetchAll(PDO::FETCH_BOTH);
     dpm($record,'record');
     return array_values($record); 
   }
