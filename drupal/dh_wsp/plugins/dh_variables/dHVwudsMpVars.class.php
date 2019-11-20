@@ -367,10 +367,10 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //$record = $result->fetchAllKeyed();
     //$record = $result->fetchAllAssoc();
     
-    $record = $result->fetchAll();
-    foreach ($records as $record) {
-        dpm($records,'recordsI');
-    }
+    $record = $result->fetchAssoc();
+    //foreach ($records as $record) {
+    //    dpm($records,'recordsI');
+    //}
     
     dpm($record,'record');
     return array_values($record); 
