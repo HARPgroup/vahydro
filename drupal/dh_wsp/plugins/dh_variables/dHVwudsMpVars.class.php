@@ -367,13 +367,20 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //$record = $result->fetchAllKeyed();
     //$record = $result->fetchAllAssoc();
     
-    $record = $result->fetchAllKeyed(1,2);
+    //$record = $result->fetchAssoc();
+    $record = resultToArray($result);
     
     dpm($record,'record');
     return array_values($record); 
   }
   
-  
+  public function resultToArray($result) {
+    $rows = array();
+    while($row = $result->fetch_assoc()) {
+        $rows[] = $row;
+    }
+    return $rows;
+}
   
   public function getHistoricalMonthlyDistroRows($entity) {
     // Put SQL code here and transform into a CSV style array with 12 monthly fraction values.
