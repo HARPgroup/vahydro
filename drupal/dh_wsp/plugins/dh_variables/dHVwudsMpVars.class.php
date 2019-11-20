@@ -320,9 +320,9 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     $all_defaults = array_fill_keys(array_keys($mos), 0.0833);
     $default_table[] = $all_defaults;
     $cat_defaults = $this->waterUserCategoryDefaults($entity);
-    $historical = $this->getHistoricalMonthlyDistro($entity);
+    //$historical = $this->getHistoricalMonthlyDistro($entity);
     //$historical = $this->getHistoricalMonthlyDistroRows($entity);
-    //$historical = $this->getHistoricalMonthlyDistroRowsALL($entity);
+    $historical = $this->getHistoricalMonthlyDistroRowsALL($entity);
     if (!empty($cat_defaults)) {
       $default_table[1] = $cat_defaults;
     }
