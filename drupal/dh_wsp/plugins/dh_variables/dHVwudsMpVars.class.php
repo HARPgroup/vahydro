@@ -329,8 +329,8 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     if (!empty($historical)) {
       $default_table[1] = $historical;
     }
-    //return $default_table;
-    return $historical;
+    return $default_table;
+    //return $historical;
   }
 
   public function getHistoricalMonthlyDistroRowsALL($entity) {
