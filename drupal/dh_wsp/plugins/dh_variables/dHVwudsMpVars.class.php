@@ -361,12 +361,13 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
         
     dpm($sql,'sql');        
     $result = db_query($sql);
-    dpm($result,'result');
+    dpm($result,'result'); //the query appears to be OK, its the fetch command that is only returning the first row
     //$record = $result->fetchAssoc();
     //$record = $result->fetchAll(); //fetchAll() is closer...
     //$record = $result->fetchAllKeyed();
     //$record = $result->fetchAllAssoc();
-    $record = $result->fetchAssoc();
+    
+    $record = $result->fetchAllAssoc('mo_num');
     
     dpm($record,'record');
     return array_values($record); 
