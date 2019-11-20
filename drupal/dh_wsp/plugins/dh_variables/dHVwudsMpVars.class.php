@@ -321,7 +321,8 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     $default_table[] = $all_defaults;
     $cat_defaults = $this->waterUserCategoryDefaults($entity);
     //$historical = $this->getHistoricalMonthlyDistro($entity);
-    $historical = $this->getHistoricalMonthlyDistroRows($entity);
+    //$historical = $this->getHistoricalMonthlyDistroRows($entity);
+    $historical = $this->getHistoricalMonthlyDistroRowsALL($entity);
     if (!empty($cat_defaults)) {
       $default_table[1] = $cat_defaults;
     }
@@ -331,6 +332,36 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     return $default_table;
   }
 
+  public function getHistoricalMonthlyDistroRowsALL($entity) {
+    $sql = "SELECT mo_num,"; 
+    $sql .= "  CASE WHEN ann_sum is null or ann_sum = 0 THEN 0.0833";
+    $sql .= "    ELSE CAST ((mo_sum/ann_sum) as decimal(10,4))";
+    $sql .= "  END AS mo_frac";
+    $sql .= "FROM (";
+    $sql .= "  SELECT date_part('month',to_timestamp(tstime)) AS mo_num, SUM(tsvalue) AS mo_sum ";
+    $sql .= "  FROM dh_timeseries";
+    $sql .= "  INNER JOIN dh_variabledefinition ON dh_timeseries.varid = dh_variabledefinition.hydroid";
+    $sql .= "  WHERE featureid IN (SELECT entity_id FROM field_data_dh_link_facility_mps WHERE dh_link_facility_mps_target_id = $entity->featureid)";
+    $sql .= "   AND dh_variabledefinition.varkey = '$this->raw_data_varkey' "; 
+    $sql .= "   GROUP BY date_part('month',to_timestamp(tstime)) ";
+    $sql .= "   ORDER BY date_part('month',to_timestamp(tstime))";
+    $sql .= ") AS foo";
+    $sql .= "LEFT OUTER JOIN (";
+    $sql .= "SELECT SUM(tsvalue) AS ann_sum ";
+    $sql .= "  FROM dh_timeseries";
+    $sql .= "  INNER JOIN dh_variabledefinition ON dh_timeseries.varid = dh_variabledefinition.hydroid";
+    $sql .= "  WHERE featureid IN (SELECT entity_id FROM field_data_dh_link_facility_mps WHERE dh_link_facility_mps_target_id = $entity->featureid)";
+    $sql .= "   AND dh_variabledefinition.varkey = '$this->raw_data_varkey' ";
+    $sql .= ") AS bar ";
+    $sql .= "ON (1 = 1)";    
+           
+    $result = db_query($sql);
+    $record = $result->fetchAssoc();
+    return array_values($record); 
+  }
+  
+  
+  
   public function getHistoricalMonthlyDistroRows($entity) {
     // Put SQL code here and transform into a CSV style array with 12 monthly fraction values.
     // example: return array(0.0833, 0.0833,...);	
