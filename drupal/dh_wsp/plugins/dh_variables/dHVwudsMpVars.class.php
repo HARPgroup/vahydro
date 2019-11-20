@@ -329,7 +329,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     }
     if (!empty($historical)) {
       //$default_table[1] = $historical;
-      $default_table[] = $historical;
+      $default_table[1] = $historical; //[] is first row, [1] is second row
     }
     return $default_table;
     //return $historical;
