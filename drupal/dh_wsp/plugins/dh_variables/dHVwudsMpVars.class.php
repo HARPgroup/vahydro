@@ -318,8 +318,8 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //$mos = array('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
     $mos = array('mo_num', 'mo_frac');
     $default_table[] = $mos;
-    $all_defaults = array_fill_keys(array_keys($mos), 0.0833);
-    $default_table[] = $all_defaults;
+    //$all_defaults = array_fill_keys(array_keys($mos), 0.0833);
+    //$default_table[] = $all_defaults;
     $cat_defaults = $this->waterUserCategoryDefaults($entity);
     //$historical = $this->getHistoricalMonthlyDistro($entity);
     //$historical = $this->getHistoricalMonthlyDistroRows($entity);
