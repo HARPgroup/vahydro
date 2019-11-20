@@ -353,7 +353,8 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     $sql .= "  WHERE featureid IN (SELECT entity_id FROM field_data_dh_link_facility_mps WHERE dh_link_facility_mps_target_id = $entity->featureid)";
     $sql .= "   AND dh_variabledefinition.varkey = '$this->raw_data_varkey' ";
     $sql .= ") AS bar ";
-    $sql .= "ON (1 = 1)";    
+    $sql .= "ON (1 = 1)";
+    $sql .= "WHERE ann_sum > 0";    
         
     dpm($sql,'sql');        
     $result = db_query($sql);
