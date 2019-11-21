@@ -372,7 +372,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //    dpm($records,'recordsI');
     //}
     
-    while ($record = fetchAssoc($result)) {
+    while ($result->fetchAssoc()) {
     print_r($record);
     }
     
