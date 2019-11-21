@@ -337,7 +337,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
 
   public function getHistoricalMonthlyDistroRowsALL($entity) {
     $sql = " SELECT mo_num, "; 
-    $sql .= "   CASE WHEN ann_sum is null or ann_sum = 0 THEN 0.0833 ";
+    $sql .= "   CASE WHEN ann_sum IS NULL OR ann_sum = 0 THEN 0.0833 ";
     $sql .= "     ELSE CAST ((mo_sum/ann_sum) as decimal(10,4)) ";
     $sql .= "   END AS mo_frac ";
     $sql .= " FROM ( ";
@@ -371,6 +371,10 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //foreach ($records as $record) {
     //    dpm($records,'recordsI');
     //}
+    
+    while ($record = fetchAssoc($result)) {
+    print_r($record);
+    }
     
     dpm($record,'record');
     return array_values($record); 
