@@ -302,10 +302,10 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
 	  'automatic' => 'Automatic',
       'manual' => 'Manual',
     );
-    $rowform[$this->row_map['code']] = array(
+    $rowform['propcode'] = array(
       '#type' => 'select',
       '#options' => $opts,
-      '#default_value' => $row->{$this->row_map['code']},
+      '#default_value' => $entity->propcode,
       '#size' => 1,
       '#weight' => 1,
 	  '#description' => 'Select Default Update Behavior',
