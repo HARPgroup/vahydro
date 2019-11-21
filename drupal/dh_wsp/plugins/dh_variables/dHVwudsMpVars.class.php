@@ -370,8 +370,18 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //$record = $result->fetchAssoc();
 
     
-    while ($record = $result->fetchAssoc()) {
+    foreach ($record = $result->fetchAssoc()) {
     dpm($record,'record');
+    
+        //foreach($this->items as $item){
+        //$arr['item_number_'.$cpt] = $item['item_id'];
+        //$arr['item_name_'.$cpt] = $item['item_name'];
+        //$arr['quantity_'.$cpt] = $item['item_q'];
+        //$arr['amount_'.$cpt] = $item['item_price'];
+        //$cpt++;
+    }
+    
+    
     }
     
     dpm($record,'record');
