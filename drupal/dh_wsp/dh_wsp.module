@@ -450,8 +450,8 @@ function dh_get_eref_tree($field_names, $entity, &$tree = array(), $max = 500) {
 }
 
 function dh_wsp_get_ref_tree($adminid) {
-  // must assemble a list of block hydroids for the selected vineayrd hydroid
-  // then must include them as csv here and remove the eref to the vineyard
+  // must assemble a list of block hydroids for the selected facility hydroid
+  // then must include them as csv here and remove the eref to the facility
   // then obtain a list of all events that are referencing these blocks so the eref table never need be joined
   // this is tested as a robust solution for up to 2,048 event IDs (roughly 200 years worth of records)
   // this will avoid double counting

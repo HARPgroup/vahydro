@@ -249,7 +249,7 @@ class dHWithdrawalCurrentDemand extends dHVariablePluginDefault {
         break;
       }
       $total = 0;
-      $all_mps = dh_get_facility_mps($parent);
+      $all_mps = dh_get_facility_mps($parent, FALSE, FALSE, FALSE);
       // get prop or ts associated with this
       foreach ($all_mps as $mp_hydroid) {
         $mp_info = $summary_info;
