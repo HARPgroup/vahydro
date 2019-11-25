@@ -285,7 +285,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   var $matrix_field = 'field_dh_matrix';
 
   public function hiddenFields() {
-    return array('pid', 'startdate', 'enddate', 'varid', 'featureid', 'entity_type', 'bundle','dh_link_admin_pr_condition', 'propvalue');
+    return array('pid', 'startdate', 'enddate', 'varid', 'featureid', 'entity_type', 'bundle','dh_link_admin_pr_condition');
   }
   
   public function formRowRender(&$rowvalues, &$row) {
@@ -296,16 +296,23 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   public function formRowEdit(&$rowform, $entity) {
     // call parent class to insure proper bundle and presence of tablefield
     parent::formRowEdit($rowform, $entity);
-    $rowform['propvalue']['#type'] = 'hidden';
+    $rowform['propvalue']['#disabled'] = TRUE;
+    $rowform['propvalue']['#description'] = t('Sum of mo_frac (Should Equal 1)');
+    //$rowform['propvalue'] = array(
+    //  '#disabled' => TRUE,
+    //  '#description' => 'Sum of mo_frac (Should Equal 1)'
+    //);
+    
+    
     $rowform[$this->matrix_field]['#description'] = t('Monthly Fractions of Annual Total');
 	$opts = array(
 	  'automatic' => 'Automatic',
       'manual' => 'Manual',
     );
-    $rowform[$this->row_map['code']] = array(
+    $rowform['propcode'] = array(
       '#type' => 'select',
       '#options' => $opts,
-      '#default_value' => $row->{$this->row_map['code']},
+      '#default_value' => $entity->propcode,
       '#size' => 1,
       '#weight' => 1,
 	  '#description' => 'Select Default Update Behavior',
@@ -315,19 +322,120 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   public function tableDefault($entity) {
     // Returns simple array keyed table
     $default_table = array();
-    $mos = array('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
-    $default_table[] = $mos;
-    $all_defaults = array_fill_keys(array_keys($mos), 0.0833);
-    $default_table[] = $all_defaults;
-    $cat_defaults = $this->waterUserCategoryDefaults($entity);
-    $historical = $this->getHistoricalMonthlyDistro($entity);
+    $mos = array(1,2,3,4,5,6,7,8,9,10,11,12);
+    $header = array('mo_num', 'mo_frac');
+    $default_table[] = $header;
+    for ($i = 1; $i<= 12; $i++){
+      $default_table[] = array($i,0.0833);
+    }
+   $cat_defaults = $this->waterUserCategoryDefaults($entity);
+    //$historical = $this->getHistoricalMonthlyDistro($entity);
+    //$historical = $this->getHistoricalMonthlyDistroRows($entity);
+  $historical = $this->getHistoricalMonthlyDistroRowsALL($entity); //comment out this line to test default setting of 0.0833
     if (!empty($cat_defaults)) {
-      $default_table[1] = $cat_defaults;
+      $default_table = $cat_defaults;
     }
+    //dpm($cat_defaults,'cat_defaults');
     if (!empty($historical)) {
-      $default_table[1] = $historical;
+      $default_table = $historical;
     }
+    
     return $default_table;
+  }
+
+  public function getHistoricalMonthlyDistroRowsALL($entity) {
+    $sql = " SELECT mo_num, "; 
+    $sql .= "   CASE WHEN ann_sum IS NULL OR ann_sum = 0 THEN 0.0833 ";
+    $sql .= "     ELSE CAST ((mo_sum/ann_sum) as decimal(10,4)) ";
+    $sql .= "   END AS mo_frac ";
+    $sql .= " FROM ( ";
+    $sql .= "   SELECT date_part('month',to_timestamp(tstime)) AS mo_num, SUM(tsvalue) AS mo_sum ";
+    $sql .= "   FROM dh_timeseries ";
+    $sql .= "   INNER JOIN dh_variabledefinition ON dh_timeseries.varid = dh_variabledefinition.hydroid ";
+    $sql .= "   WHERE featureid IN (SELECT entity_id FROM field_data_dh_link_facility_mps WHERE dh_link_facility_mps_target_id = $entity->featureid) ";
+    $sql .= "    AND dh_variabledefinition.varkey = '$this->raw_data_varkey' "; 
+    $sql .= "    GROUP BY date_part('month',to_timestamp(tstime)) ";
+    $sql .= "    ORDER BY date_part('month',to_timestamp(tstime)) ";
+    $sql .= " ) AS foo ";
+    $sql .= " LEFT OUTER JOIN ( ";
+    $sql .= " SELECT SUM(tsvalue) AS ann_sum ";
+    $sql .= "   FROM dh_timeseries ";
+    $sql .= "   INNER JOIN dh_variabledefinition ON dh_timeseries.varid = dh_variabledefinition.hydroid ";
+    $sql .= "   WHERE featureid IN (SELECT entity_id FROM field_data_dh_link_facility_mps WHERE dh_link_facility_mps_target_id = $entity->featureid) ";
+    $sql .= "    AND dh_variabledefinition.varkey = '$this->raw_data_varkey' ";
+    $sql .= " ) AS bar ";
+    $sql .= " ON (1 = 1) ";
+    $sql .= " WHERE ann_sum > 0 ";    
+        
+    //dpm($sql,'sql');        
+    $result = db_query($sql);
+    //dpm($result,'result');
+
+    $record=[];
+    while ($array = $result->fetchAssoc()) {
+      if (count($record) == 0){
+        $record[] = array_keys($array);
+      }
+      //dpm($array,'array');
+      $record[] = array_values($array);
+    }
+    //dpm($record,'record');
+    
+
+
+
+    return $record; 
+  }
+  
+
+  
+  public function getHistoricalMonthlyDistroRows($entity) {
+    // Put SQL code here and transform into a CSV style array with 12 monthly fraction values.
+    // example: return array(0.0833, 0.0833,...);	
+	  $sql = "  select thismo, ";
+    $sql .= " case ";
+    $sql .= "   when sum_mon.total is null then 0.0000 ";
+    $sql .= "   else cast((sum_mon.total / annual.sum_all) as decimal(10,4)) ";
+    $sql .= " end as pct_of_annual ";
+    $sql .= " from  ";
+    $sql .= "   (select to_char(to_timestamp(tstime), 'MM') as thismo, sum(tsvalue) as total ";
+    $sql .= "   from dh_timeseries as ts ";
+    $sql .= "   inner join dh_variabledefinition as vd on ts.varid = vd.hydroid ";
+    $sql .= "   where featureid in ( ";
+    $sql .= "     select entity_id  ";
+    $sql .= "     from field_data_dh_link_facility_mps   ";
+    $sql .= "     where dh_link_facility_mps_target_id = $entity->featureid  ";
+    $sql .= "     and entity_type = 'dh_feature' ";
+    $sql .= "   ) ";
+    $sql .= "   and vd.varkey = '$this->raw_data_varkey'  ";
+    $sql .= "   and date_part('month',to_timestamp(tstime)) = 1 ";
+    $sql .= " ) as sum_mon ";
+    $sql .= " left outer join (";
+    $sql .= "   select sum(tsvalue) as sum_all ";
+    $sql .= "   from dh_timeseries as ts ";
+    $sql .= "   inner join dh_variabledefinition as vd on ts.varid = vd.hydroid ";
+    $sql .= "   where featureid in ( ";
+    $sql .= "     select entity_id  ";
+    $sql .= "     from field_data_dh_link_facility_mps  ";
+    $sql .= "     where dh_link_facility_mps_target_id = $entity->featureid  ";
+    $sql .= "       and entity_type = 'dh_feature' ";
+    $sql .= "    ) ";
+	  $sql .= "	  and vd.varkey = '$this->raw_data_varkey' ";
+    $sql .= " ) as annual" ;
+	$sql .= "	on (1 = 1) ";
+	$sql .= "	where annual.sum_all > 0 ";
+    // @todo: 
+    //   1. replace all instances of 72023 with $entity->featureid, 
+    //   2. replace all instances of wd_mgm with $this->raw_data_varkey, 
+    //   3. add clause in SQL to filter entity_type = 'dh_feature'
+    //   4. test on d.bet - make sure that the line "if (!empty($historical)) {" in function tableDefault($entity) behaves as expected.
+    
+    //dpm($sql,'sql');
+    $result = db_query($sql);
+	  //dpm($result,'result');
+    $record = $result->fetchAssoc();
+	  //dpm($record,'record');
+    return array_values($record); 
   }
 
   public function getHistoricalMonthlyDistro($entity) {
@@ -444,11 +552,11 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //   3. add clause in SQL to filter entity_type = 'dh_feature'
     //   4. test on d.bet - make sure that the line "if (!empty($historical)) {" in function tableDefault($entity) behaves as expected.
     
-    //dpm($sql,'sql');
+    dpm($sql,'sql');
     $result = db_query($sql);
-	  //dpm($result,'result');
+	  dpm($result,'result');
     $record = $result->fetchAssoc();
-	  //dpm($record,'record');
+	  dpm($record,'record');
     return array_values($record); 
   }
 
@@ -459,15 +567,27 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     if ($entity->propcode=='automatic') {
       $datatable = $this->tableDefault($entity);
       $this->setCSVTableField($entity, $datatable);
+      array_shift($datatable);
+      $entity->propvalue = 0;
+      foreach ($datatable as $row){
+        $entity->propvalue += $row[1];  
+      }  
     }
+   
   }
 
   public function waterUserCategoryDefaults($entity) {
     // load ftype from featureid
     $default = FALSE;
-    $cat_defaults = array(
-      'irrigation' => array(0.0000,0.0000,0.0000,0.0000,0.0000,0.2500,0.2500,0.2500,0.2500,0.0000,0.0000,0.0000),
-    );
+    $ir_defaults = array(0.0000,0.0000,0.0000,0.0000,0.0000,0.2500,0.2500,0.2500,0.2500,0.0000,0.0000,0.0000);
+    $cat_defaults = array('irrigation'=>array());
+    $header = array('mo_num', 'mo_frac');    
+    $cat_defaults['irrigation'][] = $header;
+    $i = 1;
+    foreach ($ir_defaults as $thisdef){
+      $cat_defaults['irrigation'][] = array($i,$thisdef);
+      $i++;   
+    }    
     // get defaults for that ftype if set, otherwise return FALSE
     $feature = $this->getParentEntity($entity);
     if (is_object($feature)) {
