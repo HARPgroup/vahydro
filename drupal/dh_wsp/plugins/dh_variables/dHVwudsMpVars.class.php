@@ -296,6 +296,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   public function formRowEdit(&$rowform, $entity) {
     // call parent class to insure proper bundle and presence of tablefield
     parent::formRowEdit($rowform, $entity);
+    $rowform['propvalue']['#disabled'] = TRUE;
     $rowform[$this->matrix_field]['#description'] = t('Monthly Fractions of Annual Total');
 	$opts = array(
 	  'automatic' => 'Automatic',
