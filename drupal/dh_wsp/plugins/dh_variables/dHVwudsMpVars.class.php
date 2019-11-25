@@ -315,15 +315,12 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   public function tableDefault($entity) {
     // Returns simple array keyed table
     $default_table = array();
-    //$mos = array('jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
     $mos = array(1,2,3,4,5,6,7,8,9,10,11,12);
     $header = array('mo_num', 'mo_frac');
     $default_table[] = $header;
-    //$all_defaults = array_fill_keys($mos, 0.0833);
     for ($i = 1; $i<= 12; $i++){
       $default_table[] = array($i,0.0833);
     }
-    //$default_table[] = array_merge($header,$all_defaults);
    $cat_defaults = $this->waterUserCategoryDefaults($entity);
     //$historical = $this->getHistoricalMonthlyDistro($entity);
     //$historical = $this->getHistoricalMonthlyDistroRows($entity);
@@ -331,14 +328,12 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     if (!empty($cat_defaults)) {
       $default_table = $cat_defaults;
     }
-    dpm($cat_defaults,'cat_defaults');
+    //dpm($cat_defaults,'cat_defaults');
     if (!empty($historical)) {
-      //$default_table[1] = $historical;
-      $default_table = $historical; //[] is first row, [1] is second row
+      $default_table = $historical;
     }
     
     return $default_table;
-    //return $historical;
   }
 
   public function getHistoricalMonthlyDistroRowsALL($entity) {
@@ -365,30 +360,19 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     $sql .= " ON (1 = 1) ";
     $sql .= " WHERE ann_sum > 0 ";    
         
-    dpm($sql,'sql');        
+    //dpm($sql,'sql');        
     $result = db_query($sql);
-    dpm($result,'result'); //the query appears to be OK, its the fetch command that is only returning the first row
-    //$record = $result->fetchAssoc();
-    //$record = $result->fetchAll(); //fetchAll() is closer...
-    //$record = $result->fetchAllKeyed();
-    //$record = $result->fetchAllAssoc();
-    
-    //$record = $result->fetchAssoc();
+    //dpm($result,'result');
 
-    //while ($record = $result->fetchAssoc()) {
-    //  dpm($record,'record');
-    //}
-    
     $record=[];
     while ($array = $result->fetchAssoc()) {
       if (count($record) == 0){
         $record[] = array_keys($array);
       }
-      
-      dpm($array,'array');
+      //dpm($array,'array');
       $record[] = array_values($array);
     }
-    dpm($record,'record');
+    //dpm($record,'record');
     
 
 
