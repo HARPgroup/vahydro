@@ -327,7 +327,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     $cat_defaults = $this->waterUserCategoryDefaults($entity);
     //$historical = $this->getHistoricalMonthlyDistro($entity);
     //$historical = $this->getHistoricalMonthlyDistroRows($entity);
-  //  $historical = $this->getHistoricalMonthlyDistroRowsALL($entity); //comment out this line to test default setting of 0.0833
+    //$historical = $this->getHistoricalMonthlyDistroRowsALL($entity); //comment out this line to test default setting of 0.0833
     if (!empty($cat_defaults)) {
       $default_table = $cat_defaults;
     }
@@ -581,7 +581,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     // load ftype from featureid
     $default = FALSE;
     $ir_defaults = array(0.0000,0.0000,0.0000,0.0000,0.0000,0.2500,0.2500,0.2500,0.2500,0.0000,0.0000,0.0000);
-    $cat_defaults = array(); 
+    $cat_defaults = array('irrigation'=>array()); 
     $i = 1;
     foreach ($ir_defaults as $thisdef){
       $cat_defaults[$i] = $thisdef;
