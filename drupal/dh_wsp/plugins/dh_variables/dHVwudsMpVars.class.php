@@ -581,7 +581,14 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     // load ftype from featureid
     $default = FALSE;
     $cat_defaults = array(
-      'irrigation' => array(0.0000,0.0000,0.0000,0.0000,0.0000,0.2500,0.2500,0.2500,0.2500,0.0000,0.0000,0.0000),
+      //'irrigation' => array(0.0000,0.0000,0.0000,0.0000,0.0000,0.2500,0.2500,0.2500,0.2500,0.0000,0.0000,0.0000),
+      //'irrigation' => array(0.0000,0.0000,0.0000,0.0000,0.0000,0.2500,0.2500,0.2500,0.2500,0.0000,0.0000,0.0000), 
+      
+    for ($i = 1; $i<= 12; $i++){
+      'irrigation' => array($i,0.0833);
+    }
+      
+      
     );
     // get defaults for that ftype if set, otherwise return FALSE
     $feature = $this->getParentEntity($entity);
