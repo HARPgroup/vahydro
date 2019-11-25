@@ -584,7 +584,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     $cat_defaults = array('irrigation'=>array()); 
     $i = 1;
     foreach ($ir_defaults as $thisdef){
-      $cat_defaults[$i] = $thisdef;
+      $cat_defaults['irrigation'][$i] = $thisdef;
       $i++;   
     }    
     // get defaults for that ftype if set, otherwise return FALSE
