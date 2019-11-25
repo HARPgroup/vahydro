@@ -285,7 +285,7 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   var $matrix_field = 'field_dh_matrix';
 
   public function hiddenFields() {
-    return array('pid', 'startdate', 'enddate', 'varid', 'featureid', 'entity_type', 'bundle','dh_link_admin_pr_condition', 'propvalue');
+    return array('pid', 'startdate', 'enddate', 'varid', 'featureid', 'entity_type', 'bundle','dh_link_admin_pr_condition');
   }
   
   public function formRowRender(&$rowvalues, &$row) {
@@ -576,7 +576,13 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     if ($entity->propcode=='automatic') {
       $datatable = $this->tableDefault($entity);
       $this->setCSVTableField($entity, $datatable);
+      array_shift($datatable);
+      $entity->propvalue = 0;
+      foreach ($datatable as $row){
+        $entity->propvalue += $row[1];  
+      }  
     }
+   
   }
 
   public function waterUserCategoryDefaults($entity) {
