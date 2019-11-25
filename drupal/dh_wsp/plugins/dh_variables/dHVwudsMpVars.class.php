@@ -580,10 +580,13 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
   public function waterUserCategoryDefaults($entity) {
     // load ftype from featureid
     $default = FALSE;
-    $cat_defaults = array(
-      'irrigation' => array(0.0000,0.0000,0.0000,0.0000,0.0000,0.2500,0.2500,0.2500,0.2500,0.0000,0.0000,0.0000),
-      
-    );
+    $ir_defaults = array(0.0000,0.0000,0.0000,0.0000,0.0000,0.2500,0.2500,0.2500,0.2500,0.0000,0.0000,0.0000);
+    $cat_defaults = array(); 
+    $i = 1;
+    foreach ($ir_defaults as $thisdef){
+      $cat_defaults[$i] = $thisdef;
+      $i++;   
+    }    
     // get defaults for that ftype if set, otherwise return FALSE
     $feature = $this->getParentEntity($entity);
     if (is_object($feature)) {
