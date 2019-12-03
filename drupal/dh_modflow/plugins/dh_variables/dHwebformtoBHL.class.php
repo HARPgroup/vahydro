@@ -11,13 +11,12 @@ class dHwebformtoBHL extends dHVariablePluginDefault {
     }
   }
   
-   public function update(&$entity) {
-	 parent::update($entity);
-	 $converter = new ViewsBulkOperationsDHProp2BHL;
-     $converter->migrate($entity);  
-   }
+  public function update(&$entity) {
+	  parent::update($entity);
+    dpm($entity,'bhl entity');
+	  $converter = new ViewsBulkOperationsDHProp2BHL;
+    $converter->migrate($entity);  
+  }
 }
 
-
-  
 ?>
