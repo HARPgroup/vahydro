@@ -449,13 +449,13 @@ function dh_get_eref_tree($field_names, $entity, &$tree = array(), $max = 500) {
   return TRUE;
 }
 
-function dh_wsp_get_ref_tree($adminid) {
-  // must assemble a list of block hydroids for the selected vineayrd hydroid
-  // then must include them as csv here and remove the eref to the vineyard
+function dh_wsp_get_ref_tree($adminid, $include_dupes = FALSE) {
+  // must assemble a list of block hydroids for the selected facility hydroid
+  // then must include them as csv here and remove the eref to the facility
   // then obtain a list of all events that are referencing these blocks so the eref table never need be joined
   // this is tested as a robust solution for up to 2,048 event IDs (roughly 200 years worth of records)
   // this will avoid double counting
-  $blocks = dh_get_facility_mps($argument);
+  $blocks = dh_get_facility_mps($argument, FALSE, FALSE, $include_dupes);
   if (!empty($blocks)) {
     $eref_config = array();
     $eref_config['eref_fieldname'] = 'dh_link_feature_submittal';
