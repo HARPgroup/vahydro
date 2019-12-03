@@ -10,14 +10,17 @@ class dHwebformtoBHL extends dHVariablePluginDefault {
       $this->property_conf_default[$hide_this]['hidden'] = 1;
     }
   }
+  public function formRowEdit(&$form, $entity) {
+    parent::formRowEdit($form, $entity);
+    //dpm($entity,'Editing bhl entity');
+  }
   
-   public function update(&$entity) {
-	 parent::update($entity);
-	 $converter = new ViewsBulkOperationsDHProp2BHL;
-     $converter->migrate($entity);  
-   }
+  public function update(&$entity) {
+	  parent::update($entity);
+    //dpm($entity,'bhl entity');
+	  $converter = new ViewsBulkOperationsDHProp2BHL;
+    $converter->migrate($entity);  
+  }
 }
 
-
-  
 ?>
