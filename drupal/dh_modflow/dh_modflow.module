@@ -24,6 +24,17 @@ function dh_modflow_views_data_alter(&$data) {
   );
 }
 
+
+/**
+  * Implements hook_ctools_plugin_api().
+  */
+function dh_ctools_plugin_api($module = '', $api = '') {
+  if ($module == "feeds" && $api == "feeds_importer_default") {
+    // The current API version is 1.
+    return array("version" => 1);
+  }
+}
+
 /**
  * Implements hook_ctools_plugin_directory().
  */
