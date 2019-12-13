@@ -1,8 +1,8 @@
 select 'dh_feature' as entity_type, mp.hydroid as featureid,
   'facility_use_fraction' as varkey, 'facility_use_fraction' as propname,
   CASE 
-    WHEN facvar.propvalue > 0.0 THEN mpvar.propvalue / facvar.propvalue
     WHEN mpvar.propvalue is NULL then 0.0 
+    WHEN facvar.propvalue > 0.0 THEN mpvar.propvalue / facvar.propvalue
     ELSE 0.0
   END as propvalue 
 from dh_feature as mp 
@@ -26,6 +26,17 @@ on (
   and facvar.featureid = fac.hydroid
   and facvar.propname = 'wd_current_mgy'
 )
+left outer join dh_properties as currfrac
+on (
+  currfrac.entity_type = 'dh_feature'
+  and currfrac.featureid = mp.hydroid
+  and currfrac.propname = 'facility_use_fraction'
+)
 where mp.bundle in ('intake', 'well')
 and fac.hydroid is not null
-and facvar.propvalue is not null;
+and facvar.propvalue is not null
+and (
+  (facvar.propvalue > 0 and ( (mpvar.propvalue / facvar.propvalue) <> currfrac.propvalue) )
+  or currfrac.propvalue IS NULL
+)
+;
