@@ -26,7 +26,7 @@ token <- rest_token(site, token, rest_uname, rest_pw);
 options(timeout=1200); # set timeout to twice default level to avoid abort due to high traffic
 
 # Camp Creek - 279187, South Anna - 207771
-elid = 347380
+elid = 303730
 runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
@@ -37,5 +37,5 @@ dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 boxplot(as.numeric(dat$Qreach) ~ dat$year, ylim=c(0,amn))
 
 datdf <- as.data.frame(dat)
-modat <- sqldf("select month, avg(wd_mgd) as wd_mgd from datdf group by month")
+modat <- sqldf("select month, avg(wd_mgd) as wd_mgd, avg(discharge_mgd) from datdf group by month")
 barplot(wd_mgd ~ month, data=modat)

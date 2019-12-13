@@ -27,9 +27,10 @@ source(paste(hydro_tools,"auth.private", sep = "/"));#load rest username and pas
 token <- rest_token(site, token, rest_uname, rest_pw);
 options(timeout=1200); # set timeout to twice default level to avoid abort due to high traffic
 
-# Camp Creek - 279187, South Anna - 207771
-elid = 214907
-runid = 101
+# Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
+# Rapidan above Rapp - 258123
+elid = 230667
+runid = 2
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)

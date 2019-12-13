@@ -22,7 +22,7 @@ token <- rest_token(site, token, rest_uname, rest_pw);
 options(timeout=1200); # set timeout to twice default level to avoid abort due to high traffic
 
 # Camp Creek - 279191
-elid = 231303
+elid = 258405
 runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
