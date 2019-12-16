@@ -8,7 +8,7 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff
-elid = 233571	
+elid = 237801 	
 runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
@@ -19,3 +19,4 @@ boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # QA
 dat2k7 <- window(dat, start = as.Date("2007-01-01"), end = as.Date("2007-12-31"));
 R2k7 <- mean(as.numeric(dat2k7$Runit) )
+R2k7sd <- sd(as.numeric(dat2k7$Runit) )
