@@ -1,0 +1,821 @@
+MAP
+NAME imageMapFile 
+SIZE 600 360  
+STATUS ON
+#SYMBOLSET "./sym_wateruse.sym"
+# for map in dd
+EXTENT -83.6753387451172 36.4427703857422 -75.2407989501953 39.3660148620605
+UNITS DD
+# for map in utm 83z18
+#UNITS METERS
+SHAPEPATH "data"  
+FONTSET "/var/www/html/mapserv/fonts.txt"
+PROJECTION
+    "init=epsg:4326"
+END
+DEBUG ON
+CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
+
+#OUTPUTFORMAT
+# NAME 'AGG'
+# DRIVER AGG/PNG
+# IMAGEMODE RGB
+#END
+
+SYMBOL
+  NAME "triangle"
+  TYPE vector
+  POINTS
+    0 4
+    2 0
+    4 4
+    0 4
+  END
+END
+
+SYMBOL
+  NAME "rectangle"
+  TYPE vector
+  POINTS    
+    0 0
+    0 3
+    3 3
+    3 0
+    0 0
+  END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME "foursquare"
+  TYPE vector
+  POINTS    
+    0 0
+    0 4
+    4 4
+    4 0
+    0 0
+   -4 0
+  END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME 'circle'
+  TYPE ELLIPSE
+  POINTS 1 1 END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME 'hatch-simple'
+  TYPE HATCH
+END
+
+#QUERYMAP
+# STATUS ON
+# STYLE NORMAL
+#END
+
+WEB
+  MAXSCALE 5000000
+  IMAGEPATH "/var/www/html/drought/state/images/maps/"
+  IMAGEURL "/drought/state/images/maps/"
+  TEMPLATE "webmap.html"
+  VALIDATION
+    'hydroid'    '[0-9]+$'
+    'default_hydroid' '-1'
+  END
+  METADATA
+    "wfs_title"            "dH Mapserver WFS"  ## REQUIRED
+    "wfs_onlineresource"   "http://deq1.bse.vt.edu/cgi-bin/mapserv?map=/var/www/html/mapserv/vahydro_drought_wms.map&"  ## Recommended
+    "wfs_srs"               "EPSG:3857 EPSG:4269 EPSG:4326"  ## Recommended
+    "wfs_abstract"       "This text describes my WFS service." ## Recommended
+    "wfs_enable_request" "*"  # necessary
+    "ows_schemas_location" "http://ogc.dmsolutions.ca"  ## Optional
+    # WMS MetaData
+    "wms_title"            "dH Drought WMS"  ## REQUIRED
+    "wms_onlineresource"   "http://deq1.bse.vt.edu/cgi-bin/mapserv?map=/var/www/html/mapserv/vahydro_drought_wms.map&"  ## Recommended
+    "wms_srs"               "EPSG:3857 EPSG:4269 EPSG:4326"  ## Recommended
+    "wms_format"               "img/png"  ## Recommended
+    "wms_abstract"       "Maps from dH - An Environmental Data Model in Drupal." ## Recommended
+    "wms_enable_request" "*"  # necessary
+  END
+END   
+
+LEGEND 
+   IMAGECOLOR 255 250 240
+   OUTLINECOLOR 0 0 0 
+   KEYSIZE 16 16
+   #STATUS EMBED
+   #TRANSPARENT OFF
+   #TRANSPARENCY 50
+   LABEL
+     COLOR 0 0 0
+     #SHADOWCOLOR 218 218 218
+     #SHADOWSIZE 2 2
+     TYPE TRUETYPE
+     FONT arial
+     SIZE 8
+     ANTIALIAS TRUE
+   END # end of label
+   POSITION ul
+END
+#LAYER
+#  NAME "us_drought"
+#  TYPE RASTER
+#  STATUS OFF
+#  CONNECTION "http://torka.unl.edu:8080/cgi-bin/mapserv.exe?map=/ms4w/apps/dm/service/usdm_current_wms.map"
+#  CONNECTIONTYPE WMS
+#  METADATA
+#    "wms_srs"             "EPSG:4326"
+#    "wms_name"            "usdm_current"
+#    "wms_server_version"  "1.1.1"
+#    "wms_format"          "image/png"
+#  END
+#END
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=noaa"
+   NAME poli_bounds
+   #GROUP poli_bounds
+   TYPE POLYGON
+   STATUS DEFAULT
+   DUMP TRUE
+   #DEBUG ON
+   DATA "the_geom from (
+     select gid, name, the_geom from va_counties 
+   ) as foo USING UNIQUE gid using srid=4326"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   #LABELITEM "name"
+   CLASS
+      NAME "Political Boundaries"
+      SYMBOL 'circle'
+      COLOR -1 -1 -1
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 222 222 222
+      STYLE 
+        SIZE 2
+      END
+      LABEL
+        COLOR 222 222 222
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 300
+        MINFEATURESIZE 30
+        BUFFER 4
+      END # end of label
+   END
+   TOLERANCE 10
+   #PROJECTION
+   # EPSG SRID = 4326
+   #  "proj=latlong"
+   #END
+   METADATA
+    "DESCRIPTION"   "Political Boundaries"
+    "RESULT_FIELDS" "name county state"
+   END
+END
+
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   NAME precip_dep
+   #GROUP precip_dep
+   TYPE POINT
+   STATUS ON
+   #DEBUG ON
+   METADATA
+     "wfs_title"    "Precip Departure" ## REQUIRED
+     "wfs_srs"           "EPSG:4326" ## REQUIRED
+     "wms_title"    "Precip Departure" ## REQUIRED
+     "wms_srs"           "EPSG:4326" ## REQUIRED
+     "wfs_enable_request" "*"
+     # these are for wfs only - no need to define data for wms which is just an image
+     "gml_featureid" "system_nid" ## REQUIRED
+     "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_num_days" "double"
+	   "gml_pt_dep" "double"
+	   "gml_tstime" "double"
+	   "gml_proj_pct_complete_type" "double"
+   END
+   DUMP TRUE
+   DATA "shape FROM (
+     select st_setsrid(st_centroid(pt_geo.dh_geofield_geom),4326) AS shape,
+       pt_feat.hydroid, pt_dep.rain as precip_pct_wy2date, to_timestamp(pt_dep.tsendtime),
+       ( (pt_dep.tsendtime - pt_dep.tstime) / 86400) as num_days, 
+       CASE 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 91 
+           AND pt_dep.rain > 75.0 
+           THEN 0 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 91 
+           AND pt_dep.rain > 65.0 
+           THEN 1 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 91 
+           AND pt_dep.rain > 55.0 
+           THEN 2 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 91 
+           AND pt_dep.rain >= 0.0 
+           THEN 3 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 182 
+           AND pt_dep.rain > 80.0 
+           THEN 0 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 182 
+           AND pt_dep.rain > 70.0 
+           THEN 1 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 182 
+           AND pt_dep.rain > 60.0 
+           THEN 2 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 182 
+           AND pt_dep.rain >= 0.0 
+           THEN 3 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 212 
+           AND pt_dep.rain > 81.5 
+           THEN 0 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 212 
+           AND pt_dep.rain > 71.5 
+           THEN 1 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 212 
+           AND pt_dep.rain > 61.5 
+           THEN 2 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 212 
+           AND pt_dep.rain >= 0.0 
+           THEN 3 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 243 
+           AND pt_dep.rain > 82.5 
+           THEN 0 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 243 
+           AND pt_dep.rain > 72.5 
+           THEN 1 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 243 
+           AND pt_dep.rain > 62.5 
+           THEN 2 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 243 
+           AND pt_dep.rain >= 0.0 
+           THEN 3 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 273 
+           AND pt_dep.rain > 83.5 
+           THEN 0 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 273 
+           AND pt_dep.rain > 73.5 
+           THEN 1 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 273 
+           AND pt_dep.rain > 63.5 
+           THEN 2 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) <= 273 
+           AND pt_dep.rain >= 0.0 
+           THEN 3 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) > 273 
+           AND pt_dep.rain > 85 
+           THEN 0 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) > 273 
+           AND pt_dep.rain > 75
+           THEN 1 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) > 273 
+           AND pt_dep.rain > 65 
+           THEN 2 
+         WHEN ( (pt_dep.tsendtime - pt_dep.tstime) / 86400.0) > 273 
+           AND pt_dep.rain >= 0.0 
+           THEN 3 
+         ELSE -1
+       END as drought_status
+     from dh_feature as pt_feat  
+     left outer join field_data_dh_geofield as pt_geo
+     on (
+       pt_geo.entity_id = pt_feat.hydroid 
+       and pt_geo.entity_type = 'dh_feature' 
+     )
+     left outer join dh_variabledefinition as dep_var 
+     on (
+       dep_var.varkey = 'precip_pct_wy2date'
+     )
+     left outer join (
+       select max(tsendtime) as tsendtime from dh_timeseries_weather
+       where varid in (
+         select hydroid 
+         from dh_variabledefinition 
+         where varkey = 'precip_pct_wy2date'
+       )
+     ) as pt_dep_maxdate
+     on (
+       1 = 1 
+     )
+     left outer join dh_timeseries_weather as pt_dep
+     on (
+       pt_dep.featureid = pt_feat.hydroid 
+       and pt_dep.entity_type = 'dh_feature' 
+       and pt_dep.varid = dep_var.hydroid 
+       and pt_dep.tsendtime = pt_dep_maxdate.tsendtime 
+     )
+     where pt_feat.bundle = 'weather_sensor'
+   ) AS foo USING UNIQUE hydroid using SRID=4326 "
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+    #STATUS ON  
+   CLASS
+      #NAME "Normal"
+      EXPRESSION ( '[drought_status]' = '0' )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 100 200 100
+         BACKGROUNDCOLOR 100 200 100
+         OUTLINECOLOR -1 -1 -1
+         OFFSET 12 0
+      END
+   END
+   CLASS
+      #NAME "Watch"
+      EXPRESSION ( [drought_status] = 1 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 255 255 51
+         BACKGROUNDCOLOR 255 255 51
+         OUTLINECOLOR -1 -1 -1
+         OFFSET 12 0
+      END
+   END
+   CLASS
+      #NAME "Warning"
+      EXPRESSION ( [drought_status] = 2 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 255 204 51
+         BACKGROUNDCOLOR 255 204 51
+         OUTLINECOLOR -1 -1 -1
+         OFFSET 12 0
+      END
+   END
+   CLASS
+      #NAME "Emergency"
+      EXPRESSION ( [drought_status] = 3 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 184 0 0
+         BACKGROUNDCOLOR 184 0 0
+         OUTLINECOLOR -1 -1 -1
+         OFFSET 12 0
+      END
+   END
+   CLASS
+      #NAME "None"
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 220 220 220
+         BACKGROUNDCOLOR -1 -1 -1
+         OUTLINECOLOR -1 -1 -1
+         OFFSET 12 0
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "proj=latlong"
+   END
+  METADATA
+    "DESCRIPTION"   "Stat Results"
+  END
+END
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   NAME usgs_mllr
+   #GROUP usgs_mllr
+   TYPE POLYGON
+   STATUS ON
+   METADATA
+     "wfs_title"    "Recharge Drought Probability" ## REQUIRED
+     "wfs_srs"           "EPSG:4326" ## REQUIRED
+     "wms_title"    "Recharge Drought Probability" ## REQUIRED
+     "wms_srs"           "EPSG:4326" ## REQUIRED
+     "wfs_enable_request" "*"
+     # these are for wfs only - no need to define data for wms which is just an image
+     "gml_hydroid" "system_nid" ## REQUIRED
+     "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_area2d" "double"
+	   "gml_mllr_prob_pct10" "double"
+   END
+   DUMP TRUE
+   #DEBUG ON
+   DATA "shape FROM (
+     select st_setsrid(gage_geo.dh_geofield_geom,4326) AS shape, 
+       st_area(gage_geo.dh_geofield_geom) AS area2d,
+       gage_feat.hydroid, 
+       max(gage_mllr_pct10.propvalue) as mllr_prob_pct10
+     from dh_feature as gage_feat 
+     left outer join dh_variabledefinition as geo_var 
+     on (
+       geo_var.varkey = 'auxiliary_geom'
+     )
+     left outer join dh_properties as gage_geo_prop
+     on (
+       gage_feat.hydroid = gage_geo_prop.featureid
+       and gage_geo_prop.entity_type = 'dh_feature'
+       and gage_geo_prop.varid = geo_var.hydroid
+     )
+     left outer join field_data_dh_geofield as gage_geo
+     on (
+       gage_geo.entity_id = gage_geo_prop.pid 
+       and gage_geo.entity_type = 'dh_properties' 
+     )
+     left outer join dh_variabledefinition as mllr_var 
+     on (
+       mllr_var.vocabulary = 'drought' 
+       and mllr_var.varkey like 'mllr%_%_10' 
+     )
+     left outer join dh_properties as gage_mllr_pct10
+     on (
+       gage_feat.hydroid = gage_mllr_pct10.featureid
+       and gage_mllr_pct10.entity_type = 'dh_feature'
+       and gage_mllr_pct10.varid = mllr_var.hydroid
+     )
+     where gage_feat.bundle = 'usgsgage'
+       and (
+         gage_feat.hydroid = %hydroid%
+         OR %hydroid% = -1
+       )
+     group by st_setsrid(gage_geo.dh_geofield_geom,4326), 
+       st_area(gage_geo.dh_geofield_geom), gage_feat.hydroid 
+     order by st_area(gage_geo.dh_geofield_geom) DESC
+   ) AS foo USING UNIQUE hydroid using SRID=4326 "
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "Normal"
+      EXPRESSION ( [mllr_prob_pct10] < 0.15 )
+      STYLE
+        SYMBOL 'hatch-simple'
+        SIZE 10
+        WIDTH 2
+        ANGLE 45
+        COLOR 100 200 100
+        BACKGROUNDCOLOR 100 200 100
+        OUTLINECOLOR -1 -1 -1  
+      END
+   END
+   CLASS
+      NAME "Watch"
+      EXPRESSION ( [mllr_prob_pct10] < 0.25 )
+      STYLE
+        SYMBOL 'hatch-simple'
+        SIZE 10
+        WIDTH 2
+        ANGLE 45
+         COLOR 255 255 51
+         BACKGROUNDCOLOR 255 255 51
+         OUTLINECOLOR -1 -1 -1
+      END
+   END
+   CLASS
+      NAME "Warning"
+      EXPRESSION ( [mllr_prob_pct10] < 0.35 )
+      STYLE
+        SYMBOL 'hatch-simple'
+        SIZE 10
+        WIDTH 2
+        ANGLE 45
+         COLOR 255 204 51
+         BACKGROUNDCOLOR 255 204 51
+         OUTLINECOLOR -1 -1 -1
+      END
+   END
+   CLASS
+      NAME "Emergency"
+      EXPRESSION ( [mllr_prob_pct10] >= 0.35 )
+      STYLE
+        SYMBOL 'hatch-simple'
+        SIZE 10
+        WIDTH 2
+        ANGLE 45
+         COLOR 184 0 0
+         BACKGROUNDCOLOR 184 0 0
+         OUTLINECOLOR -1 -1 -1
+      END
+   END
+   CLASS
+      NAME "None"
+      STYLE
+        SYMBOL 'hatch-simple'
+        SIZE 10
+        WIDTH 2
+        ANGLE 45
+         COLOR 220 220 220
+         BACKGROUNDCOLOR -1 -1 -1
+         OUTLINECOLOR -1 -1 -1
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "proj=latlong"
+   END
+  METADATA
+    "DESCRIPTION"   "Stat Results"
+  END
+END
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   NAME proj_seggroups
+   #GROUP proj_seggroups
+   TYPE POLYGON
+   STATUS ON
+   #DEBUG ON
+   DATA "shape FROM (
+     select st_setsrid(reg_geo.dh_geofield_geom,4326) AS shape,
+       reg_feat.hydroid
+     from dh_feature as reg_feat  
+     left outer join field_data_dh_geofield as reg_geo
+     on (
+       reg_geo.entity_id = reg_feat.hydroid 
+       and reg_geo.entity_type = 'dh_feature' 
+     )
+     where reg_feat.bundle = 'landunit'
+       and reg_feat.ftype = 'drought_region' 
+       and (
+         reg_feat.hydroid = %hydroid%
+         OR %hydroid% = -1
+       )
+   ) AS foo USING UNIQUE hydroid using SRID=4326 "
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "Drought Region"
+      #SYMBOL 'hatch-simple'
+      SIZE 3
+      COLOR -1 -1 -1
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "proj=latlong"
+   END
+  METADATA
+    "DESCRIPTION"   "Stat Results"
+  END
+END
+
+LAYER
+  NAME copyright
+  STATUS ON
+  TYPE POINT
+  TRANSFORM false
+  #DEBUG ON
+  FEATURE
+    POINTS
+      200 84 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "GW" #this is your displaying text
+  END   
+  FEATURE
+    POINTS
+      232 84 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "Prcp" #this is your displaying text
+  END   
+  FEATURE
+    POINTS
+      232 116 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "Flow" #this is your displaying text
+  END   
+  FEATURE
+    POINTS
+      200 116 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "Res" #this is your displaying text
+  END   
+  CLASS
+    STYLE
+       SYMBOL 'rectangle'
+       SIZE 32
+       COLOR 220 220 220
+       #BACKGROUNDCOLOR -1 -1 -1
+       OUTLINECOLOR 0 0 0   
+       ANTIALIAS FALSE
+    END
+    LABEL #defines the font, colors etc. of the text
+      FONT "arial"
+      TYPE TRUETYPE
+      SIZE 10
+      BUFFER 1
+      COLOR 0 0 0
+      #BACKGROUNDCOLOR -1 -1 -1
+      FORCE TRUE
+      #POSITION ll
+    END
+  END 
+END
+
+LAYER
+  NAME statusnormal
+  STATUS ON
+  TYPE POINT
+  TRANSFORM false
+  FEATURE
+    POINTS
+      84 68 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "Normal" #this is your displaying text
+  END   
+   CLASS
+      NAME "Normal"
+      STYLE
+         SYMBOL 'rectangle'
+         SIZE 16
+         COLOR 92 200 92
+         BACKGROUNDCOLOR 92 200 92
+         OUTLINECOLOR 0 0 0   
+      END
+      LABEL #defines the font, colors etc. of the text
+         FONT "arial"
+         TYPE TRUETYPE
+         SIZE 10
+         BUFFER 1
+         COLOR 0 0 0
+         #BACKGROUNDCOLOR -1 -1 -1
+         FORCE TRUE
+         POSITION CR
+      END
+  END 
+END
+
+LAYER
+  NAME statuswatch
+  STATUS ON
+  TYPE POINT
+  TRANSFORM false
+  FEATURE
+    POINTS
+      84 84 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "Watch" #this is your displaying text
+  END   
+   CLASS
+      NAME "Watch"
+      STYLE
+         SYMBOL 'rectangle'
+         SIZE 16
+         COLOR 255 255 51
+         BACKGROUNDCOLOR 255 255 51
+         OUTLINECOLOR 0 0 0
+      END
+      LABEL #defines the font, colors etc. of the text
+         FONT "arial"
+         TYPE TRUETYPE
+         SIZE 10
+         BUFFER 1
+         COLOR 0 0 0
+         #BACKGROUNDCOLOR -1 -1 -1
+         FORCE TRUE
+         POSITION CR
+      END
+  END 
+END
+
+
+LAYER
+  NAME statuswarn
+  STATUS ON
+  TYPE POINT
+  TRANSFORM false
+  FEATURE
+    POINTS
+      84 100 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "Warning" #this is your displaying text
+  END   
+   CLASS
+      NAME "Warning"
+      STYLE
+         SYMBOL 'rectangle'
+         SIZE 16
+         COLOR 255 204 51
+         BACKGROUNDCOLOR 255 204 51
+         OUTLINECOLOR 0 0 0 
+      END
+      LABEL #defines the font, colors etc. of the text
+         FONT "arial"
+         TYPE TRUETYPE
+         SIZE 10
+         BUFFER 1
+         COLOR 0 0 0
+         #BACKGROUNDCOLOR -1 -1 -1
+         FORCE TRUE
+         POSITION CR
+      END
+   END
+END
+
+LAYER
+  NAME statusemerg
+  STATUS ON
+  TYPE POINT
+  TRANSFORM false
+  FEATURE
+    POINTS
+      84 116 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "Emergency" #this is your displaying text
+  END   
+   CLASS
+      NAME "Emergency"
+      STYLE
+         SYMBOL 'rectangle'
+         SIZE 16
+         COLOR 184 0 0
+         BACKGROUNDCOLOR 184 0 0
+         OUTLINECOLOR 0 0 0   
+      END
+      LABEL #defines the font, colors etc. of the text
+         FONT "arial"
+         TYPE TRUETYPE
+         SIZE 10
+         BUFFER 1
+         COLOR 0 0 0
+         #BACKGROUNDCOLOR -1 -1 -1
+         FORCE TRUE
+         POSITION CR
+      END
+   END
+END
+
+LAYER
+  NAME statusblank
+  STATUS ON
+  TYPE POINT
+  TRANSFORM false
+  FEATURE
+    POINTS
+      84 132 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT "No Data" #this is your displaying text
+  END   
+   CLASS
+      NAME "Missing"
+      STYLE
+         SYMBOL 'rectangle'
+         SIZE 16
+         COLOR 220 220 220
+         BACKGROUNDCOLOR -1 -1 -1
+         OUTLINECOLOR 0 0 0   
+      END
+      LABEL #defines the font, colors etc. of the text
+         FONT "arial"
+         TYPE TRUETYPE
+         SIZE 10
+         BUFFER 1
+         COLOR 0 0 0
+         #BACKGROUNDCOLOR -1 -1 -1
+         FORCE TRUE
+         POSITION CR
+      END
+   END
+END
+
+
+LAYER
+  NAME date_modified
+  STATUS ON
+  TYPE POINT
+  TRANSFORM false
+  FEATURE
+    POINTS
+      260 35 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT " Drought Indicators Updated 4/27/2008     " #this is your displaying text
+  END   
+  CLASS
+    #NAME thislabel
+    LABEL #defines the font, colors etc. of the text
+      FONT "arial"
+      TYPE TRUETYPE
+      SIZE 10
+      BUFFER 1
+      COLOR 0 0 0
+      #BACKGROUNDCOLOR 255 255 255
+      FORCE TRUE
+    END
+  END 
+END
+#map definition end
+END
+
+END  

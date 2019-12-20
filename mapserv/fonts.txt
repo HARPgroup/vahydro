@@ -1,0 +1,1 @@
+arial /usr/share/X11/fonts/TTF/arial.ttf

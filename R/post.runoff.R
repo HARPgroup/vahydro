@@ -20,7 +20,7 @@ omsite = "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
 
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
-boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
+#boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # QA
 dat2k7 <- window(dat, start = as.Date("2007-01-01"), end = as.Date("2007-12-31"));
 R2k7 <- mean(as.numeric(dat2k7$Runit) )
@@ -47,6 +47,15 @@ if (identical(scenprop, FALSE)) {
 }
 scenprop = postProperty(inputs=sceninfo,base_url=base_url,prop)
 scenprop <- getProperty(sceninfo, site, scenprop)
+
+# Metric defs
+
+sceninfo <- list(
+  varkey = 'om_scenario',
+  propname = scen.propname,
+  featureid = pid,
+  entity_type = "dh_properties"
+)
 
 # POSTING METRICS TO SCENARIO PROPERTIES ON VA HYDRO
 r2k7prop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'R2k7', R2k7, site, token)
