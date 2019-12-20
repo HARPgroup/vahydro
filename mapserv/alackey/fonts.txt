@@ -1,2 +1,0 @@
-arial /usr/share/X11/fonts/TTF/arial.ttf
-arial_black /usr/share/x11/fonts/TTF/ariblk.ttf
