@@ -58,7 +58,13 @@ sceninfo <- list(
 )
 
 # POSTING METRICS TO SCENARIO PROPERTIES ON VA HYDRO
+if (is.na(R2k7)) {
+  R2k7 = 0.0
+}
 r2k7prop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'R2k7', R2k7, site, token)
 
 R2k7sd <- sd(as.numeric(dat2k7$Runit) )
+if (is.na(R2k7sd)) {
+  R2k7sd = 0.0
+}
 r2k7prop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'R2k7sd', R2k7sd, site, token)
