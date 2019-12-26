@@ -1,13 +1,13 @@
 #!/bin/bash
 
 frac_query=`cat modules/dh_wsp/sql/create_use_fractions_wsp_virtual.sql`
-echo $frac_query | psql -h dbase2 drupal.dh03 > /tmp/virtual_use_fractions.txt 
+echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase2 drupal.dh03 > /tmp/virtual_use_fractions.txt 
 
 n=`< /tmp/virtual_use_fractions.txt wc -l`
 nm="$((n - 2))"
 head -n $nm /tmp/virtual_use_fractions.txt > /tmp/fhead.txt 
 n=`< /tmp/fhead.txt wc -l`
-nm="$((n - 2))"
+nm="$((n - 4))"
 tail -n $nm /tmp/fhead.txt > /tmp/virtual_use_fractions.txt 
 
 while IFS= read -r line; do
