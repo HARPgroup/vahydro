@@ -30,6 +30,7 @@ create temporary table tmp_wsp_virtual_fracs as (
     round(sum(intakes.wd_current_mgy)) as sw_current_mgy, 
     round(sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy)) as total_mgy,
     CASE 
+      WHEN virtual_facs.ftype = 'wsp_plan_system-ssusm' THEN 0.0 
       WHEN sum(intakes.wd_current_mgy) > 0 AND sum(wells.wd_current_mgy) IS NULL THEN 1.0
       WHEN ( sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy) ) > 0 
         THEN 
@@ -38,6 +39,7 @@ create temporary table tmp_wsp_virtual_fracs as (
       ELSE 0.0
     END as sw_frac,
     CASE 
+      WHEN virtual_facs.ftype = 'wsp_plan_system-ssusm' THEN 1.0 
       WHEN sum(wells.wd_current_mgy) > 0 AND sum(intakes.wd_current_mgy) IS NULL THEN 1.0
       WHEN ( sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy) ) > 0 
         THEN 
