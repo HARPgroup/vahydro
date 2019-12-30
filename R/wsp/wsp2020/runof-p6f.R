@@ -8,18 +8,19 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff
-elid = 210327    	
-runid = 14
-tyear = '1997'
+elid = 343816    	
+runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
 
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
-boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
+boxplot(as.numeric(dat$Qunit) ~ dat$year, ylim=c(0,3))
 # QA
-dat2k7 <- window(dat, start = as.Date(paste0(tyear,"-01-01") ), end = as.Date(paste0(tyear, "-12-31") ) );
-Rt <- mean(as.numeric(dat2k7$Runit) )
-Rtsd <- sd(as.numeric(dat2k7$Runit) )
-Rt
-Rtsd
+dat1997 <- window(dat, start = as.Date("1997-01-01"), end = as.Date("1997-12-31"));
+R1997 <- mean(as.numeric(dat1997$Qunit) )
+R199sd <- sd(as.numeric(dat1997$Qunit) )
+
+R1997
+R199sd
+plot(as.numeric(dat1997$Qout), ylim=c(0,250))
