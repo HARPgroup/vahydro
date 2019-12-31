@@ -15,6 +15,7 @@ argst <- commandArgs(trailingOnly=T)
 pid <- as.integer(argst[1])
 elid <- as.integer(argst[2])
 runid <- as.integer(argst[3])
+tyear <- as.integer(argst[4])
 
 omsite = "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
@@ -22,8 +23,8 @@ dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 #boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # QA
-dat2k7 <- window(dat, start = as.Date("2007-01-01"), end = as.Date("2007-12-31"));
-R2k7 <- mean(as.numeric(dat2k7$Runit) )
+datQA <- window(dat, start = as.Date(paste0(tyear,"-01-01"), end = as.Date(paste0(tyear,"-12-31"));
+RQA <- mean(as.numeric(datQA$Runit) )
 
 # get feature attached to this element id using REST
 element <- getProperty(list(pid=pid), base_url, prop)
@@ -58,13 +59,15 @@ sceninfo <- list(
 )
 
 # POSTING METRICS TO SCENARIO PROPERTIES ON VA HYDRO
-if (is.na(R2k7)) {
-  R2k7 = 0.0
-}
-r2k7prop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'R2k7', R2k7, site, token)
+QAyear <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'QAyear', tyear, site, token)
 
-R2k7sd <- sd(as.numeric(dat2k7$Runit) )
-if (is.na(R2k7sd)) {
-  R2k7sd = 0.0
+if (is.na(RQA)) {
+  RQA = 0.0
 }
-r2k7prop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'R2k7sd', R2k7sd, site, token)
+RQAprop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'RQA', RQA, site, token)
+
+RQAsd <- sd(as.numeric(datQA$Runit) )
+if (is.na(RQAsd)) {
+  RQAsd = 0.0
+}
+RQAprop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'RQAsd', RQAsd, site, token)
