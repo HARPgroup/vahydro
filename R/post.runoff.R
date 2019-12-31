@@ -23,7 +23,7 @@ dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 #boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # QA
-datQA <- window(dat, start = as.Date(paste0(tyear,"-01-01"), end = as.Date(paste0(tyear,"-12-31"));
+datQA <- window(dat, start = as.Date(paste0(tyear,"-01-01")), end = as.Date(paste0(tyear,"-12-31"))) 
 RQA <- mean(as.numeric(datQA$Runit) )
 
 # get feature attached to this element id using REST
