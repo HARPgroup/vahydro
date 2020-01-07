@@ -8,8 +8,8 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff 343332 210327 Occ: 229569
-elid = 212275    	
-runid = 15
+elid = 210453    	
+runid = 14
 tyear = '1997'
 
 omsite = site <- "http://deq2.bse.vt.edu"
@@ -29,3 +29,4 @@ Rt
 
 datdf <- as.data.frame(dat)
 Qyear <- sqldf("select year, avg(Runit) from datdf group by year order by year")
+
