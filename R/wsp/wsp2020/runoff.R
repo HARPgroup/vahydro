@@ -8,8 +8,8 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff 343332 210327 Occ: 229569
-elid = 210453    	
-runid = 14
+elid = 251941    	
+runid = 11
 tyear = '1997'
 
 omsite = site <- "http://deq2.bse.vt.edu"

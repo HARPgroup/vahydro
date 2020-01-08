@@ -21,6 +21,7 @@ omsite = "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
 
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
+dat$Runit <- as.numeric(dat$Qout) / as.numeric(dat$area_sqmi)
 #boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # QA
 datQA <- window(dat, start = as.Date(paste0(tyear,"-01-01")), end = as.Date(paste0(tyear,"-12-31"))) 
