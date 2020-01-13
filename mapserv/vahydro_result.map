@@ -169,7 +169,7 @@ LAYER
      left outer join dh_properties as a 
      on ( 
        f.hydroid = a.featureid 
-       and a.propname = '%model_version%'
+       and a.propcode = '%model_version%'
      ) 
      left outer join dh_properties as b 
      on ( 
