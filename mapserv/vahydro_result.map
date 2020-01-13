@@ -82,6 +82,7 @@ WEB
       'default_div2' '-0.05'
       'default_div3' '0.05'
       'default_div4' '0.15'
+      'default_model_version' 'vahydro-1.0'
       'default_propname' 'wd_mgd'
       'default_propname1' 'auglowflow'
       'default_propname2' 'auglowflow'
