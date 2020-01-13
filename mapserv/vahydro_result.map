@@ -812,7 +812,7 @@ END
 
 LAYER
   NAME infolayer
-  STATUS ON
+  STATUS OFF
   TYPE annotation
   TRANSFORM false
   FEATURE
