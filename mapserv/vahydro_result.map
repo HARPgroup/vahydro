@@ -810,54 +810,5 @@ LAYER
    END
 END
 
-LAYER
-  NAME infolayer
-  STATUS OFF
-  TYPE annotation
-  TRANSFORM false
-  FEATURE
-    POINTS
-      425 35 #this is the position of the text in image coordinates (pixels)
-    END
-    TEXT " Comparison of %propname1% metrics for runs %runid1% and %runid2%    " #this is your displaying text
-  END   
-  CLASS
-    #NAME thislabel
-    EXPRESSION ( %propname1% == 'auglowflow' )
-    LABEL #defines the font, colors etc. of the text
-      TEXT "      Comparison of August Low-Flow metrics      "
-      FONT "arial"
-      TYPE TRUETYPE
-      SIZE 10
-      BUFFER 1
-      COLOR 0 0 0
-      FORCE TRUE
-    END
-  END 
-  CLASS
-    #NAME thislabel
-    EXPRESSION ( %propname1% == '7q10' )
-    LABEL #defines the font, colors etc. of the text
-      TEXT "      Comparison of 7Q10 metrics      "
-      FONT "arial"
-      TYPE TRUETYPE
-      SIZE 10
-      BUFFER 1
-      COLOR 0 0 0
-      FORCE TRUE
-    END
-  END 
-  CLASS
-    LABEL #defines the font, colors etc. of the text
-      TEXT "      Comparison of metrics      "
-      FONT "arial"
-      TYPE TRUETYPE
-      SIZE 10
-      BUFFER 1
-      COLOR 0 0 0
-      FORCE TRUE
-    END
-  END 
-END
 #map definition end
 END
