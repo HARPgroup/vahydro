@@ -163,7 +163,7 @@ LAYER
      from dh_feature as f 
      left outer join field_data_dh_geofield as g
      on (
-       a.hydroid = g.entity_id 
+       f.hydroid = g.entity_id 
        and g.entity_type = 'dh_feature'
      )
      left outer join dh_properties as a 
