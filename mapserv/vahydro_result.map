@@ -219,7 +219,7 @@ LAYER
       EXPRESSION ( [propvalue] >= %div1% and [propvalue] < %div2% )
       NAME "Watershed Bounds"
       #COLOR 245 245 245
-      COLOR 245 245 245
+      COLOR 210 210 210
       BACKGROUNDCOLOR 0 0 0
       OUTLINECOLOR 0 0 0
       LABEL
@@ -238,7 +238,7 @@ LAYER
       TITLE "%div2% <= %propname% < %div3%"
       EXPRESSION ( [propvalue] >= %div2% and [propvalue] < %div3% )
       NAME "Watershed Bounds"
-      COLOR 200 200 200
+      COLOR 180 180 180
       BACKGROUNDCOLOR 0 0 0
       OUTLINECOLOR 0 0 0
       LABEL
@@ -256,7 +256,7 @@ LAYER
       NAME Class4
       TITLE "%div3% <= %propname% < %div4%"
       EXPRESSION ( [propvalue] >= %div3% and [propvalue] < %div4% )
-      COLOR 150 150 150
+      COLOR 120 120 120
       BACKGROUNDCOLOR 0 0 0
       OUTLINECOLOR 0 0 0
       LABEL
@@ -274,7 +274,7 @@ LAYER
       NAME Class5
       TITLE "%div4% <= %propname% "
       EXPRESSION ( [propvalue] >= %div4% )
-      COLOR 100 100 100
+      COLOR 75 75 75
       BACKGROUNDCOLOR 0 0 0
       OUTLINECOLOR 0 0 0
       LABEL
