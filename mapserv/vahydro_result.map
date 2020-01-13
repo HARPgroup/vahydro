@@ -138,185 +138,188 @@ LAYER
 END
 
 LAYER
-   NAME model_run_info
-   METADATA
-      "wfs_title"    "Model Run Status Info" ## REQUIRED
-      "wfs_srs"           "EPSG:4326" ## REQUIRED
-      "gml_featureid" "hydroid" ## REQUIRED
-      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
-      "wfs_enable_request" "*"
-	  "wfs_version" "1.0.0"
-   END
-   CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres dbname=drupal.dh03"
-   TYPE POLYGON
-   STATUS OFF
-   DUMP TRUE
-   DEBUG ON
-   # Query ties a control point to its parent
-   DATA "dh_geofield_geom FROM (
-     select g.dh_geofield_geom, 
-       b.pid, a.propcode as model_version, 
-       f.name, f.ftype, 
-       b.propname as runid, 
-       c.propvalue
-     from dh_feature as f 
-     left outer join field_data_dh_geofield as g
-     on (
-       f.hydroid = g.entity_id 
-       and g.entity_type = 'dh_feature'
-     )
-     left outer join dh_properties as a 
-     on ( 
-       f.hydroid = a.featureid 
-       and a.propcode = '%model_version%'
+  NAME model_run_info
+  METADATA
+    "wfs_title"    "Model Run Status Info" ## REQUIRED
+    "wfs_srs"           "EPSG:4326" ## REQUIRED
+    "gml_featureid" "hydroid" ## REQUIRED
+    "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+    "wfs_enable_request" "*"
+  "wfs_version" "1.0.0"
+  END
+  CONNECTIONTYPE postgis
+  CONNECTION "host=192.168.0.21 user=postgres dbname=drupal.dh03"
+  TYPE POLYGON
+  STATUS OFF
+  DUMP TRUE
+  DEBUG ON
+  # Query ties a control point to its parent
+  DATA "dh_geofield_geom FROM (
+    select g.dh_geofield_geom, 
+     b.pid, a.propcode as model_version, 
+     f.name, f.ftype, 
+     b.propname as runid, 
+    CASE
+       WHEN c.propvalue is null THEN -99999      
+       ELSE c.propvalue 
+    END as propvalue 
+    from dh_feature as f 
+    left outer join field_data_dh_geofield as g
+    on (
+     f.hydroid = g.entity_id 
+     and g.entity_type = 'dh_feature'
+    )
+    left outer join dh_properties as a 
+    on ( 
+     f.hydroid = a.featureid 
+     and a.propcode = '%model_version%'
+    ) 
+    left outer join dh_properties as b 
+    on ( 
+     a.pid = b.featureid 
+     and b.propname = '%runid%'
+    ) 
+    left outer join dh_properties as c 
+    on ( 
+     b.pid = c.featureid 
+     and c.propname = '%propname%' 
+    ) 
+    where f.ftype in (
+     'vahydro'
      ) 
-     left outer join dh_properties as b 
-     on ( 
-       a.pid = b.featureid 
-       and b.propname = '%runid%'
-     ) 
-     left outer join dh_properties as c 
-     on ( 
-       b.pid = c.featureid 
-       and c.propname = '%propname%' 
-     ) 
-     where f.ftype in (
-       'vahydro'
-       ) 
-       and a.propcode = '%model_version%'
-       and b.propname = '%runid%'
-       and c.propname = '%propname%' 
-     ) AS foo USING UNIQUE pid using SRID=4326 "
-   #FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
-   TEMPLATE webmap.html
-   #LABELITEM "name"
-   #MINSCALE 1000
-   #MAXSCALE 50000
-   CLASS
-      NAME Class1
-      TITLE "%propname% < %div1%"
-      EXPRESSION ( [propvalue] < %div1% )
-      NAME "Watershed Bounds"
-      #COLOR 245 245 245
-      COLOR 250 250 250
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME Class2
-      TITLE "%div1% <= %propname% < %div2%"
-      EXPRESSION ( [propvalue] >= %div1% and [propvalue] < %div2% )
-      NAME "Watershed Bounds"
-      #COLOR 245 245 245
-      COLOR 210 210 210
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME Class3
-      TITLE "%div2% <= %propname% < %div3%"
-      EXPRESSION ( [propvalue] >= %div2% and [propvalue] < %div3% )
-      NAME "Watershed Bounds"
-      COLOR 180 180 180
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME Class4
-      TITLE "%div3% <= %propname% < %div4%"
-      EXPRESSION ( [propvalue] >= %div3% and [propvalue] < %div4% )
-      COLOR 120 120 120
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME Class5
-      TITLE "%div4% <= %propname% "
-      EXPRESSION ( [propvalue] >= %div4% )
-      COLOR 75 75 75
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME "Undefined"
-      COLOR 0 0 0
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      STYLE
-        SYMBOL "hatch-simple"
-        COLOR 255 255 255
-        SIZE 10
-        WIDTH 6
-        ANGLE 45
-        OPACITY 10
-      END # STYLE
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   TOLERANCE 10
-   PROJECTION
-   # EPSG SRID = 4326
-     "init=epsg:4326"
-   END
+     and a.propcode = '%model_version%'
+     and b.propname = '%runid%'
+     and c.propname = '%propname%' 
+  ) AS foo USING UNIQUE pid using SRID=4326 "
+  #FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
+  TEMPLATE webmap.html
+  #LABELITEM "name"
+  #MINSCALE 1000
+  #MAXSCALE 50000
+  CLASS
+    NAME Class1
+    TITLE "%propname% < %div1%"
+    EXPRESSION ( [propvalue] < %div1% )
+    NAME "Watershed Bounds"
+    #COLOR 245 245 245
+    COLOR 250 250 250
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME Class2
+    TITLE "%div1% <= %propname% < %div2%"
+    EXPRESSION ( [propvalue] >= %div1% and [propvalue] < %div2% )
+    NAME "Watershed Bounds"
+    #COLOR 245 245 245
+    COLOR 210 210 210
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME Class3
+    TITLE "%div2% <= %propname% < %div3%"
+    EXPRESSION ( [propvalue] >= %div2% and [propvalue] < %div3% )
+    NAME "Watershed Bounds"
+    COLOR 180 180 180
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME Class4
+    TITLE "%div3% <= %propname% < %div4%"
+    EXPRESSION ( [propvalue] >= %div3% and [propvalue] < %div4% )
+    COLOR 120 120 120
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME Class5
+    TITLE "%div4% <= %propname% "
+    EXPRESSION ( [propvalue] >= %div4% )
+    COLOR 75 75 75
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME "Undefined"
+    COLOR 0 0 0
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    STYLE
+      SYMBOL "hatch-simple"
+      COLOR 255 255 255
+      SIZE 10
+      WIDTH 6
+      ANGLE 45
+      OPACITY 10
+    END # STYLE
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  TOLERANCE 10
+  PROJECTION
+  # EPSG SRID = 4326
+   "init=epsg:4326"
+  END
 END
 
 
