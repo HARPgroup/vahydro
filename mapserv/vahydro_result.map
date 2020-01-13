@@ -299,7 +299,7 @@ LAYER
     OUTLINECOLOR 0 0 0
     STYLE
       SYMBOL "hatch-simple"
-      COLOR 255 255 255
+      COLOR 0 0 0
       SIZE 10
       WIDTH 6
       ANGLE 45
