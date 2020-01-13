@@ -301,9 +301,9 @@ LAYER
       SYMBOL "hatch-simple"
       COLOR 0 0 0
       SIZE 10
-      WIDTH 6
+      WIDTH 2
       ANGLE 45
-      OPACITY 10
+      OPACITY 50
     END # STYLE
   END
   TOLERANCE 10
