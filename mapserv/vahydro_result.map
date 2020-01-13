@@ -116,7 +116,7 @@ LAYER
      )
      where a.ftype in ('vahydro') 
      and a.bundle = '%bundle%' 
-   ) AS foo USING UNIQUE hydroid"
+   ) AS foo USING UNIQUE hydroid using SRID=4326 "
    #FILTER "runid = 22"
    TEMPLATE webmap.html
    #MINSCALE 1000
@@ -186,7 +186,7 @@ LAYER
        and a.propcode = '%model_version%'
        and b.propname = '%runid%'
        and c.propname = '%propname%' 
-     ) AS foo USING UNIQUE pid"
+     ) AS foo USING UNIQUE pid using SRID=4326 "
    FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
    TEMPLATE webmap.html
    LABELITEM "name"
