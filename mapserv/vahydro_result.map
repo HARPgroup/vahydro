@@ -289,11 +289,18 @@ LAYER
       END
    END
    CLASS
-      NAME Defclass
-      #COLOR 245 245 245
-      COLOR 162 181 205
+      NAME "Undefined"
+      COLOR 0 0 0
       BACKGROUNDCOLOR 0 0 0
       OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 255 255 255
+        SIZE 10
+        WIDTH 6
+        ANGLE 45
+        OPACITY 10
+      END # STYLE
       LABEL
         COLOR 132 31 31
         TYPE TRUETYPE
