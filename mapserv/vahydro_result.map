@@ -92,7 +92,7 @@ WEB
 END
 
 LAYER
-   NAME model_element_info
+   NAME model_element_bg
    METADATA
       "wfs_title"    "Model Element Info" ## REQUIRED
       "wfs_srs"           "EPSG:4326" ## REQUIRED
@@ -187,9 +187,6 @@ LAYER
     where f.ftype in (
      'vahydro'
      ) 
-     and a.propcode = '%model_version%'
-     and b.propname = '%runid%'
-     and c.propname = '%propname%' 
   ) AS foo USING UNIQUE pid using SRID=4326 "
   #FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
   TEMPLATE webmap.html
