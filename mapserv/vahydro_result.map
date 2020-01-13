@@ -254,8 +254,7 @@ LAYER
    END
    CLASS
       NAME Class4
-      TITLE "%div3% <= %propname% < %div4%"
-      EXPRESSION ( [propvalue] >= %div3% and [propvalue] < %div4% )
+      EXPRESSION ( [propvalue] >= %div3% )
       COLOR 245 245 245
       BACKGROUNDCOLOR 0 0 0
       OUTLINECOLOR 0 0 0
@@ -271,25 +270,6 @@ LAYER
       END
    END
    CLASS
-   CLASS
-      NAME Class5
-      TITLE "%div4% < %propname%"
-      EXPRESSION ( [propvalue] >= %div2% and [propvalue] < %div3% )
-      NAME "Watershed Bounds"
-      COLOR 200 200 200
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
       NAME Defclass
       #COLOR 245 245 245
       COLOR 162 181 205
