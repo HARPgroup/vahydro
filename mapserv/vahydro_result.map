@@ -61,27 +61,32 @@ WEB
   END
    TEMPLATE webmap.html
    VALIDATION
-      'runid'   '[0-9]+$'
-      'runid1'   '[0-9]+$'
-      'runid2'   '[0-9]+$'
-      'pscen'    '[0-9]+$'
+      'runid'   '[0-9a-zA-Z_\-]+$'
+      'runid1'   '[0-9a-zA-Z_\-]+$'
+      'runid2'   '[0-9a-zA-Z_\-]+$'
+      'model_version'    '[0-9a-zA-Z_\-]+$'
       'div1'     '[0-9\.\-]+$'
       'div2'     '[0-9\.\-]+$'
       'div3'     '[0-9\.\-]+$'
       'div4'     '[0-9\.\-]+$'
-      'dataname'     '[0-9a-zA-Z\-]+$'
-      'dataname1'     '[0-9a-zA-Z\-]+$'
-      'dataname2'     '[0-9a-zA-Z\-]+$'
-      'default_runid' '21'
-      'default_runid1' '21'
-      'default_runid2' '22'
-      'default_pscen' '37'
+      'propname'     '[0-9a-zA-Z_\-]+$'
+      'propname1'     '[0-9a-zA-Z_\-]+$'
+      'propname2'     '[0-9a-zA-Z_\-]+$'
+      'bundle'     '[0-9a-zA-Z_\-]+$'
+      'ftype'     '[0-9a-zA-Z_\-]+$'
+      'default_runid' 'runid_11'
+      'default_runid1' 'runid_11'
+      'default_runid2' 'runid_12'
+      'default_model_version' 'vahydro-1.0'
       'default_div1' '-0.15'
       'default_div2' '-0.05'
       'default_div3' '0.05'
       'default_div4' '0.15'
-      'default_dataname1' 'auglowflow'
-      'default_dataname2' 'auglowflow'
+      'default_propname' 'wd_mgd'
+      'default_propname1' 'auglowflow'
+      'default_propname2' 'auglowflow'
+      'default_bundle' 'watershed'
+      'default_ftype' 'vahydro'
    END
 END
 
@@ -90,18 +95,18 @@ LAYER
    METADATA
       "wfs_title"    "Model Element Info" ## REQUIRED
       "wfs_srs"           "EPSG:4326" ## REQUIRED
-      "gml_featureid" "elementid" ## REQUIRED
+      "gml_featureid" "hydroid" ## REQUIRED
       "gml_include_items" "all"  ## Optional (serves all attributes for layer)
       "wfs_enable_request" "*"
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres dbname=model"
    TYPE POLYGON
    STATUS DEFAULT
    DUMP TRUE
    DEBUG OFF
-   DATA "poly_geom FROM (select a.poly_geom, a.elementid, a.elemname, a.custom1, a.custom2 from scen_model_element as a where a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %pscen% ) AS foo USING UNIQUE elementid"
+   DATA "dh_geofield_geom FROM (select b.dh_geofield_geom, a.hydroid, a.name, a.ftype from dh_feature as a where a.ftype in ('vahydro') and a.bundle = '%bundle%' ) AS foo USING UNIQUE hydroid"
    #FILTER "runid = 22"
    TEMPLATE webmap.html
    #MINSCALE 1000
@@ -126,27 +131,55 @@ LAYER
    METADATA
       "wfs_title"    "Model Run Status Info" ## REQUIRED
       "wfs_srs"           "EPSG:4326" ## REQUIRED
-      "gml_featureid" "elementid" ## REQUIRED
+      "gml_featureid" "hydroid" ## REQUIRED
       "gml_include_items" "all"  ## Optional (serves all attributes for layer)
       "wfs_enable_request" "*"
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres dbname=drupal.dh03"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
    DEBUG OFF
    # Query ties a control point to its parent
-   DATA "poly_geom FROM (select a.poly_geom, b.elementid, a.scenarioid, a.elemname, a.custom1, a.custom2, b.runid, b.dataname, b.dataval, b.datatext from scen_model_element as a left outer join scen_model_run_data as b on ( a.elementid = b.elementid) where a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %pscen% and b.runid = %runid% and b.dataname = '%dataname%' ) AS foo USING UNIQUE elementid"
-   FILTER "scenarioid = %pscen% and runid = %runid% and dataname = '%dataname%' "
+   DATA "dh_geofield_geom FROM (
+     select g.dh_geofield_geom, 
+       b.pid, a.propcode as model_version, 
+       f.name, f.ftype, 
+       b.propname as runid, 
+       c.propvalue
+     from dh_feature as f 
+     from dh_properties as a 
+     on ( 
+       f.hydroid = a.featureid 
+       and a.propname = '%model_version%'
+     ) 
+     left outer join dh_properties as b 
+     on ( 
+       a.pid = b.featureid 
+       and b.propname = '%runid%'
+     ) 
+     left outer join dh_properties as c 
+     on ( 
+       b.pid = c.featureid 
+       and c.propname = '%propname%' 
+     ) 
+     where f.ftype in (
+       'vahydro'
+       ) 
+       and a.propcode = '%model_version%'
+       and b.propname = '%runid%'
+       and c.propname = '%propname%' 
+     ) AS foo USING UNIQUE pid"
+   FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
    TEMPLATE webmap.html
-   LABELITEM "elemname"
+   LABELITEM "name"
    #MINSCALE 1000
    #MAXSCALE 50000
    CLASS
       NAME Class1
-      EXPRESSION ( [dataval] < %div1% )
+      EXPRESSION ( [propvalue] < %div1% )
       NAME "Watershed Bounds"
       #COLOR 245 245 245
       COLOR 100 100 100
@@ -165,7 +198,7 @@ LAYER
    END
    CLASS
       NAME Class2
-      EXPRESSION ( [dataval] >= %div1% and [dataval] < %div2% )
+      EXPRESSION ( [propvalue] >= %div1% and [propvalue] < %div2% )
       NAME "Watershed Bounds"
       #COLOR 245 245 245
       COLOR 150 150 150
@@ -184,7 +217,7 @@ LAYER
    END
    CLASS
       NAME Class3
-      EXPRESSION ( [dataval] >= %div2% and [dataval] < %div3% )
+      EXPRESSION ( [propvalue] >= %div2% and [propvalue] < %div3% )
       NAME "Watershed Bounds"
       COLOR 200 200 200
       BACKGROUNDCOLOR 0 0 0
@@ -202,7 +235,7 @@ LAYER
    END
    CLASS
       NAME Class4
-      EXPRESSION ( [dataval] >= %div3% )
+      EXPRESSION ( [propvalue] >= %div3% )
       COLOR 245 245 245
       BACKGROUNDCOLOR 0 0 0
       OUTLINECOLOR 0 0 0
@@ -253,24 +286,24 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro dbname=model"
+   CONNECTION "host=192.168.0.21 user=wsp_ro dbname=model"
    TYPE POINT
    STATUS off
    DUMP TRUE
    DEBUG OFF
    # Query ties a control point to its parent
    DATA "point_geom FROM (
-     select a.point_geom, b.elementid, a.scenarioid, a.elemname, 
-       a.custom1, a.custom2, b.runid, b.dataname, b.dataval, b.datatext, 
-       (4 * ceil(sqrt((b.dataval)))) as curr_scale        
-     from scen_model_element as a left outer join scen_model_run_data as b 
-     on ( a.elementid = b.elementid) 
-     where a.custom1 in ('cova_withdrawal') 
-       and a.scenarioid = %pscen% 
+     select a.point_geom, b.hydroid, a.scenarioid, a.name, 
+       a.ftype, a.custom2, b.runid, b.propname, b.propvalue, b.datatext, 
+       (4 * ceil(sqrt((b.propvalue)))) as curr_scale        
+     from scen_model_element as a left outer join dh_properties as b 
+     on ( a.hydroid = b.hydroid) 
+     where a.ftype in ('cova_withdrawal') 
+       and a.scenarioid = %model_version% 
        and b.runid = %runid% 
-       and b.dataname = '%dataname%' 
-     ) AS foo USING UNIQUE elementid"
-   FILTER "scenarioid = %pscen% and runid = %runid% and dataname = '%dataname%' "
+       and b.propname = '%propname%' 
+     ) AS foo USING UNIQUE hydroid"
+   FILTER "scenarioid = %model_version% and runid = %runid% and propname = '%propname%' "
    TEMPLATE drought.html
    #MINSCALE 1000
    #MAXSCALE 50000
@@ -296,31 +329,31 @@ LAYER
    METADATA
       "wfs_title"    "Model Run Status Info" ## REQUIRED
       "wfs_srs"           "EPSG:4326" ## REQUIRED
-      "gml_featureid" "elementid" ## REQUIRED
+      "gml_featureid" "hydroid" ## REQUIRED
       "gml_include_items" "all"  ## Optional (serves all attributes for layer)
       "wfs_enable_request" "*"
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres dbname=model"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
    DEBUG OFF
    # Query ties a control point to its parent
-   DATA "poly_geom FROM (select a.poly_geom, b.elementid, a.scenarioid, a.elemname, a.custom1, a.custom2, b.runid, b.dataname,
+   DATA "dh_geofield_geom FROM (select a.dh_geofield_geom, b.hydroid, a.scenarioid, a.name, a.ftype, a.custom2, b.runid, b.propname,
       CASE
-         WHEN b.dataval is null THEN -99999      
-         ELSE b.dataval 
-      END as dataval, 
-   b.datatext from scen_model_element as a left outer join scen_model_run_data as b on ( a.elementid = b.elementid) where a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %pscen% and b.runid = %runid% and b.dataname = '%dataname%' ) AS foo USING UNIQUE elementid"
-   FILTER "scenarioid = %pscen% and runid = %runid% and dataname = '%dataname%' "
+         WHEN b.propvalue is null THEN -99999      
+         ELSE b.propvalue 
+      END as propvalue, 
+   b.datatext from scen_model_element as a left outer join dh_properties as b on ( a.hydroid = b.hydroid) where a.ftype in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %model_version% and b.runid = %runid% and b.propname = '%propname%' ) AS foo USING UNIQUE hydroid"
+   FILTER "scenarioid = %model_version% and runid = %runid% and propname = '%propname%' "
    TEMPLATE webmap.html
-   #LABELITEM "elemname"
+   #LABELITEM "name"
    #MINSCALE 1000
    #MAXSCALE 50000
    CLASS
-      EXPRESSION ( [dataval] >= 0.0 and [dataval] < 5.0 )
+      EXPRESSION ( [propvalue] >= 0.0 and [propvalue] < 5.0 )
       NAME "0 to 10.0"
       COLOR 223 223 226
       BACKGROUNDCOLOR 0 0 0
@@ -337,7 +370,7 @@ LAYER
       END
    END
    CLASS
-      EXPRESSION ( [dataval] > 5.0 and [dataval] < 10.0 )
+      EXPRESSION ( [propvalue] > 5.0 and [propvalue] < 10.0 )
       NAME "10.0 to 25.0"
       COLOR 192 192 197
       BACKGROUNDCOLOR 0 0 0
@@ -354,7 +387,7 @@ LAYER
       END
    END
    CLASS
-      EXPRESSION ( [dataval] > 10.0 and [dataval] < 25.0 )
+      EXPRESSION ( [propvalue] > 10.0 and [propvalue] < 25.0 )
       NAME "25.0 to 50.0"
       COLOR 161 160 168
       BACKGROUNDCOLOR 0 0 0
@@ -371,7 +404,7 @@ LAYER
       END
    END
    CLASS
-      EXPRESSION ( [dataval] > 25.0 and [dataval] < 50.0 )
+      EXPRESSION ( [propvalue] > 25.0 and [propvalue] < 50.0 )
       NAME "50.0 to 100.0"
       COLOR 129 129 139
       BACKGROUNDCOLOR 0 0 0
@@ -388,7 +421,7 @@ LAYER
       END
    END
    CLASS
-      EXPRESSION ( [dataval] > 50.0 and [dataval] < 100.0 )
+      EXPRESSION ( [propvalue] > 50.0 and [propvalue] < 100.0 )
       NAME "100.0 to 200.0"
       COLOR 98 97 110
       BACKGROUNDCOLOR 0 0 0
@@ -405,7 +438,7 @@ LAYER
       END
    END
    CLASS
-      EXPRESSION ( [dataval] > 100.0 )
+      EXPRESSION ( [propvalue] > 100.0 )
       NAME "Greater than 100.0"
       COLOR 67 66 81
       BACKGROUNDCOLOR 0 0 0
@@ -457,7 +490,7 @@ LAYER
   METADATA
     "wfs_title"    "Model Run Status Info" ## REQUIRED
     "wfs_srs"           "EPSG:4326" ## REQUIRED
-    "gml_featureid" "elementid" ## REQUIRED
+    "gml_featureid" "hydroid" ## REQUIRED
     "gml_include_items" "all"  ## Optional (serves all attributes for layer)
     "wfs_enable_request" "*"
   "wfs_version" "1.0.0"
@@ -469,10 +502,10 @@ LAYER
   DUMP TRUE
   DEBUG OFF
   # Query ties a control point to its parent
-  DATA "poly_geom FROM (
-    select geo.dh_geofield_geom, b.elementid, a.scenarioid, 
-      a.elemname, a.custom1, a.custom2, b.runid, 
-      b.dataname, b.dataval, b.datatext 
+  DATA "dh_geofield_geom FROM (
+    select geo.dh_geofield_geom, b.hydroid, a.scenarioid, 
+      a.name, a.ftype, a.custom2, b.runid, 
+      b.propname, b.propvalue, b.datatext 
     from dh_feature as a 
     left outer join dh_properties as model
     on ( 
@@ -489,20 +522,20 @@ LAYER
     on ( 
       scen.pid = att.featureid
       and att.entity_type = 'dh_properties'
-      and att.propname = '%dataname%' 
+      and att.propname = '%propname%' 
     ) 
     where a.ftype = 'vahydro'
       and b.pid is not null 
-      and a.scenarioid = %pscen% 
-      and b.runid = %runid% and b.dataname = '%dataname%' 
-    ) AS foo USING UNIQUE elementid"
-  FILTER "scenarioid = %pscen% and runid = %runid% and dataname = '%dataname%' "
+      and a.scenarioid = %model_version% 
+      and b.runid = %runid% and b.propname = '%propname%' 
+    ) AS foo USING UNIQUE hydroid"
+  FILTER "scenarioid = %model_version% and runid = %runid% and propname = '%propname%' "
   TEMPLATE webmap.html
-  #LABELITEM "elemname"
+  #LABELITEM "name"
   #MINSCALE 1000
   #MAXSCALE 50000
   CLASS
-    EXPRESSION ( [dataval] > 0.0 and [dataval] < 10.0 )
+    EXPRESSION ( [propvalue] > 0.0 and [propvalue] < 10.0 )
     NAME "0 to 10.0"
     COLOR 223 223 226
     BACKGROUNDCOLOR 0 0 0
@@ -519,7 +552,7 @@ LAYER
     END
   END
   CLASS
-    EXPRESSION ( [dataval] > 10.0 and [dataval] < 25.0 )
+    EXPRESSION ( [propvalue] > 10.0 and [propvalue] < 25.0 )
     NAME "10.0 to 25.0"
     COLOR 192 192 197
     BACKGROUNDCOLOR 0 0 0
@@ -536,7 +569,7 @@ LAYER
     END
   END
   CLASS
-    EXPRESSION ( [dataval] > 25.0 and [dataval] < 50.0 )
+    EXPRESSION ( [propvalue] > 25.0 and [propvalue] < 50.0 )
     NAME "25.0 to 50.0"
     COLOR 161 160 168
     BACKGROUNDCOLOR 0 0 0
@@ -553,7 +586,7 @@ LAYER
     END
   END
   CLASS
-    EXPRESSION ( [dataval] > 50.0 and [dataval] < 100.0 )
+    EXPRESSION ( [propvalue] > 50.0 and [propvalue] < 100.0 )
     NAME "50.0 to 100.0"
     COLOR 129 129 139
     BACKGROUNDCOLOR 0 0 0
@@ -570,7 +603,7 @@ LAYER
     END
   END
   CLASS
-    EXPRESSION ( [dataval] > 100.0 and [dataval] < 200.0 )
+    EXPRESSION ( [propvalue] > 100.0 and [propvalue] < 200.0 )
     NAME "100.0 to 200.0"
     COLOR 98 97 110
     BACKGROUNDCOLOR 0 0 0
@@ -587,7 +620,7 @@ LAYER
     END
   END
   CLASS
-    EXPRESSION ( [dataval] > 200.0 )
+    EXPRESSION ( [propvalue] > 200.0 )
     NAME "Greater than 200.0"
     COLOR 67 66 81
     BACKGROUNDCOLOR 0 0 0
@@ -632,11 +665,11 @@ LAYER
    METADATA
       "wfs_title"    "Model Run Comparison Info" ## REQUIRED
       "wfs_srs"           "EPSG:4326" ## REQUIRED
-      "gml_featureid" "elementid" ## REQUIRED
+      "gml_featureid" "hydroid" ## REQUIRED
       "gml_include_items" "all"  ## Optional (serves all attributes for layer)
 	   "gml_delta_pct_type" "double"
-	   "gml_dataval_run1_type" "double"
-	   "gml_dataval_run2_type" "double"
+	   "gml_propvalue_run1_type" "double"
+	   "gml_propvalue_run2_type" "double"
 	   "gml_run1_id_type" "integer"
 	   "gml_run2_id_type" "integer"
 	   "gml_delta_pct_type" "double"
@@ -646,18 +679,18 @@ LAYER
    VALIDATION
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres dbname=model"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
    DEBUG OFF
    # Query only uses parent
    # Try to include HUC screening
-   # DATA "poly_geom FROM ( select a.poly_geom, a.elemname, a.elementid, foo.runid as run1_id, bar.runid as run2_id, foo.dataval as dataval_run1, bar.dataval as dataval_run2, CASE WHEN ( (foo.dataval is null) or (bar.dataval is null) ) THEN NULL WHEN foo.dataval > 0 THEN round(((bar.dataval - foo.dataval) / foo.dataval)::numeric,4) ELSE 0.0 END as delta_pct from scen_model_element as a left outer join scen_model_run_data as foo on (a.elementid = foo.elementid and foo.runid = %runid1% and foo.dataname = '%dataname1%' )  left outer join scen_model_run_data as bar on (a.elementid = bar.elementid and bar.runid = %runid2% and bar.dataname = '%dataname2%' ) left outer join huc_va as palooza on (a.the_geom && palooza.the_geom and contains(palooza.the_geom,  ST_PointOnSurface(a.poly_geom)) ) where a.scenarioid = %pscen% and ( (palooza.huc = '%huc%') OR ('%huc%' = '') ) ) AS foobar USING UNIQUE elementid"
+   # DATA "dh_geofield_geom FROM ( select a.dh_geofield_geom, a.name, a.hydroid, foo.runid as run1_id, bar.runid as run2_id, foo.propvalue as propvalue_run1, bar.propvalue as propvalue_run2, CASE WHEN ( (foo.propvalue is null) or (bar.propvalue is null) ) THEN NULL WHEN foo.propvalue > 0 THEN round(((bar.propvalue - foo.propvalue) / foo.propvalue)::numeric,4) ELSE 0.0 END as delta_pct from scen_model_element as a left outer join dh_properties as foo on (a.hydroid = foo.hydroid and foo.runid = %runid1% and foo.propname = '%propname1%' )  left outer join dh_properties as bar on (a.hydroid = bar.hydroid and bar.runid = %runid2% and bar.propname = '%propname2%' ) left outer join huc_va as palooza on (a.the_geom && palooza.the_geom and contains(palooza.the_geom,  ST_PointOnSurface(a.dh_geofield_geom)) ) where a.scenarioid = %model_version% and ( (palooza.huc = '%huc%') OR ('%huc%' = '') ) ) AS foobar USING UNIQUE hydroid"
    #
-   DATA "poly_geom FROM ( select a.poly_geom, a.elemname, a.elementid, foo.dataname, foo.runid as run1_id, bar.runid as run2_id, foo.dataval as dataval_run1, bar.dataval as dataval_run2, CASE WHEN ( (foo.dataval is null) or (bar.dataval is null) ) THEN -99999 WHEN foo.dataval > 0 THEN round(((bar.dataval - foo.dataval) / foo.dataval)::numeric,4) ELSE 0.0 END as delta_pct from scen_model_element as a left outer join scen_model_run_data as foo on (a.elementid = foo.elementid and foo.runid = %runid1% and foo.dataname = '%dataname1%' )  left outer join scen_model_run_data as bar on (a.elementid = bar.elementid and bar.runid = %runid2% and bar.dataname = '%dataname2%' )  where a.scenarioid = %pscen% AND a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') ) AS foobar USING UNIQUE elementid"
+   DATA "dh_geofield_geom FROM ( select a.dh_geofield_geom, a.name, a.hydroid, foo.propname, foo.runid as run1_id, bar.runid as run2_id, foo.propvalue as propvalue_run1, bar.propvalue as propvalue_run2, CASE WHEN ( (foo.propvalue is null) or (bar.propvalue is null) ) THEN -99999 WHEN foo.propvalue > 0 THEN round(((bar.propvalue - foo.propvalue) / foo.propvalue)::numeric,4) ELSE 0.0 END as delta_pct from scen_model_element as a left outer join dh_properties as foo on (a.hydroid = foo.hydroid and foo.runid = %runid1% and foo.propname = '%propname1%' )  left outer join dh_properties as bar on (a.hydroid = bar.hydroid and bar.runid = %runid2% and bar.propname = '%propname2%' )  where a.scenarioid = %model_version% AND a.ftype in ('cova_ws_subnodal', 'cova_ws_container') ) AS foobar USING UNIQUE hydroid"
    TEMPLATE webmap.html
-   LABELITEM "elemname"
+   LABELITEM "name"
    #MINSCALE 1000
    #MAXSCALE 50000
    CLASS
@@ -786,11 +819,11 @@ LAYER
     POINTS
       425 35 #this is the position of the text in image coordinates (pixels)
     END
-    TEXT " Comparison of %dataname1% metrics for runs %runid1% and %runid2%    " #this is your displaying text
+    TEXT " Comparison of %propname1% metrics for runs %runid1% and %runid2%    " #this is your displaying text
   END   
   CLASS
     #NAME thislabel
-    EXPRESSION ( %dataname1% == 'auglowflow' )
+    EXPRESSION ( %propname1% == 'auglowflow' )
     LABEL #defines the font, colors etc. of the text
       TEXT "      Comparison of August Low-Flow metrics      "
       FONT "arial"
@@ -803,7 +836,7 @@ LAYER
   END 
   CLASS
     #NAME thislabel
-    EXPRESSION ( %dataname1% == '7q10' )
+    EXPRESSION ( %propname1% == '7q10' )
     LABEL #defines the font, colors etc. of the text
       TEXT "      Comparison of 7Q10 metrics      "
       FONT "arial"
