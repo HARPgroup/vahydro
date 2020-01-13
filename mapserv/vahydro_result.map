@@ -272,7 +272,7 @@ LAYER
   END
   CLASS
     NAME Class5
-    TITLE "%div4% <= %propname% "
+    TITLE " %propname% > %div4% "
     EXPRESSION ( [propvalue] >= %div4% )
     COLOR 75 75 75
     BACKGROUNDCOLOR 0 0 0
