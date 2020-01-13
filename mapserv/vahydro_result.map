@@ -152,7 +152,7 @@ LAYER
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
-   DEBUG OFF
+   DEBUG ON
    # Query ties a control point to its parent
    DATA "dh_geofield_geom FROM (
      select g.dh_geofield_geom, 
