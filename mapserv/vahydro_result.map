@@ -292,6 +292,7 @@ LAYER
     END
   END
   CLASS
+    EXPRESSION ( [propvalue] = -99999 )
     NAME "Undefined"
     COLOR 0 0 0
     BACKGROUNDCOLOR 0 0 0
