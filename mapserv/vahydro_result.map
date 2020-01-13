@@ -254,8 +254,27 @@ LAYER
    END
    CLASS
       NAME Class4
-      EXPRESSION ( [propvalue] >= %div3% )
+      TITLE "%div3% <= %propname% < %div4%"
+      EXPRESSION ( [propvalue] >= %div3% and [propvalue] < %div4% )
       COLOR 245 245 245
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME Class5
+      TITLE "%div4% <= %propname% "
+      EXPRESSION ( [propvalue] >= %div4% )
+      COLOR 250 250 250
       BACKGROUNDCOLOR 0 0 0
       OUTLINECOLOR 0 0 0
       LABEL
