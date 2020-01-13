@@ -101,7 +101,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres dbname=drupal.dh03"
    TYPE POLYGON
    STATUS DEFAULT
    DUMP TRUE
