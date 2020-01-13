@@ -199,7 +199,7 @@ LAYER
     EXPRESSION ( 0.0 < [propvalue] < %div1% )
     NAME "Watershed Bounds"
     #COLOR 245 245 245
-    COLOR 250 250 250
+    COLOR 255 255 255
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
     LABEL
