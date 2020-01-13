@@ -188,7 +188,7 @@ LAYER
        and b.propname = '%runid%'
        and c.propname = '%propname%' 
      ) AS foo USING UNIQUE pid using SRID=4326 "
-   FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
+   #FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
    TEMPLATE webmap.html
    LABELITEM "name"
    #MINSCALE 1000
