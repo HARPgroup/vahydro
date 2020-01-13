@@ -195,8 +195,8 @@ LAYER
   #MAXSCALE 50000
   CLASS
     NAME Class1
-    TITLE "0.0 <= %propname% < %div1%"
-    EXPRESSION ( [propvalue] < %div1% )
+    TITLE "%propname% < %div1%"
+    EXPRESSION ( 0.0 < [propvalue] < %div1% )
     NAME "Watershed Bounds"
     #COLOR 245 245 245
     COLOR 250 250 250
