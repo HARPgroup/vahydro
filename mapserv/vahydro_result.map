@@ -106,7 +106,17 @@ LAYER
    STATUS DEFAULT
    DUMP TRUE
    DEBUG OFF
-   DATA "dh_geofield_geom FROM (select b.dh_geofield_geom, a.hydroid, a.name, a.ftype from dh_feature as a where a.ftype in ('vahydro') and a.bundle = '%bundle%' ) AS foo USING UNIQUE hydroid"
+   DATA "dh_geofield_geom FROM (
+     select g.dh_geofield_geom, a.hydroid, a.name, a.ftype 
+     from dh_feature as a 
+     left outer join field_data_dh_geofield as g 
+     on (
+       a.hydroid = g.entity_id 
+       and g.entity_type = 'dh_feature'
+     )
+     where a.ftype in ('vahydro') 
+     and a.bundle = '%bundle%' 
+   ) AS foo USING UNIQUE hydroid"
    #FILTER "runid = 22"
    TEMPLATE webmap.html
    #MINSCALE 1000
@@ -150,7 +160,12 @@ LAYER
        b.propname as runid, 
        c.propvalue
      from dh_feature as f 
-     from dh_properties as a 
+     left outer join field_data_dh_geofield as g
+     on (
+       a.hydroid = g.entity_id 
+       and g.entity_type = 'dh_feature'
+     )
+     left outer join dh_properties as a 
      on ( 
        f.hydroid = a.featureid 
        and a.propname = '%model_version%'
