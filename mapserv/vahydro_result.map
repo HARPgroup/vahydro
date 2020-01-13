@@ -292,7 +292,7 @@ LAYER
     EXPRESSION ( [propvalue] = -99999 )
     NAME "Undefined"
     COLOR 255 255 255
-    BACKGROUNDCOLOR 0 0 0
+    BACKGROUNDCOLOR 255 255 255
     OUTLINECOLOR 0 0 0
     STYLE
       SYMBOL "hatch-simple"
