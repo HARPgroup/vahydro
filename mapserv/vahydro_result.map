@@ -881,7 +881,7 @@ LAYER
    CLASS
       #SYMBOL 'circle'
       STYLE
-        WIDTH 10
+        WIDTH 4
       END
       NAME "Minor Basins"
       #COLOR 245 245 245
