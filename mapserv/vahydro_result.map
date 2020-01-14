@@ -846,5 +846,52 @@ LAYER
    END
 END
 
+LAYER
+   NAME minor_basins
+   METADATA
+      "wfs_title"    "CBP Minor Basins" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "hydroid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.21 user=postgres dbname=drupal.dh03"
+   TYPE POLYGON
+   STATUS DEFAULT
+   DUMP TRUE
+   DEBUG OFF
+   DATA "dh_geofield_geom FROM (
+     select g.dh_geofield_geom, a.hydroid, a.name, a.ftype 
+     from dh_feature as a 
+     left outer join field_data_dh_geofield as g 
+     on (
+       a.hydroid = g.entity_id 
+       and g.entity_type = 'dh_feature'
+     )
+     where a.ftype in ('vahydro_cbp_minor') 
+     and a.bundle = 'watershed' 
+   ) AS foo USING UNIQUE hydroid using SRID=4326 "
+   #FILTER "runid = 22"
+   TEMPLATE webmap.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   LABELITEM "name"
+   CLASS
+      #SYMBOL 'circle'
+      SIZE 3
+      NAME "Minor Basins"
+      #COLOR 245 245 245
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
 #map definition end
 END
