@@ -880,11 +880,11 @@ LAYER
    LABELITEM "name"
    CLASS
       #SYMBOL 'circle'
-      SIZE 3
+      SIZE 5
       NAME "Minor Basins"
       #COLOR 245 245 245
       BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
+      OUTLINECOLOR 0 47 167
    END
    TOLERANCE 10
    PROJECTION
