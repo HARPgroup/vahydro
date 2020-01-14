@@ -880,7 +880,9 @@ LAYER
    LABELITEM "name"
    CLASS
       #SYMBOL 'circle'
-      WIDTH 10
+      STYLE
+        WIDTH 10
+      END
       NAME "Minor Basins"
       #COLOR 245 245 245
       BACKGROUNDCOLOR 0 0 0
