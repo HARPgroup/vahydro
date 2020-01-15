@@ -184,9 +184,8 @@ LAYER
      b.pid = c.featureid 
      and c.propname = '%propname%' 
     ) 
-    where f.ftype in (
-     '%ftype%'
-     ) 
+    where f.ftype = '%ftype%'
+      and bundle = '%bundle%'
   ) AS foo USING UNIQUE pid using SRID=4326 "
   #FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
   TEMPLATE webmap.html
