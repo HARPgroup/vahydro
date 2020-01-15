@@ -15,7 +15,6 @@ argst <- commandArgs(trailingOnly=T)
 pid <- as.integer(argst[1])
 elid <- as.integer(argst[2])
 runid <- as.integer(argst[3])
-tyear = 1997
 
 omsite = "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
@@ -23,9 +22,9 @@ dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 #boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # QA
-datQA <- window(dat, start = as.Date(paste0(tyear,"-01-01")), end = as.Date(paste0(tyear,"-12-31"))) 
-RQA <- mean(as.numeric(datQA$Runit) )
+Runits <- zoo(as.numeric(as.character( dat$Runit )), order.by = dat$thisdate);
 
+#boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # get feature attached to this element id using REST
 element <- getProperty(list(pid=pid), base_url, prop)
 # Post up a run summary for this runid
@@ -59,15 +58,22 @@ sceninfo <- list(
 )
 
 # POSTING METRICS TO SCENARIO PROPERTIES ON VA HYDRO
-QAyear <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'QAyear', tyear, site, token)
+# QA
+loflows <- group2(Runits);
+l90 <- loflows["90 Day Min"];
+ndx = which.min(as.numeric(l90[,"90 Day Min"]));
+l90_RUnit = round(loflows[ndx,]$"90 Day Min",6);
+l90_year = loflows[ndx,]$"year";
 
-if (is.na(RQA)) {
-  RQA = 0.0
+if (is.na(l90)) {
+  l90_Runit = 0.0
+  l90_year = 0
 }
-RQAprop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'RQA', RQA, site, token)
+l90prop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'l90_RUnit', l90_RUnit, site, token)
+l90yr_prop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'l90_year', l90_year, site, token)
 
-RQAsd <- sd(as.numeric(datQA$Runit) )
-if (is.na(RQAsd)) {
-  RQAsd = 0.0
+Runit <- mean(as.numeric(dat$Runit) )
+if (is.na(Runit)) {
+  Runit = 0.0
 }
-RQAprop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'RQAsd', RQAsd, site, token)
+Runitprop <- vahydro_post_metric_to_scenprop(scenprop$pid, 'om_class_Constant', NULL, 'Runit', Runit, site, token)
