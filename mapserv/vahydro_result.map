@@ -296,7 +296,7 @@ LAYER
     STYLE
       SYMBOL "hatch-simple"
       COLOR 0 0 0
-      SIZE 10
+      SIZE 5
       WIDTH 2
       ANGLE 45
       OPACITY 50
