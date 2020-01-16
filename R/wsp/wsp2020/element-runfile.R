@@ -8,9 +8,9 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff
-elid = 235605    	
-runid = 14
+elid = 278652 # 278660 #345486 #344054     	
+runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
-
+mean(as.numeric(dat$Qout) )
