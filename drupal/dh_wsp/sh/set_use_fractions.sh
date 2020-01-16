@@ -42,7 +42,8 @@ frac_query="
   )
   where mp.bundle in ('intake', 'well')
   and fac.hydroid is not null
-  and facvar.propvalue is not null
+  and facvar.propvalue is not null 
+  and fac.ftype not like 'wsp%'
   
   "
   
