@@ -45,10 +45,7 @@ frac_query="
   and facvar.propvalue is not null
   
   "
- # --and (
- # --  (facvar.propvalue > 0 and ( (mpvar.propvalue / facvar.propvalue) <> currfrac.propvalue) )
- # --  or currfrac.propvalue IS NULL
- # --)
+  
 if [ $# -gt 0 ]; then
   hydroid=$1
   frac_query="$frac_query AND fac.hydroid = $hydroid"
@@ -57,7 +54,7 @@ fi
 echo $frac_query 
 
 echo $frac_query | psql -h dbase2 drupal.dh03 > /tmp/use_fractions.txt 
-exit
+
 n=`< /tmp/use_fractions.txt wc -l`
 nm="$((n - 2))"
 head -n $nm /tmp/use_fractions.txt > /tmp/fhead.txt 
