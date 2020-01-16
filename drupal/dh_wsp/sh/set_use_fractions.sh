@@ -47,6 +47,7 @@ frac_query="
   --  (facvar.propvalue > 0 and ( (mpvar.propvalue / facvar.propvalue) <> currfrac.propvalue) )
   --  or currfrac.propvalue IS NULL
   --)
+  
   "
 if [ $# -gt 0 ]; then
   hydroid=$1
