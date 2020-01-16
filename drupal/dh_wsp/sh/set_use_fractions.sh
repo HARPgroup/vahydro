@@ -52,6 +52,7 @@ if [ $# -gt 0 ]; then
   frac_query="$frac_query AND fac.hydroid = $hydroid"
 fi 
 
+echo $frac_query 
 
 echo $frac_query | psql -h dbase2 drupal.dh03 > /tmp/use_fractions.txt 
 exit
