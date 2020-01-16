@@ -43,10 +43,11 @@ frac_query="
   where mp.bundle in ('intake', 'well')
   and fac.hydroid is not null
   and facvar.propvalue is not null
-  and (
-    (facvar.propvalue > 0 and ( (mpvar.propvalue / facvar.propvalue) <> currfrac.propvalue) )
-    or currfrac.propvalue IS NULL
-  )"
+  --and (
+  --  (facvar.propvalue > 0 and ( (mpvar.propvalue / facvar.propvalue) <> currfrac.propvalue) )
+  --  or currfrac.propvalue IS NULL
+  --)
+  "
 if [ $# -gt 0 ]; then
   hydroid=$1
   frac_query="$frac_query AND fac.hydroid = $hydroid"
