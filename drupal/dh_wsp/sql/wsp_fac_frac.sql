@@ -159,8 +159,14 @@ create view tmp_wsp_fac_net as (
     round(bar.sys_fac_frac::numeric,6) as sys_fac_frac, 
     round(bar.sys_pw_frac::numeric,6) sys_pw_frac, 
     round( (bar.sys_fac_frac * bar.sys_wd)::numeric,4) as fac_total,
-    round( (bar.sys_fac_frac * (1.0 - bar.sys_pw_frac) * bar.sys_wd)::numeric,4) as fac_net_wd,
-    round( (bar.sys_fac_frac * (1.0 - bar.sys_pw_frac) * bar.sys_future_wd)::numeric,4) as fac_net_future_wd
+    CASE 
+      WHEN  (bar.sys_fac_frac * (1.0 - bar.sys_pw_frac) * bar.sys_wd) IS NULL THEN 0.0 
+      ELSE round( (bar.sys_fac_frac * (1.0 - bar.sys_pw_frac) * bar.sys_wd)::numeric,4) 
+    END as fac_net_wd,
+    CASE 
+      WHEN  (bar.sys_fac_frac * (1.0 - bar.sys_pw_frac) * bar.sys_future_wd) IS NULL THEN 0.0 
+      ELSE round( (bar.sys_fac_frac * (1.0 - bar.sys_pw_frac) * bar.sys_future_wd)::numeric,4)
+    END as fac_net_future_wd
   from tmp_fac_current as foo 
   left outer join (
     select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid,
@@ -190,6 +196,7 @@ create view tmp_wsp_fac_net as (
     foo.hydroid = bar.hydroid 
   )
 );
+
 
 -- show only disaggregated
 --where bar.sys_fac_frac < 1.0

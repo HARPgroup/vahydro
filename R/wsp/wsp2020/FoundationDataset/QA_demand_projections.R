@@ -40,16 +40,16 @@ filename <- paste("data.all.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
 download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
 wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-
 wsp2020 <- wsp2020_load
+
 #wsp2020_2040_mgy
 localpath <- tempdir()
 filename <- paste("data.all.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
 download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
 wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-
 wsp2040 <- wsp2040_load
+
 #wd_current_mgy
 localpath <- tempdir()
 filename <- paste("data.all.csv",sep="")
@@ -58,6 +58,19 @@ download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?
 wdcurrent_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
 wdcurrent <- wdcurrent_load
+
+# Join in Programatic information / i.e., permits and plannign registrations
+wsp2020_2040 <- sqldf(
+  "select a.*, b.fac_value, b.mp_share 
+  from wsp2020 as a 
+  left outer join wsp2040 as b 
+  on (
+    a.MP_hydroid = b.MP_hydroid
+  )
+")
+# Write this file
+write.csv(wsp2020_2040,file=paste(localpath,'wsp2020.mp.all.csv',sep='\') )
+
 
 #extract only GWMA counties for Aquaveo
 # Accomack 51001
