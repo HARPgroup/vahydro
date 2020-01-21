@@ -26,6 +26,31 @@ options(scipen = 20)
 data_base_load <- read.csv(file = load_path, header = T, sep = ",")
 data_base <- data_base_load
 
+##export_path <- "U:\\OWS\\Data Development_Management\\Data Requests\\Aquaveo\\QA_check_2019\\"
+export_path <- "U:\\OWS\\Report Development\\2020 State Water Resource Update\\2020_Dataset_QA\\"
+
+#use either sys.date OR date of when export was downloaded and is in title of export
+export_date <- Sys.Date()
+#export_date <- "2019-12-26"
+# gwma_path <- "U:\\OWS\\GIS\\GWMA\\gwma_all-2015"
+# gwma_layer_name <- "gwma_all-2015"
+
+###Load in allocation view export
+#load downloaded export
+#Active, well, GWMA counties, prop_name
+#wsp2020_2020_mgy
+# wsp2020_load <- read.csv(file = paste0(export_path, paste0(export_date,"_wsp2020_2020_mgy_allocation_export.csv")), header=TRUE, sep=",")
+# wsp2020 <- wsp2020_load
+# #wsp2020_2040_mgy
+# wsp2040_load<- read.csv(file = paste0(export_path, paste0(export_date,"_wsp2020_2040_mgy_allocation_export.csv")), header=TRUE, sep=",")
+# wsp2040 <- wsp2040_load
+# #wd_current_mgy
+# wdcurrent_load <- read.csv(file = paste0(export_path, paste0("2020-01-07_wd_current_mgy_allocation_export.csv")), header=TRUE, sep=",")
+# wdcurrent <- wdcurrent_load
+# #load in sql_base_snapshot data_base .csv file 
+data_base_load <- read.csv(file = paste0(export_path, paste0("2020-01-07_data_base.csv")), header = T, sep = ",")
+data_base <- data_base_load
+
 #pull directly from VAHydro export url
 #filters used: active, well, prop_name
 #wsp2020_2020_mgy
@@ -36,14 +61,6 @@ download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?
 wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 wsp2020 <- wsp2020_load
 
-#wsp2020_2040_mgy
-localpath <- tempdir()
-filename <- paste("data.all.csv",sep="")
-destfile <- paste(localpath,filename,sep="\\")
-download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
-wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-wsp2040 <- wsp2040_load
-
 #wd_current_mgy
 localpath <- tempdir()
 filename <- paste("data.all.csv",sep="")
@@ -52,6 +69,47 @@ download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?
 wdcurrent_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
 wdcurrent <- wdcurrent_load
+
+################# Virtual Facilities Data Summary ####################################
+#virtual facilities represent county-wide estimates - each county has a wsp_category facility and 2 MPs (SW & GW) (except SSU has only GW MP) 
+localpath <- tempdir()
+filename <- paste("data_vf2020.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=All&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp",sep=""), destfile = destfile, method = "libcurl")
+vf_wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+vf_wsp2020 <- vf_wsp2020_load
+
+## Unuion virtual and non-virtual
+wsp2020 <- sqldf(
+  "select * from wsp2020
+  UNION 
+  select * from vf_wsp2020
+  "
+)
+
+# Now get 2040 values
+#wsp2020_2040_mgy
+localpath <- tempdir()
+filename <- paste("data.all.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
+wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+wsp2040 <- wsp2040_load
+#virtual facilities represent county-wide estimates - each county has a wsp_category facility and 2 MPs (SW & GW) (except SSU has only GW MP) 
+localpath <- tempdir()
+filename <- paste("data_vf2040.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp_",sep=""), destfile = destfile, method = "libcurl")
+vf_wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+vf_wsp2040 <- vf_wsp2040_load
+
+## Union virtual and non-virtual
+wsp2040 <- sqldf(
+  "select * from wsp2040
+  UNION 
+  select * from vf_wsp2040
+  "
+)
 
 # Join in Programatic information / i.e., permits and plannign registrations
 wsp2020_2040 <- sqldf(
@@ -62,9 +120,9 @@ wsp2020_2040 <- sqldf(
     a.MP_hydroid = b.MP_hydroid
   )
 ")
-# Write this file
-###write.csv(wsp2020_2040,file=paste(localpath,'wsp2020.mp.all.csv',sep='\') )
 
+# Write this fileS
+write.csv(wsp2020_2040, file=paste(localpath,'wsp2020.mp.all.csv',sep='\\' ))
 
 #extract only GWMA counties for Aquaveo
 # Accomack 51001
