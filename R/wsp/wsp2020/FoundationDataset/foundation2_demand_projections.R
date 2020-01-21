@@ -27,7 +27,7 @@ data_base_load <- read.csv(file = load_path, header = T, sep = ",")
 data_base <- data_base_load
 
 ##export_path <- "U:\\OWS\\Data Development_Management\\Data Requests\\Aquaveo\\QA_check_2019\\"
-export_path <- "U:\\OWS\\Report Development\\2020 State Water Resource Update\\2020_Dataset_QA\\"
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
 
 #use either sys.date OR date of when export was downloaded and is in title of export
 export_date <- Sys.Date()
