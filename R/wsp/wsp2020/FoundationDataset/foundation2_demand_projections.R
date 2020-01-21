@@ -113,7 +113,7 @@ wsp2040 <- sqldf(
 
 # Join in Programatic information / i.e., permits and plannign registrations
 wsp2020_2040 <- sqldf(
-  "select a.*, b.fac_value, b.mp_share 
+  "select a.*, b.fac_value as fac_value_2040, b.mp_share as mp_share_2040
   from wsp2020 as a 
   left outer join wsp2040 as b 
   on (
@@ -122,7 +122,7 @@ wsp2020_2040 <- sqldf(
 ")
 
 # Write this fileS
-write.csv(wsp2020_2040, file=paste(localpath,'wsp2020.mp.all.csv',sep='\\' ))
+write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ))
 
 #extract only GWMA counties for Aquaveo
 # Accomack 51001
