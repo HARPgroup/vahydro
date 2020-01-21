@@ -113,7 +113,9 @@ wsp2040 <- sqldf(
 
 # Join in Programatic information / i.e., permits and plannign registrations
 wsp2020_2040 <- sqldf(
-  "select a.*, b.fac_value as fac_value_2040, b.mp_share as mp_share_2040
+  "select a.*, a.mp_share as mp_2020_mgy, 
+     b.fac_value as fac_value_2040, 
+     b.mp_share as mp_2040_mgy
   from wsp2020 as a 
   left outer join wsp2040 as b 
   on (
@@ -124,6 +126,20 @@ wsp2020_2040 <- sqldf(
 # Eliminate all scientific notation errors by re-apportioning
 wsp2020_2040$mp_share = wsp2020_2040$facility_use_fraction * wsp2020_2040$fac_value
 wsp2020_2040$mp_share_2040 = wsp2020_2040$facility_use_fraction * wsp2020_2040$fac_value_2040
+wsp2020_2040$delta_2040_mgy <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy)
+wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2040_mgy
 
 # Write this fileS
 write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ))
+
+# Aggregate by Facility
+wsp_facility_2020_2040 <- sqldf(
+  " select Facility_hydroid, facility_name, facility_ftype, 
+      avg(Latitude) as Latitude, avg(Longitude) as Longitude,
+      sum(mp_2020_mgy) as fac_2020_mgy,
+      sum(mp_2040_mgy) as fac_2040_mgy
+    from wsp2020_2040 
+    group by Facility_hydroid, facility_name, facility_ftype
+  "
+)
+write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ))
