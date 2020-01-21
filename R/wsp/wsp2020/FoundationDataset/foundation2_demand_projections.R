@@ -7,6 +7,7 @@ require(httr)
 #
 basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
+export_date <- Sys.Date()
 load_path <- "C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/wsp/wsp2020/FoundationDataset/mp_permits.csv"
 output_path <- 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/wsp/wsp2020/FoundationDataset/'
 #----------------------------------------------
@@ -21,9 +22,9 @@ options(scipen = 20)
 
 #use either sys.date OR date of when export was downloaded and is in title of export
 #export_date <- Sys.Date()
- 
- data_base_load <- read.csv(file = load_path, header = T, sep = ",")
- data_base <- data_base_load
+
+data_base_load <- read.csv(file = load_path, header = T, sep = ",")
+data_base <- data_base_load
 
 #pull directly from VAHydro export url
 #filters used: active, well, prop_name
@@ -33,16 +34,16 @@ filename <- paste("data.all.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
 download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
 wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-
 wsp2020 <- wsp2020_load
+
 #wsp2020_2040_mgy
 localpath <- tempdir()
 filename <- paste("data.all.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
 download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
 wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-
 wsp2040 <- wsp2040_load
+
 #wd_current_mgy
 localpath <- tempdir()
 filename <- paste("data.all.csv",sep="")
@@ -51,6 +52,19 @@ download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?
 wdcurrent_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
 wdcurrent <- wdcurrent_load
+
+# Join in Programatic information / i.e., permits and plannign registrations
+wsp2020_2040 <- sqldf(
+  "select a.*, b.fac_value, b.mp_share 
+  from wsp2020 as a 
+  left outer join wsp2040 as b 
+  on (
+    a.MP_hydroid = b.MP_hydroid
+  )
+")
+# Write this file
+###write.csv(wsp2020_2040,file=paste(localpath,'wsp2020.mp.all.csv',sep='\') )
+
 
 #extract only GWMA counties for Aquaveo
 # Accomack 51001
@@ -241,7 +255,7 @@ no_wsp_value_with_permit <- sqldf("Select a.Facility_hydroid, a.wd_current_mgy, 
                                   ON a.Facility_hydroid = b.Facility_hydroid
                                   ORDER BY wd_current_mgy DESC")
 
-write.csv(no_wsp_value_with_permit, file = paste0(export_path, paste0(export_date,"_no_wsp_value.csv")), row.names=FALSE)
+write.csv(no_wsp_value_with_permit, file = paste0(output_path, paste0(export_date,"_no_wsp_value.csv")), row.names=FALSE)
 #returns a count of GWP facilities that do NOT have a WSP value (indicating a facility without a system link)
 count_GWP_without_wsp_value <- sqldf("Select count(Facility_hydroid) as 'GWPs without WSP Value'
                       from no_wsp_value_with_permit
@@ -272,7 +286,7 @@ all_mgd <- sqldf("select sum(wd_current_mgy)/365 as all_MGD
                     ORDER BY wd_current_mgy DESC) as top_table")
 
 unlinked_mgd <- c(all_mgd,top_20_mgd,top_10_mgd)
-write.csv(unlinked_mgd, file = paste0(export_path, paste0(export_date,"_unlinked_mgd.csv")), row.names=FALSE)
+write.csv(unlinked_mgd, file = paste0(output_path, paste0(export_date,"_unlinked_mgd.csv")), row.names=FALSE)
 
 
 ################# Virtual Facilities Data Summary ####################################
@@ -348,7 +362,7 @@ wsp2020_permitted_MP <- sqldf("SELECT a.*, b.GWP_permit
                                     ON a.Facility_hydroid = b.Facility_hydroid
                                     where b.GWP_permit = 'GWP'")
 
-write.csv(wsp2020_permitted_MP,file = paste0(export_path,"wsp_current_demand_permitted_well_",export_date, ".csv"), row.names=FALSE)
+write.csv(wsp2020_permitted_MP,file = paste0(output_path,"wsp_current_demand_permitted_well_",export_date, ".csv"), row.names=FALSE)
 
 sqldf(" select sum(wsp_2020_GW)/365
       from wsp2020_MP_share")
@@ -358,5 +372,5 @@ wsp2020_county_wide_estimate<- sqldf("SELECT
                      FROM vf_wsp2020
                      ORDER BY GW_wsp2020_MGY DESC")
 
-write.csv(wsp2020_county_wide_estimate,file = paste0(export_path,"_wsp_current_demand_county_wide_estimate",export_date, ".csv"), row.names=FALSE)
+write.csv(wsp2020_county_wide_estimate,file = paste0(output_path,"_wsp_current_demand_county_wide_estimate",export_date, ".csv"), row.names=FALSE)
 
