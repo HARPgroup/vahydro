@@ -7,7 +7,8 @@ require("sqldf")
 #
 basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
-output_path <- 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/wsp/wsp2020/FoundationDataset/'
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
+
 #----------------------------------------------
 
 #pulls directly from map export view BUT locality = NA for all rows
@@ -59,7 +60,7 @@ count_has_permit <- sqldf("Select count(MP_hydroid)
 data_base_facility <- sqldf("SELECT Facility_hydroid, GWP_permit, VWP_permit
                             FROM mp_permits
                             GROUP BY Facility_hydroid")
-write.csv(mp_permits, file = paste0(output_path, "mp_permits.csv"))
+write.csv(mp_permits, file = paste0(export_path, "mp_permits.csv"))
 
   
   
