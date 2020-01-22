@@ -7,7 +7,7 @@ require("sqldf")
 #
 basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
-output_path <- 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/wsp/wsp2020/FoundationDataset/'
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
 #----------------------------------------------
 
 #pulls directly from map export view BUT locality = NA for all rows
@@ -52,14 +52,17 @@ mp_permits <- sqldf("select a.*, case when b.MP_hydroid IS NOT NULL
                    left outer join data_vwp as c
                    on (a.MP_hydroid = c.MP_hydroid)")
 
-count_has_permit <- sqldf("Select count(MP_hydroid)
+write.csv(mp_permits, file = paste0(export_path, Sys.Date(), "_mp_permits.csv"), row.names = F)
+
+#count GWP permit
+sqldf("Select count(MP_hydroid)
                       from mp_permits
                       where GWP_permit IS NOT NULL")
-
-data_base_facility <- sqldf("SELECT Facility_hydroid, GWP_permit, VWP_permit
-                            FROM mp_permits
-                            GROUP BY Facility_hydroid")
-write.csv(mp_permits, file = paste0(output_path, "mp_permits.csv"))
+#group by facility 
+# data_base_facility <- sqldf("SELECT Facility_hydroid, GWP_permit, VWP_permit
+#                             FROM mp_permits
+#                             GROUP BY Facility_hydroid")
+# 
 
   
   
