@@ -310,3 +310,16 @@ wsp2020_county_wide_estimate<- sqldf("SELECT
 
 write.csv(wsp2020_county_wide_estimate,file = paste0(output_path,"_wsp_current_demand_county_wide_estimate",export_date, ".csv"), row.names=FALSE)
 
+
+
+
+##############################################################################################
+#EXPORT TO AQUAVEO
+#run foundation2_demand_projections scripts - then run the lines below
+
+aquaveo_export <- sqldf("SELECT MP_hydroid, MP_bundle,Facility_hydroid, facility_name, ftype, MPID, Latitude, Longitude, mp_2020_mgy, mp_2040_mgy
+                        FROM wsp2020_2040
+                        WHERE fips_code IN (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199) 
+                        AND MP_bundle = 'well' ")
+sum(aquaveo_export$mp_2020_mgy)/365
+sum(aquaveo_export$mp_2040_mgy)/365
