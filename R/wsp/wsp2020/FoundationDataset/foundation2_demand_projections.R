@@ -12,10 +12,10 @@ export_date <- Sys.Date()
 
 #JanetOriginalCode saved to common drive in data dev mngmt folder
 ##export_path <- "U:\\OWS\\Data Development_Management\\Data Requests\\Aquaveo\\QA_check_2019\\"
-export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
 
 #foundation1_mp_permits.R script writes the mp_permits.csv (aka the has_permits table)
-load_path <- "C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/wsp/wsp2020/FoundationDataset/mp_permits.csv"
+load_path <- paste0(export_path, "2020-01-22_mp_permits.csv")
 #----------------------------------------------
 
 #prevents scientific notation
@@ -29,8 +29,7 @@ options(scipen = 20)
 #use either sys.date OR date of when export was downloaded and is in title of export
 #export_date <- Sys.Date()
 
-data_base_load <- read.csv(file = load_path, header = T, sep = ",")
-data_base <- data_base_load
+data_base <- read.csv(file = load_path, header = T, sep = ",")
 
 #use either sys.date OR date of when export was downloaded and is in title of export
 export_date <- Sys.Date()
@@ -38,18 +37,7 @@ export_date <- Sys.Date()
 # gwma_path <- "U:\\OWS\\GIS\\GWMA\\gwma_all-2015"
 # gwma_layer_name <- "gwma_all-2015"
 
-data_base_load <- read.csv(file = paste0(export_path, paste0("2020-01-07_data_base.csv")), header = T, sep = ",")
-data_base <- data_base_load
-
 #pull directly from VAHydro export url
-#filters used: active, well, prop_name
-#wsp2020_2020_mgy
-localpath <- tempdir()
-filename <- paste("data.all.csv",sep="")
-destfile <- paste(localpath,filename,sep="\\")
-download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
-wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-wsp2020 <- wsp2020_load
 
 #wd_current_mgy
 localpath <- tempdir()
@@ -59,6 +47,15 @@ download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?
 wdcurrent_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
 wdcurrent <- wdcurrent_load
+
+#filters used: active, well, prop_name
+#wsp2020_2020_mgy
+localpath <- tempdir()
+filename <- paste("data.all.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
+wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+wsp2020 <- wsp2020_load
 
 ################# Virtual Facilities Data Summary ####################################
 #virtual facilities represent county-wide estimates - each county has a wsp_category facility and 2 MPs (SW & GW) (except SSU has only GW MP) 
@@ -101,7 +98,7 @@ wsp2040 <- sqldf(
   "
 )
 
-# Join in Programatic information / i.e., permits and planning registrations
+#merge wsp2020 and wsp2040 tables
 wsp2020_2040 <- sqldf(
   "select a.*, a.mp_share as mp_2020_mgy, 
      b.fac_value as fac_value_2040, 
@@ -113,14 +110,23 @@ wsp2020_2040 <- sqldf(
   )
 ")
 
+
 # Eliminate all scientific notation errors by re-apportioning
-wsp2020_2040$mp_share = wsp2020_2040$facility_use_fraction * wsp2020_2040$fac_value
-wsp2020_2040$mp_share_2040 = wsp2020_2040$facility_use_fraction * wsp2020_2040$fac_value_2040
+wsp2020_2040$mp_share_2020 <- wsp2020_2040$facility_use_fraction * wsp2020_2040$fac_value
+wsp2020_2040$mp_share_2040 <- wsp2020_2040$facility_use_fraction * wsp2020_2040$fac_value_2040
 wsp2020_2040$delta_2040_mgy <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy)
 wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2040_mgy
 
+
+# Join in Programatic information / i.e., permits and planning registrations
+join_permits <- sqldf("SELECT *
+                      FROM wsp2020_2040 as a
+                      left outer join data_base as b
+                      ON a.MP_hydroid = b.MP_hydroid")
+
 # Write this fileS
-write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ))
+write.csv(wsp2020_2040, file=paste(export_path, Sys.time(),'_wsp2020.mp.all.csv',sep='' ))
+write.csv(join_permits, file=paste(export_path,'_join_permits.csv',sep='' ))
 
 # Aggregate by Facility
 wsp_facility_2020_2040 <- sqldf(
@@ -132,4 +138,4 @@ wsp_facility_2020_2040 <- sqldf(
     group by Facility_hydroid, facility_name, facility_ftype
   "
 )
-write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ))
+write.csv(wsp2020_2040, file=paste(export_path, Sys.time(),'_wsp2020.fac.all.csv',sep='\\' ))
