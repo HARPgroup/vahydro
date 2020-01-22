@@ -18,7 +18,7 @@ output_path <- 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/w
  gwp <- '65668'
  vwuds <- '77498'
  
- #no filter on permit authority
+ #pulls all 3 (vwp, gwp, vwuds)
    localpath <- tempdir()
    filename <- paste("data.all_",y,".csv",sep="")
    destfile <- paste(localpath,filename,sep="\\")

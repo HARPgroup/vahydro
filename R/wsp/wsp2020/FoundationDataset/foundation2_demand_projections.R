@@ -4,18 +4,24 @@ require(httr)
 
 #----------------------------------------------
 # USER INPUTS
-#
+
 basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
+
 export_date <- Sys.Date()
+
+#JanetOriginalCode saved to common drive in data dev mngmt folder
+##export_path <- "U:\\OWS\\Data Development_Management\\Data Requests\\Aquaveo\\QA_check_2019\\"
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
+
+#foundation1_mp_permits.R script writes the mp_permits.csv (aka the has_permits table)
 load_path <- "C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/wsp/wsp2020/FoundationDataset/mp_permits.csv"
-output_path <- 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/wsp/wsp2020/FoundationDataset/'
 #----------------------------------------------
 
 #prevents scientific notation
 options(scipen = 20)
 #QA Check for demand projections (for Aquaveo export and SWRP update)
-# 
+
 # #load in exports
 # ##export_path <- "U:\\OWS\\Data Development_Management\\Data Requests\\Aquaveo\\QA_check_2019\\"
 # export_path <- "U:\\OWS\\Report Development\\2020 State Water Resource Update\\2020_Dataset_QA\\"
@@ -26,28 +32,12 @@ options(scipen = 20)
 data_base_load <- read.csv(file = load_path, header = T, sep = ",")
 data_base <- data_base_load
 
-##export_path <- "U:\\OWS\\Data Development_Management\\Data Requests\\Aquaveo\\QA_check_2019\\"
-export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
-
 #use either sys.date OR date of when export was downloaded and is in title of export
 export_date <- Sys.Date()
-#export_date <- "2019-12-26"
+
 # gwma_path <- "U:\\OWS\\GIS\\GWMA\\gwma_all-2015"
 # gwma_layer_name <- "gwma_all-2015"
 
-###Load in allocation view export
-#load downloaded export
-#Active, well, GWMA counties, prop_name
-#wsp2020_2020_mgy
-# wsp2020_load <- read.csv(file = paste0(export_path, paste0(export_date,"_wsp2020_2020_mgy_allocation_export.csv")), header=TRUE, sep=",")
-# wsp2020 <- wsp2020_load
-# #wsp2020_2040_mgy
-# wsp2040_load<- read.csv(file = paste0(export_path, paste0(export_date,"_wsp2020_2040_mgy_allocation_export.csv")), header=TRUE, sep=",")
-# wsp2040 <- wsp2040_load
-# #wd_current_mgy
-# wdcurrent_load <- read.csv(file = paste0(export_path, paste0("2020-01-07_wd_current_mgy_allocation_export.csv")), header=TRUE, sep=",")
-# wdcurrent <- wdcurrent_load
-# #load in sql_base_snapshot data_base .csv file 
 data_base_load <- read.csv(file = paste0(export_path, paste0("2020-01-07_data_base.csv")), header = T, sep = ",")
 data_base <- data_base_load
 
@@ -79,7 +69,7 @@ download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?
 vf_wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 vf_wsp2020 <- vf_wsp2020_load
 
-## Unuion virtual and non-virtual
+## Union virtual and non-virtual
 wsp2020 <- sqldf(
   "select * from wsp2020
   UNION 
@@ -111,7 +101,7 @@ wsp2040 <- sqldf(
   "
 )
 
-# Join in Programatic information / i.e., permits and plannign registrations
+# Join in Programatic information / i.e., permits and planning registrations
 wsp2020_2040 <- sqldf(
   "select a.*, a.mp_share as mp_2020_mgy, 
      b.fac_value as fac_value_2040, 
