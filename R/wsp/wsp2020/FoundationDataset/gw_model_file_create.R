@@ -317,9 +317,30 @@ write.csv(wsp2020_county_wide_estimate,file = paste0(output_path,"_wsp_current_d
 #EXPORT TO AQUAVEO
 #run foundation2_demand_projections scripts - then run the lines below
 
-aquaveo_export <- sqldf("SELECT MP_hydroid, MP_bundle,Facility_hydroid, facility_name, ftype, MPID, Latitude, Longitude, mp_2020_mgy, mp_2040_mgy
+aquaveo_export <- sqldf("SELECT 
+                        MP_hydroid as mp_hydroid, 
+                        MP_bundle as mp_bundle, 
+                        MPID as mp_id, 
+                        Latitude as mp_latitude, 
+                        Longitude as mp_longitude,
+                        facility_use_fraction,
+                        mp_2020_mgy,
+                        mp_2040_mgy,
+                        Facility_hydroid as facility_hydroid, 
+                        facility_name, 
+                        ftype as facility_type, 
+                        fips_code,
+                        fac_value as facility_2020_mgy, 
+                        fac_value_2040 as facility_2040_mgy
                         FROM wsp2020_2040
                         WHERE fips_code IN (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199) 
                         AND MP_bundle = 'well' ")
+write.csv(aquaveo_export, file=paste(export_path,'aquaveo_demand_export_2020.csv',sep='\\' ))
+
+
 sum(aquaveo_export$mp_2020_mgy)/365
 sum(aquaveo_export$mp_2040_mgy)/365
+
+summary_by_type <- sqldf("SELECT facility_type, sum(mp_2020_mgy), sum(mp_2040_mgy)
+                         FROM aquaveo_export
+                         GROUP BY facility_type") 

@@ -146,8 +146,6 @@ wsp2020_facility <- sqldf("SELECT
                      FROM wsp2020
                      WHERE 
                      fips_code in (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199)
-                     AND
-                     ftype NOT LIKE '%power'
                      GROUP BY Facility_hydroid
                      ORDER BY GW_share DESC")
 
@@ -161,7 +159,6 @@ wsp2040_facility <- sqldf("SELECT
                      FROM wsp2040
                      WHERE 
                      fips_code in (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199)
-                     AND ftype NOT LIKE '%power'
                      GROUP BY Facility_hydroid
                      ORDER BY GW_share DESC")
 
@@ -175,7 +172,6 @@ wdcurrent_facility <- sqldf("SELECT
                      FROM wdcurrent
                      WHERE 
                      fips_code in (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199)
-                     AND ftype NOT LIKE '%power'
                      GROUP BY Facility_hydroid
                      ORDER BY GW_share DESC")
 #sum GW_share
@@ -326,7 +322,7 @@ vf_wsp2040_type
 #pull facility hydroid where difference is greater than 20%
 on_the_fly <- sqldf("SELECT *
                     FROM facility_join
-                    WHERE (wsp_2020_mgy/wd_current_mgy) >1.2
+                    WHERE (wsp_2020_mgy/wd_current_mgy) >1.4
                     order by wsp_2020_mgy")
 #pull facility hydroid where difference is greater than 100 MGY
 on_the_fly2 <- sqldf("SELECT *
