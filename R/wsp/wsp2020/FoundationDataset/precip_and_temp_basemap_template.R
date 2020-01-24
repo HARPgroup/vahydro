@@ -1,5 +1,7 @@
-hydro_tools <- '/Users/danie/Documents/HARP/GitHub/hydro-tools';
+hydro_tools <- 'https://raw.githubusercontent.com/HARPgroup/hydro-tools';
 lseg.loc <- '/Users/danie/Documents/HARP/GitHub/cbp6/Data/CBP6_Temp_Prcp_Data/P6_LSegs_VA'
+# @todo: Repalce the above with something like below, to retrieve lseg.loc from Github
+# lseg.loc <- 'https://raw.githubusercontent.com/HARPgroup/cbp6/Data/CBP6_Temp_Prcp_Data/P6_LSegs_VA'
 
 library(ggplot2)
 library(rgeos)
@@ -19,7 +21,7 @@ lsegs.df <- merge(lsegs.df, lsegs@data, by = 'id')
 #--------------------------------------------------------------------------------------------
 #LOAD STATE GEOMETRY
 #--------------------------------------------------------------------------------------------
-STATES <- read.table(file=paste(hydro_tools,"GIS_LAYERS","STATES.tsv",sep="\\"), header=TRUE, sep="\t") #Load state geometries
+STATES <- read.table(file=paste(hydro_tools,"/master/GIS_LAYERS/STATES.tsv",sep="/"), header=TRUE, sep="\t") #Load state geometries
 
 #specify spatial extent for map  
 extent <- data.frame(x = c(-82, -75), 
