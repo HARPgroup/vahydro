@@ -85,7 +85,8 @@ create temp view tmp_wsp_sys_sum_multifac as (
     CASE 
       WHEN sum(fac_wd.propvalue) IS NOT NULL THEN sum(fac_wd.propvalue) 
       ELSE 0.0 
-    END as sys_fac_sum
+    END as sys_fac_sum,
+    count(fac.hydroid) as num_facs
   from dh_adminreg_feature as wsp
   left outer join field_data_dh_link_feature_submittal as lnk
   on (
@@ -154,18 +155,20 @@ create or replace temp view tmp_sys_pw_frac as (
   )
 );
   
-create view tmp_wsp_fac_net as (
+create or replace view tmp_wsp_fac_net as (
   select foo.*, bar.sys_wd, bar.sys_future_wd, 
     round(bar.sys_fac_frac::numeric,6) as sys_fac_frac, 
     round(bar.sys_pw_frac::numeric,6) sys_pw_frac, 
+    bar.num_facs,
     round( (bar.sys_fac_frac * bar.sys_wd)::numeric,4) as fac_total,
     round( (bar.sys_fac_frac * (1.0 - bar.sys_pw_frac) * bar.sys_wd)::numeric,4) as fac_net_wd,
     round( (bar.sys_fac_frac * (1.0 - bar.sys_pw_frac) * bar.sys_future_wd)::numeric,4) as fac_net_future_wd
   from tmp_fac_current as foo 
   left outer join (
-    select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid,
+    select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid, bar.num_facs,
       CASE 
         WHEN baz.ftype ilike 'wsp_plan_system-%' THEN 1.0
+        WHEN bar.num_facs = 1 THEN 1.0
         WHEN bar.sys_fac_sum = 0 THEN 0.0
         WHEN bar.sys_fac_sum IS NULL THEN 0.0
         WHEN baz.sys_fac_part IS NULL THEN 0.0 
@@ -199,39 +202,7 @@ create view tmp_wsp_fac_net as (
 --  and bar.sys_pw_frac > 0.0
 --where foo.hydroid = 72439
 --where bar.adminid = 177510
-where bar.adminid = 179081
+--where bar.adminid = 179081
 ;
 
 
-
-create view tmp_wsp_fac_net_v01 as (
-  select foo.*, bar.sys_wd, 
-    round(bar.sys_fac_frac::numeric,6) as sys_fac_frac, 
-    round(bar.sys_pw_frac::numeric,6) sys_pw_frac, 
-    round( (bar.sys_fac_frac * bar.sys_wd)::numeric,4) as fac_total,
-    round( (bar.sys_fac_frac * bar.sys_pw_frac * bar.sys_wd)::numeric,4) as fac_net_wd
-  from tmp_fac_current as foo 
-  left outer join (
-    select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid,
-      CASE 
-        WHEN baz.ftype ilike 'wsp_plan_system-%' THEN 1.0
-        WHEN bar.sys_fac_sum = 0 THEN 0.0
-        WHEN bar.sys_fac_sum IS NULL THEN 0.0
-        WHEN baz.sys_fac_part IS NULL THEN 0.0 
-        ELSE baz.sys_fac_part / bar.sys_fac_sum
-      END as sys_fac_frac, bar.sys_wd, 
-      buzz.sys_pw_frac
-    from tmp_wsp_sys_fac_part as baz 
-    left outer join tmp_wsp_sys_sum_multifac as bar 
-    on (
-      baz.adminid = bar.adminid
-    )
-    left outer join tmp_sys_pw_frac as buzz 
-    on (
-      buzz.adminid = bar.adminid 
-    )
-  ) as bar 
-  on (
-    foo.hydroid = bar.hydroid 
-  )
-);
