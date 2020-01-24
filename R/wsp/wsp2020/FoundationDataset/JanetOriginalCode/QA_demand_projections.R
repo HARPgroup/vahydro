@@ -291,13 +291,15 @@ vf_wsp2020_type <- sqldf("SELECT
                           ftype,
                           sum(facility_use_fraction * fac_value) as GW_wsp2020_MGY, (sum(facility_use_fraction * fac_value))/365 as GW_wsp2020_MGD
                      FROM vf_wsp2020
+                     WHERE 
+                     fips_code in (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199)
                      GROUP BY ftype
                      ORDER BY GW_wsp2020_MGY DESC")
 
 localpath <- tempdir()
 filename <- paste("data_vf2040.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
-download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp_",sep=""), destfile = destfile, method = "libcurl")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=All&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp",sep=""), destfile = destfile, method = "libcurl")
 vf_wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 vf_wsp2040 <- vf_wsp2040_load
 
@@ -305,6 +307,8 @@ vf_wsp2040_type <- sqldf("SELECT
                           ftype,
                           sum(facility_use_fraction * fac_value) as GW_wsp2040_MGY, (sum(facility_use_fraction * fac_value))/365 as GW_wsp2040_MGD
                      FROM vf_wsp2040
+                     WHERE 
+                     fips_code in (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199)
                      GROUP BY ftype
                      ORDER BY GW_wsp2040_MGY DESC")
 

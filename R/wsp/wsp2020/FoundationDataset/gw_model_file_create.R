@@ -335,12 +335,12 @@ aquaveo_export <- sqldf("SELECT
                         FROM wsp2020_2040
                         WHERE fips_code IN (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199) 
                         AND MP_bundle = 'well' ")
-write.csv(aquaveo_export, file=paste(export_path,'aquaveo_demand_export_2020.csv',sep='\\' ))
+write.csv(aquaveo_export, file=paste(export_path,'aquaveo_well_GWMA_demand_export_2020.csv',sep='\\' ))
 
 
 sum(aquaveo_export$mp_2020_mgy)/365
 sum(aquaveo_export$mp_2040_mgy)/365
 
-summary_by_type <- sqldf("SELECT facility_type, sum(mp_2020_mgy), sum(mp_2040_mgy)
+summary_by_type <- sqldf("SELECT facility_type, sum(mp_2020_mgy), sum(mp_2040_mgy),sum(mp_2020_mgy)/365, sum(mp_2040_mgy)/365
                          FROM aquaveo_export
                          GROUP BY facility_type") 
