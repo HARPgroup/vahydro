@@ -9,30 +9,12 @@ basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
 
 export_date <- Sys.Date()
-
-#JanetOriginalCode saved to common drive in data dev mngmt folder
-##export_path <- "U:\\OWS\\Data Development_Management\\Data Requests\\Aquaveo\\QA_check_2019\\"
 export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
-
-#foundation1_mp_permits.R script writes the mp_permits.csv (aka the has_permits table)
-load_path <- paste0(export_path, "2020-01-22_mp_permits.csv")
 #----------------------------------------------
 
 #prevents scientific notation
 options(scipen = 20)
 #QA Check for demand projections (for Aquaveo export and SWRP update)
-
-# #load in exports
-# ##export_path <- "U:\\OWS\\Data Development_Management\\Data Requests\\Aquaveo\\QA_check_2019\\"
-# export_path <- "U:\\OWS\\Report Development\\2020 State Water Resource Update\\2020_Dataset_QA\\"
-
-#use either sys.date OR date of when export was downloaded and is in title of export
-#export_date <- Sys.Date()
-
-data_base <- read.csv(file = load_path, header = T, sep = ",")
-
-#use either sys.date OR date of when export was downloaded and is in title of export
-export_date <- Sys.Date()
 
 # gwma_path <- "U:\\OWS\\GIS\\GWMA\\gwma_all-2015"
 # gwma_layer_name <- "gwma_all-2015"
@@ -120,15 +102,8 @@ wsp2020_2040$delta_2040_mgy <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_
 wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2040_mgy
 
 
-# Join in Programatic information / i.e., permits and planning registrations
-join_permits <- sqldf("SELECT *
-                      FROM wsp2020_2040 as a
-                      left outer join data_base as b
-                      ON a.MP_hydroid = b.MP_hydroid")
-
 # Write this fileS
-write.csv(wsp2020_2040, file=paste(export_path, Sys.time(),'_wsp2020.mp.all.csv',sep='' ))
-write.csv(join_permits, file=paste(export_path,'_join_permits.csv',sep='' ))
+write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='' ))
 
 # Aggregate by Facility
 wsp_facility_2020_2040 <- sqldf(
@@ -141,4 +116,7 @@ wsp_facility_2020_2040 <- sqldf(
   "
 )
 write.csv(wsp_facility_2020_2040, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ))
+
+#to generate export for Groundwater Modeling (send to aquaveo), go to gw_model_file_create.R at the bottom
+
 
