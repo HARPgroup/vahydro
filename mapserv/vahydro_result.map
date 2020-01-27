@@ -41,7 +41,7 @@ LEGEND
      #SHADOWSIZE 2 2
      TYPE TRUETYPE
      FONT arial
-     SIZE 7
+     SIZE 9
      ANTIALIAS TRUE
    END # end of label
    POSITION ul
