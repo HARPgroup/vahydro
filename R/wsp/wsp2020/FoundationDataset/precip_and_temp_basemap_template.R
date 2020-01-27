@@ -1,27 +1,16 @@
-hydro_tools <- 'https://raw.githubusercontent.com/HARPgroup/hydro-tools';
-lseg.loc <- '/Users/danie/Documents/HARP/GitHub/cbp6/Data/CBP6_Temp_Prcp_Data/P6_LSegs_VA'
-# @todo: Repalce the above with something like below, to retrieve lseg.loc from Github
-# lseg.loc <- 'https://raw.githubusercontent.com/HARPgroup/cbp6/Data/CBP6_Temp_Prcp_Data/P6_LSegs_VA'
-
 library(ggplot2)
 library(rgeos)
 library(ggsn)
 library(rgdal)
-
-# Loading LandSeg Shape Data -----
-lsegs <- readOGR(lseg.loc, 'P6_LSegs_VA')
-lsegs <- spTransform(lsegs, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-lsegs@data$id <- rownames(lsegs@data)
-lsegs.df <- fortify(lsegs)
-lsegs.df <- merge(lsegs.df, lsegs@data, by = 'id')
-# usually, lsegs.df is then merged with the data frame whose data you want
-# to make a choropleth map of, based on the "FIPS_NHL" trait -- that is,
-# the name of the land segment
+library(dplyr)
 
 #--------------------------------------------------------------------------------------------
 #LOAD STATE GEOMETRY
 #--------------------------------------------------------------------------------------------
-STATES <- read.table(file=paste(hydro_tools,"/master/GIS_LAYERS/STATES.tsv",sep="/"), header=TRUE, sep="\t") #Load state geometries
+STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
+# hydro_tools <- '/Users/danie/Documents/HARP/GitHub/hydro-tools';
+# STATES <- read.table(file=paste(hydro_tools,"GIS_LAYERS","STATES.tsv",sep="\\"), header=TRUE, sep="\t") #Load state geometries
+
 
 #specify spatial extent for map  
 extent <- data.frame(x = c(-82, -75), 
@@ -128,6 +117,40 @@ DCProjected <- SpatialPolygonsDataFrame(DC_geom_clip,data.frame("id"), match.ID 
 DCProjected@data$id <- rownames(DCProjected@data)
 DCPoints <- fortify( DCProjected, region = "id")
 DCDF <- merge(DCPoints,  DCProjected@data, by = "id")
+
+# Loading LandSeg Shape Data -----
+lsegs.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/P6_LSegs_VA.csv', header = TRUE, sep = '\t')
+lsegs.csv$id <- as.character(row_number(lsegs.csv$FIPS_NHL))
+lseg.list <- list()
+for (i in 1:length(lsegs.csv$FIPS_NHL)) {
+  #lseg.namer <- paste0('lseg_', i)
+  lsegs_geom <- readWKT(lsegs.csv$WKT[i])
+  lsegs_geom_clip <- gIntersection(bb, lsegs_geom)
+  lsegsProjected <- SpatialPolygonsDataFrame(lsegs_geom_clip, data.frame('id'), match.ID = TRUE)
+  lsegsProjected@data$id <- as.character(i)
+  #lsegsPoints <- fortify(lsegsProjected, region = 'id')
+  #lsegsDF <- merge(lsegsPoints, lsegsProjected@data, by = 'id')
+  #assign(lseg.namer, lsegsDF)
+  lseg.list[i] <- lsegsProjected
+}
+lsegs <- do.call('rbind', lseg.list)
+lsegs@data <- merge(lsegs@data, lsegs.csv, by = 'id')
+lsegs@data <- lsegs@data[,-c(2:3)]
+
+# plot(lsegs)
+# lseg.loc <- '/Users/danie/Documents/HARP/GitHub/cbp6/Data/CBP6_Temp_Prcp_Data/P6_LSegs_VA'
+# lsegs.test <- readOGR(lseg.loc, 'P6_LSegs_VA')
+# lsegs.test <- spTransform(lsegs.test, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+# lsegs.test@data$id <- rownames(lsegs.test@data)
+# lsegs.test.df <- fortify(lsegs.test)
+# lsegs.test.df <- merge(lsegs.test.df, lsegs.test@data, by = 'id')
+# plot(lsegs.test)
+
+lsegs.df <- fortify(lsegs, region = 'id')
+lsegs.df <- merge(lsegs.df, lsegs@data, by = 'id')
+# usually, lsegs.df is then merged with the data frame whose data you want
+# to make a choropleth map of, based on the "FIPS_NHL" trait -- that is,
+# the name of the land segment
 
 map <- ggplot(data = lsegs.df, aes(x = long, y = lat, group = group))+
   geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
