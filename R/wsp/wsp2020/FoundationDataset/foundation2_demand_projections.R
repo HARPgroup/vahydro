@@ -36,8 +36,25 @@ localpath <- tempdir()
 filename <- paste("data.all.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
 download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
-wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-wsp2020 <- wsp2020_load
+well_wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+well_wsp2020 <- well_wsp2020_load
+
+#filters used: active, intake, prop_name
+#wsp2020_2020_mgy
+localpath <- tempdir()
+filename <- paste("data.all.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=intake&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
+intake_wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+intake_wsp2020 <- intake_wsp2020_load
+
+## Union well and intake
+wsp2020 <- sqldf(
+  "select * from well_wsp2020
+  UNION 
+  select * from intake_wsp2020
+  "
+)
 
 ################# Virtual Facilities Data Summary ####################################
 #virtual facilities represent county-wide estimates - each county has a wsp_category facility and 2 MPs (SW & GW) (except SSU has only GW MP) 
@@ -57,13 +74,30 @@ wsp2020 <- sqldf(
 )
 
 # Now get 2040 values
-#wsp2020_2040_mgy
+#well_wsp2020_2040_mgy
 localpath <- tempdir()
 filename <- paste("data.all.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
 download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
-wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-wsp2040 <- wsp2040_load
+well_wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+well_wsp2040 <- well_wsp2040_load
+
+#intake_wsp2020_2040_mgy
+localpath <- tempdir()
+filename <- paste("data.all.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=intake&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
+intake_wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+intake_wsp2040 <- intake_wsp2040_load
+
+## Union well and intake
+wsp2040 <- sqldf(
+  "select * from well_wsp2040
+  UNION 
+  select * from intake_wsp2040
+  "
+)
+
 #virtual facilities represent county-wide estimates - each county has a wsp_category facility and 2 MPs (SW & GW) (except SSU has only GW MP) 
 localpath <- tempdir()
 filename <- paste("data_vf2040.csv",sep="")
@@ -102,7 +136,7 @@ wsp2020_2040$delta_2040_mgy <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_
 wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2040_mgy
 
 
-# Write this fileS
+# Write this file
 write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='' ))
 
 # Aggregate by Facility
@@ -115,6 +149,8 @@ wsp_facility_2020_2040 <- sqldf(
     group by Facility_hydroid, facility_name, facility_ftype
   "
 )
+
+# Write this file
 write.csv(wsp_facility_2020_2040, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ))
 
 #to generate export for Groundwater Modeling (send to aquaveo), go to gw_model_file_create.R at the bottom
