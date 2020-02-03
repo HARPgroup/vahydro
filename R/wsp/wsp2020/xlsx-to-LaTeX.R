@@ -38,24 +38,25 @@ data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,HUC6_code
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 
+huc6_name <- "Kanawha"
 
 #Select only Potomac facilities, Restict output to columns of interest
-data <- sqldf('SELECT facility_name, 
+sql <- paste('SELECT facility_name, 
                       facility_ftype, 
                       fac_2020_mgy, 
                       fac_2040_mgy, 
                       Poly_Name
                   FROM data_sp_cont 
-                  WHERE Poly_Name = "Potomac"
+                  WHERE Poly_Name = ','\"',huc6_name,'\"','
                   ORDER BY fac_2020_mgy DESC
                   LIMIT 5
-              ')
-
+              ',sep="")
+data <- sqldf(sql)
 
 # OUTPUT TABLE IN KABLE FORMAT
 kable(data, "latex", booktabs = T,
-      caption = "Top 5 Users in Potomac HUC 6", 
-      label = "Top5_Potomac",
+      caption = paste("Top 5 Users in ",huc6_name," HUC 6",sep=""), 
+      label = paste("Top5_",huc6_name,sep=""),
       col.names = c("Facility Name",
                     "Facility Type",
                     "2020 (MGY)",
@@ -66,7 +67,7 @@ kable(data, "latex", booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/","Top5_Potomac","_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/","Top5_",huc6_name,"_kable.tex",sep=""))
 
 ###########################################################################
 
