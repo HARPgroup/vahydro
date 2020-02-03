@@ -9,7 +9,7 @@ basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
 
 export_date <- Sys.Date()
-export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\1-31-2020//"
 #----------------------------------------------
 
 #prevents scientific notation
@@ -152,6 +152,38 @@ wsp_facility_2020_2040 <- sqldf(
 
 # Write this file
 write.csv(wsp_facility_2020_2040, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ))
+
+
+# SURFACE WATER Aggregate by Facility
+SW_facility_2020_2040 <- sqldf(
+  " select Facility_hydroid, facility_name, facility_ftype, fips_code, 
+      avg(Latitude) as Latitude, avg(Longitude) as Longitude,
+      sum(mp_2020_mgy) as fac_2020_mgy,
+      sum(mp_2040_mgy) as fac_2040_mgy
+    from wsp2020_2040 
+    where MP_bundle = 'intake'
+    group by Facility_hydroid, facility_name, facility_ftype
+  "
+)
+
+# Write this file
+write.csv(SW_facility_2020_2040, file=paste(export_path,'SW.fac.all.csv',sep='\\' ))
+
+
+# GROUNDWATER Aggregate by Facility
+GW_facility_2020_2040 <- sqldf(
+  " select Facility_hydroid, facility_name, facility_ftype, fips_code, 
+      avg(Latitude) as Latitude, avg(Longitude) as Longitude,
+      sum(mp_2020_mgy) as fac_2020_mgy,
+      sum(mp_2040_mgy) as fac_2040_mgy
+    from wsp2020_2040 
+    where MP_bundle = 'well'
+    group by Facility_hydroid, facility_name, facility_ftype
+  "
+)
+
+# Write this file
+write.csv(GW_facility_2020_2040, file=paste(export_path,'GW.fac.all.csv',sep='\\' ))
 
 #to generate export for Groundwater Modeling (send to aquaveo), go to gw_model_file_create.R at the bottom
 
