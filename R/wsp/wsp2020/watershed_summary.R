@@ -9,8 +9,8 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 214907  
-runid = 14
+elid = 207923
+runid = 13
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
@@ -22,12 +22,14 @@ amnwd <- 1.1 * max(as.numeric(dat$wd_cumulative_mgd))
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 datdf <- as.data.frame(dat, stringsAsFactors = FALSE)
 modat <- sqldf(
-  "select month, avg(wd_cumulative_mgd) as wd_cumulative_mgd, 
+  "select month, round(avg(wd_cumulative_mgd),2) as wd_cumulative_mgd, 
     round(avg(wd_mgd),2) as wd_mgd , 
     round(avg(ps_cumulative_mgd),2) as ps_cumulative_mgd, 
     round(avg(ps_mgd),2) as ps_mgd 
   from datdf 
   group by month")
+mean(as.numeric(dat$Qout))
+mean(as.numeric(dat$area_sqmi))
 
 mot <- t(as.matrix(modat[,c('wd_cumulative_mgd', 'wd_mgd', 'ps_cumulative_mgd', 'ps_mgd')]) )
 mode(mot) <- 'numeric'

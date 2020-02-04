@@ -8,16 +8,16 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff 343332 210327 Occ: 229569
-elid = 251941    	
-runid = 11
+elid = 345646    # 278660 #345486 #344054     	
+runid = 101
 tyear = '1997'
 
 omsite = site <- "http://deq2.bse.vt.edu"
 finfo <- fn_get_runfile_info( elid, runid, scenid = 37,
   site = "http://deq2.bse.vt.edu"
 )
-dat <- fn_get_runfile(elid, runid, site= omsite,  cached = TRUE);
-
+dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
+dat$Runit <- as.numeric(dat$Qout) / as.numeric(dat$area_sqmi)
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # QA

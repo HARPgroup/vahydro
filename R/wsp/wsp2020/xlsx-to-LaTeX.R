@@ -34,7 +34,7 @@ data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,'all',dat
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 
-huc6_name <- "James"
+coverage_name <- "James"
 
 #Output all watershed options
 sqldf('SELECT DISTINCT Poly_Name
@@ -48,7 +48,7 @@ sql <- paste('SELECT facility_name,
                       fac_2040_mgy, 
                       Poly_Name
                   FROM data_sp_cont 
-                  WHERE Poly_Name = ','\"',huc6_name,'\"','
+                  WHERE Poly_Name = ','\"',coverage_name,'\"','
                   ORDER BY fac_2020_mgy DESC
                   LIMIT 5
               ',sep="")
@@ -71,8 +71,8 @@ data <- sqldf(sql)
 
 # OUTPUT TABLE IN KABLE FORMAT
 kable(data, "latex", booktabs = T,
-      caption = paste("Top 5 Users in ",huc6_name," HUC 6",sep=""), 
-      label = paste("Top5_",huc6_name,sep=""),
+      caption = paste("Top 5 Users in ",coverage_name," HUC 6",sep=""), 
+      label = paste("Top5_",coverage_name,sep=""),
       col.names = c("Facility Name",
                     "Facility Type",
                     "2020 (MGY)",
@@ -83,7 +83,7 @@ kable(data, "latex", booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/","Top5_",huc6_name,"_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/","Top5_",coverage_name,"_kable.tex",sep=""))
 
 ###########################################################################
 

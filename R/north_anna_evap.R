@@ -8,40 +8,53 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 
-elid = 347370
-run.id = 125
-cbp6_link <- paste0(github_link, "/cbp6/code");
-source(paste0(cbp6_link,"/cbp6_functions.R"))
-source(paste(cbp6_link, "/fn_vahydro-1.0.R", sep = ''))
+# NA Dam/Lake: 207925, Bechtel model: 279185, WS outlet: 207923
+# meteorology: 207959
+elid = 207925; 
 
-bechtel <- fn_get_runfile(elid, run.id, site = omsite,  cached = TRUE);
+run.id = 101
+#cbp6_link <- paste0(github_link, "/cbp6/code");
+#source(paste0(cbp6_link,"/cbp6_functions.R"))
+#source(paste(cbp6_link, "/fn_vahydro-1.0.R", sep = ''))
 
-bechtel$whtf_natevap_mgd = (as.numeric(bechtel$cbp_et_in) * 0.62473 * 13000 / 12.0) / 3.07
+bechtel <- fn_get_runfile(elid, run.id, site = omsite,  cached = FALSE);
+bechtel$whtf_natevap_mgd <- (bechtel$et_in * 0.62473 * bechtel$lake_area / 12.0) / 3.07
+
+bechtel$whtf_natevap_mgd = (as.numeric(bechtel$et_in) * 0.62473 * 13000 / 12.0) / 3.07
 quadratic_model <- lm(
-  as.numeric(bechtel$wd12_mgd) ~ as.numeric(bechtel$whtf_natevap_mgd) + I(as.numeric(bechtel$whtf_natevap_mgd)^2)
+  as.numeric(bechtel$whtf_evap12_mgd) ~ as.numeric(bechtel$whtf_natevap_mgd) + I(as.numeric(bechtel$whtf_natevap_mgd)^2)
 )
 #bechtel$whtf_natevap_mgd = (as.numeric(bechtel$et_in) * 0.62473 * 13000 / 12.0) / 3.07
 summary(quadratic_model)
+quadratic_model123 <- lm(
+  as.numeric(bechtel$whtf_evap123_mgd) ~ as.numeric(bechtel$whtf_natevap_mgd) + I(as.numeric(bechtel$whtf_natevap_mgd)^2)
+)
+summary(quadratic_model123)
 
-breg <- lm(as.numeric(bechtel$wd12_mgd) ~ as.numeric(bechtel$cbp_et_in))
+breg <- lm(as.numeric(bechtel$whtf_evap12_mgd) ~ as.numeric(bechtel$et_in))
 
-plot(bechtel$cbp_et_in, bechtel$wd12_mgd, ylim=c(0,110))
+plot(bechtel$et_in, bechtel$whtf_evap12_mgd, ylim=c(0,110))
 abline(breg)
 loess.smooth(
   x, y, span = 2/3, degree = 1,
   family = c("symmetric", "gaussian"),
   evaluation = 50
 )
-lines(bechtel$cbp_et_in, bechtel$whtf_natevap_mgd)
+lines(bechtel$et_in, bechtel$whtf_natevap_mgd)
+points(bechtel$et_in, bechtel$whtf_evap123_mgd, col = 'purple')
 # add quatratic function to the plot
 order_id <- order(bechtel$whtf_natevap_mgd)
-lines(x = as.numeric(bechtel$cbp_et_in)[order_id], 
+lines(x = as.numeric(bechtel$et_in)[order_id], 
       y = as.numeric(fitted(quadratic_model))[order_id],
       col = "red", 
       lwd = 2) 
+lines(x = as.numeric(bechtel$et_in)[order_id], 
+      y = as.numeric(fitted(quadratic_model123))[order_id],
+      col = "green", 
+      lwd = 2) 
 summary(breg)
 
-boxplot( as.numeric(bechtel$wd12_mgd) ~ bechtel$month)
+boxplot( as.numeric(bechtel$whtf_evap12_mgd) ~ bechtel$month)
 
 
 elid = 207925
