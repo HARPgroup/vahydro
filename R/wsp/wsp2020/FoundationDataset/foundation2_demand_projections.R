@@ -9,7 +9,7 @@ basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
 
 export_date <- Sys.Date()
-export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
 #----------------------------------------------
 
 #prevents scientific notation
