@@ -137,7 +137,7 @@ wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_
 
 
 # Write this file
-write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='' ))
+write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ))
 
 # Aggregate by Facility
 wsp_facility_2020_2040 <- sqldf(
