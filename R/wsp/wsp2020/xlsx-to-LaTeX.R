@@ -10,14 +10,8 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 # Location of GIS_functions and gdb
 localpath <-"C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/"
 source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
-
-# gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" #Location of HUC .gdb
-# layer_name <- 'WBDHU6' #HUC6 layer withing the HUC .gdb
-# #HUC6_code <- '020700'
-# HUC6_code <- 'all'
-
-gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" 
-
+gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" #Location of HUC .gdb
+layer_name <- 'WBDHU6' #HUC6 layer withing the HUC .gdb
 
 data_raw <- read.csv(paste(folder,source,sep=""))
 data_sp <- data_raw
@@ -26,8 +20,9 @@ data_sp <- data_raw
 # PERFORM SPATIAL CONTAINMENT
 data_sp <- data_sp[-which(data_sp$Latitude > 90),]
 
+#RATHER THAN SET THESE TO ZERO, SHOULD SET TO COORDINATES OF COUNTY CENTROID:
 #Set NA, -99, or 99 coordinates to 0.0; This step is required for coordinates() function
-data_sp$Latitude[is.na(data_sp$Latitude)] = 0.0 #-9999 
+data_sp$Latitude[is.na(data_sp$Latitude)] = 0.0 
 data_sp$Longitude[is.na(data_sp$Longitude)] = 0.0
 data_sp$Latitude[data_sp$Latitude == 99] = 0.0
 data_sp$Latitude[data_sp$Latitude == -99] = 0.0
@@ -35,8 +30,7 @@ data_sp$Longitude[data_sp$Longitude == 99] = 0.0
 data_sp$Longitude[data_sp$Longitude == -99] = 0.0
 
 coordinates(data_sp) <- c("Longitude", "Latitude") #sp_contain() requires a coordinates column
-
-data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,HUC6_code,data_sp)
+data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,'all',data_sp)
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 
@@ -47,7 +41,7 @@ sqldf('SELECT DISTINCT Poly_Name
       FROM data_sp_cont
       ')
 
-#Select only Potomac facilities, Restict output to columns of interest
+#Select facilities within HUC of interest, Restict output to columns of interest
 sql <- paste('SELECT facility_name, 
                       facility_ftype, 
                       fac_2020_mgy, 
@@ -61,7 +55,7 @@ sql <- paste('SELECT facility_name,
 data <- sqldf(sql)
 
 
-#Top users from all watersheds, removing wsp facilities
+#Top users from all watersheds, excluding wsp facilities
 # sql <- paste("SELECT facility_name, 
 #                       facility_ftype, 
 #                       fac_2020_mgy, 
