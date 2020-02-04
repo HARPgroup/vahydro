@@ -9,7 +9,7 @@ basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
 
 export_date <- Sys.Date()
-export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\1-31-2020//"
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
 #----------------------------------------------
 
 #prevents scientific notation
@@ -118,7 +118,17 @@ wsp2040 <- sqldf(
 wsp2020_2040 <- sqldf(
   "select a.*, a.mp_share as mp_2020_mgy, 
      b.fac_value as fac_value_2040, 
-     b.mp_share as mp_share_2040
+     b.mp_share as mp_share_2040,
+      CASE
+        WHEN a.facility_ftype in ('agriculture', 'irrigation') 
+          THEN 'wsp_plan_system-ssuag'
+        WHEN a.facility_ftype in ('manufacturing', 'nuclearpower', 'mining', 
+          'commercial', 'industrial', 'fossilpower', 'hydropower') 
+          THEN 'wsp_plan_system-ssulg'
+        WHEN a.facility_ftype in ('municipal') 
+          THEN 'wsp_plan_system-cws'
+          ELSE a.facility_ftype
+      END as wsp_ftype
   from wsp2020 as a 
   left outer join wsp2040 as b 
   on (
@@ -137,14 +147,24 @@ wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_
 
 
 # Write this file
-write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='' ))
+write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ))
 
 # Aggregate by Facility
 wsp_facility_2020_2040 <- sqldf(
   " select Facility_hydroid, facility_name, facility_ftype, fips_code, 
       avg(Latitude) as Latitude, avg(Longitude) as Longitude,
       sum(mp_2020_mgy) as fac_2020_mgy,
-      sum(mp_2040_mgy) as fac_2040_mgy
+      sum(mp_2040_mgy) as fac_2040_mgy,
+      CASE
+        WHEN facility_ftype in ('agriculture', 'irrigation') 
+          THEN 'wsp_plan_system-ssuag'
+        WHEN facility_ftype in ('manufacturing', 'nuclearpower', 'mining', 
+          'commercial', 'industrial', 'fossilpower', 'hydropower') 
+          THEN 'wsp_plan_system-ssulg'
+        WHEN facility_ftype in ('municipal') 
+          THEN 'wsp_plan_system-cws'
+          ELSE facility_ftype
+      END as wsp_ftype
     from wsp2020_2040 
     group by Facility_hydroid, facility_name, facility_ftype
   "
