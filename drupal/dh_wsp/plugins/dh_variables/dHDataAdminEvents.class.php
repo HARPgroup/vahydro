@@ -84,7 +84,7 @@ class dHRedundancyReview extends dHVariablePluginDefault {
 }
 
 // @todo: move_boreholelog, move_entity_references
-function dh_move_move_boreholelogs ($src_entity_id, $dest_entity_id, $src_type = 'dh_feature', $dest_type = 'dh_feature') {
+function dh_move_boreholelogs ($src_entity_id, $dest_entity_id, $src_type = 'dh_feature', $dest_type = 'dh_feature') {
   
 }
 
