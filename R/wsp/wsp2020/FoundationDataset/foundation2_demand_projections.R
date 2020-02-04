@@ -9,7 +9,7 @@ basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
 
 export_date <- Sys.Date()
-export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\1-31-2020//"
+export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
 #----------------------------------------------
 
 #prevents scientific notation
@@ -147,7 +147,7 @@ wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_
 
 
 # Write this file
-write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='' ))
+write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ))
 
 # Aggregate by Facility
 wsp_facility_2020_2040 <- sqldf(
