@@ -56,6 +56,31 @@ nongwma <- sqldf("
                      ftype NOT LIKE '%power'
   GROUP BY facility_ftype
 ")
+gwma_power <- sqldf("
+  SELECT facility_ftype,
+    sum(mp_2020_mgy) as mp_2020_mgy,
+    sum(mp_2020_mgy)/365.25 as mp_2020_mgd,
+    sum(mp_2040_mgy) as mp_2040_mgy,
+    sum(mp_2040_mgy)/365.25 as mp_2040_mgd
+  FROM MP
+  WHERE fips_code in (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199)
+                     AND
+                     ftype LIKE '%power'
+  GROUP BY facility_ftype
+")
+
+nongwma_power <- sqldf("
+  SELECT facility_ftype,
+    sum(mp_2020_mgy) as mp_2020_mgy,
+    sum(mp_2020_mgy)/365.25 as mp_2020_mgd,
+    sum(mp_2040_mgy) as mp_2040_mgy,
+    sum(mp_2040_mgy)/365.25 as mp_2040_mgd
+  FROM MP
+  WHERE fips_code NOT in (51001, 51033, 51036, 51550, 51041, 51057, 51059, 51620, 51073, 51650, 51085, 51087, 51670, 51093, 51095, 51097, 51099, 51101, 51103, 51115, 51119, 51127, 51700, 51131, 51133, 51735, 51740, 51149, 51153, 51159, 51175, 51177, 51179, 51800, 51181, 51183, 51810, 51193, 51830, 51199)
+                     AND
+                     ftype LIKE '%power'
+  GROUP BY facility_ftype
+")
 
 gwma_total <- sqldf("
   select sum(mp_2020_mgd) as gwma2020_mgd,
@@ -67,4 +92,16 @@ nongwma_total <- sqldf("
   select sum(mp_2020_mgd) as gwma2020_mgd,
     sum(mp_2040_mgd) as gwma2040_mgd
   from nongwma
+")
+
+gwma_power_total <- sqldf("
+  select sum(mp_2020_mgd) as gwma2020_mgd,
+    sum(mp_2040_mgd) as gwma2040_mgd
+  from gwma_power
+")
+
+nongwma_power_total <- sqldf("
+  select sum(mp_2020_mgd) as gwma2020_mgd,
+    sum(mp_2040_mgd) as gwma2040_mgd
+  from nongwma_power
 ")
