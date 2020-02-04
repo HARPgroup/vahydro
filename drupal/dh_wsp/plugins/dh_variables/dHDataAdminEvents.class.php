@@ -83,6 +83,10 @@ class dHRedundancyReview extends dHVariablePluginDefault {
   }
 }
 
+// @todo: move_boreholelog, move_entity_references
+function dh_move_move_boreholelogs ($src_entity_id, $dest_entity_id, $src_type = 'dh_feature', $dest_type = 'dh_feature') {
+  
+}
 
 function dh_move_timeseries_events ($src_entity_id, $dest_entity_id, $src_type = 'dh_feature', $dest_type = 'dh_feature', $mindate = FALSE, $maxdate = FALSE) {
   $src_info = entity_get_info($src_type);
