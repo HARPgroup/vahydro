@@ -1,7 +1,7 @@
 #!/bin/bash 
 # perms crlf OK?
-echo $PWD
-exit 2
+#echo $PWD
+#exit 2
 if [ $# -lt 1 ]; then
   echo 1>&2 "Usage: set_wsp_facility_demands.sh hydroid (can be csv)"
   exit 2
@@ -9,7 +9,7 @@ fi
 
 hydroids=$1
 
-cat /opt/model/vahydro/drupal/dh_wsp/sql/create_wsp_facility_demands.sql | psql -h dbase2 drupal.dh03 
+cat ./modules/dh_wsp/sql/create_wsp_facility_demands.sql | psql -h dbase2 drupal.dh03 
 
 frac_query="
 select 'dh_feature' as entity_type, 
