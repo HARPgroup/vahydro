@@ -1,6 +1,5 @@
 create table tmp_fac_current as (
   select fac.hydroid, 
-    -- fac.name, 
     fac.fstatus,
     max(fac_wd.propvalue) as fac_current_mgy
   from dh_feature as fac 
@@ -16,8 +15,8 @@ create table tmp_fac_current as (
   group by fac.hydroid, fac.name, fac.fstatus
 );
 
-create table tmp_wsp_sys_fac_part as (
   -- aggregate wd_current_mgy from multi-facility systems
+create table tmp_wsp_sys_fac_part as (
   select wsp.adminid, fac.hydroid, wsp.name, fac.ftype,
     CASE 
       WHEN max(fac_wd.propvalue) IS NOT NULL THEN max(fac_wd.propvalue)
@@ -79,8 +78,8 @@ create table tmp_wsp_sys_future_demands as (
 );
 
 
-create table tmp_wsp_sys_sum_multifac as (
   -- aggregate wd_current_mgy from multi-facility systems
+create table tmp_wsp_sys_sum_multifac as (
   select wsp.adminid, wsp.name, max(sys_wd.propvalue) as sys_wd,
     CASE 
       WHEN sum(fac_wd.propvalue) IS NOT NULL THEN sum(fac_wd.propvalue) 
