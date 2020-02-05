@@ -1,8 +1,7 @@
 #!/bin/bash
 hydroids=$1
 
-frac_query=`cat modules/dh_wsp/sql/create_wsp_facility_demands.sql`
-echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase2 drupal.dh03 
+cat modules/dh_wsp/sql/create_wsp_facility_demands.sql | psql -h dbase2 drupal.dh03 
 
 frac_query="
 select 'wsp2020_2020_mgy' as propname, 
@@ -42,5 +41,4 @@ while IFS= read -r line; do
 done < /tmp/wsp_facility_future.txt 
 
 # Now clean up
-cleanup_query=`cat modules/dh_wsp/sql/cleanup_wsp_facility_demands.sql`
-echo $cleanup_query | psql -h dbase2 drupal.dh03
+cat modules/dh_wsp/sql/cleanup_wsp_facility_demands.sql | psql -h dbase2 drupal.dh03

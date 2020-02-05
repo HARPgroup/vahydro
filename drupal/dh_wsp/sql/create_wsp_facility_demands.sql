@@ -136,7 +136,7 @@ create table tmp_wsp_sys_pw as (
   group by adminid 
 );
 
-create tmp_sys_pw_frac as (
+create table tmp_sys_pw_frac as (
   select bar.adminid,
     CASE 
       WHEN bar.sys_wd > 0 AND (buzz.sys_pw_mgd * 365.25) > bar.sys_wd THEN 1.0
