@@ -15,7 +15,7 @@ create table tmp_fac_current as (
   group by fac.hydroid, fac.name, fac.fstatus
 );
 
-  -- aggregate wd_current_mgy from multi-facility systems
+
 create table tmp_wsp_sys_fac_part as (
   select wsp.adminid, fac.hydroid, wsp.name, fac.ftype,
     CASE 
@@ -77,8 +77,6 @@ create table tmp_wsp_sys_future_demands as (
   group by wsp.adminid 
 );
 
-
-  -- aggregate wd_current_mgy from multi-facility systems
 create table tmp_wsp_sys_sum_multifac as (
   select wsp.adminid, wsp.name, max(sys_wd.propvalue) as sys_wd,
     CASE 
@@ -111,7 +109,6 @@ create table tmp_wsp_sys_sum_multifac as (
   group by wsp.adminid, wsp.name
 );
 
--- all systems purchased water totals 
 create table tmp_wsp_sys_pw as (
   select adminid, 
     CASE WHEN sum(sys_pw_mgd.propvalue) IS NULL THEN 0.0
