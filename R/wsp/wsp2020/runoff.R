@@ -8,7 +8,7 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff 343332 210327 Occ: 229569
-elid = 251941    	
+elid = 207935     	
 runid = 11
 tyear = '1997'
 

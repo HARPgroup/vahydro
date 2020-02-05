@@ -9,11 +9,21 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 214907  
-runid = 14
+elid = 207809   
+runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
+syear = min(dat$year)
+eyear = max(dat$year)
+if (syear != eyear) {
+  sdate <- as.Date(paste0(syear,"-10-01"))
+  edate <- as.Date(paste0(eyear,"-09-30"))
+} else {
+  sdate <- as.Date(paste0(syear,"-02-01"))
+  edate <- as.Date(paste0(eyear,"-12-31"))
+}
+dat <- window(dat, start = sdate, end = edate);
 
 amn <- 10.0 * mean(as.numeric(dat$Qin))
 
@@ -35,6 +45,8 @@ barplot(mot, main="Monthly Mean Withdrawals",
   xlab="Month", col=c("darkblue","lightblue", "darkgreen", "lightgreen"),
   legend = c('WD Cumulative', 'WD Local','PS Cumulative', 'PS Local'), beside=TRUE)
 
+datdf <- as.data.frame(dat)
+Qyear <- sqldf("select year, avg(Qout) from datdf group by year order by year")
 
 # For some reason we need to convert these numeric fields to char, then to number
 # before sending to zoo since their retrieval is classifying them as factors instead of nums
