@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash 
+# perms crlf OK?
 
 if [ $# -lt 1 ]; then
   echo 1>&2 "Usage: set_wsp_facility_demands.sh hydroid (can be csv)"
