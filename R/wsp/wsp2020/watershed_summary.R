@@ -9,7 +9,7 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 207809   
+elid = 230533     
 runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
@@ -24,6 +24,7 @@ if (syear != eyear) {
   edate <- as.Date(paste0(eyear,"-12-31"))
 }
 dat <- window(dat, start = sdate, end = edate);
+mode(dat) <- 'numeric'
 
 amn <- 10.0 * mean(as.numeric(dat$Qin))
 
