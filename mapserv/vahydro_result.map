@@ -364,10 +364,10 @@ LAYER
      a.pid = c.featureid 
      and c.propname = '%runid2%'
     ) 
-    left outer join dh_properties as foo 
+    left outer join dh_properties as bar 
     on ( 
-     b.pid = foo.featureid 
-     and foo.propname = '%propname%' 
+     c.pid = bar.featureid 
+     and bar.propname = '%propname%' 
     ) 
     where f.ftype = '%ftype%'
       and f.bundle = '%bundle%'
