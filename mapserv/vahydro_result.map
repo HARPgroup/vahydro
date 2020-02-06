@@ -378,7 +378,7 @@ LAYER
   #MINSCALE 1000
   #MAXSCALE 50000
   CLASS
-    TITLE "More than [div1]%"
+    TITLE "More than div1%"
     EXPRESSION ( ([delta_pct] < %div1%) and ([delta_pct] > -99999 ) )
     COLOR 205 102 102
     BACKGROUNDCOLOR 0 0 0
@@ -395,7 +395,7 @@ LAYER
     END
   END
   CLASS
-    TITLE "[div1]% to [div2]%"
+    TITLE "div1% to div2%"
     EXPRESSION ( [delta_pct] >= %div1% and [delta_pct] < %div2% )
     COLOR 255 211 127
     BACKGROUNDCOLOR 0 0 0
@@ -412,7 +412,7 @@ LAYER
     END
   END
   CLASS
-    TITLE "[div2]% to [div3]%"
+    TITLE "div2% to div3%"
     EXPRESSION ( [delta_pct] >= %div2% and [delta_pct] < %div3% )
     COLOR 194 158 215
     BACKGROUNDCOLOR 0 0 0
@@ -429,7 +429,7 @@ LAYER
     END
   END
   CLASS
-    TITLE "[div3]% to [div4]%"
+    TITLE "div3% to div4%"
     EXPRESSION ( [delta_pct] >= %div3% and [delta_pct] < %div4% )
     COLOR 102 153 205
     BACKGROUNDCOLOR 0 0 0
@@ -446,7 +446,7 @@ LAYER
     END
   END
   CLASS
-    TITLE "Greater than [div4]%"
+    TITLE "Greater than div4%"
     EXPRESSION ( [delta_pct] >= %div4% )
     COLOR 171 205 102
     BACKGROUNDCOLOR 0 0 0
