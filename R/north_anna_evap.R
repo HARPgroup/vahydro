@@ -8,40 +8,70 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 
-elid = 347370
-run.id = 125
+elid = 207925
+run.id = 11
 cbp6_link <- paste0(github_link, "/cbp6/code");
 source(paste0(cbp6_link,"/cbp6_functions.R"))
 source(paste(cbp6_link, "/fn_vahydro-1.0.R", sep = ''))
 
-bechtel <- fn_get_runfile(elid, run.id, site = omsite,  cached = TRUE);
+dat <- fn_get_runfile(elid, run.id, site = omsite,  cached = TRUE);
+syear = min(dat$year)
+eyear = max(dat$year)
+if (syear != eyear) {
+  sdate <- as.Date(paste0(syear,"-10-01"))
+  edate <- as.Date(paste0(eyear,"-09-30"))
+} else {
+  sdate <- as.Date(paste0(syear,"-02-01"))
+  edate <- as.Date(paste0(eyear,"-12-31"))
+}
+dat <- window(dat, start = sdate, end = edate);
+# Filter out when natevap is zero
+dat <- dat[dat$whtf_natevap_mgd > 0]
 
-bechtel$whtf_natevap_mgd = (as.numeric(bechtel$cbp_et_in) * 0.62473 * 13000 / 12.0) / 3.07
+quantile(as.numeric(dat$whtf_natevap_mgd))
+quantile(as.numeric(dat$whtf_evap12_mgd))
+quantile(as.numeric(dat$whtf_evap123_mgd))
+
+#dat$whtf_natevap_mgd = (as.numeric(dat$et_in) * 0.62473 * 13000 / 12.0) / 3.07
 quadratic_model <- lm(
-  as.numeric(bechtel$wd12_mgd) ~ as.numeric(bechtel$whtf_natevap_mgd) + I(as.numeric(bechtel$whtf_natevap_mgd)^2)
+  as.numeric(dat$whtf_evap12_mgd) ~ as.numeric(dat$whtf_natevap_mgd) + I(as.numeric(dat$whtf_natevap_mgd)^2)
 )
-#bechtel$whtf_natevap_mgd = (as.numeric(bechtel$et_in) * 0.62473 * 13000 / 12.0) / 3.07
+#dat$whtf_natevap_mgd = (as.numeric(dat$et_in) * 0.62473 * 13000 / 12.0) / 3.07
 summary(quadratic_model)
 
-breg <- lm(as.numeric(bechtel$wd12_mgd) ~ as.numeric(bechtel$cbp_et_in))
+quadratic_model2 <- lm(
+  as.numeric(dat$whtf_evap123_mgd) ~ as.numeric(dat$whtf_natevap_mgd) + I(as.numeric(dat$whtf_natevap_mgd)^2)
+)
+#dat$whtf_natevap_mgd = (as.numeric(dat$et_in) * 0.62473 * 13000 / 12.0) / 3.07
+summary(quadratic_model2)
 
-plot(bechtel$cbp_et_in, bechtel$wd12_mgd, ylim=c(0,110))
+plot(dat$whtf_natevap_mgd, dat$whtf_evap12_mgd, ylim=c(0,110))
+points(dat$whtf_natevap_mgd, dat$whtf_evap123_mgd, col='orange')
+
+
+breg <- lm(as.numeric(dat$whtf_evap12_mgd) ~ as.numeric(dat$et_in))
+
+plot(dat$et_in, dat$whtf_evap12_mgd, ylim=c(0,110))
 abline(breg)
 loess.smooth(
   x, y, span = 2/3, degree = 1,
   family = c("symmetric", "gaussian"),
   evaluation = 50
 )
-lines(bechtel$cbp_et_in, bechtel$whtf_natevap_mgd)
+lines(dat$et_in, dat$whtf_natevap_mgd)
 # add quatratic function to the plot
-order_id <- order(bechtel$whtf_natevap_mgd)
-lines(x = as.numeric(bechtel$cbp_et_in)[order_id], 
+order_id <- order(dat$whtf_natevap_mgd)
+lines(x = as.numeric(dat$et_in)[order_id], 
       y = as.numeric(fitted(quadratic_model))[order_id],
       col = "red", 
       lwd = 2) 
+lines(x = as.numeric(dat$et_in)[order_id], 
+      y = as.numeric(fitted(quadratic_model2))[order_id],
+      col = "purple", 
+      lwd = 2) 
 summary(breg)
 
-boxplot( as.numeric(bechtel$wd12_mgd) ~ bechtel$month)
+boxplot( as.numeric(dat$wd12_mgd) ~ dat$month)
 
 
 elid = 207925
