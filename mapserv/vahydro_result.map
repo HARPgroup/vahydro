@@ -310,6 +310,191 @@ LAYER
 END
 
 LAYER
+  NAME model_run_compare
+  METADATA
+    "wfs_title"    "Model Run Status Info" ## REQUIRED
+    "wfs_srs"           "EPSG:4326" ## REQUIRED
+    "gml_featureid" "hydroid" ## REQUIRED
+    "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+    "wfs_enable_request" "*"
+  "wfs_version" "1.0.0"
+  END
+  CONNECTIONTYPE postgis
+  CONNECTION "host=192.168.0.21 user=postgres dbname=drupal.dh03"
+  TYPE POLYGON
+  STATUS OFF
+  DUMP TRUE
+  DEBUG ON
+  # Query ties a control point to its parent
+  DATA "dh_geofield_geom FROM (
+    select g.dh_geofield_geom, 
+     b.pid, a.propcode as model_version, 
+     f.name, f.ftype, 
+     b.propname as runid, 
+    foo.propvalue as propvalue_run1, 
+    bar.propvalue as propvalue_run2,
+    CASE 
+      WHEN ( (foo.propvalue is null) or (bar.propvalue is null) ) THEN -99999 
+      WHEN foo.propvalue > 0 THEN round(((bar.propvalue - foo.propvalue) / foo.propvalue)::numeric,4) 
+      ELSE 0.0 
+    END as delta_pct
+    from dh_feature as f 
+    left outer join field_data_dh_geofield as g
+    on (
+     f.hydroid = g.entity_id 
+     and g.entity_type = 'dh_feature'
+    )
+    left outer join dh_properties as a 
+    on ( 
+     f.hydroid = a.featureid 
+     and a.propcode = '%model_version%'
+    ) 
+    left outer join dh_properties as b 
+    on ( 
+     a.pid = b.featureid 
+     and b.propname = '%runid%'
+    ) 
+    left outer join dh_properties as foo 
+    on ( 
+     b.pid = foo.featureid 
+     and foo.propname = '%propname%' 
+    ) 
+    left outer join dh_properties as c 
+    on ( 
+     a.pid = c.featureid 
+     and c.propname = '%runid2%'
+    ) 
+    left outer join dh_properties as foo 
+    on ( 
+     b.pid = foo.featureid 
+     and foo.propname = '%propname%' 
+    ) 
+    where f.ftype = '%ftype%'
+      and f.bundle = '%bundle%'
+  ) AS foo USING UNIQUE pid using SRID=4326 "
+  #FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
+  TEMPLATE webmap.html
+  #LABELITEM "name"
+  #MINSCALE 1000
+  #MAXSCALE 50000
+  CLASS
+    NAME "More than -15%"
+    EXPRESSION ( ([delta_pct] < %div1%) and ([delta_pct] > -99999 ) )
+    COLOR 205 102 102
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME "-15% to -5%"
+    EXPRESSION ( [delta_pct] >= %div1% and [delta_pct] < %div2% )
+    COLOR 255 211 127
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME "-5% to +5%"
+    EXPRESSION ( [delta_pct] >= %div2% and [delta_pct] < %div3% )
+    COLOR 194 158 215
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME "+5% to +15%"
+    EXPRESSION ( [delta_pct] >= %div3% and [delta_pct] < %div4% )
+    COLOR 102 153 205
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    NAME "Greater than +15%"
+    EXPRESSION ( [delta_pct] >= %div4% )
+    COLOR 171 205 102
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    EXPRESSION ( [delta_pct] == -99999)
+    NAME "No Data"
+    COLOR 204 204 204
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    STYLE
+      SYMBOL "hatch-simple"
+      COLOR 255 255 255
+      SIZE 10
+      WIDTH 6
+      ANGLE 45
+      OPACITY 10
+    END # STYLE
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  TOLERANCE 10
+  PROJECTION
+  # EPSG SRID = 4326
+   "init=epsg:4326"
+  END
+END
+
+LAYER
   NAME model_run_status ## Simple 1,2,3 red,yellow,blue indicator
   METADATA
     "wfs_title"    "Model Run Status Info" ## REQUIRED
@@ -867,156 +1052,6 @@ LAYER
   END
 END
 
-
-LAYER
-   NAME model_run_compare
-   METADATA
-      "wfs_title"    "Model Run Comparison Info" ## REQUIRED
-      "wfs_srs"           "EPSG:4326" ## REQUIRED
-      "gml_featureid" "hydroid" ## REQUIRED
-      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
-	   "gml_delta_pct_type" "double"
-	   "gml_propvalue_run1_type" "double"
-	   "gml_propvalue_run2_type" "double"
-	   "gml_run1_id_type" "integer"
-	   "gml_run2_id_type" "integer"
-	   "gml_delta_pct_type" "double"
-      "wfs_enable_request_type" "*"
-	   "wfs_version" "1.0.0"
-   END
-   VALIDATION
-   END
-   CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres dbname=model"
-   TYPE POLYGON
-   STATUS OFF
-   DUMP TRUE
-   DEBUG OFF
-   # Query only uses parent
-   # Try to include HUC screening
-   # DATA "dh_geofield_geom FROM ( select a.dh_geofield_geom, a.name, a.hydroid, foo.runid as run1_id, bar.runid as run2_id, foo.propvalue as propvalue_run1, bar.propvalue as propvalue_run2, CASE WHEN ( (foo.propvalue is null) or (bar.propvalue is null) ) THEN NULL WHEN foo.propvalue > 0 THEN round(((bar.propvalue - foo.propvalue) / foo.propvalue)::numeric,4) ELSE 0.0 END as delta_pct from scen_model_element as a left outer join dh_properties as foo on (a.hydroid = foo.hydroid and foo.runid = %runid1% and foo.propname = '%propname1%' )  left outer join dh_properties as bar on (a.hydroid = bar.hydroid and bar.runid = %runid2% and bar.propname = '%propname2%' ) left outer join huc_va as palooza on (a.the_geom && palooza.the_geom and contains(palooza.the_geom,  ST_PointOnSurface(a.dh_geofield_geom)) ) where a.scenarioid = %model_version% and ( (palooza.huc = '%huc%') OR ('%huc%' = '') ) ) AS foobar USING UNIQUE hydroid"
-   #
-   DATA "dh_geofield_geom FROM ( select a.dh_geofield_geom, a.name, a.hydroid, foo.propname, foo.runid as run1_id, bar.runid as run2_id, foo.propvalue as propvalue_run1, bar.propvalue as propvalue_run2, CASE WHEN ( (foo.propvalue is null) or (bar.propvalue is null) ) THEN -99999 WHEN foo.propvalue > 0 THEN round(((bar.propvalue - foo.propvalue) / foo.propvalue)::numeric,4) ELSE 0.0 END as delta_pct from scen_model_element as a left outer join dh_properties as foo on (a.hydroid = foo.hydroid and foo.runid = %runid1% and foo.propname = '%propname1%' )  left outer join dh_properties as bar on (a.hydroid = bar.hydroid and bar.runid = %runid2% and bar.propname = '%propname2%' )  where a.scenarioid = %model_version% AND a.ftype in ('cova_ws_subnodal', 'cova_ws_container') ) AS foobar USING UNIQUE hydroid"
-   TEMPLATE webmap.html
-   LABELITEM "name"
-   #MINSCALE 1000
-   #MAXSCALE 50000
-   CLASS
-      NAME "More than -15%"
-      EXPRESSION ( ([delta_pct] < %div1%) and ([delta_pct] > -99999 ) )
-      COLOR 205 102 102
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME "-15% to -5%"
-      EXPRESSION ( [delta_pct] >= %div1% and [delta_pct] < %div2% )
-      COLOR 255 211 127
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME "-5% to +5%"
-      EXPRESSION ( [delta_pct] >= %div2% and [delta_pct] < %div3% )
-      COLOR 194 158 215
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME "+5% to +15%"
-      EXPRESSION ( [delta_pct] >= %div3% and [delta_pct] < %div4% )
-      COLOR 102 153 205
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME "Greater than +15%"
-      EXPRESSION ( [delta_pct] >= %div4% )
-      COLOR 171 205 102
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      EXPRESSION ( [delta_pct] == -99999)
-      NAME "No Data"
-      COLOR 204 204 204
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      STYLE
-        SYMBOL "hatch-simple"
-        COLOR 255 255 255
-        SIZE 10
-        WIDTH 6
-        ANGLE 45
-        OPACITY 10
-      END # STYLE
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   TOLERANCE 10
-   PROJECTION
-   # EPSG SRID = 4326
-     "init=epsg:4326"
-   END
-END
 
 LAYER
    NAME minor_basins
