@@ -413,7 +413,7 @@ LAYER
   END
   CLASS
     TITLE "%div2% to %div3%%"
-    EXPRESSION ( [delta_val] >= %div2% and [delta_val] < %div3% )
+    EXPRESSION ( [delta_pct] >= %div2% and [delta_pct] < %div3% )
     COLOR 194 158 215
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
@@ -430,7 +430,7 @@ LAYER
   END
   CLASS
     TITLE "%div3% to %div4%%"
-    EXPRESSION ( [delta_val] >= %div3% and [delta_val] < %div4% )
+    EXPRESSION ( [delta_pct] >= %div3% and [delta_pct] < %div4% )
     COLOR 102 153 205
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
@@ -447,7 +447,7 @@ LAYER
   END
   CLASS
     TITLE "Greater than %div4%%"
-    EXPRESSION ( [delta_val] >= %div4% )
+    EXPRESSION ( [delta_pct] >= %div4% )
     COLOR 171 205 102
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
@@ -463,7 +463,7 @@ LAYER
     END
   END
   CLASS
-    EXPRESSION ( [delta_val] == -99999)
+    EXPRESSION ( [delta_pct] == -99999)
     NAME "No Data"
     COLOR 204 204 204
     BACKGROUNDCOLOR 0 0 0
