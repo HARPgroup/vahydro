@@ -413,7 +413,7 @@ LAYER
   END
   CLASS
     TITLE "%div2% to %div3%%"
-    EXPRESSION ( [delta_pct] >= %div2% and [delta_pct] < %div3% )
+    EXPRESSION ( [delta_val] >= %div2% and [delta_val] < %div3% )
     COLOR 194 158 215
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
@@ -430,7 +430,7 @@ LAYER
   END
   CLASS
     TITLE "%div3% to %div4%%"
-    EXPRESSION ( [delta_pct] >= %div3% and [delta_pct] < %div4% )
+    EXPRESSION ( [delta_val] >= %div3% and [delta_val] < %div4% )
     COLOR 102 153 205
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
@@ -447,7 +447,7 @@ LAYER
   END
   CLASS
     TITLE "Greater than %div4%%"
-    EXPRESSION ( [delta_pct] >= %div4% )
+    EXPRESSION ( [delta_val] >= %div4% )
     COLOR 171 205 102
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
@@ -463,7 +463,195 @@ LAYER
     END
   END
   CLASS
-    EXPRESSION ( [delta_pct] == -99999)
+    EXPRESSION ( [delta_val] == -99999)
+    NAME "No Data"
+    COLOR 204 204 204
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    STYLE
+      SYMBOL "hatch-simple"
+      COLOR 255 255 255
+      SIZE 10
+      WIDTH 6
+      ANGLE 45
+      OPACITY 10
+    END # STYLE
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  TOLERANCE 10
+  PROJECTION
+  # EPSG SRID = 4326
+   "init=epsg:4326"
+  END
+END
+
+LAYER
+  NAME model_run_compare_abs
+  METADATA
+    "wfs_title"    "Model Run Status Info" ## REQUIRED
+    "wfs_srs"           "EPSG:4326" ## REQUIRED
+    "gml_featureid" "hydroid" ## REQUIRED
+    "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+    "wfs_enable_request" "*"
+  "wfs_version" "1.0.0"
+  END
+  CONNECTIONTYPE postgis
+  CONNECTION "host=192.168.0.21 user=postgres dbname=drupal.dh03"
+  TYPE POLYGON
+  STATUS OFF
+  DUMP TRUE
+  DEBUG ON
+  # Query ties a control point to its parent
+  DATA "dh_geofield_geom FROM (
+    select g.dh_geofield_geom, 
+     b.pid, a.propcode as model_version, 
+     f.name, f.ftype, 
+     b.propname as runid, 
+    foo.propvalue as propvalue_run1, 
+    bar.propvalue as propvalue_run2,
+    CASE 
+      WHEN ( (foo.propvalue is null) AND (bar.propvalue is null) ) THEN -99999
+      WHEN ( (foo.propvalue is null) AND (bar.propvalue is NOT null) ) THEN 
+        round(bar.propvalue::numeric,4) 
+      WHEN ( (foo.propvalue is NOT null) AND (bar.propvalue is null) ) THEN 
+        round(0.0 - foo.propvalue::numeric,4) 
+      ELSE round((bar.propvalue - foo.propvalue)::numeric,4) 
+    END as delta_val
+    from dh_feature as f 
+    left outer join field_data_dh_geofield as g
+    on (
+     f.hydroid = g.entity_id 
+     and g.entity_type = 'dh_feature'
+    )
+    left outer join dh_properties as a 
+    on ( 
+     f.hydroid = a.featureid 
+     and a.propcode = '%model_version%'
+    ) 
+    left outer join dh_properties as b 
+    on ( 
+     a.pid = b.featureid 
+     and b.propname = '%runid%'
+    ) 
+    left outer join dh_properties as foo 
+    on ( 
+     b.pid = foo.featureid 
+     and foo.propname = '%propname%' 
+    ) 
+    left outer join dh_properties as c 
+    on ( 
+     a.pid = c.featureid 
+     and c.propname = '%runid2%'
+    ) 
+    left outer join dh_properties as bar 
+    on ( 
+     c.pid = bar.featureid 
+     and bar.propname = '%propname%' 
+    ) 
+    where f.ftype = '%ftype%'
+      and f.bundle = '%bundle%'
+  ) AS foo USING UNIQUE pid using SRID=4326 "
+  #FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
+  TEMPLATE webmap.html
+  #LABELITEM "name"
+  #MINSCALE 1000
+  #MAXSCALE 50000
+  CLASS
+    TITLE "More than %div1%"
+    EXPRESSION ( ([delta_val] < %div1%) and ([delta_val] > -99999 ) )
+    COLOR 205 102 102
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    TITLE "%div1% to %div2%"
+    EXPRESSION ( [delta_val] >= %div1% and [delta_val] < %div2% )
+    COLOR 255 211 127
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    TITLE "%div2% to %div3%"
+    EXPRESSION ( [delta_val] >= %div2% and [delta_val] < %div3% )
+    COLOR 194 158 215
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    TITLE "%div3% to %div4%"
+    EXPRESSION ( [delta_val] >= %div3% and [delta_val] < %div4% )
+    COLOR 102 153 205
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    TITLE "Greater than %div4%"
+    EXPRESSION ( [delta_val] >= %div4% )
+    COLOR 171 205 102
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 0 0
+    LABEL
+      COLOR 132 31 31
+      TYPE TRUETYPE
+      FONT arial
+      SIZE 8
+      ANTIALIAS TRUE
+      POSITION CC
+      PARTIALS FALSE
+      MINDISTANCE 8000
+    END
+  END
+  CLASS
+    EXPRESSION ( [delta_val] == -99999)
     NAME "No Data"
     COLOR 204 204 204
     BACKGROUNDCOLOR 0 0 0
@@ -716,342 +904,6 @@ LAYER
      "init=epsg:4326"
    END
 END
-
-LAYER
-   NAME model_run_info_abs100
-   METADATA
-      "wfs_title"    "Model Run Status Info" ## REQUIRED
-      "wfs_srs"           "EPSG:4326" ## REQUIRED
-      "gml_featureid" "hydroid" ## REQUIRED
-      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
-      "wfs_enable_request" "*"
-	  "wfs_version" "1.0.0"
-   END
-   CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres dbname=model"
-   TYPE POLYGON
-   STATUS OFF
-   DUMP TRUE
-   DEBUG OFF
-   # Query ties a control point to its parent
-   DATA "dh_geofield_geom FROM (select a.dh_geofield_geom, b.hydroid, a.scenarioid, a.name, a.ftype, a.custom2, b.runid, b.propname,
-      CASE
-         WHEN b.propvalue is null THEN -99999      
-         ELSE b.propvalue 
-      END as propvalue, 
-   b.datatext from scen_model_element as a left outer join dh_properties as b on ( a.hydroid = b.hydroid) where a.ftype in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %model_version% and b.runid = %runid% and b.propname = '%propname%' ) AS foo USING UNIQUE hydroid"
-   FILTER "scenarioid = %model_version% and runid = %runid% and propname = '%propname%' "
-   TEMPLATE webmap.html
-   #LABELITEM "name"
-   #MINSCALE 1000
-   #MAXSCALE 50000
-   CLASS
-      EXPRESSION ( [propvalue] >= 0.0 and [propvalue] < 5.0 )
-      NAME "0 to 10.0"
-      COLOR 223 223 226
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      EXPRESSION ( [propvalue] > 5.0 and [propvalue] < 10.0 )
-      NAME "10.0 to 25.0"
-      COLOR 192 192 197
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      EXPRESSION ( [propvalue] > 10.0 and [propvalue] < 25.0 )
-      NAME "25.0 to 50.0"
-      COLOR 161 160 168
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      EXPRESSION ( [propvalue] > 25.0 and [propvalue] < 50.0 )
-      NAME "50.0 to 100.0"
-      COLOR 129 129 139
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      EXPRESSION ( [propvalue] > 50.0 and [propvalue] < 100.0 )
-      NAME "100.0 to 200.0"
-      COLOR 98 97 110
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      EXPRESSION ( [propvalue] > 100.0 )
-      NAME "Greater than 100.0"
-      COLOR 67 66 81
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   CLASS
-      NAME "Undefined"
-      COLOR 0 0 0
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
-      STYLE
-        SYMBOL "hatch-simple"
-        COLOR 255 255 255
-        SIZE 10
-        WIDTH 6
-        ANGLE 45
-        OPACITY 10
-      END # STYLE
-      LABEL
-        COLOR 132 31 31
-        TYPE TRUETYPE
-        FONT arial
-        SIZE 8
-        ANTIALIAS TRUE
-        POSITION CC
-        PARTIALS FALSE
-        MINDISTANCE 8000
-      END
-   END
-   TOLERANCE 10
-   PROJECTION
-   # EPSG SRID = 4326
-     "init=epsg:4326"
-   END
-END
-
-LAYER
-  NAME model_run_info_abs200
-  METADATA
-    "wfs_title"    "Model Run Status Info" ## REQUIRED
-    "wfs_srs"           "EPSG:4326" ## REQUIRED
-    "gml_featureid" "hydroid" ## REQUIRED
-    "gml_include_items" "all"  ## Optional (serves all attributes for layer)
-    "wfs_enable_request" "*"
-  "wfs_version" "1.0.0"
-  END
-  CONNECTIONTYPE postgis
-  CONNECTION "host=192.168.0.21 user=postgres dbname=drupal.dh03"
-  TYPE POLYGON
-  STATUS OFF
-  DUMP TRUE
-  DEBUG OFF
-  # Query ties a control point to its parent
-  DATA "dh_geofield_geom FROM (
-    select geo.dh_geofield_geom, b.hydroid, a.scenarioid, 
-      a.name, a.ftype, a.custom2, b.runid, 
-      b.propname, b.propvalue, b.datatext 
-    from dh_feature as a 
-    left outer join dh_properties as model
-    on ( 
-      a.hydroid = model.featureid
-      and model.entity_type = 'dh_feature'
-      and model.propcode = 'vahydro-1.0'
-    ) 
-    left outer join dh_properties as scen
-    on ( 
-      model.pid = scen.featureid
-      and scen.entity_type = 'dh_properties'
-    ) 
-    left outer join dh_properties as att
-    on ( 
-      scen.pid = att.featureid
-      and att.entity_type = 'dh_properties'
-      and att.propname = '%propname%' 
-    ) 
-    where a.ftype = 'vahydro'
-      and b.pid is not null 
-      and a.scenarioid = %model_version% 
-      and b.runid = %runid% and b.propname = '%propname%' 
-    ) AS foo USING UNIQUE hydroid"
-  FILTER "scenarioid = %model_version% and runid = %runid% and propname = '%propname%' "
-  TEMPLATE webmap.html
-  #LABELITEM "name"
-  #MINSCALE 1000
-  #MAXSCALE 50000
-  CLASS
-    EXPRESSION ( [propvalue] > 0.0 and [propvalue] < 10.0 )
-    NAME "0 to 10.0"
-    COLOR 223 223 226
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 0 0
-    LABEL
-      COLOR 132 31 31
-      TYPE TRUETYPE
-      FONT arial
-      SIZE 8
-      ANTIALIAS TRUE
-      POSITION CC
-      PARTIALS FALSE
-      MINDISTANCE 8000
-    END
-  END
-  CLASS
-    EXPRESSION ( [propvalue] > 10.0 and [propvalue] < 25.0 )
-    NAME "10.0 to 25.0"
-    COLOR 192 192 197
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 0 0
-    LABEL
-      COLOR 132 31 31
-      TYPE TRUETYPE
-      FONT arial
-      SIZE 8
-      ANTIALIAS TRUE
-      POSITION CC
-      PARTIALS FALSE
-      MINDISTANCE 8000
-    END
-  END
-  CLASS
-    EXPRESSION ( [propvalue] > 25.0 and [propvalue] < 50.0 )
-    NAME "25.0 to 50.0"
-    COLOR 161 160 168
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 0 0
-    LABEL
-      COLOR 132 31 31
-      TYPE TRUETYPE
-      FONT arial
-      SIZE 8
-      ANTIALIAS TRUE
-      POSITION CC
-      PARTIALS FALSE
-      MINDISTANCE 8000
-    END
-  END
-  CLASS
-    EXPRESSION ( [propvalue] > 50.0 and [propvalue] < 100.0 )
-    NAME "50.0 to 100.0"
-    COLOR 129 129 139
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 0 0
-    LABEL
-      COLOR 132 31 31
-      TYPE TRUETYPE
-      FONT arial
-      SIZE 8
-      ANTIALIAS TRUE
-      POSITION CC
-      PARTIALS FALSE
-      MINDISTANCE 8000
-    END
-  END
-  CLASS
-    EXPRESSION ( [propvalue] > 100.0 and [propvalue] < 200.0 )
-    NAME "100.0 to 200.0"
-    COLOR 98 97 110
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 0 0
-    LABEL
-      COLOR 132 31 31
-      TYPE TRUETYPE
-      FONT arial
-      SIZE 8
-      ANTIALIAS TRUE
-      POSITION CC
-      PARTIALS FALSE
-      MINDISTANCE 8000
-    END
-  END
-  CLASS
-    EXPRESSION ( [propvalue] > 200.0 )
-    NAME "Greater than 200.0"
-    COLOR 67 66 81
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 0 0
-    LABEL
-      COLOR 132 31 31
-      TYPE TRUETYPE
-      FONT arial
-      SIZE 8
-      ANTIALIAS TRUE
-      POSITION CC
-      PARTIALS FALSE
-      MINDISTANCE 8000
-    END
-  END
-  CLASS
-    NAME "0.0"
-    COLOR 255 255 255
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 0 0
-    LABEL
-      COLOR 132 31 31
-      TYPE TRUETYPE
-      FONT arial
-      SIZE 8
-      ANTIALIAS TRUE
-      POSITION CC
-      PARTIALS FALSE
-      MINDISTANCE 8000
-    END
-  END
-  TOLERANCE 10
-  PROJECTION
-  # EPSG SRID = 4326
-   "init=epsg:4326"
-  END
-END
-
 
 LAYER
    NAME minor_basins
