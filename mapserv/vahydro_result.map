@@ -70,6 +70,9 @@ WEB
       'div3'     '[0-9\.\-]+$'
       'div4'     '[0-9\.\-]+$'
       'mask_hydroid'     '[0-9]+$'
+      'mask_bundle' '[0-9a-zA-Z_\-]+$'
+      'mask_ftype' '[0-9a-zA-Z_\-]+$'
+      'mask_label' '[0-9a-zA-Z_\-]+$'
       'propname'     '[0-9a-zA-Z_\-]+$'
       'propname1'     '[0-9a-zA-Z_\-]+$'
       'propname2'     '[0-9a-zA-Z_\-]+$'
@@ -90,6 +93,10 @@ WEB
       'default_bundle' 'watershed'
       'default_ftype' 'vahydro'
       'default_mask_hydroid' '-1'
+      'default_mask_bundle' 'watershed'
+      'default_mask_ftype' 'vahydro_cbp_minor'
+      'default_mask_hydroid' '-1'
+      'default_mask_label' 'CBP Minor Basin'
    END
 END
 
@@ -936,7 +943,8 @@ LAYER
        a.hydroid = g.entity_id 
        and g.entity_type = 'dh_feature'
      )
-     where a.ftype in ('vahydro_cbp_minor') 
+     where a.ftype = '[mask_ftype]'
+     AND a.bundle = '[mask_bundle]'
      AND (
        [mask_hydroid] = -1 
        OR a.hydroid = [mask_hydroid]
@@ -949,7 +957,7 @@ LAYER
    #MAXSCALE 50000
    LABELITEM "name"
    CLASS
-    NAME 'Minor Basin'
+    TITLE '[mask_label]'
     EXPRESSION ( [mask_class] eq 'transparent' )
     #SYMBOL 'circle'
     STYLE
