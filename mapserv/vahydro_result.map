@@ -69,6 +69,7 @@ WEB
       'div2'     '[0-9\.\-]+$'
       'div3'     '[0-9\.\-]+$'
       'div4'     '[0-9\.\-]+$'
+      'mask_hydroid'     '[0-9]+$'
       'propname'     '[0-9a-zA-Z_\-]+$'
       'propname1'     '[0-9a-zA-Z_\-]+$'
       'propname2'     '[0-9a-zA-Z_\-]+$'
@@ -88,6 +89,7 @@ WEB
       'default_propname2' 'auglowflow'
       'default_bundle' 'watershed'
       'default_ftype' 'vahydro'
+      'default_mask_hydroid' '-1'
    END
 END
 
@@ -922,7 +924,12 @@ LAYER
    DUMP TRUE
    DEBUG OFF
    DATA "dh_geofield_geom FROM (
-     select g.dh_geofield_geom, a.hydroid, a.name, a.ftype 
+     select g.dh_geofield_geom, a.hydroid, a.name, a.ftype, 
+     CASE 
+       WHEN '[mask_hydroid]' = 'all' THEN 'transparent'
+       WHEN a.hydroid = [mask_hydroid] THEN 'transparent' 
+       ELSE 'opaque'
+     END as mask_class
      from dh_feature as a 
      left outer join field_data_dh_geofield as g 
      on (
@@ -930,6 +937,10 @@ LAYER
        and g.entity_type = 'dh_feature'
      )
      where a.ftype in ('vahydro_cbp_minor') 
+     AND (
+       [mask_hydroid] = -1 
+       OR a.hydroid = [mask_hydroid]
+     )
      and a.bundle = 'watershed' 
    ) AS foo USING UNIQUE hydroid using SRID=4326 "
    #FILTER "runid = 22"
@@ -938,14 +949,39 @@ LAYER
    #MAXSCALE 50000
    LABELITEM "name"
    CLASS
-      #SYMBOL 'circle'
-      STYLE
-        WIDTH 4
-      END
-      NAME "Minor Basins"
-      #COLOR 245 245 245
-      BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 47 167
+    NAME 'Minor Basin'
+    EXPRESSION ( [mask_class] eq 'transparent' )
+    #SYMBOL 'circle'
+    STYLE
+      WIDTH 4
+    END
+    #COLOR 245 245 245
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 47 167
+   END
+   ## Not yet used, but could be a way to create a mask 
+   CLASS
+    #NAME transparent
+    #EXPRESSION ( [mask_class] eq 'opaque' )
+    #SYMBOL 'circle'
+    STYLE
+      WIDTH 4
+    END
+    NAME "Minor Basins"
+    #COLOR 245 245 245
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 47 167
+   END
+   CLASS
+    #NAME transparent
+    #EXPRESSION ( [mask_class] eq 'transparent' )
+    #SYMBOL 'circle'
+    STYLE
+      WIDTH 4
+    END
+    #COLOR 245 245 245
+    BACKGROUNDCOLOR 0 0 0
+    OUTLINECOLOR 0 47 167
    END
    TOLERANCE 10
    PROJECTION
