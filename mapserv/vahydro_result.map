@@ -958,7 +958,6 @@ LAYER
    LABELITEM "name"
    CLASS
     TITLE '[mask_label]'
-    EXPRESSION ( [mask_class] eq 'transparent' )
     #SYMBOL 'circle'
     STYLE
       WIDTH 4
@@ -967,30 +966,7 @@ LAYER
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 47 167
    END
-   ## Not yet used, but could be a way to create a mask 
-   CLASS
-    #NAME transparent
-    #EXPRESSION ( [mask_class] eq 'opaque' )
-    #SYMBOL 'circle'
-    STYLE
-      WIDTH 4
-    END
-    NAME "Minor Basins"
-    #COLOR 245 245 245
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 47 167
-   END
-   CLASS
-    #NAME transparent
-    #EXPRESSION ( [mask_class] eq 'transparent' )
-    #SYMBOL 'circle'
-    STYLE
-      WIDTH 4
-    END
-    #COLOR 245 245 245
-    BACKGROUNDCOLOR 0 0 0
-    OUTLINECOLOR 0 47 167
-   END
+   ## @todo: could use the mask_class field from query as way of masking nonselected items
    TOLERANCE 10
    PROJECTION
    # EPSG SRID = 4326
