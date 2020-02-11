@@ -10,8 +10,10 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 # Location of GIS_functions and gdb
 localpath <-"C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/"
 source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
+
 gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" #Location of HUC .gdb
 layer_name <- 'WBDHU6' #HUC6 layer withing the HUC .gdb
+
 
 data_raw <- read.csv(paste(folder,source,sep=""))
 data_sp <- data_raw
@@ -20,14 +22,30 @@ data_sp <- data_raw
 # PERFORM SPATIAL CONTAINMENT
 data_sp <- data_sp[-which(data_sp$Latitude > 90),]
 
-#RATHER THAN SET THESE TO ZERO, SHOULD SET TO COORDINATES OF COUNTY CENTROID:
+#PERFORM THIS PART IN SQL AS WELL:
 #Set NA, -99, or 99 coordinates to 0.0; This step is required for coordinates() function
-data_sp$Latitude[is.na(data_sp$Latitude)] = 0.0 
+data_sp$Latitude[is.na(data_sp$Latitude)] = 0.0 #-9999 
 data_sp$Longitude[is.na(data_sp$Longitude)] = 0.0
 data_sp$Latitude[data_sp$Latitude == 99] = 0.0
 data_sp$Latitude[data_sp$Latitude == -99] = 0.0
 data_sp$Longitude[data_sp$Longitude == 99] = 0.0
 data_sp$Longitude[data_sp$Longitude == -99] = 0.0
+
+data_sp$Latitude[is.na(data_sp$Latitude)] = data_sp$fips_code #-9999 
+data_sp$Longitude[is.na(data_sp$Longitude)] = 0.0
+data_sp$Latitude[data_sp$Latitude == 99] = 0.0
+data_sp$Latitude[data_sp$Latitude == -99] = 0.0
+data_sp$Longitude[data_sp$Longitude == 99] = 0.0
+data_sp$Longitude[data_sp$Longitude == -99] = 0.0
+
+
+
+data_sp_sql <- sqldf('SELECT * FROM data_sp WHERE NOT Latitude > 90')
+data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Latitude = 99')
+data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Latitude = -99')
+data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Longitude = 99')
+data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Longitude = -99')
+data_sp <- data_sp_sql
 
 coordinates(data_sp) <- c("Longitude", "Latitude") #sp_contain() requires a coordinates column
 data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,'all',data_sp)
