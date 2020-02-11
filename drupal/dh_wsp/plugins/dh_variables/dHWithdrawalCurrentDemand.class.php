@@ -56,6 +56,7 @@ class dHWithdrawalCurrentDemand extends dHVariablePluginDefault {
           $read_fn = 'dh_get_properties';
           $write_fn = 'dh_update_properties';
           $idcol = 'pid';
+          $summary_info['propname'] = $entity->propname;
         break;
         default:
           return FALSE;
