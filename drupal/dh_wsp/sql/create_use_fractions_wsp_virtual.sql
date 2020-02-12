@@ -29,6 +29,7 @@ create temporary table tmp_wsp_virtual_fracs as (
   select fips.hydrocode, virtual_facs.hydroid, round(sum(wells.wd_current_mgy)) as gw_current_mgy, 
     round(sum(intakes.wd_current_mgy)) as sw_current_mgy, 
     round(sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy)) as total_mgy,
+    count(wells.*) as num_wells, count(intakes.*) as num_intakes,
     CASE 
       WHEN virtual_facs.ftype = 'wsp_plan_system-ssusm' THEN 0.0 
       WHEN sum(intakes.wd_current_mgy) > 0 AND sum(wells.wd_current_mgy) IS NULL THEN 1.0
@@ -39,6 +40,7 @@ create temporary table tmp_wsp_virtual_fracs as (
       ELSE 0.0
     END as sw_frac,
     CASE 
+      -- always 
       WHEN virtual_facs.ftype = 'wsp_plan_system-ssusm' THEN 1.0 
       WHEN sum(wells.wd_current_mgy) > 0 AND sum(intakes.wd_current_mgy) IS NULL THEN 1.0
       WHEN ( sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy) ) > 0 
@@ -62,23 +64,88 @@ create temporary table tmp_wsp_virtual_fracs as (
     lnk.entity_id = fac.hydroid 
     and fac.ftype not ilike '%power%'
   )
-  left outer join vahydro_mp_current_active as wells
+  left outer join (
+    select fac_hydroid, sum(wd_current_mgy ) as wd_current_mgy
+    from vahydro_mp_current_active 
+    where bundle = 'well'
+    and fstatus = 'active' 
+    group by fac_hydroid
+  ) as wells
   on (
     fac.hydroid = wells.fac_hydroid 
-    and wells.fstatus = 'active' 
-    and wells.bundle = 'well'
   )
-  left outer join vahydro_mp_current_active as intakes
+  left outer join (
+    select fac_hydroid, sum(wd_current_mgy ) as wd_current_mgy
+    from vahydro_mp_current_active 
+    where bundle = 'intake'
+    and fstatus = 'active' 
+    group by fac_hydroid
+  ) as intakes
   on (
     fac.hydroid = intakes.fac_hydroid
-    and intakes.fstatus = 'active'
-    and intakes.bundle = 'intake'
   )
   where virtual_facs.ftype like 'wsp_plan_system%' 
   group by fips.hydrocode, virtual_facs.hydroid
   order by fips.hydrocode
 );
 
+
+-- County reported fractions SW/GW
+-- we use all MPs here, not just active ones since that is what the totals are based on.
+-- also, "active" is vague.
+create temporary table tmp_facility_fracs as (
+  select fac.hydroid, 
+    CASE 
+      WHEN sum(wells.wd_current_mgy) IS NULL THEN 0.0 
+      ELSE round(sum(wells.wd_current_mgy)) 
+    END as gw_current_mgy, 
+    CASE 
+      WHEN sum(intakes.wd_current_mgy) IS NULL THEN 0.0 
+      ELSE round(sum(intakes.wd_current_mgy))
+    END as sw_current_mgy, 
+    round(sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy)) as total_mgy,
+    wells.num_wells, intakes.num_intakes,
+    CASE 
+      WHEN sum(intakes.wd_current_mgy) > 0 AND sum(wells.wd_current_mgy) IS NULL THEN 1.0
+      WHEN ( sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy) ) > 0 
+        THEN 
+        sum(intakes.wd_current_mgy) / ( sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy) ) 
+      WHEN sum(intakes.wd_current_mgy) IS NULL  AND sum(wells.wd_current_mgy) IS NULL THEN 0.5
+      ELSE 0.0
+    END as sw_frac,
+    CASE 
+      -- always 
+      WHEN sum(wells.wd_current_mgy) > 0 AND sum(intakes.wd_current_mgy) IS NULL THEN 1.0
+      WHEN ( sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy) ) > 0 
+        THEN 
+        sum(wells.wd_current_mgy) / ( sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy) ) 
+      WHEN sum(intakes.wd_current_mgy) IS NULL AND sum(wells.wd_current_mgy) IS NULL THEN 0.5
+      ELSE 0.0
+    END as gw_frac 
+  from dh_feature as fac 
+  left outer join (
+    select fac_hydroid, count(*) as num_wells, sum(wd_current_mgy ) as wd_current_mgy
+    from vahydro_mp_current_active 
+    where bundle = 'well'
+    group by fac_hydroid
+  ) as wells
+  on (
+    fac.hydroid = wells.fac_hydroid 
+  )
+  left outer join (
+    select fac_hydroid, count(*) as num_intakes, sum(wd_current_mgy ) as wd_current_mgy
+    from vahydro_mp_current_active 
+    where bundle = 'intake'
+    group by fac_hydroid
+  ) as intakes
+  on (
+    fac.hydroid = intakes.fac_hydroid
+  )
+  where fac.bundle <> 'duplicate'
+  and fac.ftype not like 'gw2%'
+  and (intakes.fac_hydroid is not null or wells.fac_hydroid is not null)
+  group by fac.hydroid, wells.num_wells, intakes.num_intakes
+);
 
 -- County Virtual Well and Intakes 
 select 'dh_feature' as entity_type, vmp.hydroid as featureid, 
