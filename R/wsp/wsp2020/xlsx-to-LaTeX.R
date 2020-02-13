@@ -11,8 +11,12 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 localpath <-"C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/"
 source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
 
-gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" #Location of HUC .gdb
-layer_name <- 'WBDHU6' #HUC6 layer withing the HUC .gdb
+###gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" #Location of HUC .gdb
+###layer_name <- 'WBDHU6' #HUC6 layer withing the HUC .gdb
+
+
+gdb_path <- "hydro-tools/GIS_LAYERS/WBD.gdb"
+layer_name <- 'WBDHU10' 
 
 
 data_raw <- read.csv(paste(folder,source,sep=""))
@@ -31,28 +35,28 @@ data_sp$Latitude[data_sp$Latitude == -99] = 0.0
 data_sp$Longitude[data_sp$Longitude == 99] = 0.0
 data_sp$Longitude[data_sp$Longitude == -99] = 0.0
 
-data_sp$Latitude[is.na(data_sp$Latitude)] = data_sp$fips_code #-9999 
-data_sp$Longitude[is.na(data_sp$Longitude)] = 0.0
-data_sp$Latitude[data_sp$Latitude == 99] = 0.0
-data_sp$Latitude[data_sp$Latitude == -99] = 0.0
-data_sp$Longitude[data_sp$Longitude == 99] = 0.0
-data_sp$Longitude[data_sp$Longitude == -99] = 0.0
+# data_sp$Latitude[is.na(data_sp$Latitude)] = data_sp$fips_code #-9999 
+# data_sp$Longitude[is.na(data_sp$Longitude)] = 0.0
+# data_sp$Latitude[data_sp$Latitude == 99] = 0.0
+# data_sp$Latitude[data_sp$Latitude == -99] = 0.0
+# data_sp$Longitude[data_sp$Longitude == 99] = 0.0
+# data_sp$Longitude[data_sp$Longitude == -99] = 0.0
 
 
 
-data_sp_sql <- sqldf('SELECT * FROM data_sp WHERE NOT Latitude > 90')
-data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Latitude = 99')
-data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Latitude = -99')
-data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Longitude = 99')
-data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Longitude = -99')
-data_sp <- data_sp_sql
+# data_sp_sql <- sqldf('SELECT * FROM data_sp WHERE NOT Latitude > 90')
+# data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Latitude = 99')
+# data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Latitude = -99')
+# data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Longitude = 99')
+# data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Longitude = -99')
+# data_sp <- data_sp_sql
 
 coordinates(data_sp) <- c("Longitude", "Latitude") #sp_contain() requires a coordinates column
-data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,'all',data_sp)
+data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,data_sp)
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 
-huc6_name <- "James"
+huc_name <- "Upper James"
 
 #Output all watershed options
 sqldf('SELECT DISTINCT Poly_Name
@@ -66,7 +70,7 @@ sql <- paste('SELECT facility_name,
                       fac_2040_mgy, 
                       Poly_Name
                   FROM data_sp_cont 
-                  WHERE Poly_Name = ','\"',huc6_name,'\"','
+                  WHERE Poly_Name = ','\"',huc_name,'\"','
                   ORDER BY fac_2020_mgy DESC
                   LIMIT 5
               ',sep="")
@@ -89,19 +93,19 @@ data <- sqldf(sql)
 
 # OUTPUT TABLE IN KABLE FORMAT
 kable(data, "latex", booktabs = T,
-      caption = paste("Top 5 Users in ",huc6_name," HUC 6",sep=""), 
-      label = paste("Top5_",huc6_name,sep=""),
+      caption = paste("Top 5 Users in ",huc_name," HUC",sep=""), 
+      label = paste("Top5_",huc_name,sep=""),
       col.names = c("Facility Name",
                     "Facility Type",
                     "2020 (MGY)",
                     "2040 (MGY)",
-                    "HUC6")) %>%
+                    "HUC")) %>%
   kable_styling(latex_options = c("striped", "scale_down")) %>% 
   #column_spec(1, width = "5em") %>%
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/","Top5_",huc6_name,"_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/","Top5_",huc_name,"_kable.tex",sep=""))
 
 ###########################################################################
 
