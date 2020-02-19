@@ -155,19 +155,64 @@ lsegs.df <- merge(lsegs.df, lsegs@data, by = 'id')
 # the name of the land segment
 
 ######################################################################################################
-poly_path <- "C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/WBD.gdb"
-poly_layer_name <- 'WBDHU6' 
-# read in polygons
-st <- st_read(poly_path, poly_layer_name)
-
-st.df <- data.frame(st)
-hUC6df <- data.frame('HUC6' = as.character(st.df$HUC6),
-                     'name' = as.character(st.df$NAME),
-                     'geom'= as.character(st.df$SHAPE)
-)
-write.table(hUC6df, file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/HUC6.tsv', quote=FALSE, sep='\t', col.names = NA)
+# poly_path <- "C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/WBD.gdb"
+# poly_layer_name <- 'WBDHU6' 
+# # read in polygons
+# st <- st_read(poly_path, poly_layer_name)
+# 
+# st.df <- data.frame(st)
+# hUC6df <- data.frame('HUC6' = as.character(st.df$HUC6),
+#                      'name' = as.character(st.df$NAME),
+#                      'geom'= as.character(st.df$SHAPE)
+# )
+# write.table(hUC6df, file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/HUC6.tsv', quote=FALSE, sep='\t', col.names = NA)
 
 ######################################################################################################
+######################################################################################################
+
+# HUC6geoms <- read.table(file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/HUC6.tsv', header = TRUE, sep = '\t')
+# 
+# MinorBasins <- read.table(file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/MinorBasins.tsv', sep = '\t', header = TRUE)
+# MinorBasins[1,1]
+HUC6 <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/WBD/GIS_LAYERS/HUC6.tsv', sep = '\t', header = TRUE)
+
+
+
+library(readr) #needed for read_tsv()
+foo <- read_tsv(file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/MinorBasins2.tsv', col_names = TRUE)
+class(foo)
+bar <- as.data.frame(foo)
+bat <- data.frame(bar)
+
+#--------------------------------------------------------------------
+bar.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/P6_bar_VA.csv', header = TRUE, sep = '\t')
+bar$id <- as.character(row_number(bar$hydroid))
+bar.list <- list()
+#i <- 1
+# bar[4,]
+for (i in 1:length(bar$hydroid)) {
+  bar_geom <- readWKT(bar$geom[i])
+  bar_geom_clip <- gIntersection(bb, bar_geom)
+  barProjected <- SpatialPolygonsDataFrame(bar_geom_clip, data.frame('id'), match.ID = TRUE)
+  barProjected@data$id <- as.character(i)
+  bar.list[i] <- barProjected
+}
+bar <- do.call('rbind', bar.list)
+bar@data <- merge(bar@data, bar, by = 'id')
+bar@data <- bar@data[,-c(2:3)]
+bar.df <- fortify(bar, region = 'id')
+bar.df <- merge(bar.df, bar@data, by = 'id')
+#--------------------------------------------------------------------
+
+
+
+
+map <- ggplot(data = lsegs.df, aes(x = long, y = lat, group = group))+
+  geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)
+  geom_polygon(data = bar, color="gray46", fill = "gray")
+######################################################################################################
+######################################################################################################
+
 
 #st <- data.frame(st)
 ###st$HUC6 <- as.integer(st$HUC6) #is.vector(st$HUC6)

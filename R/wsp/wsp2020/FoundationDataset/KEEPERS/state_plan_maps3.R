@@ -10,6 +10,12 @@ library(sqldf)
 #LOAD STATE GEOMETRY
 #--------------------------------------------------------------------------------------------
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
+#lsegs.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/P6_LSegs_VA.csv', header = TRUE, sep = '\t')
+huc6.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/HUC6.tsv', sep = '\t', header = TRUE)
+
+
+
+
 # hydro_tools <- '/Users/danie/Documents/HARP/GitHub/hydro-tools';
 # STATES <- read.table(file=paste(hydro_tools,"GIS_LAYERS","STATES.tsv",sep="\\"), header=TRUE, sep="\t") #Load state geometries
 
@@ -120,103 +126,98 @@ DCProjected@data$id <- rownames(DCProjected@data)
 DCPoints <- fortify( DCProjected, region = "id")
 DCDF <- merge(DCPoints,  DCProjected@data, by = "id")
 
-# Loading LandSeg Shape Data -----
-lsegs.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/P6_LSegs_VA.csv', header = TRUE, sep = '\t')
-lsegs.csv$id <- as.character(row_number(lsegs.csv$FIPS_NHL))
-lseg.list <- list()
-for (i in 1:length(lsegs.csv$FIPS_NHL)) {
-  #lseg.namer <- paste0('lseg_', i)
-  lsegs_geom <- readWKT(lsegs.csv$WKT[i])
-  lsegs_geom_clip <- gIntersection(bb, lsegs_geom)
-  lsegsProjected <- SpatialPolygonsDataFrame(lsegs_geom_clip, data.frame('id'), match.ID = TRUE)
-  lsegsProjected@data$id <- as.character(i)
-  #lsegsPoints <- fortify(lsegsProjected, region = 'id')
-  #lsegsDF <- merge(lsegsPoints, lsegsProjected@data, by = 'id')
-  #assign(lseg.namer, lsegsDF)
-  lseg.list[i] <- lsegsProjected
-}
-lsegs <- do.call('rbind', lseg.list)
-lsegs@data <- merge(lsegs@data, lsegs.csv, by = 'id')
-lsegs@data <- lsegs@data[,-c(2:3)]
-
-# plot(lsegs)
-# lseg.loc <- '/Users/danie/Documents/HARP/GitHub/cbp6/Data/CBP6_Temp_Prcp_Data/P6_LSegs_VA'
-# lsegs.test <- readOGR(lseg.loc, 'P6_LSegs_VA')
-# lsegs.test <- spTransform(lsegs.test, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-# lsegs.test@data$id <- rownames(lsegs.test@data)
-# lsegs.test.df <- fortify(lsegs.test)
-# lsegs.test.df <- merge(lsegs.test.df, lsegs.test@data, by = 'id')
-# plot(lsegs.test)
-
-lsegs.df <- fortify(lsegs, region = 'id')
-lsegs.df <- merge(lsegs.df, lsegs@data, by = 'id')
-# usually, lsegs.df is then merged with the data frame whose data you want
-# to make a choropleth map of, based on the "FIPS_NHL" trait -- that is,
-# the name of the land segment
-
-######################################################################################################
-poly_path <- "C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/WBD.gdb"
-poly_layer_name <- 'WBDHU6' 
-# read in polygons
-st <- st_read(poly_path, poly_layer_name)
-
-st.df <- data.frame(st)
-hUC6df <- data.frame('HUC6' = as.character(st.df$HUC6),
-                     'name' = as.character(st.df$NAME),
-                     'geom'= as.character(st.df$SHAPE)
-)
-write.table(hUC6df, file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/HUC6.tsv', quote=FALSE, sep='\t', col.names = NA)
+# # Loading LandSeg Shape Data -----
+# #lsegs.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/P6_LSegs_VA.csv', header = TRUE, sep = '\t')
+# lsegs.csv$id <- as.character(row_number(lsegs.csv$FIPS_NHL))
+# lseg.list <- list()
+# for (i in 1:length(lsegs.csv$FIPS_NHL)) {
+#   #lseg.namer <- paste0('lseg_', i)
+#   lsegs_geom <- readWKT(lsegs.csv$WKT[i])
+#   lsegs_geom_clip <- gIntersection(bb, lsegs_geom)
+#   lsegsProjected <- SpatialPolygonsDataFrame(lsegs_geom_clip, data.frame('id'), match.ID = TRUE)
+#   lsegsProjected@data$id <- as.character(i)
+#   #lsegsPoints <- fortify(lsegsProjected, region = 'id')
+#   #lsegsDF <- merge(lsegsPoints, lsegsProjected@data, by = 'id')
+#   #assign(lseg.namer, lsegsDF)
+#   lseg.list[i] <- lsegsProjected
+# }
+# lsegs <- do.call('rbind', lseg.list)
+# lsegs@data <- merge(lsegs@data, lsegs.csv, by = 'id')
+# lsegs@data <- lsegs@data[,-c(2:3)]
+# 
+# # plot(lsegs)
+# # lseg.loc <- '/Users/danie/Documents/HARP/GitHub/cbp6/Data/CBP6_Temp_Prcp_Data/P6_LSegs_VA'
+# # lsegs.test <- readOGR(lseg.loc, 'P6_LSegs_VA')
+# # lsegs.test <- spTransform(lsegs.test, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+# # lsegs.test@data$id <- rownames(lsegs.test@data)
+# # lsegs.test.df <- fortify(lsegs.test)
+# # lsegs.test.df <- merge(lsegs.test.df, lsegs.test@data, by = 'id')
+# # plot(lsegs.test)
+# 
+# lsegs.df <- fortify(lsegs, region = 'id')
+# lsegs.df <- merge(lsegs.df, lsegs@data, by = 'id')
+# # usually, lsegs.df is then merged with the data frame whose data you want
+# # to make a choropleth map of, based on the "FIPS_NHL" trait -- that is,
+# # the name of the land segment
 
 ######################################################################################################
+######################################################################################################
+######################################################################################################
+folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+data_huc_raw <- read.csv(paste(folder,"wsp2020.fac.all.HUC.csv",sep=""))
+HUC6.sql <- paste('SELECT HUC6_Name,
+              HUC6_Code,
+              COUNT(Facility_hydroid),
+              sum(fac_2020_mgy) AS val_2020,
+              sum(fac_2040_mgy) AS val_2040
+              FROM data_huc_raw 
+              GROUP BY HUC6_Code
+              ',sep="")
+HUC6_summary <- sqldf(HUC6.sql)
+###########################################################################
 
-#st <- data.frame(st)
-###st$HUC6 <- as.integer(st$HUC6) #is.vector(st$HUC6)
-###st$HUC6 <- as.numeric(as.character(st$HUC6))
-###HUC6_summary$HUC6_Code <- as.numeric(HUC6_summary$HUC6_Code)
-#HUC6_summary <- HUC6_summary[-1,]
+huc6_df <- huc6.csv
+
 st_data <- paste("SELECT *
-                  FROM HUC6_summary AS a
-                  LEFT OUTER JOIN st AS b
-                  ON (a.HUC6_Code = b.HUC6)")  
+                  FROM huc6_df AS a
+                  LEFT OUTER JOIN HUC6_summary AS b
+                  ON (a.HUC6 = b.HUC6_Code)")  
 st_data <- sqldf(st_data)
 
-#-----------------------------------------------------------
-st.df <- data.frame(st)
-#class(test)
-#test <- test[11:16]
-#test <- test[1]
-
-hUC6df <- data.frame('HUC6' = st.df$HUC6,
-                      as.character(st.df$SHAPE)
-                      )
-sapply(hUC6df, class)
-hUC6df <- hUC6.df[1]
-hUC6.sql <- sqldf("SELECT *
-                  FROM hUC6df")
-
-hUC6.sql[1,]
-#-----------------------------------------------------------
-
-st[11]
-st_data <- sqldf("SELECT HUC6
-                  FROM test")  
-
-test$HUC6 <- as.character(test$HUC6)
-test$SHAPE<- as.character(test$SHAPE)
-#view class of each column
-sapply(test, class)
-#-----------------------------------------------------------
-
-class(st)
-class(HUC6_summary)
-class(st$HUC6)
-class(HUC6_summary$HUC6_Code)
-
-sp <- as(st, "Spatial")
-poly_layer <- spTransform(sp, CRS(paste("+init=epsg:","4326",sep="")))
 
 
-map <- ggplot(data = lsegs.df, aes(x = long, y = lat, group = group))+
+
+
+st_data$id <- as.character(row_number(st_data$HUC6))
+huc6.list <- list()
+#z<-10
+#class(huc6Projected)
+
+for (z in 1:length(st_data$HUC6)) {
+print(paste("z = ",z,sep=''))
+print(st_data$HUC6[z])
+  huc6_geom <- readWKT(st_data$geom[z])
+#print(huc6_geom)
+  huc6_geom_clip <- gIntersection(bb, huc6_geom)
+  huc6Projected <- SpatialPolygonsDataFrame(huc6_geom_clip, data.frame('id'), match.ID = TRUE)
+  huc6Projected@data$id <- as.character(z)
+  huc6.list[[z]] <- huc6Projected
+}
+
+length(huc6.list)
+
+huc6 <- do.call('rbind', huc6.list)
+huc6@data <- merge(huc6@data, st_data, by = 'id')
+huc6@data <- huc6@data[,-c(2:3)]
+huc6.df <- fortify(huc6, region = 'id')
+huc6.df <- merge(huc6.df, huc6@data, by = 'id')
+
+
+######################################################################################################
+######################################################################################################
+
+#lsegs.df
+map <- ggplot(data = huc6.df, aes(x = long, y = lat, group = group))+
   geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
   geom_polygon(data = VADF, color="gray46", fill = "gray")+
   geom_polygon(data = TNDF, color="gray46", fill = "gray", lwd=0.5)+
@@ -234,11 +235,11 @@ map <- ggplot(data = lsegs.df, aes(x = long, y = lat, group = group))+
 # CHANGE "SHAPE_AREA" TO WHATEVER COLUMN IN LSEGS.DF YOU WANT A
 # CHOROPLETH MAP OF
 map + 
-  geom_polygon(aes(fill = Shape_Area), color = 'black', size = 0.1) +
-  guides(fill=guide_colorbar(title="Legend\nTitle (Unit)")) +
+  geom_polygon(aes(fill = val_2040), color = 'black', size = 0.1, alpha = 0.25) +
+  guides(fill=guide_colorbar(title="Legend\n2040 (MGY) By HUC6")) +
   theme(legend.justification=c(0,1), legend.position=c(0,1)) +
-  xlab('Longitude (deg W)') + ylab('Latitude (deg N)')+
-  scale_fill_gradient2(low = 'brown', mid = 'white', high = 'green') +
+  #xlab('Longitude (deg W)') + ylab('Latitude (deg N)')+
+  scale_fill_gradient2(low = 'brown', mid = 'white', high = 'blue') +
   north(bbDF, location = 'topright', symbol = 12, scale=0.1)+
   scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'km', 
            transform = TRUE, model = 'WGS84',st.bottom=FALSE, 
@@ -247,3 +248,6 @@ map +
              x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])-1.1,
              y = extent$y[1]+(extent$y[1])*0.001
            ))
+
+
+
