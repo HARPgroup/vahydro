@@ -66,3 +66,5 @@ done < /tmp/wsp_facility_future.txt
 
 # Now clean up
 cat modules/dh_wsp/sql/cleanup_wsp_facility_demands.sql | psql -h dbase2 drupal.dh03
+rm /tmp/wsp_facility_future.txt
+rm /tmp/fhead.txt 
