@@ -82,7 +82,8 @@ create table tmp_wsp_sys_sum_multifac as (
     CASE 
       WHEN sum(fac_wd.propvalue) IS NOT NULL THEN sum(fac_wd.propvalue) 
       ELSE 0.0 
-    END as sys_fac_sum
+    END as sys_fac_sum,
+    count(DISTINCT fac.hydroid) as num_facs
   from dh_adminreg_feature as wsp
   left outer join field_data_dh_link_feature_submittal as lnk
   on (
@@ -165,9 +166,10 @@ create table tmp_wsp_fac_net as (
     END as fac_net_future_wd
   from tmp_fac_current as foo 
   left outer join (
-    select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid,
+    select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid, bar.num_facs, 
       CASE 
         WHEN baz.ftype ilike 'wsp_plan_system-%' THEN 1.0
+        WHEN bar.num_facs = 1 THEN 1.0
         WHEN bar.sys_fac_sum = 0 THEN 0.0
         WHEN bar.sys_fac_sum IS NULL THEN 0.0
         WHEN baz.sys_fac_part IS NULL THEN 0.0 
