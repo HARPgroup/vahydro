@@ -169,7 +169,7 @@ create table tmp_wsp_fac_net as (
     select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid,
       CASE 
         WHEN baz.ftype ilike 'wsp_plan_system-%' THEN 1.0
-        WHEN bar.num_facs = 1 THEN bar.sys_fac_sum
+        WHEN bar.num_facs = 1 THEN 1.0
         WHEN bar.sys_fac_sum = 0 THEN 0.0
         WHEN bar.sys_fac_sum IS NULL THEN 0.0
         WHEN baz.sys_fac_part IS NULL THEN 0.0 
