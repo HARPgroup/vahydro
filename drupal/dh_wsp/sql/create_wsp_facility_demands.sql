@@ -166,7 +166,7 @@ create table tmp_wsp_fac_net as (
     END as fac_net_future_wd
   from tmp_fac_current as foo 
   left outer join (
-    select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid,
+    select bar.adminid, bar.sys_fac_sum, baz.sys_fac_part, baz.hydroid, bar.num_facs, 
       CASE 
         WHEN baz.ftype ilike 'wsp_plan_system-%' THEN 1.0
         WHEN bar.num_facs = 1 THEN 1.0
