@@ -7,23 +7,17 @@ library(sf) # needed for st_read()
 library(sqldf)
 
 #--------------------------------------------------------------------------------------------
-#LOAD STATE GEOMETRY
+#LOAD POLYGON LAYERS
 #--------------------------------------------------------------------------------------------
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
-#lsegs.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/P6_LSegs_VA.csv', header = TRUE, sep = '\t')
-huc6.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/HUC6.tsv', sep = '\t', header = TRUE)
-
-
-
-
-# hydro_tools <- '/Users/danie/Documents/HARP/GitHub/hydro-tools';
-# STATES <- read.table(file=paste(hydro_tools,"GIS_LAYERS","STATES.tsv",sep="\\"), header=TRUE, sep="\t") #Load state geometries
-
+#huc6.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/HUC6.tsv', sep = '\t', header = TRUE)
+huc6.csv <- read.table(file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/HUC8.tsv', sep = '\t', header = TRUE)
 
 #specify spatial extent for map  
-extent <- data.frame(x = c(-82, -75), 
-                     y = c(36.5, 39.5))  
+extent <- data.frame(x = c(-84, -75), 
+                     y = c(35, 41))  
 
+#bounding box
 bb=readWKT(paste0("POLYGON((",extent$x[1]," ",extent$y[1],",",extent$x[2]," ",extent$y[1],",",extent$x[2]," ",extent$y[2],",",extent$x[1]," ",extent$y[2],",",extent$x[1]," ",extent$y[1],"))",sep=""))
 bbProjected <- SpatialPolygonsDataFrame(bb,data.frame("id"), match.ID = FALSE)
 bbProjected@data$id <- rownames(bbProjected@data)
@@ -54,13 +48,13 @@ NCProjected@data$id <- rownames(NCProjected@data)
 NCPoints <- fortify( NCProjected, region = "id")
 NCDF <- merge(NCPoints,  NCProjected@data, by = "id")
 
-# KY <- STATES[which(STATES$state == "KY"),]
-# KY_geom <- readWKT(KY$geom)
-# KY_geom_clip <- gIntersection(bb, KY_geom)
-# KYProjected <- SpatialPolygonsDataFrame(KY_geom_clip,data.frame("id"), match.ID = TRUE)
-# KYProjected@data$id <- rownames(KYProjected@data)
-# KYPoints <- fortify( KYProjected, region = "id")
-# KYDF <- merge(KYPoints,  KYProjected@data, by = "id")
+KY <- STATES[which(STATES$state == "KY"),]
+KY_geom <- readWKT(KY$geom)
+KY_geom_clip <- gIntersection(bb, KY_geom)
+KYProjected <- SpatialPolygonsDataFrame(KY_geom_clip,data.frame("id"), match.ID = TRUE)
+KYProjected@data$id <- rownames(KYProjected@data)
+KYPoints <- fortify( KYProjected, region = "id")
+KYDF <- merge(KYPoints,  KYProjected@data, by = "id")
 
 WV <- STATES[which(STATES$state == "WV"),]
 WV_geom <- readWKT(WV$geom)
@@ -86,13 +80,13 @@ DEProjected@data$id <- rownames(DEProjected@data)
 DEPoints <- fortify( DEProjected, region = "id")
 DEDF <- merge(DEPoints,  DEProjected@data, by = "id")
 
-# PA <- STATES[which(STATES$state == "PA"),]
-# PA_geom <- readWKT(PA$geom)
-# PA_geom_clip <- gIntersection(bb, PA_geom)
-# PAProjected <- SpatialPolygonsDataFrame(PA_geom_clip,data.frame("id"), match.ID = TRUE)
-# PAProjected@data$id <- rownames(PAProjected@data)
-# PAPoints <- fortify( PAProjected, region = "id")
-# PADF <- merge(PAPoints,  PAProjected@data, by = "id")
+PA <- STATES[which(STATES$state == "PA"),]
+PA_geom <- readWKT(PA$geom)
+PA_geom_clip <- gIntersection(bb, PA_geom)
+PAProjected <- SpatialPolygonsDataFrame(PA_geom_clip,data.frame("id"), match.ID = TRUE)
+PAProjected@data$id <- rownames(PAProjected@data)
+PAPoints <- fortify( PAProjected, region = "id")
+PADF <- merge(PAPoints,  PAProjected@data, by = "id")
 
 NJ <- STATES[which(STATES$state == "NJ"),]
 NJ_geom <- readWKT(NJ$geom)
@@ -110,13 +104,13 @@ OHProjected@data$id <- rownames(OHProjected@data)
 OHPoints <- fortify( OHProjected, region = "id")
 OHDF <- merge(OHPoints,  OHProjected@data, by = "id")
 
-# SC <- STATES[which(STATES$state == "SC"),]
-# SC_geom <- readWKT(SC$geom)
-# SC_geom_clip <- gIntersection(bb, SC_geom)
-# SCProjected <- SpatialPolygonsDataFrame(SC_geom_clip,data.frame("id"), match.ID = TRUE)
-# SCProjected@data$id <- rownames(SCProjected@data)
-# SCPoints <- fortify( SCProjected, region = "id")
-# SCDF <- merge(SCPoints,  SCProjected@data, by = "id")
+SC <- STATES[which(STATES$state == "SC"),]
+SC_geom <- readWKT(SC$geom)
+SC_geom_clip <- gIntersection(bb, SC_geom)
+SCProjected <- SpatialPolygonsDataFrame(SC_geom_clip,data.frame("id"), match.ID = TRUE)
+SCProjected@data$id <- rownames(SCProjected@data)
+SCPoints <- fortify( SCProjected, region = "id")
+SCDF <- merge(SCPoints,  SCProjected@data, by = "id")
 
 DC <- STATES[which(STATES$state == "DC"),]
 DC_geom <- readWKT(DC$geom)
@@ -126,40 +120,36 @@ DCProjected@data$id <- rownames(DCProjected@data)
 DCPoints <- fortify( DCProjected, region = "id")
 DCDF <- merge(DCPoints,  DCProjected@data, by = "id")
 
-# # Loading LandSeg Shape Data -----
-# #lsegs.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/P6_LSegs_VA.csv', header = TRUE, sep = '\t')
-# lsegs.csv$id <- as.character(row_number(lsegs.csv$FIPS_NHL))
-# lseg.list <- list()
-# for (i in 1:length(lsegs.csv$FIPS_NHL)) {
-#   #lseg.namer <- paste0('lseg_', i)
-#   lsegs_geom <- readWKT(lsegs.csv$WKT[i])
-#   lsegs_geom_clip <- gIntersection(bb, lsegs_geom)
-#   lsegsProjected <- SpatialPolygonsDataFrame(lsegs_geom_clip, data.frame('id'), match.ID = TRUE)
-#   lsegsProjected@data$id <- as.character(i)
-#   #lsegsPoints <- fortify(lsegsProjected, region = 'id')
-#   #lsegsDF <- merge(lsegsPoints, lsegsProjected@data, by = 'id')
-#   #assign(lseg.namer, lsegsDF)
-#   lseg.list[i] <- lsegsProjected
-# }
-# lsegs <- do.call('rbind', lseg.list)
-# lsegs@data <- merge(lsegs@data, lsegs.csv, by = 'id')
-# lsegs@data <- lsegs@data[,-c(2:3)]
-# 
-# # plot(lsegs)
-# # lseg.loc <- '/Users/danie/Documents/HARP/GitHub/cbp6/Data/CBP6_Temp_Prcp_Data/P6_LSegs_VA'
-# # lsegs.test <- readOGR(lseg.loc, 'P6_LSegs_VA')
-# # lsegs.test <- spTransform(lsegs.test, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-# # lsegs.test@data$id <- rownames(lsegs.test@data)
-# # lsegs.test.df <- fortify(lsegs.test)
-# # lsegs.test.df <- merge(lsegs.test.df, lsegs.test@data, by = 'id')
-# # plot(lsegs.test)
-# 
-# lsegs.df <- fortify(lsegs, region = 'id')
-# lsegs.df <- merge(lsegs.df, lsegs@data, by = 'id')
-# # usually, lsegs.df is then merged with the data frame whose data you want
-# # to make a choropleth map of, based on the "FIPS_NHL" trait -- that is,
-# # the name of the land segment
 
+######################################################################################################
+######################################################################################################
+######################################################################################################
+#STATES LOOP
+STATES_polygons <- STATES
+
+st_data$id <- as.character(row_number(st_data$HUC6))
+huc6.list <- list()
+#z<-10
+#class(huc6Projected)
+
+for (z in 1:length(st_data$HUC6)) {
+  print(paste("z = ",z,sep=''))
+  print(st_data$HUC6[z])
+  huc6_geom <- readWKT(st_data$geom[z])
+  #print(huc6_geom)
+  huc6_geom_clip <- gIntersection(bb, huc6_geom)
+  huc6Projected <- SpatialPolygonsDataFrame(huc6_geom_clip, data.frame('id'), match.ID = TRUE)
+  huc6Projected@data$id <- as.character(z)
+  huc6.list[[z]] <- huc6Projected
+}
+
+#length(huc6.list)
+
+huc6 <- do.call('rbind', huc6.list)
+huc6@data <- merge(huc6@data, st_data, by = 'id')
+huc6@data <- huc6@data[,-c(2:3)]
+huc6.df <- fortify(huc6, region = 'id')
+huc6.df <- merge(huc6.df, huc6@data, by = 'id')
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
@@ -204,7 +194,7 @@ print(st_data$HUC6[z])
   huc6.list[[z]] <- huc6Projected
 }
 
-length(huc6.list)
+#length(huc6.list)
 
 huc6 <- do.call('rbind', huc6.list)
 huc6@data <- merge(huc6@data, st_data, by = 'id')
@@ -222,12 +212,12 @@ map <- ggplot(data = huc6.df, aes(x = long, y = lat, group = group))+
   geom_polygon(data = VADF, color="gray46", fill = "gray")+
   geom_polygon(data = TNDF, color="gray46", fill = "gray", lwd=0.5)+
   geom_polygon(data = NCDF, color="gray46", fill = "gray", lwd=0.5)+
-  #geom_polygon(data = SCDF, color="gray46", fill = "gray", lwd=0.5)+
-  #geom_polygon(data = KYDF, color="gray46", fill = "gray", lwd=0.5)+
+  geom_polygon(data = SCDF, color="gray46", fill = "gray", lwd=0.5)+
+  geom_polygon(data = KYDF, color="gray46", fill = "gray", lwd=0.5)+
   geom_polygon(data = WVDF, color="gray46", fill = "gray", lwd=0.5)+
   geom_polygon(data = MDDF, color="gray46", fill = "gray", lwd=0.5)+
   geom_polygon(data = DEDF, color="gray46", fill = "gray", lwd=0.5)+
-  #geom_polygon(data = PADF, color="gray46", fill = "gray", lwd=0.5)+
+  geom_polygon(data = PADF, color="gray46", fill = "gray", lwd=0.5)+
   geom_polygon(data = NJDF, color="gray46", fill = "gray", lwd=0.5)+
   geom_polygon(data = OHDF, color="gray46", fill = "gray", lwd=0.5)+
   geom_polygon(data = DCDF, color="gray46", fill = "gray", lwd=0.5)
@@ -238,8 +228,10 @@ map +
   geom_polygon(aes(fill = val_2040), color = 'black', size = 0.1, alpha = 0.25) +
   guides(fill=guide_colorbar(title="Legend\n2040 (MGY) By HUC6")) +
   theme(legend.justification=c(0,1), legend.position=c(0,1)) +
-  #xlab('Longitude (deg W)') + ylab('Latitude (deg N)')+
-  scale_fill_gradient2(low = 'brown', mid = 'white', high = 'blue') +
+  xlab('Longitude (deg W)') + ylab('Latitude (deg N)')+
+  #scale_fill_gradient2(low = 'brown', mid = 'white', high = 'blue') +
+  scale_fill_gradient2(low = 'brown', mid = 'white', high = 'blue',
+                       labels=function(x) format(x, big.mark = ",", scientific = FALSE)) +
   north(bbDF, location = 'topright', symbol = 12, scale=0.1)+
   scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'km', 
            transform = TRUE, model = 'WGS84',st.bottom=FALSE, 
@@ -250,4 +242,4 @@ map +
            ))
 
 
-
+HUC6_summary
