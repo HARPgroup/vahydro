@@ -15,7 +15,7 @@ summary_by_type <- sqldf("SELECT  MP_bundle, facility_ftype, sum(mp_2020_mgy), s
                          GROUP BY  MP_bundle") 
 
 #read in critical cells shapefile
-crit_cells <- readOGR("U:\\OWS\\Report Development\\VCPM VESM Simulation Reports\\2017 Annual Simulation Report\\2017 VESM Critical_Surface", "ES_Critical_Surface")
+crit_cells <- readOGR("C:\\Users\\maf95834\\Downloads\\2018-2019 Reported Use Simulation Critical Cells", "AQAQ")
 
 crit <- spTransform(crit_cells, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
 crit@data$id <- rownames(crit@data)
@@ -25,7 +25,7 @@ crit.df <- merge(crit.df, crit@data, by = 'id')
 #run basemap_template script 
 map + 
   geom_polygon(aes(fill = Shape_Area), color = 'black', size = 0.1) +
-  geom_path(data = crit.df, aes(x =long, y = lat, color = order), size = 0.1)  +
+  geom_path(data = crit.df, aes(x =long, y = lat, color = TP_2067), size = 0.1)  +
   guides(fill=guide_colorbar(title="Legend\nTitle (Unit)")) +
   theme(legend.justification=c(0,1), legend.position=c(0,1)) +
   xlab('Longitude (deg W)') + ylab('Latitude (deg N)')+
