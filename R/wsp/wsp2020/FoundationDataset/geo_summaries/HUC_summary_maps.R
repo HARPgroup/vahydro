@@ -5,6 +5,9 @@ library(rgdal)
 library(dplyr)
 library(sf) # needed for st_read()
 library(sqldf)
+library(knitr)
+library(kableExtra)
+
 
 #--------------------------------------------------------------------------------------------
 #LOAD POLYGON LAYERS
@@ -103,12 +106,12 @@ huc6.df <- merge(huc6.df, huc6@data, by = 'id')
 ######################################################################################################
 ######################################################################################################
 #SET UP BASE MAP
-map <- ggplot(data = huc6.df, aes(x = long, y = lat, group = group))+
+base_map <- ggplot(data = huc6.df, aes(x = long, y = lat, group = group))+
   geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
   geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5)
 
 #ADD LAYER OF INTEREST
-map + 
+map <- base_map + 
   geom_polygon(aes(fill = mgy_2040), color = 'black', size = 0.1, alpha = 0.25) +
   guides(fill=guide_colorbar(title="Legend\n2040 (MGY) By HUC6")) +
   theme(legend.justification=c(0,1), legend.position=c(0,1)) +
@@ -125,4 +128,22 @@ map +
              y = extent$y[1]+(extent$y[1])*0.001
            ))
 
+ ggsave(plot = map, file = paste0(folder, "state_plan_figures/2040_HUC6.png"), width=6.5, height=5)
+
 HUC6_summary
+
+# OUTPUT TABLE IN KABLE FORMAT
+kable(HUC6_summary, "latex", booktabs = T,
+      caption = paste("HUC 6",sep=""), 
+      label = paste("HUC6",sep=""),
+      col.names = c("HUC Name",
+                    "HUC Code",
+                    "Facility Count",
+                    "2020 (MGY)",
+                    "2040 (MGY)")) %>%
+  kable_styling(bootstrap_options = c("striped", "scale_down")) %>% 
+  #column_spec(1, width = "5em") %>%
+  #column_spec(2, width = "5em") %>%
+  #column_spec(3, width = "5em") %>%
+  #column_spec(4, width = "4em") %>%
+  cat(., file = paste(folder,"kable_tables/HUC6_statewide_kable.tex",sep=""))
