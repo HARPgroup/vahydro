@@ -3,7 +3,8 @@ library("kableExtra")
 library("sqldf")
 
 # Location of source data
-source <- "wsp2020.fac.all.csv"
+source <- "wsp2020.fac.all.HUC.csv"
+#source <- "wsp2020.fac.all.csv"
 #source <- "wsp2020.mp.all.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 
@@ -11,8 +12,11 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 localpath <-"C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/"
 source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
 
-gdb_path <- "hydro-tools/GIS_LAYERS/WBD.gdb"
-layer_name <- 'WBDHU6' 
+#gdb_path <- "hydro-tools/GIS_LAYERS/WBD.gdb"
+#layer_name <- 'WBDHU6' 
+
+gdb_path <- "hydro-tools/GIS_LAYERS/MinorBasins.gdb"
+layer_name <- 'MinorBasins'
 
 fips_centroids <- read.csv(paste("https://deq1.bse.vt.edu/d.dh/usafips_centroid_export",sep=""))
 
@@ -44,26 +48,26 @@ data_sp <- sqldf("SELECT *,
               FROM fips_join")
 ###########################################################################
 coordinates(data_sp) <- c("corrected_longitude", "corrected_latitude") #sp_contain() requires a coordinates column
-data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,data_sp)
+data_sp_cont <- sp_contain_mb(paste(localpath,gdb_path,sep=""),layer_name,data_sp)
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 ###########################################################################
-data_huc <- paste('SELECT Facility_hydroid, 
-                                  Poly_Name as HUC6_Name, 
-                                  Poly_Code as HUC6_Code
-                          FROM data_sp_cont
-                          ',sep="")
-data_huc <- sqldf(data_huc)
+# data_mb <- paste('SELECT Facility_hydroid, 
+#                                   Poly_Name as HUC6_Name, 
+#                                   Poly_Code as HUC6_Code
+#                           FROM data_sp_cont
+#                           ',sep="")
+# data_mb <- sqldf(data_mb)
+# ###########################################################################
+# ###########################################################################
+# data_sp_raw <- data_sp_cont
+# data_query <- paste("SELECT *
+#                   FROM data_sp_raw AS a
+#                   LEFT OUTER JOIN data_huc AS b
+#                   ON (a.Facility_hydroid = b.Facility_hydroid)")  
+# data_HUCs <- sqldf(data_query)
 ###########################################################################
 ###########################################################################
-data_sp_raw <- data_sp_cont
-data_query <- paste("SELECT *
-                  FROM data_sp_raw AS a
-                  LEFT OUTER JOIN data_huc AS b
-                  ON (a.Facility_hydroid = b.Facility_hydroid)")  
-data_HUCs <- sqldf(data_query)
-###########################################################################
-###########################################################################
-write.csv(data_HUCs, paste(folder,"wsp2020.fac.all.HUC.csv",sep=""))
+write.csv(data_sp_cont, paste(folder,"wsp2020.fac.all.MinorBasins.csv",sep=""))
 ###########################################################################
 ###########################################################################
