@@ -147,22 +147,3 @@ create temporary table tmp_facility_fracs as (
   group by fac.hydroid, wells.num_wells, intakes.num_intakes
 );
 
--- County Virtual Well and Intakes 
-select 'dh_feature' as entity_type, vmp.hydroid as featureid, 
-  'facility_use_fraction' as varkey, 
-  'facility_use_fraction' as propname,
-  CASE 
-    WHEN vmp.bundle = 'intake' THEN vfac.sw_frac 
-    WHEN vmp.bundle = 'well' THEN vfac.gw_frac 
-    ELSE 0.0
-  END as propvalue
-from tmp_wsp_virtual_fracs as vfac 
-left outer join field_data_dh_link_facility_mps as mplink
-on (
-  mplink.dh_link_facility_mps_target_id = vfac.hydroid 
-)
-left outer join dh_feature as vmp  
-on (
-  mplink.entity_id = vmp.hydroid 
-)
-;
