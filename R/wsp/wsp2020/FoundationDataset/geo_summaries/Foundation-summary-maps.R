@@ -15,8 +15,6 @@ STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/ma
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
 RSeg <- read.table(file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/VAHydro_RSegs.csv', sep = ',', header = TRUE)
 
-
-
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 data_rseg_raw <- read.csv(paste(folder,"wsp2020.fac.all.MinorBasins_RSegs.csv",sep=""))
 ######################################################################################################
@@ -120,82 +118,39 @@ RSeg_summary <- sqldf(RSeg.sql)
 ######################################################################################################
 
   # REMOVE SUPER LARGE VALUES - FOR QA PURPOSES ONLY
-  with_lg <- length(RSeg_summary[,1])
-  summary_sort <- paste("SELECT *
-                    FROM RSeg_summary
-                    WHERE mgy_2020 < 200000
-                    ORDER BY mgy_2020 DESC")
-  summary_sort <- sqldf(summary_sort)
-  RSeg_summary <- summary_sort
-  without_lg <- length(RSeg_summary[,1])
-  print(paste('Number of large values removed: ',with_lg-without_lg,sep=''))
-  
+  # with_lg <- length(RSeg_summary[,1])
+  # summary_sort <- paste("SELECT *
+  #                   FROM RSeg_summary
+  #                   WHERE mgy_2020 < 200000
+  #                   ORDER BY mgy_2020 DESC")
+  # summary_sort <- sqldf(summary_sort)
+  # RSeg_summary <- summary_sort
+  # without_lg <- length(RSeg_summary[,1])
+  # print(paste('Number of large values removed: ',with_lg-without_lg,sep=''))
+  # 
 ######################################################################################################
 RSeg_raw <- RSeg
-#RSeg_df <- RSeg
+  length(RSeg_raw[,1])
 
+  
 # JOIN DATA BY RIVER SEGMENT TO RIVER SEGMENT GEOMETRY LAYER
 RSeg_data <- paste("SELECT *
                   FROM RSeg AS a
                   LEFT OUTER JOIN RSeg_summary AS b
                   ON (a.hydrocode = b.VAHydro_RSeg_Code)")  
 RSeg_data <- sqldf(RSeg_data)
-length(RSeg_data[,1])
+  length(RSeg_data[,1])
 
 # REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
 RSeg_valid_geoms <- paste("SELECT *
                   FROM RSeg_data
                   WHERE geom != ''")  
 RSeg_data <- sqldf(RSeg_valid_geoms)
-length(RSeg_data[,1])
-######################################################################################################
+  length(RSeg_data[,1])
 
-RSeg_data$id <- as.character(row_number(RSeg_data$hydroid))
-RSeg.list <- list()
-
-#y<-1
-for (y in 1:length(RSeg_data$hydroid)) {
-  print(paste("y = ",y," of ",length(RSeg_data$hydroid),sep=''))
-  print(as.character(RSeg_data$hydrocode[y]))
-  if ((RSeg_data$geom[y]=="")==TRUE){next}
-  #if ((RSeg_data$geom[y]=="")==TRUE){RSeg_data$geom[y] <-list("POINT (-99 -99)")}
-  RSeg_geom <- readWKT(RSeg_data$geom[y])
-  #print(RSeg_geom)RSeg_data$geom[y]==""
-  RSeg_geom_clip <- gIntersection(bb, RSeg_geom)
-  #if (is.null(RSeg_geom_clip)==TRUE){next}
-  if (is.null(RSeg_geom_clip)==TRUE){next}
-  RSegProjected <- SpatialPolygonsDataFrame(RSeg_geom_clip, data.frame('id'), match.ID = TRUE)
-  RSegProjected@data$id <- as.character(y)
-  RSeg.list[[y]] <- RSegProjected
-}
-RSeg <- do.call('rbind', RSeg.list)
-RSeg@data <- merge(RSeg@data, RSeg_data, by = 'id')
-RSeg@data <- RSeg@data[,-c(2:3)]
-RSeg.df <- fortify(RSeg, region = 'id')
-RSeg.df <- merge(RSeg.df, RSeg@data, by = 'id')
-#colnames(RSeg.df)
 ######################################################################################################
+RSeg_data <- st_as_sf(RSeg_data, wkt = 'geom')
 ######################################################################################################
-######################################################################################################
-# FOR USER-DEFINED MAP BREAKS
-
-  # DEFINE YOUR MAP BREAKS
-  pretty_breaks <- c(1,10,100,10000,20000,40000,60000)
-  # find the extremes
-  minVal <- min(RSeg.df$mgy_2020, na.rm = T)
-  maxVal <- max(RSeg.df$mgy_2020, na.rm = T)
-  # compute labels
-  labels <- c()
-  brks <- c(minVal, pretty_breaks, maxVal)
-  labels <- brks
-  labels <- labels[1:length(labels)-1]
-  # define a new variable on the dataset
-  RSeg.df$brks <- cut(RSeg.df$mgy_2020, 
-                       breaks = brks, 
-                       include.lowest = TRUE, 
-                       labels = labels)
-  brks_scale <- levels(RSeg.df$brks)
-  labels_scale <- rev(brks_scale)
 
 ######################################################################################################
 ### GENERATE YOUR MAP  ###############################################################################
@@ -204,38 +159,21 @@ RSeg.df <- merge(RSeg.df, RSeg@data, by = 'id')
 options(scipen=999) #remove scientific notation from map legend
 
 #SET UP BASE MAP
-  <- ggplot(data = RSeg.df, aes(x = long, y = lat, group = group))+
+base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group))+
   geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
-  geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5)+
-  geom_polygon(data = MB.df, color="black", fill = NA,lwd=0.5)+
-  geom_point(data = data_rseg_raw, aes(x = corrected_longitude, y = corrected_latitude,group = 123), size = 1, shape = 20, fill = "darkblue")
+  geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5)
 
 #ADD LAYER OF INTEREST
 map <- base_map + 
-  #----------------------------------------------------------------------------
-  # FOR USER-DEFINED MAP BREAKS
-  # geom_polygon(data = RSeg.df, aes(fill = brks,x = long,y = lat,group = group), 
-  #              color = 'black', size = 0.1, alpha = 0.25) +
-  # scale_fill_manual(
-  #   #use below to control the number of breaks
-  #   values = rev(rainbow(8, alpha = 0.8)[2:9]),
-  #   #values = rev(magma(8, alpha = 0.8)[2:7]),
-  #   breaks = rev(brks_scale),
-  #   name = "2020 MGY",
-  #   drop = FALSE,
-  #   labels = labels_scale
-  # )+
-  #----------------------------------------------------------------------------
-  # FOR AUTOMATIC MAP BREAKS
-    geom_polygon(aes(fill = mgy_2020), color = 'black', size = 0.1, alpha = 0.25) +
-    guides(fill=guide_colorbar(title="Legend\n2020 (MGY)")) +
-    #scale_fill_viridis(option = "magma", direction = -1,
-    #                   labels=function(x) format(x, big.mark = ",", scientific = FALSE))+
-    scale_fill_gradient2(low = 'brown', mid = 'white', high = 'blue',
-                         labels=function(x) format(x, big.mark = ",", scientific = FALSE)) +
-    #scale_colour_manual(values = c("red", "green", "blue"), limits = c("100000", "200000"))+
-  #----------------------------------------------------------------------------
+  #no group on this layer, so don't inherit aes
+  geom_sf(data = RSeg_data,aes(geometry = geom,fill = mgy_2020), inherit.aes = FALSE)+ 
+  geom_polygon(data = MB.df, color="black", fill = NA,lwd=0.5)+
+  geom_point(data = data_rseg_raw, aes(x = corrected_longitude, y = corrected_latitude,group = 123), size = 1, shape = 20, fill = "darkblue")+
 
+  guides(fill=guide_colorbar(title="Legend\n2020 (MGY)")) +
+  scale_fill_gradient2(low = 'white',high = 'blue',
+                         labels=function(x) format(x, big.mark = ",", scientific = FALSE),
+                         trans = "log10") +
   theme(legend.justification=c(0,1), legend.position=c(0,1)) +
   xlab('Longitude (deg W)') + ylab('Latitude (deg N)')+
   north(bbDF, location = 'topright', symbol = 12, scale=0.1)+
@@ -249,12 +187,16 @@ map <- base_map +
 
 ggsave(plot = map, file = paste0(folder, "state_plan_figures/2020_RSeg.png"), width=6.5, height=5)
 
+#----------------------------------------------------------------------------
+
 summary_sort <- paste("SELECT *
                   FROM RSeg_summary
                   ORDER BY mgy_2020 DESC") 
 summary_sort <- sqldf(summary_sort)
 summary_sort
 colnames(summary_sort)
+
+######################################################################################################
 ######################################################################################################
 ######################################################################################################
 # OUTPUT TABLE IN KABLE FORMAT
