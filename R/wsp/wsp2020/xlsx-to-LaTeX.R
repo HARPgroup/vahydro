@@ -8,8 +8,9 @@ source <- "wsp2020.fac.all.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 
 # Location of GIS_functions and gdb
+hydro_tools_remote <-"https://raw.githubusercontent.com/HARPgroup/hydro-tools/master"
 localpath <-"C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/"
-source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
+source(paste(hydro_tools_remote,'GIS_LAYERS/GIS_functions.R', sep='/'));
 
 gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" #Location of HUC .gdb
 layer_name <- 'WBDHU6' #HUC6 layer withing the HUC .gdb
@@ -48,7 +49,7 @@ data_sp_sql <- sqldf('SELECT * FROM data_sp_sql WHERE NOT Longitude = -99')
 data_sp <- data_sp_sql
 
 coordinates(data_sp) <- c("Longitude", "Latitude") #sp_contain() requires a coordinates column
-data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep=""),layer_name,'all',data_sp)
+data_sp_cont <- sp_contain(paste(localpath,gdb_path,sep="/"),layer_name,'all',data_sp)
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 
