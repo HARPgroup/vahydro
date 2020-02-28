@@ -3,13 +3,14 @@ library("kableExtra")
 library("sqldf")
 
 # Location of source data
-source <- "wsp2020.fac.all.csv"
+#source <- "wsp2020.fac.all.csv"
+source <- "wsp2020.mp.all.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 data_raw <- read.csv(paste(folder,source,sep=""))
 data_sp <- data_raw
 
 # Location of GIS_functions and gdb
-localpath <-"C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/"
+localpath <-"C:/Users/maf95834/Documents/Github/"
 source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
 
 fips_centroids <- read.csv(paste("https://deq1.bse.vt.edu/d.dh/usafips_centroid_export",sep=""))
@@ -65,6 +66,7 @@ data_sp_cont <- data.frame(data_sp_cont)
 
 ###########################################################################
 ###########################################################################
-write.csv(data_sp_cont, paste(folder,"wsp2020.fac.all.MinorBasins_RSegs.csv",sep=""))
+#write.csv(data_sp_cont, paste(folder,"wsp2020.fac.all.MinorBasins_RSegs.csv",sep=""), row.names = F))
+write.csv(data_sp_cont, paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""), row.names = F)
 ###########################################################################
 ###########################################################################
