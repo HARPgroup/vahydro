@@ -455,7 +455,7 @@ LAYER
     END
   END
   CLASS
-    TITLE "Greater than %div4%%"
+    TITLE ">= %div4%%"
     EXPRESSION ( [delta_pct] >= %div4% )
     COLOR 171 205 102
     BACKGROUNDCOLOR 0 0 0
@@ -643,7 +643,7 @@ LAYER
     END
   END
   CLASS
-    TITLE "Greater than %div4%"
+    TITLE ">= %div4%"
     EXPRESSION ( [delta_val] >= %div4% )
     COLOR 171 205 102
     BACKGROUNDCOLOR 0 0 0
