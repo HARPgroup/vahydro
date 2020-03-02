@@ -150,9 +150,30 @@ wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_
 write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ))
 
 # Aggregate by Facility
+a_lets_see <- sqldf("SELECT *
+                    FROM wsp2020_2040
+                    where facility_long IS NULL")
+
 wsp_facility_2020_2040 <- sqldf(
   " select Facility_hydroid, facility_name, facility_ftype, fips_code, 
-      avg(Latitude) as Latitude, avg(Longitude) as Longitude,
+      CASE
+        WHEN facility_lat IS NULL
+          THEN avg(Latitude)
+        WHEN abs(facility_lat) < 35
+          THEN avg(Latitude)
+        WHEN abs(facility_lat) > 41
+          THEN avg(Latitude)
+        ELSE facility_lat
+        END as Latitude2,
+      CASE
+        WHEN facility_long IS NULL
+          THEN avg(Longitude)
+        WHEN abs(facility_long) > 84
+          THEN avg(Longitude)
+        WHEN abs(facility_long) < 75
+          THEN avg(Longitude)
+        ELSE facility_long
+        END as Longitude2,
       sum(mp_2020_mgy) as fac_2020_mgy,
       sum(mp_2040_mgy) as fac_2040_mgy,
       CASE
