@@ -25,10 +25,44 @@ options(scipen = 20)
 localpath <- tempdir()
 filename <- paste("data.all.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
+# Load Well current MGY
 download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wd_current_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=",sep=""), destfile = destfile, method = "libcurl")
-wdcurrent_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-
+wdcurrent_gw <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+wdcurrent_load <- wdcurrent_gw # this retains backward compatibility, but we should update gw_model_file_create.R and others to filter by MP ftype
 wdcurrent <- wdcurrent_load
+
+# Now load Intakes current
+download.file("http://deq2.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=intake&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wd_current_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=", destfile = destfile, method = "libcurl")
+wdcurrent_sw <- read.csv(file=destfile, header=TRUE, sep=",")
+
+wdcurrent_all <- sqldf(
+  "select * from wdcurrent_gw
+  UNION
+  select * from wdcurrent_sw"
+)
+write.csv(wdcurrent_all, file=paste(export_path,'wwr2018.mp.all.csv',sep='\\' ))
+# SURFACE WATER Aggregate by Facility
+facility_current_all <- sqldf(
+  " select Facility_hydroid, facility_name, ftype, fips_code, 
+      facility_lat, facility_long,
+      sum(fac_value * facility_use_fraction) as wd_current_mgy,
+      CASE
+        WHEN ftype in ('agriculture', 'irrigation') 
+          THEN 'wsp_plan_system-ssuag'
+        WHEN ftype in ('manufacturing', 'nuclearpower', 'mining', 
+          'commercial', 'industrial', 'fossilpower', 'hydropower') 
+          THEN 'wsp_plan_system-ssulg'
+        WHEN ftype in ('municipal') 
+          THEN 'wsp_plan_system-cws'
+          ELSE ftype
+      END as wsp_ftype
+    from wdcurrent_all 
+    group by Facility_hydroid, facility_name, ftype, fips_code, 
+      facility_lat, facility_long
+  "
+)
+write.csv(facility_current_all, file=paste(export_path,'wwr2018.fac.all.csv',sep='\\' ))
+
 
 #filters used: active, well, prop_name
 #wsp2020_2020_mgy
