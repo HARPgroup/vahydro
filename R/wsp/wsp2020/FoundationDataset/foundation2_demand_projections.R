@@ -38,7 +38,7 @@ wdcurrent_all <- sqldf(
   UNION
   select * from wdcurrent_sw"
 )
-write.csv(wdcurrent_all, file=paste(export_path,'wwr2020.mp.all.csv',sep='\\' ))
+write.csv(wdcurrent_all, file=paste(export_path,'wwr2018.mp.all.csv',sep='\\' ))
 # SURFACE WATER Aggregate by Facility
 facility_current_all <- sqldf(
   " select Facility_hydroid, facility_name, ftype, fips_code, 
@@ -59,7 +59,7 @@ facility_current_all <- sqldf(
       facility_lat, facility_long
   "
 )
-write.csv(facility_current_all, file=paste(export_path,'wwr2020.fac.all.csv',sep='\\' ))
+write.csv(facility_current_all, file=paste(export_path,'wwr2018.fac.all.csv',sep='\\' ))
 
 
 #filters used: active, well, prop_name
