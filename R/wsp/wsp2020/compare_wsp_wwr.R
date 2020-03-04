@@ -43,7 +43,9 @@ qa_data_nonpower = sqldf(
 )
 total_data_nonpower = sqldf(
   "select sum(wd_current_mgy) as wd_current_mgy, 
-    sum(fac_2020_mgy) as fac_2020_mgy
+    round(sum(wd_current_mgy)/365.0,1) as wd_current_mgd,
+    sum(fac_2020_mgy) as fac_2020_mgy, 
+    round(sum(fac_2020_mgy)/365.0,1) as fac_2020_mgd
     FROM cmp_data_nonpower
   "
 )
