@@ -1,6 +1,7 @@
 library("readxl")
 library("kableExtra")
 library("sqldf")
+library("stringr") #for str_remove()
 
 # Location of source data
 #source <- "wsp2020.fac.all.csv"
@@ -9,11 +10,10 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 data_raw <- read.csv(paste(folder,source,sep=""))
 data_sp <- data_raw
 
-# Location of GIS_functions and gdb
-localpath <-"C:/Users/maf95834/Documents/Github/"
-source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
 
-fips_centroids <- read.csv(paste("https://deq1.bse.vt.edu/d.dh/usafips_centroid_export",sep=""))
+#LOAD FUNCTIONS AND GDB FILES
+source("/var/www/R/config.local.private"); 
+source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
 
 MinorBasins_path <- "hydro-tools/GIS_LAYERS/MinorBasins.gdb"
 MinorBasins_layer <- 'MinorBasins'
@@ -21,6 +21,8 @@ MinorBasins_layer <- 'MinorBasins'
 VAHydro_RSegs_path <- "hydro-tools/GIS_LAYERS/VAHydro_RSegs.gdb"
 VAHydro_RSegs_layer <- 'VAHydro_RSegs'
 
+#LOAD FIPS CENTROIDS
+fips_centroids <- read.csv(paste("https://deq1.bse.vt.edu/d.dh/usafips_centroid_export",sep=""))
 ###########################################################################
 # join fips centroids 
 fips_join <- paste("SELECT *
@@ -28,8 +30,6 @@ fips_join <- paste("SELECT *
                   LEFT OUTER JOIN fips_centroids AS b
                   ON (a.fips_code = b.fips_code)")  
 fips_join <- sqldf(fips_join)
-
-
 #-----------------------------------------------------------------
 #Set geoms equal to fips centroid if NA or outside of VA bounding box 
 data_sp <- sqldf("SELECT *,
@@ -50,23 +50,15 @@ data_sp <- sqldf("SELECT *,
 
 ###########################################################################
 coordinates(data_sp) <- c("corrected_longitude", "corrected_latitude") #sp_contain_mb() requires a coordinates column
-data_sp_cont <- sp_contain_mb(paste(localpath,MinorBasins_path,sep=""),MinorBasins_layer,data_sp)
+data_sp_cont <- sp_contain_mb(paste(localpath,MinorBasins_path,sep="/"),MinorBasins_layer,data_sp)
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 coordinates(data_sp_cont) <- c("corrected_longitude", "corrected_latitude") #sp_contain_vahydro_rseg() requires a coordinates column
-data_sp_cont <- sp_contain_vahydro_rseg(paste(localpath,VAHydro_RSegs_path,sep=""),VAHydro_RSegs_layer,data_sp_cont)
+data_sp_cont <- sp_contain_vahydro_rseg(paste(localpath,VAHydro_RSegs_path,sep="/"),VAHydro_RSegs_layer,data_sp_cont)
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
-
-
-
-
-
-###########################################################################
-
 ###########################################################################
 ###########################################################################
-#write.csv(data_sp_cont, paste(folder,"wsp2020.fac.all.MinorBasins_RSegs.csv",sep=""), row.names = F))
-write.csv(data_sp_cont, paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""), row.names = F)
+write.csv(data_sp_cont, paste(folder,(str_remove(source,'.csv')),".MinorBasins_RSegs.csv",sep=""), row.names = F)
 ###########################################################################
 ###########################################################################
