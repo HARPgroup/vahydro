@@ -14,7 +14,7 @@ require(zoo)
 library(httr)
 library(lubridate) #required for year()
 #library(doBy) #required for summaryBy()
-
+library(sqldf)
 
 #SERVER:
 source("/var/www/R/config.local.private"); 
@@ -116,7 +116,6 @@ for (j in 1:length(hydrocodes)) {
   #CALCULATE MEDIAN VALUE FOR EACH YEAR 
   #==================================================================
   #=== SQL Version ==================================================
-  library(sqldf)
   month_data_medians <- paste("SELECT year,
               median(gwl_value) AS 'gwl_value.median'
               FROM month_data_all 
