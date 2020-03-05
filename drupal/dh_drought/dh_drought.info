@@ -1,0 +1,10 @@
+name = dH Drought
+description = Drought Management and Reporting Tools for Data Handlers Module.
+core = 7.x
+php = 5.3.0
+
+; 
+dependencies[] = dh
+stylesheets[all][] = dh_drought.css
+
+version = "7.x-1.0"
