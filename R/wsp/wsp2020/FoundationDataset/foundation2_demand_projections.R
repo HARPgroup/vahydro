@@ -198,7 +198,7 @@ wsp_facility_2020_2040 <- sqldf(
         WHEN abs(facility_lat) > 41
           THEN avg(Latitude)
         ELSE facility_lat
-        END as Latitude2,
+        END as Latitude,
       CASE
         WHEN facility_long IS NULL
           THEN avg(Longitude)
@@ -207,7 +207,7 @@ wsp_facility_2020_2040 <- sqldf(
         WHEN abs(facility_long) < 75
           THEN avg(Longitude)
         ELSE facility_long
-        END as Longitude2,
+        END as Longitude,
       sum(mp_2020_mgy) as fac_2020_mgy,
       sum(mp_2040_mgy) as fac_2040_mgy,
       CASE
