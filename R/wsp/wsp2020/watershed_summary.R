@@ -26,7 +26,7 @@ if (syear != eyear) {
 dat <- window(dat, start = sdate, end = edate);
 mode(dat) <- 'numeric'
 
-amn <- 10.0 * mean(as.numeric(dat$Qin))
+amn <- 10.0 * mean(as.numeric(dat$Qout))
 
 amnwd <- 1.1 * max(as.numeric(dat$wd_cumulative_mgd))
 
@@ -38,7 +38,8 @@ modat <- sqldf(
     round(avg(ps_cumulative_mgd),2) as ps_cumulative_mgd, 
     round(avg(ps_mgd),2) as ps_mgd 
   from datdf 
-  group by month")
+  group by month"
+)
 
 mot <- t(as.matrix(modat[,c('wd_cumulative_mgd', 'wd_mgd', 'ps_cumulative_mgd', 'ps_mgd')]) )
 mode(mot) <- 'numeric'
@@ -48,6 +49,8 @@ barplot(mot, main="Monthly Mean Withdrawals",
 
 datdf <- as.data.frame(dat)
 Qyear <- sqldf("select year, avg(Qout) from datdf group by year order by year")
+
+boxplot(as.numeric(dat$Qout) ~ dat$year, ylim=c(0,amn))
 
 # For some reason we need to convert these numeric fields to char, then to number
 # before sending to zoo since their retrieval is classifying them as factors instead of nums
