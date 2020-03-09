@@ -1,5 +1,4 @@
 require(sqldf)
-#require(rgdal)
 require(httr)
 
 #----------------------------------------------
@@ -34,6 +33,8 @@ wdcurrent <- wdcurrent_load
 # load Intakes current MGY
 download.file("http://deq2.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=intake&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=active&propname_op=%3D&propname=wd_current_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=", destfile = destfile, method = "libcurl")
 wdcurrent_sw <- read.csv(file=destfile, header=TRUE, sep=",")
+
+#------------------------------------------------------------------------------------------------#
 
 ## Union well and intake
 wdcurrent_all <- sqldf(
@@ -91,6 +92,8 @@ download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?
 intake_wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 intake_wsp2020 <- intake_wsp2020_load
 
+#------------------------------------------------------------------------------------------------#
+
 ## Union well and intake
 wsp2020 <- sqldf(
   "select * from well_wsp2020
@@ -118,6 +121,8 @@ download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?
 intake_wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 intake_wsp2040 <- intake_wsp2040_load
 
+#------------------------------------------------------------------------------------------------#
+
 ## Union well and intake
 wsp2040 <- sqldf(
   "select * from well_wsp2040
@@ -129,41 +134,81 @@ wsp2040 <- sqldf(
 #virtual facilities represent county-wide estimates - each county has a wsp_category facility and 2 MPs (SW & GW) (except SSU has only GW MP) 
 
 
-## Virtual Facilities 2020
+## Virtual Facilities 2020 Wells
 localpath <- tempdir()
 filename <- paste("data_vf2020.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
-download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B%5D=intake&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=All&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp",sep=""), destfile = destfile, method = "libcurl")
-vf_wsp2020_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-vf_wsp2020 <- vf_wsp2020_load
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=All&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp",sep=""), destfile = destfile, method = "libcurl")
+vf_wsp2020_load_wells <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+vf_wsp2020_wells <- vf_wsp2020_load_wells
 
 #------------------------------------------------------------------------------------------------#
 
-## Union virtual and non-virtual
+## Virtual Facilities 2020 intakes
+localpath <- tempdir()
+filename <- paste("data_vf2020.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=intake&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=All&propname_op=%3D&propname=wsp2020_2020_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp",sep=""), destfile = destfile, method = "libcurl")
+vf_wsp2020_load_intakes <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+vf_wsp2020_intakes <- vf_wsp2020_load_intakes
+
+#------------------------------------------------------------------------------------------------#
+
+## Union virtual wells and intakes
+vf_wsp2020 <- sqldf(
+  "select * from vf_wsp2020_wells
+  UNION 
+  select * from vf_wsp2020_intakes
+  ")
+
+#------------------------------------------------------------------------------------------------#
+
+## Union 2020 virtual and non-virtual
 wsp2020 <- sqldf(
   "select * from wsp2020
   UNION 
   select * from vf_wsp2020
-  "
-)
+  ")
 
 #------------------------------------------------------------------------------------------------#
 
-## Virtual Facilities 2040 
+## Virtual Facilities 2040 wells
 localpath <- tempdir()
 filename <- paste("data_vf2040.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
 download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=well&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=All&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp",sep=""), destfile = destfile, method = "libcurl")
-vf_wsp2040_load <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-vf_wsp2040 <- vf_wsp2040_load
+vf_wsp2040_load_wells <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+vf_wsp2040_wells <- vf_wsp2040_load_wells
 
-## Union virtual and non-virtual
+
+#------------------------------------------------------------------------------------------------#
+## Virtual Facilities 2040 intakes
+localpath <- tempdir()
+filename <- paste("data_vf2040.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("https://deq1.bse.vt.edu/d.dh/facility_mp_frac_value_export?bundle%5B0%5D=intake&hydroid=&propcode_op=%3D&propcode=&fstatus_op=in&fstatus=All&propname_op=%3D&propname=wsp2020_2040_mgy&hydroid_1_op=%3D&hydroid_1%5Bvalue%5D=&hydroid_1%5Bmin%5D=&hydroid_1%5Bmax%5D=&dh_link_admin_fa_usafips_target_id_op=in&ftype_op=contains&ftype=wsp",sep=""), destfile = destfile, method = "libcurl")
+vf_wsp2040_load_intakes <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
+vf_wsp2040_intakes <- vf_wsp2040_load_intakes
+
+#------------------------------------------------------------------------------------------------#
+
+## Union virtual wells and intakes
+vf_wsp2040 <- sqldf(
+  "select * from vf_wsp2040_wells
+  UNION 
+  select * from vf_wsp2040_intakes
+  ")
+
+#------------------------------------------------------------------------------------------------#
+
+## Union 2040 virtual and non-virtual
 wsp2040 <- sqldf(
   "select * from wsp2040
   UNION 
   select * from vf_wsp2040
-  "
-)
+  ")
+
+#------------------------------------------------------------------------------------------------#
 
 #merge wsp2020 and wsp2040 tables
 wsp2020_2040 <- sqldf(
