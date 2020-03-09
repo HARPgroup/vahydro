@@ -15,10 +15,6 @@ export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
 #prevents scientific notation
 options(scipen = 20)
 #QA Check for demand projections (for Aquaveo export and SWRP update)
-
-# gwma_path <- "U:\\OWS\\GIS\\GWMA\\gwma_all-2015"
-# gwma_layer_name <- "gwma_all-2015"
-
 #pull directly from VAHydro export url
 
 #wd_current_mgy
@@ -181,7 +177,7 @@ wsp2020_2040$delta_2040_pct <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_
 
 
 # Write this file
-write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ))
+write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ), row.names = F)
 
 # Aggregate by Facility
 a_lets_see <- sqldf("SELECT *
@@ -226,7 +222,7 @@ wsp_facility_2020_2040 <- sqldf(
 )
 
 # Write this file
-write.csv(wsp_facility_2020_2040, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ))
+write.csv(wsp_facility_2020_2040, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ), row.names = F)
 
 
 # SURFACE WATER Aggregate by Facility
@@ -242,7 +238,7 @@ SW_facility_2020_2040 <- sqldf(
 )
 
 # Write this file
-write.csv(SW_facility_2020_2040, file=paste(export_path,'SW.fac.all.csv',sep='\\' ))
+write.csv(SW_facility_2020_2040, file=paste(export_path,'SW.fac.all.csv',sep='\\' ), row.names = F)
 
 
 # GROUNDWATER Aggregate by Facility
@@ -258,7 +254,7 @@ GW_facility_2020_2040 <- sqldf(
 )
 
 # Write this file
-write.csv(GW_facility_2020_2040, file=paste(export_path,'GW.fac.all.csv',sep='\\' ))
+write.csv(GW_facility_2020_2040, file=paste(export_path,'GW.fac.all.csv',sep='\\' ), row.names = F)
 
 #to generate export for Groundwater Modeling (send to aquaveo), go to gw_model_file_create.R at the bottom
 
