@@ -10,7 +10,7 @@ source(paste(basepath,'config.R',sep='/'))
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
 elid = 351963
-runid = 501
+runid = 601
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
@@ -48,7 +48,7 @@ modat
 
 datpd <- window(
   dat, 
-  start = as.Date("2002-06-01"), 
+  start = as.Date("2002-01-01"), 
   end = as.Date("2002-11-30")
 );
 datpdf <- as.data.frame(datpd)

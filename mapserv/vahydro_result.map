@@ -69,6 +69,7 @@ WEB
       'div2'     '[0-9\.\-]+$'
       'div3'     '[0-9\.\-]+$'
       'div4'     '[0-9\.\-]+$'
+      'hide_tidal'     '[0-1]+$'
       'mask_hydroid'     '[0-9]+$'
       'mask_bundle' '[0-9a-zA-Z_\-]+$'
       'mask_ftype' '[0-9a-zA-Z_\-]+$'
@@ -78,6 +79,7 @@ WEB
       'propname2'     '[0-9a-zA-Z_\-]+$'
       'bundle'     '[0-9a-zA-Z_\-]+$'
       'ftype'     '[0-9a-zA-Z_\-]+$'
+      'default_hide_tidal' '1'
       'default_runid' 'runid_11'
       'default_runid1' 'runid_11'
       'default_runid2' 'runid_12'
@@ -170,7 +172,7 @@ LAYER
      b.propname as runid, 
     CASE
        WHEN c.propvalue is null THEN -99999      
-       WHEN (f.bundle = 'watershed' and f.ftype = 'vahydro' and f.hydrocode ilike '%0000%') THEN -99999
+       WHEN ('%hide_tidal%' = 1 and f.bundle = 'watershed' and f.ftype = 'vahydro' and f.hydrocode ilike '%0000%') THEN -99999
        ELSE c.propvalue 
     END as propvalue 
     from dh_feature as f 
