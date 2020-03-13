@@ -1,6 +1,7 @@
 library("readxl")
 library("knitr")
 library("kableExtra")
+options(knitr.table.format = "html")
 library("sqldf")
 
 # Location of source data
@@ -69,7 +70,7 @@ mp_all <- data_raw
 
 # 
 # # OUTPUT TABLE IN KABLE FORMAT
-# kable(data, "latex", booktabs = T,
+# kable(data,  booktabs = T,
 #       caption = paste("Top 5 Users in ",huc6_name," HUC 6",sep=""), 
 #       label = paste("Top5_",huc6_name,sep=""),
 #       col.names = c("Facility Name",
@@ -87,19 +88,25 @@ mp_all <- data_raw
 ###########################################################################
 
 #Output all Minor Basin options
-sqldf('SELECT DISTINCT MinorBasin_Name, MinorBasin_Code
+mb_options <- sqldf('SELECT DISTINCT MinorBasin_Name, MinorBasin_Code
       FROM mp_all
       ')
 #change minor basin name
 mb_name <- "New River"
-
+sql <- paste('SELECT MinorBasin_Code
+                   From mb_options
+                   WHERE MinorBasin_Name = ','\"',mb_name,'\"','
+              ',sep="")
+mb_abbrev <- sqldf(sql)
 #Select measuring points  within HUC of interest, Restict output to columns of interest
 sql <- paste('SELECT  MP_hydroid,
                       MP_bundle,
+                      Facility_hydroid, 
                       facility_name, 
                       facility_ftype,
                       wsp_ftype,
-                      mp_2020_mgy, 
+                      mp_2020_mgy,
+                      mp_2030_mgy,
                       mp_2040_mgy, 
                       MinorBasin_Name
                   FROM mp_all 
@@ -113,24 +120,37 @@ mb_mps <- sqldf(sql)
 
 #Transform
 #Demand by System Type 
-by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
+by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY)',sum(mp_2030_mgy) AS 'Demand 2030 (MGY)', sum(mp_2040_mgy) AS 'Demand 2040 (MGY)'
                         FROM mb_mps
                         WHERE facility_ftype NOT LIKE '%power'
                         GROUP BY wsp_ftype")
+# # Append column sum totals
+# func <- function(z) if (is.numeric(z)) sum(z) else ''
+# sumrow <- as.data.frame(lapply(by_system_type, func), stringsAsFactors = F)
+# sumrow
+# kable(sqldf("SELECT * from by_system_type
+# UNION 
+# SELECT * FROM sumrow"))
+# kable(rbind(cbind(' '=' ', by_system_type),
+#             cbind(' '='Total', sumrow)))
+# 
+# 
+# try <- addmargins(table(by_system_type[,2:4]), 1)
 
 # OUTPUT TABLE IN KABLE FORMAT
- kable(by_system_type, "latex", booktabs = T,
+ kable(by_system_type,  booktabs = T,
       caption = paste("Withdrawal Demand by System Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
-       label = paste("demandsystem_type_no_power",mb_name,sep=""),
+       label = paste("demandsystem_type_no_power",mb_abbrev,sep=""),
        col.names = c("System Type",
                      "2020 Demand (MGY)",
+                     "2030 Demand (MGY)",
                      "2040 Demand (MGY)")) %>%
    kable_styling(latex_options = c("striped", "full_width")) %>%
-   #column_spec(1, width = "5em") %>%
+   #column_spec(1, width = "6em") %>%
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
    #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demandsystem_type_no_power_",mb_name,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demandsystem_type_no_power_",mb_abbrev,"_kable.tex",sep=""))
  
  #---------------------------------------------------------------#
  
@@ -139,7 +159,7 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
                         GROUP BY wsp_ftype")
  
  # OUTPUT TABLE IN KABLE FORMAT
- kable(by_system_type, "latex", booktabs = T,
+ kable(by_system_type,  booktabs = T,
        caption = paste("Withdrawal Demand by System Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demandsystem_type_yes_power",mb_name,sep=""),
        col.names = c("System Type",
@@ -162,7 +182,7 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
                         GROUP BY MP_bundle")
  
  # OUTPUT TABLE IN KABLE FORMAT
- kable(by_source_type, "latex", booktabs = T,
+ kable(by_source_type,  booktabs = T,
        caption = paste("Withdrawal Demand by Source Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demandsource_type_no_power",mb_name,sep=""),
        col.names = c("Source Type",
@@ -182,7 +202,7 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
                         GROUP BY MP_bundle")
  
  # OUTPUT TABLE IN KABLE FORMAT
- kable(by_source_type, "latex", booktabs = T,
+ kable(by_source_type,  booktabs = T,
        caption = paste("Withdrawal Demand by Source Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demandsource_type_yes_power",mb_name,sep=""),
        col.names = c("Source Type",
@@ -195,22 +215,151 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
    #column_spec(4, width = "4em") %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demandsource_type_yes_power_",mb_name,"_kable.tex",sep=""))
  
-###################################################################
+############################################################################
  
-############################################################################################
+############################################################################
  
 #Locality Plan Updates 
 summary(mp_all) 
+summary_total <- sqldf("SELECT sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
+                       FROM mp_all")
+
+#----------------------------------------------------------------#
+
 updated_by_user <- sqldf("SELECT *
                          FROM mp_all
                          WHERE fips_code IN (51015, 51033, 51041, 51047, 51069, 51099, 51103, 51113, 51133, 51159, 51165, 51193, 51660, 51760)")
-sqldf("SELECT wsp_ftype, sum(mp_2020_mgy), sum(mp_2040_mgy)
+sqldf("SELECT  sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
+      FROM updated_by_user")
+user_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', round(sum(mp_2020_mgy)/2504894,2) as '2020 % of Total', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD', round(sum(mp_2040_mgy)/2943110,2) as '2040 % of Total'
       FROM updated_by_user
       group by wsp_ftype")
- 
+
+kable(user_type, booktabs = T,
+      caption = "Updated by Locality",
+      label = "Updated by Locality",
+      col.names = c("System Type",
+                    "2020 Demand (MGY)",
+                    "2020 Demand (MGD)",
+                    "2020 % of Total",
+                    "2040 Demand (MGY)",
+                    "2040 Demand (MGD)",
+                    "2040 % of Total")) %>%
+   kable_styling(latex_options = c("striped", "full_width"))
+
+#----------------------------------------------------------------#
+
 updated_by_DEQ_staff <- sqldf("SELECT *
                          FROM mp_all
                          WHERE fips_code IN (51003, 51029, 51036, 51041, 51049, 51061, 51069, 51075, 51085, 51087, 51109, 51113, 51127, 51137, 51145, 51159, 51165, 51171, 51540)")
-sqldf("SELECT wsp_ftype, sum(mp_2020_mgy), sum(mp_2040_mgy)
+sqldf("SELECT  sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
+      FROM updated_by_DEQ_staff")
+staff_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', round(sum(mp_2020_mgy)/2504894,2) as '2020 % of Total', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD', round(sum(mp_2040_mgy)/2943110,2) as '2040 % of Total'
       FROM updated_by_DEQ_staff
       group by wsp_ftype")
+kable(staff_type,  booktabs = T,
+      caption = "Updated by DEQ Staff",
+      label = "Updated by DEQ Staff",
+      col.names = c("System Type",
+                    "2020 Demand (MGY)",
+                    "2020 Demand (MGD)",
+                    "2020 % of Total",
+                    "2040 Demand (MGY)",
+                    "2040 Demand (MGD)",
+                    "2040 % of Total")) %>%
+   kable_styling(latex_options = c("striped", "full_width"))
+
+#----------------------------------------------------------------#
+
+updated_by_both <- sqldf("SELECT *
+                         FROM mp_all
+                         WHERE fips_code IN (51003,
+51015,
+51029,
+51033,
+51036,
+51041,
+51047,
+51049,
+51061,
+51069,
+51075,
+51085,
+51087,
+51099,
+51103,
+51109,
+51113,
+51127,
+51133,
+51137,
+51159,
+51165,
+51171,
+51193,
+51540,
+51660,
+51760)")
+sqldf("SELECT sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
+      FROM updated_by_both")
+both <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', round(sum(mp_2020_mgy)/2504894,2) as '2020 % of Total', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD', round(sum(mp_2040_mgy)/2943110,2) as '2040 % of Total'
+      FROM updated_by_both
+      group by wsp_ftype")
+kable(both,  booktabs = T,
+      caption = "Updated by Locality & DEQ Staff",
+      label = "Updated by Locality & DEQ Staff",
+      col.names = c("System Type",
+                    "2020 Demand (MGY)",
+                    "2020 Demand (MGD)",
+                    "2020 % of Total",
+                    "2040 Demand (MGY)",
+                    "2040 Demand (MGD)",
+                    "2040 % of Total")) %>%
+   kable_styling(latex_options = c("striped", "full_width"))
+
+#----------------------------------------------------------------#
+not_updated_by_both <- sqldf("SELECT *
+                         FROM mp_all
+                         WHERE fips_code NOT IN (51003,
+51015,
+51029,
+51033,
+51036,
+51041,
+51047,
+51049,
+51061,
+51069,
+51075,
+51085,
+51087,
+51099,
+51103,
+51109,
+51113,
+51127,
+51133,
+51137,
+51159,
+51165,
+51171,
+51193,
+51540,
+51660,
+51760)")
+sqldf("SELECT  sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
+      FROM not_updated_by_both")
+not_updated <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', round(sum(mp_2020_mgy)/2504894,2) as '2020 % of Total', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD', round(sum(mp_2040_mgy)/2943110,2) as '2040 % of Total'
+      FROM not_updated_by_both
+      group by wsp_ftype")
+kable(not_updated,  booktabs = T,
+      caption = "Not Updated",
+      label = "Not Updated",
+      col.names = c("System Type",
+                    "2020 Demand (MGY)",
+                    "2020 Demand (MGD)",
+                    "2020 % of Total",
+                    "2040 Demand (MGY)",
+                    "2040 Demand (MGD)",
+                    "2040 % of Total")) %>%
+   kable_styling(latex_options = c("striped", "full_width"))
