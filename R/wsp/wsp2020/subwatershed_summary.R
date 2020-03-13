@@ -9,14 +9,14 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 337724     	
-runid = 201
+elid = 351963
+runid = 501
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
 syear = min(dat$year)
 eyear = max(dat$year)
-if (syear != eyear) {
+if (syear < (eyear - 2) {
   sdate <- as.Date(paste0(syear,"-10-01"))
   edate <- as.Date(paste0(eyear,"-09-30"))
 } else {
@@ -30,22 +30,64 @@ amn <- 10.0 * mean(dat$Qout)
 
 amnwd <- 1.1 * max(as.numeric(dat$wd_cumulative_mgd))
 
-dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 datdf <- as.data.frame(dat, stringsAsFactors = FALSE)
 modat <- sqldf(
-  "select month, avg(wd_cumulative_mgd) as wd_cumulative_mgd, 
-    round(avg(wd_mgd),2) as wd_mgd , 
-    round(avg(ps_cumulative_mgd),2) as ps_cumulative_mgd, 
-    round(avg(ps_mgd),2) as ps_mgd 
+  "select year, month, 
+    round(avg(wd_mgd),2) as wd_mgd, 
+    round(avg(release),2) as release, 
+    round(avg(local_channel_Qout),2) as Qin, 
+    round(min(impoundment_days_remaining)) as min_days, 
+    round(min(impoundment_use_remain_mg)) as use_remain_mg, 
+    round(min(impoundment_lake_elev)) as lake_elev, 
+    round(min(storage_pct),2) * 100 as storage_pct
   from datdf 
-  group by month"
+  group by year, month
+  order by year, month"
 )
+modat
+
+datpd <- window(
+  dat, 
+  start = as.Date("2002-06-01"), 
+  end = as.Date("2002-11-30")
+);
+datpdf <- as.data.frame(datpd)
+modatpd <- sqldf(
+  "select year, month, 
+    round(avg(wd_mgd),2) as wd_mgd, 
+    round(avg(release),2) as release, 
+    round(avg(local_channel_Qout),2) as Qin, 
+    round(avg(Qout),2) as Qout, 
+    round(min(impoundment_days_remaining)) as min_days, 
+    round(min(impoundment_use_remain_mg)) as use_remain_mg, 
+    round(min(impoundment_lake_elev)) as lake_elev, 
+    round(min(storage_pct),2) * 100 as storage_pct
+  from datpdf 
+  group by year, month
+  order by year, month"
+)
+modatpd
+plot(datpd$impoundment_Qin, ylim=c(-0.1,15))
+lines(datpd$Qout,col='blue')
+
+par(mar = c(5,5,2,5))
+plot(
+  datpd$impoundment_lake_elev, 
+  ylim=c(520,540), 
+  ylab="Reservoir Surface Elevation (ft. asl)"
+)
+par(new = TRUE)
+plot(datpd$impoundment_Qin,col='blue', axes=FALSE, xlab="", ylab="")
+lines(datpd$impoundment_Qout,col='green')
+axis(side = 4)
+mtext(side = 4, line = 3, 'Flow (cfs)')
+
 
 mot <- t(as.matrix(modat[,c('wd_cumulative_mgd', 'wd_mgd', 'ps_cumulative_mgd', 'ps_mgd')]) )
 mode(mot) <- 'numeric'
 barplot(mot, main="Monthly Mean Withdrawals",
-  xlab="Month", col=c("darkblue","lightblue", "darkgreen", "lightgreen"),
-  legend = c('WD Cumulative', 'WD Local','PS Cumulative', 'PS Local'), beside=TRUE)
+        xlab="Month", col=c("darkblue","lightblue", "darkgreen", "lightgreen"),
+        legend = c('WD Cumulative', 'WD Local','PS Cumulative', 'PS Local'), beside=TRUE)
 
 datdf <- as.data.frame(dat)
 Qyear <- sqldf("select year, avg(Qout) from datdf group by year order by year")

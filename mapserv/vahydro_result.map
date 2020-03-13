@@ -170,6 +170,7 @@ LAYER
      b.propname as runid, 
     CASE
        WHEN c.propvalue is null THEN -99999      
+       WHEN (f.bundle = 'watershed' and f.ftype = 'vahydro' and f.hydrocode ilike '%0000%') THEN -99999
        ELSE c.propvalue 
     END as propvalue 
     from dh_feature as f 

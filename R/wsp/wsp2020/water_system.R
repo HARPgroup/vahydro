@@ -11,8 +11,8 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771
-elid = 351450    
-runid = 208
+elid = 347352    
+runid = 201
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
@@ -34,10 +34,10 @@ barplot(
   legend = c('Withdrawal', 'Discharge'), beside=TRUE
 )
 
-quantile(dat$adj_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3))
-quantile(dat$base_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3))
 quantile(dat$available_mgd, c(0.01,0.05, 0.1,0.2,0.3))
+quantile(dat$Qintake, c(0.01,0.05, 0.1,0.2,0.3))
 quantile(dat$flowby, c(0.01,0.05, 0.1,0.2,0.3))
+quantile(dat$base_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3))
 quantile(dat$rejected_demand_pct, c(0.9,0.95, 0.97,0.98,0.99, 1.0), na.rm=TRUE)
 quantile(dat$adj_demand_mgd, c(0.0,0.01,0.05, 0.1,0.2,0.3),na.rm=TRUE)
 quantile(dat$wd_mgd, c(0.01,0.05, 0.1,0.2,0.3))
