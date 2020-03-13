@@ -87,7 +87,7 @@ mp_all <- data_raw
 ###########################################################################
 
 #Output all Minor Basin options
-sqldf('SELECT DISTINCT MinorBasin_Name
+sqldf('SELECT DISTINCT MinorBasin_Name, MinorBasin_Code
       FROM mp_all
       ')
 #change minor basin name
@@ -109,6 +109,8 @@ sql <- paste('SELECT  MP_hydroid,
 
 mb_mps <- sqldf(sql)
 
+#---------------------------------------------------------------#
+
 #Transform
 #Demand by System Type 
 by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
@@ -118,8 +120,8 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
 
 # OUTPUT TABLE IN KABLE FORMAT
  kable(by_system_type, "latex", booktabs = T,
-      caption = paste("Withdrawal Demand by System Type in ",mb_name," Minor Basin",sep=""),
-       label = paste("demand_by_system_type_",mb_name,sep=""),
+      caption = paste("Withdrawal Demand by System Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
+       label = paste("demandsystem_type_no_power",mb_name,sep=""),
        col.names = c("System Type",
                      "2020 Demand (MGY)",
                      "2040 Demand (MGY)")) %>%
@@ -128,7 +130,7 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
    #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_by_system_type_no_power_",mb_name,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demandsystem_type_no_power_",mb_name,"_kable.tex",sep=""))
  
  #---------------------------------------------------------------#
  
@@ -138,8 +140,8 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
  
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_system_type, "latex", booktabs = T,
-       caption = paste("Withdrawal Demand by System Type in ",mb_name," Minor Basin",sep=""),
-       label = paste("demand_by_system_type_",mb_name,sep=""),
+       caption = paste("Withdrawal Demand by System Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
+       label = paste("demandsystem_type_yes_power",mb_name,sep=""),
        col.names = c("System Type",
                      "2020 Demand (MGY)",
                      "2040 Demand (MGY)")) %>%
@@ -148,21 +150,21 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
    #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_by_system_type_yes_power_",mb_name,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demandsystem_type_yes_power_",mb_name,"_kable.tex",sep=""))
 
  ###############################################################
 
  #Transform
  #Demand by Source Type 
- by_source_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
+ by_source_type <- sqldf("SELECT MP_bundle, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
                         FROM mb_mps
                         WHERE facility_ftype NOT LIKE '%power'
-                        GROUP BY wsp_ftype")
+                        GROUP BY MP_bundle")
  
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_source_type, "latex", booktabs = T,
-       caption = paste("Withdrawal Demand by Source Type in ",mb_name," Minor Basin",sep=""),
-       label = paste("demand_by_source_type_",mb_name,sep=""),
+       caption = paste("Withdrawal Demand by Source Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
+       label = paste("demandsource_type_no_power",mb_name,sep=""),
        col.names = c("Source Type",
                      "2020 Demand (MGY)",
                      "2040 Demand (MGY)")) %>%
@@ -171,18 +173,18 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
    #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_by_source_type_no_power_",mb_name,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demandsource_type_no_power_",mb_name,"_kable.tex",sep=""))
  
 #----------------------------------------------------------------#
  
- by_source_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
+ by_source_type <- sqldf("SELECT MP_bundle, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
                         FROM mb_mps
-                        GROUP BY wsp_ftype")
+                        GROUP BY MP_bundle")
  
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_source_type, "latex", booktabs = T,
-       caption = paste("Withdrawal Demand by Source Type in ",mb_name," Minor Basin",sep=""),
-       label = paste("demand_by_source_type_",mb_name,sep=""),
+       caption = paste("Withdrawal Demand by Source Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
+       label = paste("demandsource_type_yes_power",mb_name,sep=""),
        col.names = c("Source Type",
                      "2020 Demand (MGY)",
                      "2040 Demand (MGY)")) %>%
@@ -191,6 +193,24 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
    #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_by_source_type_yes_power_",mb_name,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demandsource_type_yes_power_",mb_name,"_kable.tex",sep=""))
  
 ###################################################################
+ 
+############################################################################################
+ 
+#Locality Plan Updates 
+summary(mp_all) 
+updated_by_user <- sqldf("SELECT *
+                         FROM mp_all
+                         WHERE fips_code IN (51015, 51033, 51041, 51047, 51069, 51099, 51103, 51113, 51133, 51159, 51165, 51193, 51660, 51760)")
+sqldf("SELECT wsp_ftype, sum(mp_2020_mgy), sum(mp_2040_mgy)
+      FROM updated_by_user
+      group by wsp_ftype")
+ 
+updated_by_DEQ_staff <- sqldf("SELECT *
+                         FROM mp_all
+                         WHERE fips_code IN (51003, 51029, 51036, 51041, 51049, 51061, 51069, 51075, 51085, 51087, 51109, 51113, 51127, 51137, 51145, 51159, 51165, 51171, 51540)")
+sqldf("SELECT wsp_ftype, sum(mp_2020_mgy), sum(mp_2040_mgy)
+      FROM updated_by_DEQ_staff
+      group by wsp_ftype")
