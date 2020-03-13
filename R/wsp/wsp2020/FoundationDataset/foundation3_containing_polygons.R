@@ -4,8 +4,8 @@ library("sqldf")
 library("stringr") #for str_remove()
 
 # Location of source data
-#source <- "wsp2020.fac.all.csv"
-source <- "wsp2020.mp.all.csv"
+source <- "wsp2020.fac.all.csv"
+#source <- "wsp2020.mp.all.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 data_raw <- read.csv(paste(folder,source,sep=""))
 data_sp <- data_raw

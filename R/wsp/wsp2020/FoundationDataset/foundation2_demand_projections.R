@@ -96,9 +96,9 @@ intake_wsp2020 <- intake_wsp2020_load
 
 ## Union well and intake
 wsp2020 <- sqldf(
-  "select * from well_wsp2020 where facility_use_fraction = 0
+  "select * from well_wsp2020 where facility_use_fraction != 0
   UNION 
-  select * from intake_wsp2020 where facility_use_fraction = 0
+  select * from intake_wsp2020 where facility_use_fraction != 0
   ")
 
 ################# wsp_2040_2020 Facilities Data Summary ####################################
@@ -125,9 +125,9 @@ intake_wsp2040 <- intake_wsp2040_load
 
 ## Union well and intake
 wsp2040 <- sqldf(
-  "select * from well_wsp2040 where facility_use_fraction = 0
+  "select * from well_wsp2040 where facility_use_fraction != 0
   UNION 
-  select * from intake_wsp2040 where facility_use_fraction = 0
+  select * from intake_wsp2040 where facility_use_fraction != 0
   ")
 # 
 # ################# Virtual Facilities Data Summary ####################################
@@ -242,7 +242,7 @@ wsp2020_2040$mp_2040_mgy <- wsp2020_2040$mp_share_2040
 wsp2020_2040$delta_2040_mgy <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy)
 wsp2020_2040$delta_2040_pct <- ((wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2040_mgy)*100
 wsp2020_2040$mp_2030_mgy <- (wsp2020_2040$mp_2020_mgy + wsp2020_2040$mp_2040_mgy)/2
-try <- sqldf("SELECT MP_hydroid, 
+wsp2020_2040 <- sqldf("SELECT MP_hydroid, 
                     MP_bundle,
                     mp_status,
                     MPID,
