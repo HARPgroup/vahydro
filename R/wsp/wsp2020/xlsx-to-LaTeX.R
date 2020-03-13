@@ -138,7 +138,7 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY
 # try <- addmargins(table(by_system_type[,2:4]), 1)
 
 # OUTPUT TABLE IN KABLE FORMAT
- kable(by_system_type,  booktabs = T,
+kable(by_system_type,  booktabs = T,
       caption = paste("Withdrawal Demand by System Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demandsystem_type_no_power",mb_abbrev,sep=""),
        col.names = c("System Type",
@@ -155,7 +155,7 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY
  
  #---------------------------------------------------------------#
  
- by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
+ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY)',sum(mp_2030_mgy) AS 'Demand 2030 (MGY)', sum(mp_2040_mgy) AS 'Demand 2040 (MGY)', round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
                         FROM mb_mps
                         GROUP BY wsp_ftype")
  
@@ -166,7 +166,8 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY
        col.names = c("System Type",
                      "2020 Demand (MGY)",
                      "2030 Demand (MGY)",
-                     "2040 Demand (MGY)")) %>%
+                     "2040 Demand (MGY)",
+                     "20 Year Percent Change")) %>%
     kable_styling(latex_options = c("striped", "full_width")) %>%
     #column_spec(1, width = "6em") %>%
     #column_spec(2, width = "5em") %>%
@@ -178,7 +179,7 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY
 
  #Transform
  #Demand by Source Type 
- by_source_type <- sqldf("SELECT MP_bundle, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
+ by_source_type <- sqldf("SELECT MP_bundle, sum(mp_2020_mgy) AS 'Demand 2020 (MGY)',sum(mp_2030_mgy) AS 'Demand 2030 (MGY)', sum(mp_2040_mgy) AS 'Demand 2040 (MGY)', round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
                         FROM mb_mps
                         WHERE facility_ftype NOT LIKE '%power'
                         GROUP BY MP_bundle")
@@ -189,8 +190,10 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY
        label = paste("demandsource_type_no_power",mb_name,sep=""),
        col.names = c("Source Type",
                      "2020 Demand (MGY)",
-                     "2040 Demand (MGY)")) %>%
-   kable_styling(latex_options = c("striped", "full_width")) %>%
+                     "2030 Demand (MGY)",
+                     "2040 Demand (MGY)",
+                     "20 Year Percent Change")) %>%
+    kable_styling(latex_options = c("striped", "full_width")) %>%
    #column_spec(1, width = "5em") %>%
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
@@ -199,7 +202,7 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY
  
 #----------------------------------------------------------------#
  
- by_source_type <- sqldf("SELECT MP_bundle, sum(mp_2020_mgy) AS '2020 Demand (MGY)', sum(mp_2040_mgy) AS '2040 Demand (MGY)'
+ by_source_type <- sqldf("SELECT MP_bundle, sum(mp_2020_mgy) AS 'Demand 2020 (MGY)',sum(mp_2030_mgy) AS 'Demand 2030 (MGY)', sum(mp_2040_mgy) AS 'Demand 2040 (MGY)', round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
                         FROM mb_mps
                         GROUP BY MP_bundle")
  
@@ -209,8 +212,10 @@ by_system_type <- sqldf("SELECT wsp_ftype, sum(mp_2020_mgy) AS 'Demand 2020 (MGY
        label = paste("demandsource_type_yes_power",mb_name,sep=""),
        col.names = c("Source Type",
                      "2020 Demand (MGY)",
-                     "2040 Demand (MGY)")) %>%
-   kable_styling(latex_options = c("striped", "full_width")) %>%
+                     "2030 Demand (MGY)",
+                     "2040 Demand (MGY)",
+                     "20 Year Percent Change")) %>%
+    kable_styling(latex_options = c("striped", "full_width")) %>%
    #column_spec(1, width = "5em") %>%
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
