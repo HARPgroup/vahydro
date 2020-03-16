@@ -126,33 +126,34 @@ mb_mps <- sqldf(sql)
 #Transform
 #Demand by System Type 
 by_system_type <- sqldf("SELECT 
-                        wsp_ftype, 
-                        sum(mp_2020_mgy) AS 'Demand 2020 (MGY)',
-                        sum(mp_2030_mgy) AS 'Demand 2030 (MGY)', 
-                        sum(mp_2040_mgy) AS 'Demand 2040 (MGY)', 
-                        sum(mp_2020_mgy)/365.25 AS 'Demand 2020 (MGD)',
-                        sum(mp_2030_mgy)/365.25 AS 'Demand 2030 (MGD)', 
-                        sum(mp_2040_mgy)/365.25 AS 'Demand 2040 (MGD)',
-                        round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
+wsp_ftype, 
+sum(mp_2020_mgy) AS 'MGY_2020',
+sum(mp_2030_mgy) AS 'MGY_2030', 
+sum(mp_2040_mgy) AS 'MGY_2040', 
+sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
                         FROM mb_mps
                         WHERE facility_ftype NOT LIKE '%power'
                         GROUP BY wsp_ftype
-                        ORDER BY pct_change")
-# # Append column sum totals
-# func <- function(z) if (is.numeric(z)) sum(z) else ''
-# sumrow <- as.data.frame(lapply(by_system_type, func), stringsAsFactors = F)
-# sumrow
-# kable(sqldf("SELECT * from by_system_type
-# UNION 
-# SELECT * FROM sumrow"))
-# kable(rbind(cbind(' '=' ', by_system_type),
-#             cbind(' '='Total', sumrow)))
+                        ORDER BY pct_change DESC")
+#calculate columns sums 
+totals <- as.data.frame(lapply(by_system_type[1:7], totals_func),stringsAsFactors = F)
+#calculate total percentage change
+totals <- sqldf("SELECT *, 
+round(((sum(MGY_2040) - sum(MGY_2020)) / sum(MGY_2020)) * 100,2) AS 'pct_change'
+      FROM totals")
+#append totals to table
+by_system_type <- rbind(cbind(' '=' ', by_system_type),
+                        cbind(' '='Total', totals))
 
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_system_type,  booktabs = T,
       caption = paste("Withdrawal Demand by System Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demandsystem_type_no_power",mb_abbrev,sep=""),
-       col.names = c("System Type",
+       col.names = c("",
+                     "System Type",
                      "2020 Demand (MGY)",
                      "2030 Demand (MGY)",
                      "2040 Demand (MGY)",
@@ -170,22 +171,33 @@ kable(by_system_type,  booktabs = T,
  #---------------------------------------------------------------#
  
  by_system_type <- sqldf("SELECT 
-                         wsp_ftype, 
-                         sum(mp_2020_mgy) AS 'Demand 2020 (MGY)',
-                         sum(mp_2030_mgy) AS 'Demand 2030 (MGY)', 
-                         sum(mp_2040_mgy) AS 'Demand 2040 (MGY)',
-                        sum(mp_2020_mgy)/365.25 AS 'Demand 2020 (MGD)',
-                        sum(mp_2030_mgy)/365.25 AS 'Demand 2030 (MGD)', 
-                        sum(mp_2040_mgy)/365.25 AS 'Demand 2040 (MGD)',
-                         round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
+wsp_ftype, 
+sum(mp_2020_mgy) AS 'MGY_2020',
+sum(mp_2030_mgy) AS 'MGY_2030', 
+sum(mp_2040_mgy) AS 'MGY_2040', 
+sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
                         FROM mb_mps
                         GROUP BY wsp_ftype")
+ 
+ #calculate columns sums 
+ totals <- as.data.frame(lapply(by_system_type[1:7], totals_func),stringsAsFactors = F)
+ #calculate total percentage change
+ totals <- sqldf("SELECT *, 
+round(((sum(MGY_2040) - sum(MGY_2020)) / sum(MGY_2020)) * 100,2) AS 'pct_change'
+      FROM totals")
+ #append totals to table
+ by_system_type <- rbind(cbind(' '=' ', by_system_type),
+                         cbind(' '='Total', totals))
  
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_system_type,  booktabs = T,
        caption = paste("Withdrawal Demand by System Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demandsystem_type_yes_power",mb_name,sep=""),
-       col.names = c("System Type",
+       col.names = c("",
+                     "System Type",
                      "2020 Demand (MGY)",
                      "2030 Demand (MGY)",
                      "2040 Demand (MGY)",
@@ -206,22 +218,33 @@ kable(by_system_type,  booktabs = T,
  #Demand by Source Type 
  by_source_type <- sqldf("SELECT 
                          MP_bundle, 
-                         sum(mp_2020_mgy) AS 'Demand 2020 (MGY)',
-                         sum(mp_2030_mgy) AS 'Demand 2030 (MGY)', 
-                         sum(mp_2040_mgy) AS 'Demand 2040 (MGY)', 
-                        sum(mp_2020_mgy)/365.25 AS 'Demand 2020 (MGD)',
-                        sum(mp_2030_mgy)/365.25 AS 'Demand 2030 (MGD)', 
-                        sum(mp_2040_mgy)/365.25 AS 'Demand 2040 (MGD)',
-                         round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
+sum(mp_2020_mgy) AS 'MGY_2020',
+sum(mp_2030_mgy) AS 'MGY_2030', 
+sum(mp_2040_mgy) AS 'MGY_2040', 
+sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
                         FROM mb_mps
                         WHERE facility_ftype NOT LIKE '%power'
                         GROUP BY MP_bundle")
+ 
+ #calculate columns sums 
+ totals <- as.data.frame(lapply(by_source_type[1:7], totals_func),stringsAsFactors = F)
+ #calculate total percentage change
+ totals <- sqldf("SELECT *, 
+round(((sum(MGY_2040) - sum(MGY_2020)) / sum(MGY_2020)) * 100,2) AS 'pct_change'
+      FROM totals")
+ #append totals to table
+ by_source_type <- rbind(cbind(' '=' ', by_source_type),
+                         cbind(' '='Total', totals))
  
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_source_type,  booktabs = T,
        caption = paste("Withdrawal Demand by Source Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demandsource_type_no_power",mb_name,sep=""),
-       col.names = c("Source Type",
+       col.names = c("", 
+                     "Source Type",
                      "2020 Demand (MGY)",
                      "2030 Demand (MGY)",
                      "2040 Demand (MGY)",
@@ -239,22 +262,31 @@ kable(by_system_type,  booktabs = T,
 #----------------------------------------------------------------#
  
  by_source_type <- sqldf("SELECT 
-                         MP_bundle, 
-                         sum(mp_2020_mgy) AS 'Demand 2020 (MGY)',
-                         sum(mp_2030_mgy) AS 'Demand 2030 (MGY)', 
-                         sum(mp_2040_mgy) AS 'Demand 2040 (MGY)', 
-                        sum(mp_2020_mgy)/365.25 AS 'Demand 2020 (MGD)',
-                        sum(mp_2030_mgy)/365.25 AS 'Demand 2030 (MGD)', 
-                        sum(mp_2040_mgy)/365.25 AS 'Demand 2040 (MGD)',
-                         round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
+MP_bundle, 
+sum(mp_2020_mgy) AS 'MGY_2020',
+sum(mp_2030_mgy) AS 'MGY_2030', 
+sum(mp_2040_mgy) AS 'MGY_2040', 
+sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
                         FROM mb_mps
                         GROUP BY MP_bundle")
- 
+ #calculate columns sums 
+ totals <- as.data.frame(lapply(by_source_type[1:7], totals_func),stringsAsFactors = F)
+ #calculate total percentage change
+ totals <- sqldf("SELECT *, 
+round(((sum(MGY_2040) - sum(MGY_2020)) / sum(MGY_2020)) * 100,2) AS 'pct_change'
+      FROM totals")
+ #append totals to table
+ by_source_type <- rbind(cbind(' '=' ', by_source_type),
+                         cbind(' '='Total', totals))
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_source_type,  booktabs = T,
        caption = paste("Withdrawal Demand by Source Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demandsource_type_yes_power",mb_name,sep=""),
-       col.names = c("Source Type",
+       col.names = c("",
+                     "Source Type",
                      "2020 Demand (MGY)",
                      "2030 Demand (MGY)",
                      "2040 Demand (MGY)",
