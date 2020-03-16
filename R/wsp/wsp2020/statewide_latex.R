@@ -10,9 +10,11 @@ width <- T
 library("sqldf")
 
 # Location of source data
+folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 #source <- "wsp2020.fac.all.MinorBasins_RSegs.csv"
 source <- "wsp2020.mp.all.MinorBasins_RSegs.csv"
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+fips_source <- "fips_codes.csv"
+fips_codes <- read.csv(paste(folder,fips_source,sep=""))
 
 data_raw <- read.csv(paste(folder,source,sep=""))
 mp_all <- data_raw
@@ -27,7 +29,8 @@ sql <- paste('SELECT  MP_hydroid,
                       mp_2020_mgy,
                       mp_2030_mgy,
                       mp_2040_mgy, 
-                      MinorBasin_Name
+                      MinorBasin_Name,
+                      fips_code
                   FROM mp_all
                   ORDER BY mp_2020_mgy DESC
               ',sep="")
@@ -133,5 +136,28 @@ kable(by_source_type,  booktabs = T,
   cat(., file = paste(folder,"kable_tables/statewide/demand_source_type_yes_power_kable.tex",sep=""))
 
 #---------------------------------------------------------------#
+#Transform
+#Demand by County 
+by_county <- sqldf("SELECT b.code, b.name, sum(a.mp_2020_mgy) AS 'Demand 2020 (MGY)',sum(a.mp_2030_mgy) AS 'Demand 2030 (MGY)', sum(a.mp_2040_mgy) AS 'Demand 2040 (MGY)', round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) AS 'pct_change'
+                        FROM fips_codes b
+                        LEFT OUTER JOIN mps a 
+                        ON a.fips_code = b.code
+                        GROUP BY a.fips_code
+                        ORDER BY pct_change DESC")
 
+# OUTPUT TABLE IN KABLE FORMAT
+kable(by_county[2:6],  booktabs = T,
+      caption = "Withdrawal Demand by Locality",
+      label = "demand_locality_statewide",
+      col.names = c("Locality",
+                    "2020 Demand (MGY)",
+                    "2030 Demand (MGY)",
+                    "2040 Demand (MGY)",
+                    "20 Year Percent Change")) %>%
+  kable_styling(latex_options = latexoptions, full_width = width) %>%
+  #column_spec(1, width = "5em") %>%
+  #column_spec(2, width = "5em") %>%
+  #column_spec(3, width = "5em") %>%
+  #column_spec(4, width = "4em") %>%
+  cat(., file = paste(folder,"kable_tables/statewide/demand_locality_statewide_kable.tex",sep=""))
 #---------------------------------------------------------------#
