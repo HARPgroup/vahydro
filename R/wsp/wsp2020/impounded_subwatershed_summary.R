@@ -68,16 +68,17 @@ modatpd <- sqldf(
   order by year, month"
 )
 modatpd
-plot(datpd$local_channel_Qout, ylim=c(-0.1,15))
-lines(datpd$wd_mgd * 1.547,col='blue')
+plot(datpd$impoundment_Qin, ylim=c(-0.1,15))
+lines(datpd$Qout,col='blue')
 
 par(mar = c(5,5,2,5))
 plot(
-  datpd$local_channel_Qout, 
-  ylab="River Segment Flow (cfs)"
+  datpd$impoundment_lake_elev, 
+  ylim=c(520,540), 
+  ylab="Reservoir Surface Elevation (ft. asl)"
 )
 par(new = TRUE)
-plot(datpd$wd_mgd * 1.547,col='blue', axes=FALSE, xlab="", ylab="")
+plot(datpd$impoundment_Qin,col='blue', axes=FALSE, xlab="", ylab="")
 lines(datpd$impoundment_Qout,col='green')
 axis(side = 4)
 mtext(side = 4, line = 3, 'Flow (cfs)')
