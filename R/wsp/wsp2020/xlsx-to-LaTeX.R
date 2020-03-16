@@ -1,4 +1,4 @@
-library("readxl")
+#library("readxl")
 library("knitr")
 library("kableExtra")
 options(knitr.table.format = "html")
@@ -9,13 +9,13 @@ library("sqldf")
 source <- "wsp2020.mp.all.MinorBasins_RSegs.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 
-# Location of GIS_functions and gdb
-hydro_tools_remote <-"https://raw.githubusercontent.com/HARPgroup/hydro-tools/master"
-localpath <-"C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/"
-source(paste(hydro_tools_remote,'GIS_LAYERS/GIS_functions.R', sep='/'));
-
-gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" #Location of HUC .gdb
-layer_name <- 'WBDHU6' #HUC6 layer withing the HUC .gdb
+# # Location of GIS_functions and gdb
+# hydro_tools_remote <-"https://raw.githubusercontent.com/HARPgroup/hydro-tools/master"
+# localpath <-"C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/"
+# source(paste(hydro_tools_remote,'GIS_LAYERS/GIS_functions.R', sep='/'));
+# 
+# gdb_path <- "hydro-tools/GIS_LAYERS/HUC.gdb" #Location of HUC .gdb
+# layer_name <- 'WBDHU6' #HUC6 layer withing the HUC .gdb
 
 
 data_raw <- read.csv(paste(folder,source,sep=""))
@@ -93,6 +93,7 @@ mb_options <- sqldf('SELECT DISTINCT MinorBasin_Name, MinorBasin_Code
       ')
 #change minor basin name
 mb_name <- "New River"
+#select minor basin code to know folder to save in
 sql <- paste('SELECT MinorBasin_Code
                    From mb_options
                    WHERE MinorBasin_Name = ','\"',mb_name,'\"','
@@ -226,6 +227,13 @@ kable(by_system_type,  booktabs = T,
  
 ############################################################################
  
+############################################################################
+ 
+############################################################################
+ 
+############################################################################
+ 
+############################################################################
 #Locality Plan Updates 
 summary(mp_all) 
 summary_total <- sqldf("SELECT sum(mp_2020_mgy) as 'Total 2020 MGY', sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', sum(mp_2040_mgy) as 'Total 2040 MGY',  sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
