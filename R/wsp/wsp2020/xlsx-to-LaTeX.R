@@ -1,7 +1,10 @@
 #library("readxl")
 library("knitr")
 library("kableExtra")
+#"html" for viewing in Rstudio Viewer pane; "latex" when ready to output to Overleaf
 options(knitr.table.format = "html")
+latexoptions <- c("striped")
+width <- T
 library("sqldf")
 
 # Location of source data
@@ -147,7 +150,7 @@ kable(by_system_type,  booktabs = T,
                      "2030 Demand (MGY)",
                      "2040 Demand (MGY)",
                      "20 Year Percent Change")) %>%
-   kable_styling(latex_options = c("striped", "full_width")) %>%
+    kable_styling(latex_options = latexoptions, full_width = width) %>%
    #column_spec(1, width = "6em") %>%
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
@@ -169,7 +172,7 @@ kable(by_system_type,  booktabs = T,
                      "2030 Demand (MGY)",
                      "2040 Demand (MGY)",
                      "20 Year Percent Change")) %>%
-    kable_styling(latex_options = c("striped", "full_width")) %>%
+     kable_styling(latex_options = latexoptions, full_width = width) %>%
     #column_spec(1, width = "6em") %>%
     #column_spec(2, width = "5em") %>%
     #column_spec(3, width = "5em") %>%
@@ -194,7 +197,7 @@ kable(by_system_type,  booktabs = T,
                      "2030 Demand (MGY)",
                      "2040 Demand (MGY)",
                      "20 Year Percent Change")) %>%
-    kable_styling(latex_options = c("striped", "full_width")) %>%
+     kable_styling(latex_options = latexoptions, full_width = width) %>%
    #column_spec(1, width = "5em") %>%
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
@@ -216,7 +219,7 @@ kable(by_system_type,  booktabs = T,
                      "2030 Demand (MGY)",
                      "2040 Demand (MGY)",
                      "20 Year Percent Change")) %>%
-    kable_styling(latex_options = c("striped", "full_width")) %>%
+     kable_styling(latex_options = latexoptions, full_width = width) %>%
    #column_spec(1, width = "5em") %>%
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
