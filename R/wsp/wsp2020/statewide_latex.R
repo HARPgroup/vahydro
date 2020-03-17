@@ -1,23 +1,41 @@
 #STATEWIDE 
-
 library("knitr")
 library("kableExtra")
+library("sqldf")
+
+#---------------------INITIALIZE GLOBAL VARIABLES------------------------#
 #"html" for viewing in Rstudio Viewer pane; "latex" when ready to output to Overleaf
 options(knitr.table.format = "latex")
 #options(knitr.table.format = "html")
-latexoptions <- c("striped")
+
+#Kable Styling
+latexoptions <- c("striped","hold_position","scale_down")
 width <- T
-library("sqldf")
+kable_col_names <- c("",
+                     "Type",
+                     #"2020 Demand (MGY)",
+                     #"2030 Demand (MGY)",
+                     #"2040 Demand (MGY)",
+                     "2020 Demand (MGD)",
+                     "2030 Demand (MGD)",
+                     "2040 Demand (MGD)",
+                     "20 Year Percent Change")
+
+#SQL
+aggregate_select <- '
+round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct_change'
 
 #totals function which allows us to append column sums to table to generate in kable
 totals_func <- function(z) if (is.numeric(z)) sum(z) else ''
+#--------------------------------LOAD DATA-------------------------------#
 
 # Location of source data
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 #source <- "wsp2020.fac.all.MinorBasins_RSegs.csv"
 source <- "wsp2020.mp.all.MinorBasins_RSegs.csv"
-fips_source <- "fips_codes.csv"
-fips_codes <- read.csv(paste(folder,fips_source,sep=""))
 
 data_raw <- read.csv(paste(folder,source,sep=""))
 mp_all <- data_raw
@@ -40,28 +58,25 @@ sql <- paste('SELECT  MP_hydroid,
 
 mps <- sqldf(sql)
 
+fips_source <- "fips_codes.csv"
+fips_codes <- read.csv(paste(folder,fips_source,sep=""))
+
 #---------------------------------------------------------------#
-#Transform
 #Demand by System Type 
-by_system_type <- sqldf("SELECT 
-wsp_ftype, 
-sum(mp_2020_mgy) AS 'MGY_2020',
-sum(mp_2030_mgy) AS 'MGY_2030', 
-sum(mp_2040_mgy) AS 'MGY_2040', 
-sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM mps
-                        WHERE facility_ftype NOT LIKE '%power'
-                        GROUP BY wsp_ftype
-                        ORDER BY pct_change DESC")
+system_sql <- paste('SELECT 
+                     wsp_ftype,',
+                    aggregate_select,'
+                     FROM mps
+                     WHERE facility_ftype NOT LIKE "%power"
+                     GROUP BY wsp_ftype', sep="")
+
+by_system_type <- sqldf(system_sql)
 
 #calculate columns sums 
-totals <- as.data.frame(lapply(by_system_type[1:7], totals_func),stringsAsFactors = F)
+totals <- as.data.frame(lapply(by_system_type[1:4], totals_func),stringsAsFactors = F)
 #calculate total percentage change
-totals<- sqldf("SELECT *, 
-round(((sum(MGY_2040) - sum(MGY_2020)) / sum(MGY_2020)) * 100,2) AS 'pct_change'
+totals <- sqldf("SELECT *, 
+round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
       FROM totals")
 #append totals to table
 by_system_type <- rbind(cbind(' '=' ', by_system_type),
@@ -72,16 +87,8 @@ by_system_type <- rbind(cbind(' '=' ', by_system_type),
 kable(by_system_type,  booktabs = T,
       caption = "Statewide Withdrawal Demand by System Type (excluding Power Generation)",
       label = "demand_system_type_no_power_statewide",
-      col.names = c("",
-                    "System Type",
-                    "2020 Demand (MGY)",
-                    "2030 Demand (MGY)",
-                    "2040 Demand (MGY)",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
-   kable_styling(latex_options = latexoptions, full_width = width) %>%
+      col.names = kable_col_names) %>%
+   kable_styling(latex_options = latexoptions) %>%
   #column_spec(1, width = "6em") %>%
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
@@ -89,24 +96,19 @@ kable(by_system_type,  booktabs = T,
   cat(., file = paste(folder,"kable_tables/statewide/demand_system_type_no_power_kable.tex",sep=""))
 
 #---------------------------------------------------------------#
-by_system_type <- sqldf("SELECT 
-wsp_ftype, 
-sum(mp_2020_mgy) AS 'MGY_2020',
-sum(mp_2030_mgy) AS 'MGY_2030', 
-sum(mp_2040_mgy) AS 'MGY_2040', 
-sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM mps
-                        GROUP BY wsp_ftype
-                        ORDER BY pct_change DESC")
+#Demand by System Type 
+system_sql <- paste('SELECT 
+                     wsp_ftype,',
+                    aggregate_select,'
+                     FROM mps
+                     GROUP BY wsp_ftype', sep="")
 
+by_system_type <- sqldf(system_sql)
 #calculate columns sums 
-totals <- as.data.frame(lapply(by_system_type[1:7], totals_func),stringsAsFactors = F)
+totals <- as.data.frame(lapply(by_system_type[1:4], totals_func),stringsAsFactors = F)
 #calculate total percentage change
-totals<- sqldf("SELECT *, 
-round(((sum(MGY_2040) - sum(MGY_2020)) / sum(MGY_2020)) * 100,2) AS 'pct_change'
+totals <- sqldf("SELECT *, 
+round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
       FROM totals")
 #append totals to table
 by_system_type <- rbind(cbind(' '=' ', by_system_type),
@@ -116,44 +118,29 @@ by_system_type <- rbind(cbind(' '=' ', by_system_type),
 kable(by_system_type,  booktabs = T,
       caption = "Statewide Withdrawal Demand by System Type (including Power Generation)",
       label = "demand_system_type_yes_power_statewide",
-      col.names = c("",
-                    "System Type",
-                    "2020 Demand (MGY)",
-                    "2030 Demand (MGY)",
-                    "2040 Demand (MGY)",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
-   kable_styling(latex_options = latexoptions, full_width = width) %>%
+      col.names = kable_col_names) %>%
+   kable_styling(latex_options = latexoptions) %>%
   #column_spec(1, width = "6em") %>%
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
   cat(., file = paste(folder,"kable_tables/statewide/demand_system_type_yes_power_kable.tex",sep=""))
 #---------------------------------------------------------------#
-
-#Transform
 #Demand by Source Type 
-by_source_type <- sqldf("SELECT 
-MP_bundle, 
-sum(mp_2020_mgy) AS 'MGY_2020',
-sum(mp_2030_mgy) AS 'MGY_2030', 
-sum(mp_2040_mgy) AS 'MGY_2040', 
-sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM mps
-                        WHERE facility_ftype NOT LIKE '%power'
-                        GROUP BY MP_bundle
-                        ORDER BY pct_change DESC")
+source_sql <- paste('SELECT 
+                     MP_bundle,',
+                    aggregate_select,'
+                     FROM mps
+                     WHERE facility_ftype NOT LIKE "%power"
+                     GROUP BY MP_bundle', sep="")
+
+by_source_type <- sqldf(source_sql)
 
 #calculate columns sums 
-totals <- as.data.frame(lapply(by_source_type[1:7], totals_func),stringsAsFactors = F)
+totals <- as.data.frame(lapply(by_source_type[1:4], totals_func),stringsAsFactors = F)
 #calculate total percentage change
 totals <- sqldf("SELECT *, 
-round(((sum(MGY_2040) - sum(MGY_2020)) / sum(MGY_2020)) * 100,2) AS 'pct_change'
+round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
       FROM totals")
 #append totals to table
 by_source_type <- rbind(cbind(' '=' ', by_source_type),
@@ -163,16 +150,8 @@ by_source_type <- rbind(cbind(' '=' ', by_source_type),
 kable(by_source_type,  booktabs = T,
       caption = "Withdrawal Demand by Source Type (excluding Power Generation)",
       label = "demand_source_type_no_power_statewide",
-      col.names = c("",
-                    "Source Type",
-                    "2020 Demand (MGY)",
-                    "2030 Demand (MGY)",
-                    "2040 Demand (MGY)",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
-   kable_styling(latex_options = latexoptions, full_width = width) %>%
+      col.names = kable_col_names) %>%
+   kable_styling(latex_options = latexoptions) %>%
   #column_spec(1, width = "5em") %>%
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
@@ -181,26 +160,19 @@ kable(by_source_type,  booktabs = T,
 
 
 #---------------------------------------------------------------#
-
-#Transform
 #Demand by Source Type 
-by_source_type <- sqldf("SELECT 
-MP_bundle, 
-sum(mp_2020_mgy) AS 'MGY_2020',
-sum(mp_2030_mgy) AS 'MGY_2030', 
-sum(mp_2040_mgy) AS 'MGY_2040', 
-sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM mps
-                        GROUP BY MP_bundle
-                        ORDER BY pct_change DESC")
+source_sql <- paste('SELECT 
+                     MP_bundle,',
+                    aggregate_select,'
+                     FROM mps
+                     GROUP BY MP_bundle', sep="")
+
+by_source_type <- sqldf(source_sql)
 #calculate columns sums 
-totals <- as.data.frame(lapply(by_source_type[1:7], totals_func),stringsAsFactors = F)
+totals <- as.data.frame(lapply(by_source_type[1:4], totals_func),stringsAsFactors = F)
 #calculate total percentage change
 totals <- sqldf("SELECT *, 
-round(((sum(MGY_2040) - sum(MGY_2020)) / sum(MGY_2020)) * 100,2) AS 'pct_change'
+round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
       FROM totals")
 #append totals to table
 by_source_type <- rbind(cbind(' '=' ', by_source_type),
@@ -210,16 +182,8 @@ by_source_type <- rbind(cbind(' '=' ', by_source_type),
 kable(by_source_type,  booktabs = T,
       caption = "Withdrawal Demand by Source Type (including Power Generation)",
       label = "demand_source_type_yes_power_statewide",
-      col.names = c("",
-                    "Source Type",
-                    "2020 Demand (MGY)",
-                    "2030 Demand (MGY)",
-                    "2040 Demand (MGY)",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
-  kable_styling(latex_options = latexoptions, full_width = width) %>%
+      col.names = kable_col_names) %>%
+  kable_styling(latex_options = latexoptions) %>%
   #column_spec(1, width = "5em") %>%
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
@@ -232,9 +196,6 @@ kable(by_source_type,  booktabs = T,
 by_county <- sqldf("SELECT 
 b.code, 
 b.name, 
-sum(a.mp_2020_mgy) AS 'MGY_2020',
-sum(a.mp_2030_mgy) AS 'MGY_2030', 
-sum(a.mp_2040_mgy) AS 'MGY_2040', 
 sum(a.mp_2020_mgy)/365.25 AS 'MGD_2020',
 sum(a.mp_2030_mgy)/365.25 AS 'MGD_2030', 
 sum(a.mp_2040_mgy)/365.25 AS 'MGD_2040',
@@ -246,19 +207,16 @@ round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) 
                         ORDER BY pct_change DESC")
 
 # OUTPUT TABLE IN KABLE FORMAT
-kable(by_county[1:9],  booktabs = T,
+kable(by_county[1:6],  booktabs = T,
       caption = "Withdrawal Demand by Locality",
       label = "demand_locality_statewide",
       col.names = c("Fips Code",
                     "Locality",
-                    "2020 Demand (MGY)",
-                    "2030 Demand (MGY)",
-                    "2040 Demand (MGY)",
                     "2020 Demand (MGD)",
                     "2030 Demand (MGD)",
                     "2040 Demand (MGD)",
                     "20 Year Percent Change")) %>%
-  kable_styling(latex_options = latexoptions, full_width = width) %>%
+  kable_styling(latex_options = latexoptions) %>%
   #column_spec(1, width = "5em") %>%
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
