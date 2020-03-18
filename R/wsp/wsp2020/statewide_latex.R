@@ -235,6 +235,34 @@ join1 <- sqldf("SELECT a.*, b.GWP_permit, b.VWP_permit
               left outer join mp_permits b
               on a.MP_hydroid = b.MP_hydroid")
 
+unpermitted <- sqldf("SELECT *
+             FROM join1
+             where GWP_permit is null
+                   and 
+                   VWP_permit is null")
+
+
+permitted_sql <- paste('SELECT 
+                     wsp_ftype, count(MP_hydroid) AS sources,',
+                           aggregate_select,'
+                     FROM join1
+                     WHERE GWP_permit is not null
+                   OR 
+                   VWP_permit is not null
+                     GROUP BY wsp_ftype', sep="")
+
+permitted_systems <- sqldf(permitted_sql)
+
+#calculate columns sums 
+totals <- as.data.frame(lapply(permitted_systems[1:5], totals_func),stringsAsFactors = F)
+#calculate total percentage change
+totals <- sqldf("SELECT *, 
+round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
+      FROM totals")
+#append totals to table
+permitted_systems <- rbind(cbind(' '=' ', permitted_systems),
+                       cbind(' '='Total', totals))
+
 ssu <- sqldf("SELECT wsp_ftype, count(MP_hydroid) AS sources,
 round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
 round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
@@ -245,25 +273,29 @@ round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct
              group by wsp_ftype
              ")
 
-unpermitted <- sqldf("SELECT *
-             FROM join1
-             where GWP_permit is null
-                   and 
-                   VWP_permit is null")
+#append permitted systems to SSU
+ssu_permitted <- rbind(permitted_systems, cbind(' '=' ', ssu))
 
-
-permitted_grouped <- paste('SELECT 
-                     wsp_ftype, count(MP_hydroid) AS sources,',
-                           aggregate_select,'
-                     FROM join1
-                     WHERE GWP_permit is not null
-                   OR 
-                   VWP_permit is not null
-                     GROUP BY wsp_ftype', sep="")
-
-permitted1 <- sqldf(permitted_grouped)
-
-
+# OUTPUT TABLE IN KABLE FORMAT
+kable(ssu_permitted,  booktabs = T,
+      caption = "Statewide SSU Demand vs. Permitted Systems",
+      label = "ssu_demand_vs_permitted_statewide",
+      col.names = c("",
+                    "System Type",
+                    "Count of Sources",
+                    #"2020 Demand (MGY)",
+                    #"2030 Demand (MGY)",
+                    #"2040 Demand (MGY)",
+                    "2020 Demand (MGD)",
+                    "2030 Demand (MGD)",
+                    "2040 Demand (MGD)",
+                    "20 Year Percent Change")) %>%
+  kable_styling(latex_options = latexoptions) %>%
+  #column_spec(1, width = "6em") %>%
+  #column_spec(2, width = "5em") %>%
+  #column_spec(3, width = "5em") %>%
+  #column_spec(4, width = "4em") %>%
+  cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_kable.tex",sep=""))
 #---------------------------------------------------------------#
 
 #Transform
