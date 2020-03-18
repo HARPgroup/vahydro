@@ -235,7 +235,7 @@ join1 <- sqldf("SELECT a.*, b.GWP_permit, b.VWP_permit
               left outer join mp_permits b
               on a.MP_hydroid = b.MP_hydroid")
 
-ssu <- sqldf("SELECT wsp_ftype, 
+ssu <- sqldf("SELECT wsp_ftype, count(MP_hydroid) AS sources,
 round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
 round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
 round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
@@ -251,13 +251,19 @@ unpermitted <- sqldf("SELECT *
                    and 
                    VWP_permit is null")
 
-permitted_grouped <- sqldf("SELECT wsp_ftype, 
-round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
-round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
-round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct_change
-                           from permitted
-                           group by wsp_ftype")
+
+permitted_grouped <- paste('SELECT 
+                     wsp_ftype, count(MP_hydroid) AS sources,',
+                           aggregate_select,'
+                     FROM join1
+                     WHERE GWP_permit is not null
+                   OR 
+                   VWP_permit is not null
+                     GROUP BY wsp_ftype', sep="")
+
+permitted1 <- sqldf(permitted_grouped)
+
+
 #---------------------------------------------------------------#
 
 #Transform
