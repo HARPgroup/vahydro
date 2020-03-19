@@ -297,12 +297,88 @@ kable(ssu_permitted,  booktabs = T,
   #column_spec(4, width = "4em") %>%
   cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_kable.tex",sep=""))
 #---------------------------------------------------------------#
-
 #Transform
-#select *, count(hydroid) as "Number of Sources"
-#group by system, source
+#SSU demand vs. permitted amounts excluding power
 
-#Demand by System Type 
+permits_source <- "2020-01-22_mp_permits.csv"
+mp_permits <- read.csv(paste(folder,permits_source,sep=""))
+
+join1 <- sqldf("SELECT a.*, b.GWP_permit, b.VWP_permit
+              FROM mps a
+              left join mp_permits b
+              on a.MP_hydroid = b.MP_hydroid")
+
+unpermitted <- sqldf("SELECT *
+             FROM join1
+             where GWP_permit is null
+                   and 
+                   VWP_permit is null")
+
+
+permitted_sql <- paste('SELECT 
+                          wsp_ftype, count(MP_hydroid) AS sources,',
+                          aggregate_select,'
+                        FROM join1
+                        WHERE (GWP_permit is not null
+                          OR 
+                              VWP_permit is not null)
+                          AND facility_ftype NOT LIKE "%power"
+                        GROUP BY wsp_ftype', sep="")
+
+permitted_systems <- sqldf(permitted_sql)
+
+#calculate columns sums 
+totals <- as.data.frame(lapply(permitted_systems[2:5], totals_func),stringsAsFactors = F)
+#calculate total percentage change
+totals <- sqldf("SELECT 'Total' AS 'wsp_ftype', *, 
+round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
+      FROM totals")
+#append totals to table with total lable in same column as system type
+permitted_systems <- rbind(permitted_systems, totals)
+
+# #append totals to table
+# permitted_systems <- rbind(cbind(' '=' ', permitted_systems),
+#                            cbind(' '='Total', totals))
+
+ssu <- sqldf("SELECT wsp_ftype, count(MP_hydroid) AS sources,
+round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct_change
+             FROM join1
+             where wsp_ftype like '%ssusm'
+             group by wsp_ftype
+             ")
+
+#append permitted systems to SSU
+#ssu_permitted <- rbind(permitted_systems, cbind(' '=' ', ssu))
+ssu_permitted <- rbind(permitted_systems,ssu)
+
+# OUTPUT TABLE IN KABLE FORMAT
+kable(ssu_permitted,  booktabs = T,
+      caption = "Statewide SSU Demand vs. Permitted Systems (excluding Power Generation)",
+      label = "ssu_demand_vs_permitted_statewide_no_power",
+      col.names = c(
+                    "System Type",
+                    "Source Count",
+                    #"2020 Demand (MGY)",
+                    #"2030 Demand (MGY)",
+                    #"2040 Demand (MGY)",
+                    "2020 Demand (MGD)",
+                    "2030 Demand (MGD)",
+                    "2040 Demand (MGD)",
+                    "20 Year Percent Change")) %>%
+  kable_styling(latex_options = latexoptions) %>%
+  row_spec(4, bold = T) %>%
+  #column_spec(2, width = "5em") %>%
+  #column_spec(3, width = "5em") %>%
+  #column_spec(4, width = "4em") %>%
+  cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_no_power_kable.tex",sep=""))
+
+
+#---------------------------------------------------------------#
+
+#Demand by System & Source Type with count
 system_source_sql <- paste('SELECT 
                      wsp_ftype, MP_bundle, count(MP_hydroid) AS sources,',
                     aggregate_select,'
@@ -343,8 +419,48 @@ kable(system_source,  booktabs = T,
   cat(., file = paste(folder,"kable_tables/statewide/demand_system_source_yes_power_kable.tex",sep=""))
 #---------------------------------------------------------------#
 
+#SSU Demand by County 
+by_ssu_county <- sqldf("SELECT 
+b.code, 
+b.name, 
+sum(a.mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(a.mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(a.mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) AS 'pct_change'
+                        FROM fips_codes b
+                        LEFT JOIN mps a 
+                        ON a.fips_code = b.code
+                        where wsp_ftype like '%ssusm'
+                        GROUP BY a.fips_code
+                        ORDER BY pct_change DESC")
+local <- sqldf("SELECT fips_code, count(MP_hydroid)
+      from mps
+      group by fips_code
+      order by count(MP_hydroid)")
+local_join <- sqldf("SELECT *
+                    from local a
+                    left join fips_codes b
+                    on a.fips_code = b.code")
+# OUTPUT TABLE IN KABLE FORMAT
+kable(by_ssu_county[1:6],  booktabs = T,
+      caption = "Small Self-Supplied Users Withdrawal Demand by Locality",
+      label = "demand_ssu_locality_statewide",
+      col.names = c("Fips Code",
+                    "Locality",
+                    "2020 Demand (MGD)",
+                    "2030 Demand (MGD)",
+                    "2040 Demand (MGD)",
+                    "20 Year Percent Change")) %>%
+  kable_styling(latex_options = latexoptions) %>%
+  #column_spec(1, width = "5em") %>%
+  #column_spec(2, width = "5em") %>%
+  #column_spec(3, width = "5em") %>%
+  #column_spec(4, width = "4em") %>%
+  cat(., file = paste(folder,"kable_tables/statewide/demand_ssu_locality_statewide_kable.tex",sep=""))
+#---------------------------------------------------------------#
+
 #Transform
-#SSU demand vs. inside/outside GWMA
+#SSU demand by county
 
 #---------------------------------------------------------------#
 
