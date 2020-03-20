@@ -489,7 +489,7 @@ LAYER
       SIZE 10
       WIDTH 6
       ANGLE 45
-      OPACITY 40
+      OPACITY 100
     END # STYLE
     LABEL
       COLOR 132 31 31
