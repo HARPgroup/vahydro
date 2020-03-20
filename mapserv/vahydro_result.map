@@ -483,11 +483,11 @@ LAYER
     OUTLINECOLOR 0 0 0
     STYLE
       SYMBOL "hatch-simple"
-      COLOR 67 66 81
+      COLOR 255 255 255
       SIZE 10
-      WIDTH 3
+      WIDTH 6
       ANGLE 45
-      OPACITY 100
+      OPACITY 10
     END # STYLE
     LABEL
       COLOR 0 0 0 
