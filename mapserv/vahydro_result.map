@@ -478,22 +478,24 @@ LAYER
     END
   END
   CLASS
-    NAME "Undefined"
-    BACKGROUNDCOLOR 255 255 255
+    EXPRESSION ( [delta_pct] == -99999)
+    NAME "No Data"
+    COLOR 204 204 204
+    BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
     STYLE
       SYMBOL "hatch-simple"
-      COLOR 255 255 255
+      COLOR 67 66 81
       SIZE 10
       WIDTH 6
       ANGLE 45
       OPACITY 10
     END # STYLE
     LABEL
-      COLOR 0 0 0 
+      COLOR 132 31 31
       TYPE TRUETYPE
       FONT arial
-      SIZE 16
+      SIZE 8
       ANTIALIAS TRUE
       POSITION CC
       PARTIALS FALSE
