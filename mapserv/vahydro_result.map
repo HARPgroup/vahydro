@@ -79,7 +79,7 @@ WEB
       'propname2'     '[0-9a-zA-Z_\-]+$'
       'bundle'     '[0-9a-zA-Z_\-]+$'
       'ftype'     '[0-9a-zA-Z_\-]+$'
-      'default_show_tidal' '1'
+      'default_show_tidal' '0'
       'default_runid' 'runid_11'
       'default_runid1' 'runid_11'
       'default_runid2' 'runid_12'
