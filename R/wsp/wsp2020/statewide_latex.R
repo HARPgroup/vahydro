@@ -21,6 +21,10 @@ kable_col_names <- c("",
                      "2040 Demand (MGD)",
                      "20 Year Percent Change")
 
+#switch between file types to save in common drive folder
+file_ext <- ".html" #view in R
+#file_ext <- ".tex" #for easy upload to Overleaf
+
 #SQL
 aggregate_select <- '
 round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
@@ -61,6 +65,7 @@ mps <- sqldf(sql)
 fips_source <- "fips_codes.csv"
 fips_codes <- read.csv(paste(folder,fips_source,sep=""))
 
+
 #---------------------------------------------------------------#
 #Demand by System Type 
 system_sql <- paste('SELECT 
@@ -93,7 +98,7 @@ kable(by_system_type,  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_system_type_no_power_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/demand_system_type_no_power_kable",file_ext,sep=""))
 
 #---------------------------------------------------------------#
 #Demand by System Type 
@@ -124,7 +129,7 @@ kable(by_system_type,  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_system_type_yes_power_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/demand_system_type_yes_power_kable",file_ext,sep=""))
 #---------------------------------------------------------------#
 #Demand by Source Type 
 source_sql <- paste('SELECT 
@@ -156,7 +161,7 @@ kable(by_source_type,  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_source_type_no_power_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/demand_source_type_no_power_kable",file_ext,sep=""))
 
 
 #---------------------------------------------------------------#
@@ -188,7 +193,7 @@ kable(by_source_type,  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_source_type_yes_power_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/demand_source_type_yes_power_kable",file_ext,sep=""))
 
 #---------------------------------------------------------------#
 #Transform
@@ -205,7 +210,6 @@ round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) 
                         ON a.fips_code = b.code
                         GROUP BY a.fips_code
                         ORDER BY pct_change DESC")
-
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_county[1:6],  booktabs = T,
       caption = "Withdrawal Demand by Locality",
@@ -221,7 +225,7 @@ kable(by_county[1:6],  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_locality_statewide_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/demand_locality_statewide_kable",file_ext,sep=""))
 #---------------------------------------------------------------#
 
 #Transform
@@ -295,7 +299,7 @@ kable(ssu_permitted,  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_kable",file_ext,sep=""))
 #---------------------------------------------------------------#
 #Transform
 #SSU demand vs. permitted amounts excluding power
@@ -373,7 +377,7 @@ kable(ssu_permitted,  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_no_power_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_no_power_kable",file_ext,sep=""))
 
 
 #---------------------------------------------------------------#
@@ -416,13 +420,13 @@ kable(system_source,  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_system_source_yes_power_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/demand_system_source_yes_power_kable",file_ext,sep=""))
 #---------------------------------------------------------------#
 
 #SSU Demand by County 
 by_ssu_county <- sqldf("SELECT 
 b.code, 
-b.name, 
+b.name, a.MP_bundle,
 sum(a.mp_2020_mgy)/365.25 AS 'MGD_2020',
 sum(a.mp_2030_mgy)/365.25 AS 'MGD_2030', 
 sum(a.mp_2040_mgy)/365.25 AS 'MGD_2040',
@@ -431,15 +435,18 @@ round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) 
                         LEFT JOIN mps a 
                         ON a.fips_code = b.code
                         where wsp_ftype like '%ssusm'
-                        GROUP BY a.fips_code
+                        GROUP BY a.fips_code, a.MP_bundle
                         ORDER BY pct_change DESC")
+
+write.csv(by_ssu_county, paste(folder,"ssu_county.csv", sep=""))
+
 local <- sqldf("SELECT fips_code, count(MP_hydroid)
       from mps
       group by fips_code
       order by count(MP_hydroid)")
 local_join <- sqldf("SELECT *
-                    from local a
-                    left join fips_codes b
+                    from fips_codes b
+                    left join local a
                     on a.fips_code = b.code")
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_ssu_county[1:6],  booktabs = T,
@@ -456,12 +463,32 @@ kable(by_ssu_county[1:6],  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_ssu_locality_statewide_kable.tex",sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/demand_ssu_locality_statewide_kable",file_ext,sep=""))
+
 #---------------------------------------------------------------#
+#POWERPOINT PRESENTATION BRIEFING
+by_county_source <- sqldf("SELECT 
+b.code, 
+b.name, a.MP_bundle,
+sum(a.mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(a.mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(a.mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) AS 'pct_change'
+                        FROM fips_codes b
+                        LEFT OUTER JOIN mps a 
+                        ON a.fips_code = b.code
+                        WHERE a.facility_ftype NOT LIKE '%power'
+                        GROUP BY a.fips_code, a.MP_bundle
+                        ORDER BY pct_change DESC")
+write.csv(by_county_source, paste(folder,"county_source_type_demand_no_power.csv", sep=""))
 
-#Transform
-#SSU demand by county
-
+#Tidal vs. Non-tidal
+tidal_vs_nontidal_power <- sqldf("SELECT *
+                    FROM mp_all
+                     WHERE facility_ftype LIKE '%power'
+                      AND MP_bundle = 'intake'
+                      AND VAHydro_RSeg_Code LIKE '%_0000' ")
+write.csv(tidal_vs_nontidal_power, paste(folder,"tidal_vs_nontidal_power.csv", sep=""))
 #---------------------------------------------------------------#
 
 #Transform
