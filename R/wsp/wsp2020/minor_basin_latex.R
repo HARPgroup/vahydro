@@ -4,8 +4,8 @@ library("sqldf")
 
 #---------------------INITIALIZE GLOBAL VARIABLES------------------------#
 #"html" for viewing in Rstudio Viewer pane; "latex" when ready to output to Overleaf
-options(knitr.table.format = "latex")
-#options(knitr.table.format = "html")
+#options(knitr.table.format = "latex")
+options(knitr.table.format = "html")
 
 #Kable Styling
 latexoptions <- c("striped","scale_down")
@@ -19,6 +19,9 @@ kable_col_names <- c("",
                      "2030 Demand (MGD)",
                      "2040 Demand (MGD)",
                      "20 Year Percent Change")
+#switch between file types to save in common drive folder
+file_ext <- ".html" #view in R
+#file_ext <- ".tex" #for easy upload to Overleaf
 
 #SQL
 aggregate_select <- '
@@ -101,7 +104,7 @@ mp_all <- data_raw
 #   #column_spec(2, width = "5em") %>%
 #   #column_spec(3, width = "5em") %>%
 #   #column_spec(4, width = "4em") %>%
-#   cat(., file = paste(folder,"kable_tables/","Top5_",huc6_name,"_kable.tex",sep=""))
+#   cat(., file = paste(folder,"kable_tables/","Top5_",huc6_name,"_kable",file_ext,sep=""))
 
 
 ########################### CHOOSE A MINOR BASIN ##############################
@@ -111,7 +114,7 @@ mb_options <- sqldf('SELECT DISTINCT MinorBasin_Name, MinorBasin_Code
       FROM mp_all
       ')
 #change minor basin name
-mb_name <- "New River"
+mb_name <- "Potomac Shenandoah"
 #select minor basin code to know folder to save in
 sql <- paste('SELECT MinorBasin_Code
                    From mb_options
@@ -167,7 +170,7 @@ kable(by_system_type,  booktabs = T,
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
    #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_type_no_power_",mb_abbrev,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_type_no_power_",mb_abbrev,"_kable",file_ext,sep=""))
  
  #---------------------------------------------------------------#
  
@@ -200,7 +203,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
     #column_spec(2, width = "5em") %>%
     #column_spec(3, width = "5em") %>%
     #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_type_yes_power_",mb_abbrev,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_type_yes_power_",mb_abbrev,"_kable",file_ext,sep=""))
 
  ###############################################################
 
@@ -234,7 +237,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
    #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_source_type_no_power_",mb_abbrev,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_source_type_no_power_",mb_abbrev,"_kable",file_ext,sep=""))
  
 #----------------------------------------------------------------#
  
@@ -265,7 +268,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
    #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_source_type_yes_power_",mb_abbrev,"_kable.tex",sep=""))
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_source_type_yes_power_",mb_abbrev,"_kable",file_ext,sep=""))
  
 ############################################################################
  
