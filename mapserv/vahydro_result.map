@@ -487,9 +487,9 @@ LAYER
       SYMBOL "hatch-simple"
       COLOR 67 66 81
       SIZE 10
-      WIDTH 6
+      WIDTH 3
       ANGLE 45
-      OPACITY 100
+      OPACITY 50
     END # STYLE
     LABEL
       COLOR 132 31 31
