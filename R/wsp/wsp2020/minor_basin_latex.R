@@ -333,7 +333,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
 #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
 #specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
  
- specific_sql <- paste('SELECT a.wsp_ftype,  count(MP_hydroid) as "count_with_county_estimates",
+ system_specific_sql <- paste('SELECT a.wsp_ftype,  count(MP_hydroid) as "count_with_county_estimates",
             (SELECT count(MP_hydroid)
              FROM mb_mps
              WHERE facility_ftype NOT LIKE "wsp%"
@@ -344,7 +344,21 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
        WHERE facility_ftype NOT LIKE "%power"
        GROUP BY a.wsp_ftype', sep="")
  
- specific_facility <- sqldf(specific_sql)
+ system_specific_facility <- sqldf(system_specific_sql)
+ 
+ system_source_specific_sql <- paste('SELECT a.wsp_ftype, a.MP_bundle,  count(MP_hydroid) as "count_with_county_estimates",
+            (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND wsp_ftype = a.wsp_ftype
+             AND MP_bundle = a.MP_bundle) AS "specific_count",',
+                       aggregate_select,'
+                     FROM mb_mps a
+       WHERE facility_ftype NOT LIKE "%power"
+       GROUP BY a.wsp_ftype, a.MP_bundle', sep="")
+ 
+system_source_specific_facility <- sqldf(system_source_specific_sql)
  
 
 ############################################################################
