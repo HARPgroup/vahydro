@@ -272,86 +272,8 @@ write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ), 
 #                      GROUP BY facility_name, MP_bundle
 #                      having count(facility_name) > 1
 #                      AND sum(mp_2020_mgy) != 0")
-
-#------------------------------------------------------------------------------------------------#
-
-# Aggregate by Facility
-
-wsp_facility_2020_2040 <- sqldf(
-  " select Facility_hydroid, facility_name, facility_status, facility_ftype, fips_code, 
-      CASE
-        WHEN facility_lat IS NULL
-          THEN avg(Latitude)
-        WHEN abs(facility_lat) < 35
-          THEN avg(Latitude)
-        WHEN abs(facility_lat) > 41
-          THEN avg(Latitude)
-        ELSE facility_lat
-        END as Latitude,
-      CASE
-        WHEN facility_long IS NULL
-          THEN avg(Longitude)
-        WHEN abs(facility_long) > 84
-          THEN avg(Longitude)
-        WHEN abs(facility_long) < 75
-          THEN avg(Longitude)
-        ELSE facility_long
-        END as Longitude,
-      sum(mp_2020_mgy) as fac_2020_mgy,
-      sum(mp_2040_mgy) as fac_2040_mgy,
-      CASE
-        WHEN facility_ftype in ('agriculture', 'irrigation') 
-          THEN 'wsp_plan_system-ssuag'
-        WHEN facility_ftype in ('manufacturing', 'nuclearpower', 'mining', 
-          'commercial', 'industrial', 'fossilpower', 'hydropower') 
-          THEN 'wsp_plan_system-ssulg'
-        WHEN facility_ftype in ('municipal') 
-          THEN 'wsp_plan_system-cws'
-          ELSE facility_ftype
-      END as wsp_ftype
-    from wsp2020_2040 
-    group by Facility_hydroid, facility_name, facility_ftype
-  "
-)
-
-# Write this file
-write.csv(wsp_facility_2020_2040, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ), row.names = F)
-
-#------------------------------------------------------------------------------------------------#
-
-# SURFACE WATER Aggregate by Facility
-SW_facility_2020_2040 <- sqldf(
-  " select Facility_hydroid, facility_name, facility_status, facility_ftype, fips_code, 
-      avg(Latitude) as Latitude, avg(Longitude) as Longitude,
-      sum(mp_2020_mgy) as fac_2020_mgy,
-      sum(mp_2040_mgy) as fac_2040_mgy
-    from wsp2020_2040 
-    where MP_bundle = 'intake'
-    group by Facility_hydroid, facility_name, facility_ftype
-  "
-)
-
-# Write this file
-write.csv(SW_facility_2020_2040, file=paste(export_path,'SW.fac.all.csv',sep='\\' ), row.names = F)
-
-#------------------------------------------------------------------------------------------------#
-
-# GROUNDWATER Aggregate by Facility
-GW_facility_2020_2040 <- sqldf(
-  " select Facility_hydroid, facility_name, facility_status, facility_ftype, fips_code, 
-      avg(Latitude) as Latitude, avg(Longitude) as Longitude,
-      sum(mp_2020_mgy) as fac_2020_mgy,
-      sum(mp_2040_mgy) as fac_2040_mgy
-    from wsp2020_2040 
-    where MP_bundle = 'well'
-    group by Facility_hydroid, facility_name, facility_ftype
-  "
-)
-
-# Write this file
-write.csv(GW_facility_2020_2040, file=paste(export_path,'GW.fac.all.csv',sep='\\' ), row.names = F)
-
-#------------------------------------------------------------------------------------------------#
+# 
+# #------------------------------------------------------------------------------------------------#
 
 #to generate export for Groundwater Modeling (send to aquaveo), go to gw_model_file_create.R at the bottom
 
