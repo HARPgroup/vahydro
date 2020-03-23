@@ -55,16 +55,13 @@ sql <- paste('SELECT  MP_hydroid,
                       mp_2030_mgy,
                       mp_2040_mgy, 
                       MinorBasin_Name,
-                      fips_code
+                      fips_code,
+                      fips_name
                   FROM mp_all
                   ORDER BY mp_2020_mgy DESC
               ',sep="")
 
 mps <- sqldf(sql)
-
-fips_source <- "fips_codes.csv"
-fips_codes <- read.csv(paste(folder,fips_source,sep=""))
-
 
 #---------------------------------------------------------------#
 #Demand by System Type 
@@ -199,16 +196,14 @@ kable(by_source_type,  booktabs = T,
 #Transform
 #Demand by County 
 by_county <- sqldf("SELECT 
-b.code, 
-b.name, 
-sum(a.mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(a.mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(a.mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM fips_codes b
-                        LEFT OUTER JOIN mps a 
-                        ON a.fips_code = b.code
-                        GROUP BY a.fips_code
+fips_code, 
+fips_name, 
+sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
+                        FROM mps 
+                        GROUP BY fips_code
                         ORDER BY pct_change DESC")
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_county[1:6],  booktabs = T,
@@ -425,29 +420,19 @@ kable(system_source,  booktabs = T,
 
 #SSU Demand by County 
 by_ssu_county <- sqldf("SELECT 
-b.code, 
-b.name, a.MP_bundle,
-sum(a.mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(a.mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(a.mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM fips_codes b
-                        LEFT JOIN mps a 
-                        ON a.fips_code = b.code
+fips_code, 
+fips_name, a.MP_bundle,
+sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
+                        FROM mps
                         where wsp_ftype like '%ssusm'
-                        GROUP BY a.fips_code, a.MP_bundle
+                        GROUP BY fips_code, MP_bundle
                         ORDER BY pct_change DESC")
 
 write.csv(by_ssu_county, paste(folder,"ssu_county.csv", sep=""))
 
-local <- sqldf("SELECT fips_code, count(MP_hydroid)
-      from mps
-      group by fips_code
-      order by count(MP_hydroid)")
-local_join <- sqldf("SELECT *
-                    from fips_codes b
-                    left join local a
-                    on a.fips_code = b.code")
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_ssu_county[1:6],  booktabs = T,
       caption = "Small Self-Supplied Users Withdrawal Demand by Locality",
@@ -468,17 +453,15 @@ kable(by_ssu_county[1:6],  booktabs = T,
 #---------------------------------------------------------------#
 #POWERPOINT PRESENTATION BRIEFING
 by_county_source <- sqldf("SELECT 
-b.code, 
-b.name, a.MP_bundle,
-sum(a.mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(a.mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(a.mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(a.mp_2040_mgy) - sum(a.mp_2020_mgy)) / sum(a.mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM fips_codes b
-                        LEFT OUTER JOIN mps a 
-                        ON a.fips_code = b.code
-                        WHERE a.facility_ftype NOT LIKE '%power'
-                        GROUP BY a.fips_code, a.MP_bundle
+fips_code, 
+fips_name, MP_bundle,
+sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
+sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
+sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
+                        FROM mps 
+                        WHERE facility_ftype NOT LIKE '%power'
+                        GROUP BY fips_code, MP_bundle
                         ORDER BY pct_change DESC")
 write.csv(by_county_source, paste(folder,"county_source_type_demand_no_power.csv", sep=""))
 
