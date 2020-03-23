@@ -37,7 +37,8 @@ totals_func <- function(z) if (is.numeric(z)) sum(z) else ''
 # Location of source data
 #source <- "wsp2020.fac.all.MinorBasins_RSegs.csv"
 source <- "wsp2020.mp.all.MinorBasins_RSegs.csv"
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+#folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+folder <- "C:/Users/maf95834/Documents/vpn_connection_down_folder/" #JM use when vpn can't connect to common drive
 
 data_raw <- read.csv(paste(folder,source,sep=""))
 mp_all <- data_raw
@@ -328,7 +329,24 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
     #column_spec(4, width = "4em") %>%
     cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_by_source_",mb_abbrev,"_kable",file_ext,sep=""))
 ############################################################################
+#basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
+#count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
+#specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
  
+ specific_sql <- paste('SELECT a.wsp_ftype,  count(MP_hydroid) as "count_with_county_estimates",
+            (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
+                       aggregate_select,'
+                     FROM mb_mps a
+       WHERE facility_ftype NOT LIKE "%power"
+       GROUP BY a.wsp_ftype', sep="")
+ 
+ specific_facility <- sqldf(specific_sql)
+ 
+
 ############################################################################
  
 ############################################################################
