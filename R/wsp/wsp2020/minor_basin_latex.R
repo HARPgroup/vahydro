@@ -131,13 +131,15 @@ sql <- paste('SELECT  MP_hydroid,
                       mp_2020_mgy,
                       mp_2030_mgy,
                       mp_2040_mgy, 
-                      MinorBasin_Name
+                      MinorBasin_Name, 
+                      fips_code,
+                      fips_name
                   FROM mp_all 
                   WHERE MinorBasin_Name = ','\"',mb_name,'\"','
                   ORDER BY mp_2020_mgy DESC', sep="")
 
 mb_mps <- sqldf(sql)
-
+write.csv(mb_mps, paste(folder,"kable_tables/",mb_name,"/all_mps_",mb_abbrev,".csv", sep=""))
 #---------------------------------------------------------------#
 
 #Demand by System Type 
@@ -271,9 +273,60 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_source_type_yes_power_",mb_abbrev,"_kable",file_ext,sep=""))
  
 ############################################################################
+ by_county <- paste('SELECT 
+                     fips_code,
+                     fips_name,
+                     ',aggregate_select,'
+                     FROM mb_mps
+                     GROUP BY fips_code
+                     ORDER BY pct_change DESC', sep="")
+ by_county <- sqldf(by_county)
  
+ # OUTPUT TABLE IN KABLE FORMAT
+ kable(by_county[1:6],  booktabs = T,
+       caption = paste("Withdrawal Demand by Locality in ",mb_name," Minor Basin",sep=""),
+       label = paste("demand_locality_",mb_abbrev,sep=""),
+       col.names = c("Fips Code",
+                     "Locality",
+                     "2020 Demand (MGD)",
+                     "2030 Demand (MGD)",
+                     "2040 Demand (MGD)",
+                     "20 Year Percent Change")) %>%
+    kable_styling(latex_options = latexoptions) %>%
+    #column_spec(1, width = "5em") %>%
+    #column_spec(2, width = "5em") %>%
+    #column_spec(3, width = "5em") %>%
+    #column_spec(4, width = "4em") %>%
+    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_",mb_abbrev,"_kable",file_ext,sep=""))
 ############################################################################
+ by_county_source_sql <- paste('SELECT 
+                     fips_code,
+                     fips_name,
+                     MP_bundle,
+                     ',aggregate_select,'
+                     FROM mb_mps
+                     GROUP BY fips_code, MP_bundle
+                     ORDER BY fips_code, MP_bundle DESC', sep="")
+ by_county_source <- sqldf(by_county_source_sql)
+
+ write.csv(by_county_source, paste(folder,"kable_tables/",mb_name,"/county_source_type_demand_",mb_abbrev,".csv", sep=""))
  
+ kable(by_county_source[1:7],  booktabs = T,
+       caption = paste("GW vs. SW Withdrawal Demand by Locality in ",mb_name," Minor Basin",sep=""),
+       label = paste("demand_locality_by_source",mb_abbrev,sep=""),
+       col.names = c("Fips Code",
+                     "Locality",
+                     "Source Type",
+                     "2020 Demand (MGD)",
+                     "2030 Demand (MGD)",
+                     "2040 Demand (MGD)",
+                     "20 Year Percent Change")) %>%
+    kable_styling(latex_options = latexoptions) %>%
+    #column_spec(1, width = "5em") %>%
+    #column_spec(2, width = "5em") %>%
+    #column_spec(3, width = "5em") %>%
+    #column_spec(4, width = "4em") %>%
+    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_by_source_",mb_abbrev,"_kable",file_ext,sep=""))
 ############################################################################
  
 ############################################################################
