@@ -14,8 +14,6 @@ export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
 #prevents scientific notation
 options(scipen = 20)
 #QA Check for demand projections (for Aquaveo export and SWRP update)
-#pull directly from VAHydro export url
-
 
 ################# wd_current_mgy Facilities Data Summary ####################################
 
@@ -68,7 +66,6 @@ facility_current_all <- sqldf(
   "
 )
 write.csv(facility_current_all, file=paste(export_path,'wwr2018.fac.all.csv',sep='\\' ))
-
 
 ################# wsp_2020_2020 Facilities Data Summary ####################################
 
@@ -192,9 +189,5 @@ write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ), 
 #                      GROUP BY facility_name, MP_bundle
 #                      having count(facility_name) > 1
 #                      AND sum(mp_2020_mgy) != 0")
-# 
 # #------------------------------------------------------------------------------------------------#
-
 #to generate export for Groundwater Modeling (send to aquaveo), go to gw_model_file_create.R at the bottom
-
-
