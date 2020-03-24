@@ -162,7 +162,7 @@ LAYER
   TYPE POLYGON
   STATUS OFF
   DUMP TRUE
-  DEBUG ON
+  DEBUG OFF
   # Query ties a control point to its parent
   DATA "dh_geofield_geom FROM (
     select g.dh_geofield_geom, 
@@ -335,7 +335,7 @@ LAYER
   TYPE POLYGON
   STATUS OFF
   DUMP TRUE
-  DEBUG ON
+  DEBUG OFF
   # Query ties a control point to its parent
   DATA "dh_geofield_geom FROM (
     select g.dh_geofield_geom, 
@@ -523,7 +523,7 @@ LAYER
   TYPE POLYGON
   STATUS OFF
   DUMP TRUE
-  DEBUG ON
+  #DEBUG ON
   # Query ties a control point to its parent
   DATA "dh_geofield_geom FROM (
     select g.dh_geofield_geom, 
@@ -711,7 +711,7 @@ LAYER
   TYPE POLYGON
   STATUS OFF
   DUMP TRUE
-  DEBUG ON
+  #DEBUG ON
   # Query ties a control point to its parent
   DATA "dh_geofield_geom FROM (
     select g.dh_geofield_geom, 
@@ -934,7 +934,7 @@ LAYER
    TYPE POLYGON
    STATUS DEFAULT
    DUMP TRUE
-   DEBUG OFF
+   DEBUG ON
    DATA "dh_geofield_geom FROM (
      select g.dh_geofield_geom, a.hydroid, a.name, a.ftype, 
      CASE 
