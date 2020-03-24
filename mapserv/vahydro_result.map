@@ -939,7 +939,7 @@ LAYER
      select g.dh_geofield_geom, a.hydroid, a.name, a.ftype, 
      CASE 
        WHEN '%mask_hydrocode%' = '-1' THEN 'transparent'
-       WHEN a.hydrocode = %mask_hydrocode% THEN 'transparent' 
+       WHEN a.hydrocode = '%mask_hydrocode%' THEN 'transparent' 
        ELSE 'opaque'
      END as mask_class
      from dh_feature as a 
