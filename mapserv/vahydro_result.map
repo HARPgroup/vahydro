@@ -94,7 +94,6 @@ WEB
       'default_propname2' 'auglowflow'
       'default_bundle' 'watershed'
       'default_ftype' 'vahydro'
-      'default_mask_hydroid' '-1'
       'default_mask_bundle' 'watershed'
       'default_mask_ftype' 'vahydro_cbp_minor'
       'default_mask_hydroid' '-1'
@@ -939,7 +938,7 @@ LAYER
    DATA "dh_geofield_geom FROM (
      select g.dh_geofield_geom, a.hydroid, a.name, a.ftype, 
      CASE 
-       WHEN '%mask_hydroid%' = 'all' THEN 'transparent'
+       WHEN '%mask_hydroid%' = '-1' THEN 'transparent'
        WHEN a.hydroid = %mask_hydroid% THEN 'transparent' 
        ELSE 'opaque'
      END as mask_class
