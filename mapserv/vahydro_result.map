@@ -938,8 +938,8 @@ LAYER
    DATA "dh_geofield_geom FROM (
      select g.dh_geofield_geom, a.hydroid, a.name, a.ftype, 
      CASE 
-       WHEN '%mask_hydroid%' = '-1' THEN 'transparent'
-       WHEN a.hydroid = %mask_hydroid% THEN 'transparent' 
+       WHEN '%mask_hydrocode%' = '-1' THEN 'transparent'
+       WHEN a.hydrocode = %mask_hydrocode% THEN 'transparent' 
        ELSE 'opaque'
      END as mask_class
      from dh_feature as a 
@@ -950,10 +950,10 @@ LAYER
      )
      where a.ftype = '%mask_ftype%'
      AND a.bundle = '%mask_bundle%'
-     AND (
-       %mask_hydroid% = -1 
-       OR a.hydroid = %mask_hydroid%
-     )
+     #AND (
+     #  %mask_hydroid% = -1 
+     #  OR a.hydroid = %mask_hydroid%
+     #)
      and a.bundle = 'watershed' 
    ) AS foo USING UNIQUE hydroid using SRID=4326 "
    #FILTER "runid = 22"
