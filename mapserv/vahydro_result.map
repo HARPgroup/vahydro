@@ -963,6 +963,7 @@ LAYER
    #MAXSCALE 50000
    LABELITEM "name"
    CLASS
+    EXPRESSION ( [mask_class] = 'transparent' )
     TITLE '[mask_label]'
     #SYMBOL 'circle'
     STYLE
@@ -971,6 +972,21 @@ LAYER
     #COLOR 245 245 245
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 47 167
+   END
+   CLASS
+    EXPRESSION ( [mask_class] = 'opaque' )
+    #SYMBOL 'circle'
+    COLOR 255 255 255
+    BACKGROUNDCOLOR 255 255 255
+    OUTLINECOLOR 0 0 0
+    STYLE
+      SYMBOL "hatch-simple"
+      COLOR 0 0 0
+      SIZE 10
+      WIDTH 2
+      ANGLE 45
+      OPACITY 50
+    END # STYLE
    END
    ## @todo: could use the mask_class field from query as way of masking nonselected items
    TOLERANCE 10

@@ -8,11 +8,12 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff
-elid = 	351959 #297938 # 236079  # 278660 #345486 #344054     	
-runid = 201
+elid = 207925  	#347363 #297938 # 236079  # 278660 #345486 #344054     	
+runid = 11
 
-omsite = site <- "http://deq2.bse.vt.edu"
-dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
+omsite = "http://deq2.bse.vt.edu"
+finfo <- fn_get_runfile_info(elid, runid)
+dat <- fn_get_runfile(elid, runid,site = "http://deq2.bse.vt.edu", cached = FALSE)
 mode(dat) <- 'numeric'
 mean(dat$Qreach)
 
