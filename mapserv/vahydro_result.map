@@ -962,7 +962,7 @@ LAYER
    #MAXSCALE 50000
    LABELITEM "name"
    CLASS
-    EXPRESSION ( [mask_class] = 'transparent' )
+    EXPRESSION ( '[mask_class]' = 'transparent' )
     TITLE '[mask_label]'
     #SYMBOL 'circle'
     STYLE
@@ -973,7 +973,7 @@ LAYER
     OUTLINECOLOR 0 47 167
    END
    CLASS
-    EXPRESSION ( [mask_class] = 'opaque' )
+    EXPRESSION ( '[mask_class]' = 'opaque' )
     #SYMBOL 'circle'
     COLOR 255 255 255
     BACKGROUNDCOLOR 255 255 255
