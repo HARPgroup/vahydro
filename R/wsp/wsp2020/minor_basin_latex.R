@@ -3,13 +3,16 @@ library("kableExtra")
 library("sqldf")
 
 #---------------------INITIALIZE GLOBAL VARIABLES------------------------#
-#"html" for viewing in Rstudio Viewer pane; "latex" when ready to output to Overleaf
-#options(knitr.table.format = "latex")
-options(knitr.table.format = "html")
+#switch between file types to save in common drive folder; html or latex
+
+options(knitr.table.format = "html") #"html" for viewing in Rstudio Viewer pane
+file_ext <- ".html" #view in R
+
+#options(knitr.table.format = "latex") #"latex" when ready to output to Overleaf
+#file_ext <- ".tex" #for easy upload to Overleaf
 
 #Kable Styling
 latexoptions <- c("striped","scale_down")
-width <- T
 kable_col_names <- c("",
                      "System Type",
                      #"2020 Demand (MGY)",
@@ -19,9 +22,6 @@ kable_col_names <- c("",
                      "2030 Demand (MGD)",
                      "2040 Demand (MGD)",
                      "20 Year Percent Change")
-#switch between file types to save in common drive folder
-file_ext <- ".html" #view in R
-#file_ext <- ".tex" #for easy upload to Overleaf
 
 #SQL
 aggregate_select <- '
@@ -35,7 +35,6 @@ totals_func <- function(z) if (is.numeric(z)) sum(z) else ''
 #--------------------------------LOAD DATA-------------------------------#
 
 # Location of source data
-#source <- "wsp2020.fac.all.MinorBasins_RSegs.csv"
 source <- "wsp2020.mp.all.MinorBasins_RSegs.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 #folder <- "C:/Users/maf95834/Documents/vpn_connection_down_folder/" #JM use when vpn can't connect to common drive
@@ -122,7 +121,7 @@ sql <- paste('SELECT MinorBasin_Code
                    WHERE MinorBasin_Name = ','\"',mb_name,'\"','
               ',sep="")
 mb_abbrev <- sqldf(sql)
-#Select measuring points  within HUC of interest, Restict output to columns of interest
+#Select measuring points within HUC of interest, Restict output to columns of interest
 sql <- paste('SELECT  MP_hydroid,
                       MP_bundle,
                       source_type,
@@ -147,7 +146,7 @@ write.csv(mb_mps, paste(folder,"kable_tables/",mb_name,"/all_mps_",mb_abbrev,".c
 
 #Demand by System Type 
 system_sql <- paste('SELECT 
-                     wsp_ftype,',
+                     system_type,',
                      aggregate_select,'
                      FROM mb_mps
                      WHERE facility_ftype NOT LIKE "%power"
@@ -181,7 +180,7 @@ kable(by_system_type,  booktabs = T,
  
 #Demand by System Type 
 system_sql <- paste('SELECT 
-                     wsp_ftype,',
+                     system_type,',
                     aggregate_select,'
                      FROM mb_mps
                      GROUP BY wsp_ftype', sep="")
@@ -214,7 +213,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
 
  #Demand by System Type 
  source_sql <- paste('SELECT 
-                     MP_bundle,',
+                     source_type,',
                      aggregate_select,'
                      FROM mb_mps
                      WHERE facility_ftype NOT LIKE "%power"
@@ -248,7 +247,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
  
  #Demand by System Type 
  source_sql <- paste('SELECT 
-                     MP_bundle,',
+                     source_type,',
                      aggregate_select,'
                      FROM mb_mps
                      GROUP BY MP_bundle', sep="")
@@ -279,7 +278,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
  
  #Demand by System & Source Type with count
  system_source_sql <- paste('SELECT 
-                     wsp_ftype, MP_bundle,',
+                     system_type, source_type,',
                             aggregate_select,'
                      FROM mb_mps
                      GROUP BY wsp_ftype, MP_bundle', sep="")
@@ -343,7 +342,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
  by_county_source_sql <- paste('SELECT 
                      fips_code,
                      fips_name,
-                     MP_bundle,
+                     source_type,
                      ',aggregate_select,'
                      FROM mb_mps
                      GROUP BY fips_code, MP_bundle
@@ -373,7 +372,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
 #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
 #specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
  
- system_specific_sql <- paste('SELECT a.wsp_ftype,  count(MP_hydroid) as "count_with_county_estimates",
+ system_specific_sql <- paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
             (SELECT count(MP_hydroid)
              FROM mb_mps
              WHERE facility_ftype NOT LIKE "wsp%"
@@ -409,14 +408,13 @@ totals <- sqldf("SELECT *,
 round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
       FROM totals")
 #append totals to table
-system_source_specific_facility <- rbind(cbind(' '=' ', system_source_specific_facility),
-                       cbind(' '='Total', totals))
+system_source_specific_facility <- rbind(cbind(' '=' ', system_source_specific_facility), cbind(' '='Total', totals))
 
-#Add footnotes to table
-#latex column superscripts
-names(system_source_specific_facility)[4] <- paste0("Total Source Count",footnote_marker_number(1))
-names(system_source_specific_facility)[5] <- paste0("Specific Source Count",footnote_marker_number(2))
-
+# #Add footnotes to table
+# #latex column superscripts
+# names(system_source_specific_facility)[4] <- paste0("Total Source Count",footnote_marker_number(1))
+# names(system_source_specific_facility)[5] <- paste0("Specific Source Count",footnote_marker_number(2))
+# 
 #html column superscripts
 names(system_source_specific_facility)[4] <- "Total Source Count<sup>[1]<sup>"
 names(system_source_specific_facility)[5] <- "Specific Source Count<sup>[2]<sup>"
