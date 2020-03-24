@@ -70,7 +70,7 @@ WEB
       'div3'     '[0-9\.\-]+$'
       'div4'     '[0-9\.\-]+$'
       'show_tidal'     '[0-1]+$'
-      'mask_hydrocode'     '[0-9]+$'
+      'mask_hydrocode'     '[0-9a-zA-Z_\-]+$'
       'mask_bundle' '[0-9a-zA-Z_\-]+$'
       'mask_ftype' '[0-9a-zA-Z_\-]+$'
       'mask_label' '[0-9a-zA-Z_\-]+$'
