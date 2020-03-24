@@ -37,8 +37,8 @@ totals_func <- function(z) if (is.numeric(z)) sum(z) else ''
 # Location of source data
 #source <- "wsp2020.fac.all.MinorBasins_RSegs.csv"
 source <- "wsp2020.mp.all.MinorBasins_RSegs.csv"
-#folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
-folder <- "C:/Users/maf95834/Documents/vpn_connection_down_folder/" #JM use when vpn can't connect to common drive
+folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+#folder <- "C:/Users/maf95834/Documents/vpn_connection_down_folder/" #JM use when vpn can't connect to common drive
 
 data_raw <- read.csv(paste(folder,source,sep=""))
 mp_all <- data_raw
@@ -125,10 +125,12 @@ mb_abbrev <- sqldf(sql)
 #Select measuring points  within HUC of interest, Restict output to columns of interest
 sql <- paste('SELECT  MP_hydroid,
                       MP_bundle,
+                      source_type,
                       Facility_hydroid, 
                       facility_name, 
                       facility_ftype,
                       wsp_ftype,
+                      system_type,
                       mp_2020_mgy,
                       mp_2030_mgy,
                       mp_2040_mgy, 
@@ -274,6 +276,44 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_source_type_yes_power_",mb_abbrev,"_kable",file_ext,sep=""))
  
 ############################################################################
+ 
+ #Demand by System & Source Type with count
+ system_source_sql <- paste('SELECT 
+                     wsp_ftype, MP_bundle,',
+                            aggregate_select,'
+                     FROM mb_mps
+                     GROUP BY wsp_ftype, MP_bundle', sep="")
+ 
+ system_source <- sqldf(system_source_sql)
+ #calculate columns sums 
+ totals <- as.data.frame(lapply(system_source[1:5], totals_func),stringsAsFactors = F)
+ #calculate total percentage change
+ totals <- sqldf("SELECT *, 
+round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
+      FROM totals")
+ #append totals to table
+ system_source <- rbind(cbind(' '=' ', system_source),
+                        cbind(' '='Total', totals))
+ 
+ # OUTPUT TABLE IN KABLE FORMAT
+ kable(system_source,  booktabs = T,
+       caption = paste("Withdrawal Demand by System and Source Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
+       label = paste("demand_source_type_no_power_",mb_abbrev,sep=""),
+       col.names = c("",
+                     "System Type",
+                     "Source Type",
+                     "2020 Demand (MGD)",
+                     "2030 Demand (MGD)",
+                     "2040 Demand (MGD)",
+                     "20 Year Percent Change")) %>%
+    kable_styling(latex_options = latexoptions) %>%
+    #column_spec(1, width = "6em") %>%
+    #column_spec(2, width = "5em") %>%
+    #column_spec(3, width = "5em") %>%
+    #column_spec(4, width = "4em") %>%
+    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_source_",mb_abbrev,"_kable",file_ext,sep=""))
+ 
+ ############################################################################
  by_county <- paste('SELECT 
                      fips_code,
                      fips_name,
@@ -346,7 +386,9 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
  
  system_specific_facility <- sqldf(system_specific_sql)
  
- system_source_specific_sql <- paste('SELECT a.wsp_ftype, a.MP_bundle,  count(MP_hydroid) as "count_with_county_estimates",
+ #----------------------------------------------------------------#
+ 
+ system_source_specific_sql <- paste('SELECT a.system_type, a.source_type,  count(MP_hydroid) as "count_with_county_estimates",
             (SELECT count(MP_hydroid)
              FROM mb_mps
              WHERE facility_ftype NOT LIKE "wsp%"
@@ -359,7 +401,50 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
        GROUP BY a.wsp_ftype, a.MP_bundle', sep="")
  
 system_source_specific_facility <- sqldf(system_source_specific_sql)
- 
+
+#calculate columns sums 
+totals <- as.data.frame(lapply(system_source_specific_facility[1:7], totals_func),stringsAsFactors = F)
+#calculate total percentage change
+totals <- sqldf("SELECT *, 
+round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
+      FROM totals")
+#append totals to table
+system_source_specific_facility <- rbind(cbind(' '=' ', system_source_specific_facility),
+                       cbind(' '='Total', totals))
+
+#Add footnotes to table
+#latex column superscripts
+names(system_source_specific_facility)[4] <- paste0("Total Source Count",footnote_marker_number(1))
+names(system_source_specific_facility)[5] <- paste0("Specific Source Count",footnote_marker_number(2))
+
+#html column superscripts
+names(system_source_specific_facility)[4] <- "Total Source Count<sup>[1]<sup>"
+names(system_source_specific_facility)[5] <- "Specific Source Count<sup>[2]<sup>"
+# OUTPUT TABLE IN KABLE FORMAT
+kable(system_source_specific_facility,  booktabs = T, escape = F,
+      caption = paste("Withdrawal Demand by System and Source Type in ",mb_name," Minor Basin",sep=""),
+      label = paste("demand_system_source_specific_count",mb_abbrev,sep=""),
+      col.names = c("",
+                    "System Type",
+                    "Source Type",
+                    names(system_source_specific_facility)[4],
+                    names(system_source_specific_facility)[5],
+                    "2020 Demand (MGD)",
+                    "2030 Demand (MGD)",
+                    "2040 Demand (MGD)",
+                    "20 Year Percent Change")) %>%
+   kable_styling(latex_options = latexoptions) %>%
+   footnote(
+      general = "Each locality has a single diffuse demand estimate for each system and source combination",
+      number = c("includes diffuse demand estimates; ", "shows only demand amounts from specific facilities (no diffuse demand estimates) "),
+      number_title = "Count Note: ",
+      footnote_as_chunk = T) %>%
+   #column_spec(1, width = "6em") %>%
+   #column_spec(2, width = "5em") %>%
+   #column_spec(3, width = "5em") %>%
+   #column_spec(4, width = "4em") %>%
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_source_with_count_",mb_abbrev,"_kable",file_ext,sep=""))
+
 
 ############################################################################
  
