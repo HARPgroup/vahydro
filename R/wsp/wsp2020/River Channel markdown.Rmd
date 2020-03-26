@@ -1,0 +1,114 @@
+---
+title: "River Channel Summary"
+output: pdf_document
+---
+
+
+```{r,include=FALSE}
+# dirs/URLs
+save_directory <- "E:/Github stuff/VAhydroMycodes/"
+#----------------------------------------------
+site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+#----------------------------------------------
+# Load Libraries
+#basepath='/var/www/R';
+basepath="E:/Github stuff/VAhydroMycodes/"
+source(paste(basepath,'config.R',sep='/'))
+
+```
+
+
+```{r}
+elid = 229315                                             
+Name=" Middle River  "
+runid = 18
+```
+
+```{r, include=FALSE}
+omsite = site <- "http://deq2.bse.vt.edu"
+dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
+mode(dat) <- 'numeric'
+amn <- 10.0 * mean(as.numeric(dat$Qout))
+
+
+```
+
+```{r, echo=FALSE,fig.align="center"}
+dat <- window(dat, start = as.Date("1984-01-01"), end = as.Date("2014-12-31"));
+datdf<-as.data.frame(dat)
+
+```
+
+```{r, echo=FALSE,fig.align="center",fig.cap="Q out"}
+plot(as.numeric(dat$Qout), ylim=c(0,amn))
+```
+
+```{r, echo=FALSE,fig.align="center",fig.cap="Boxplot Qout"}
+boxplot(as.numeric(dat$Qout) ~ dat$year, ylim=c(0,amn))
+```
+
+```{r, echo=FALSE,fig.align="center", fig.cap="Qin Monthly"}
+boxplot(as.numeric(dat$Qin) ~ dat$month, ylim=c(0,amn))
+```
+
+```{r, echo=FALSE,fig.align="center",fig.cap="Qout (monthly)"}
+boxplot(as.numeric(dat$Qout) ~ dat$month, ylim=c(0,amn))
+```
+
+```{r, echo=FALSE,fig.align="center", fig.cap="runit"}
+boxplot(as.numeric(dat$Runit) ~ dat$month, ylim=c(0,10))
+```
+
+
+
+
+
+```{r, include=FALSE}
+ddat <- window(dat, start = as.Date("2002-08-01"), end = as.Date("2002-08-30"));
+
+dmx = max(ddat$Qout)
+```
+
+```{r , echo=FALSE,fig.align="center", fig.cap="Drought summary"}
+plot(ddat$Qout, ylim=c(0,dmx),bty='L')
+lines(ddat$Qin, col='purple')
+lines(ddat$demand, col='orange')
+lines(ddat$demand + ddat$rejected_demand_mgd * 1.547, col='blue')
+lines(ddat$rejected_demand_mgd * 1.547, col='red')
+
+legend("top" , inset=-0.13, ncol=3, legend= c("Qout", "Qin", "demand", "Initial Demand", "rejected_demand_mgd"),
+       col=c("black", "purple", "orange", "blue", "red"),xpd=TRUE,lty=1:2, cex=0.65)
+```
+
+```{r, include=FALSE}
+Qout<-as.data.frame(quantile(dat$Qout, c(0.01,0.05, 0.1,0.2,0.3)))
+Qin<-as.data.frame(quantile(dat$Qin, c(0.01,0.05, 0.1,0.2,0.3)))
+demand<-as.data.frame(quantile(dat$demand, c(0.01,0.05, 0.1,0.2,0.3)))
+wd_mgd<-as.data.frame(quantile(dat$wd_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+rejected_demand_mgd<-as.data.frame(quantile(dat$rejected_demand_mgd, c(0.9,0.95, 0.97,0.98,0.99, 1.0)))
+rejected_demand_pct<-as.data.frame(quantile(dat$rejected_demand_pct, c(0.9,0.95, 0.97,0.98,0.99, 1.0)))
+
+quantile1<-cbind.data.frame(Qout,Qin,demand,wd_mgd)
+names(quantile1)<-c("Qout","Qin","demand","wd_mgd")
+
+quantile2<-cbind.data.frame(rejected_demand_mgd,rejected_demand_pct)
+names(quantile2)<-c("rejected_demand_mgd","rejected_demand_pct")
+
+quantile1 <- cbind(Quantiles = rownames(quantile1), quantile1)
+rownames(quantile1) <- NULL
+
+quantile2 <- cbind(Quantiles = rownames(quantile2), quantile2)
+rownames(quantile2) <- NULL
+```
+## Table 1: Quantiles for Qout, Qin, demand, wd_mgd
+```{r, echo=FALSE}
+quantile1
+``` 
+## Table 2: Quantiles for Rejected_demand_mgd and Rejected demand Pct
+```{r, echo=FALSE}
+quantile2
+```
+```{r}
+
+```
+

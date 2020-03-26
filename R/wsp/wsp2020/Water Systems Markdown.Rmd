@@ -1,0 +1,86 @@
+---
+title: "WaterSystem"
+output: pdf_document
+classoption: landscape
+---
+
+```{r,include=FALSE}
+save_directory <- "E:/Github stuff/VAhydroMycodes/"
+#----------------------------------------------
+site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+#----------------------------------------------
+# Load Libraries
+#basepath='/var/www/R';
+basepath="E:/Github stuff/VAhydroMycodes/"
+source(paste(basepath,'config.R',sep='/'))
+```
+
+```{r}
+elid = 306746                                                                 
+Name=" BROOKNEAL WTP:Lower Falling River"
+runid = 11
+```
+
+```{r,include=FALSE}
+omsite = site <- "http://deq2.bse.vt.edu"
+dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
+mode(dat) <- 'numeric'
+amn <- 10.0 * mean(as.numeric(dat$Qriver))
+dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
+
+```
+
+
+```{r,echo=FALSE,fig.align="center",fig.cap="Qriver"}
+boxplot(as.numeric(dat$Qriver) ~ dat$year, ylim=c(0,amn))
+```
+
+```{r,echo=FALSE}
+dat$unmet_demand<-dat$base_demand_mgd-dat$wd_mgd
+dat$drought_adj<-dat$adj_demand_mgd-dat$wd_mgd
+
+datdf <- as.data.frame(dat)
+modat <- sqldf("select month, avg(wd_mgd) as wd_mgd, avg(discharge_mgd) as ps_mgd, avg(unmet_demand)as unmet_d,
+               avg(drought_adj)as drought_adj from datdf group by month")
+mot <- t(as.matrix(modat[,c('wd_mgd', 'ps_mgd','unmet_d','drought_adj')]) )
+mode(mot) <- 'numeric'
+
+```
+
+
+```{r,echo=FALSE,fig.align="center",fig.cap="Qriver"}
+barplot(
+  mot,
+  main=paste0(Name),
+  xlab="Month", 
+  col=c("darkblue","darkgreen","grey","red"),xpd=TRUE,
+   legend = c('Withdrawal', 'Discharge','Unmet Demand','Adjusted Drought'),
+  args.legend=list(bty="n" , x="bottom" , ncol=4, inset = -0.20),beside=TRUE)
+
+```
+
+```{r,include=FALSE}
+availiable_mgd<-as.data.frame(quantile(dat$available_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+Qintake<-as.data.frame(quantile(dat$Qintake, c(0.01,0.05, 0.1,0.2,0.3)))
+flowby<-as.data.frame(quantile(dat$flowby, c(0.01,0.05, 0.1,0.2,0.3)))
+base_demand_mgd<-as.data.frame(quantile(dat$base_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+rejected_demand_pct<-as.data.frame(quantile(dat$rejected_demand_pct, c(0.9,0.95, 0.97,0.98,0.99, 1.0), na.rm=TRUE))
+adj_demand_mgd<-as.data.frame(quantile(dat$adj_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3),na.rm=TRUE))
+wd_mgd<-as.data.frame(quantile(dat$wd_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+unmet_demand<-as.data.frame(quantile(dat$unmet_demand, c(0.01,0.05, 0.1,0.2,0.3)))
+drought_adj<-as.data.frame(quantile(dat$drought_adj, c(0.01,0.05, 0.1,0.2,0.3)))
+quantile1<-cbind.data.frame(availiable_mgd,Qintake,flowby,base_demand_mgd,adj_demand_mgd,wd_mgd,unmet_demand,drought_adj)
+names(quantile1)<-c("availiable_mgd","Qintake","flowby","base_demand_mgd","adj_demand_mgd","wd_mgd","unmet_demand","drought_adj")
+names(rejected_demand_pct)<-c("Rejected Demand")
+
+```
+
+```{r,echo=FALSE}
+library(knitr)
+kable(quantile1, caption = "Quantiles")
+```
+
+```{r,echo=FALSE}
+
+kable(rejected_demand_pct, caption = "Rejected Demand")
+```
