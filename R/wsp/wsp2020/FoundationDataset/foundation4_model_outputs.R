@@ -7,7 +7,6 @@ library("stringr") #for str_remove()
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 folder <- "C:/Workspace/tmp/"
-metrics = c('l90_Qout', 'l30_Qout', '7q10', 'ml8')
 runids = c(
   'runid_11', 'runid_12', 'runid_13', 'runid_14',
   'runid_15', 'runid_16', 'runid_17', 'runid_18'
@@ -56,26 +55,23 @@ vahydro_foundation4_export <- function (
   }
   # Save the metric specific file
   if (save_to_file == TRUE) {
-    filename <- paste0(folder,"fac_rseg_models_", metric,".csv")
+    filename <- paste0(folder,"metrics_", bundle, "_", metric,".csv")
     write.csv(alldata,filename)
   }
   return(alldata)
 }
 
-
+# Watersheds
+metrics = c('l90_Qout', 'l30_Qout', '7q10', 'ml8', 'wd_cumulative_mgd', 'ps_cumulative_mgd')
 for (metric in metrics) {
-  wshed_data <- vahydro_foundation4_export(metric, runids, folder, save_to_file = FALSE)
-  fac_rseg <- vahydro_foundation4_export(
-    metric, runids, folder, save_to_file = FALSE,
-    featureid = 'all', entity_type = 'dh_feature', 
-    bundle = 'facility', ftype = 'all'
-  )
+  wshed_data <- vahydro_foundation4_export(metric, runids, folder, save_to_file = TRUE)
 }
 
-metrics <- c('base_demand_mgd', 'r30_mgd')
+# Facilities
+metrics <- c('wd_mgd', 'ps_mgd', 'r1_mgd', 'r7_mgd', 'r30_mgd', 'r90_mgd')
 for (metric in metrics) {
   fac_rseg <- vahydro_foundation4_export(
-    metric, runids, folder, save_to_file = FALSE,
+    metric, runids, folder, save_to_file = TRUE,
     featureid = 'all', entity_type = 'dh_feature', 
     bundle = 'facility', ftype = 'all'
   )
