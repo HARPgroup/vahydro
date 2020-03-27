@@ -9,8 +9,8 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 337724     	
-runid = 201
+elid = 230533     	
+runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
@@ -51,6 +51,7 @@ datdf <- as.data.frame(dat)
 Qyear <- sqldf("select year, avg(Qout) from datdf group by year order by year")
 
 boxplot(as.numeric(dat$Qout) ~ dat$year, ylim=c(0,amn))
+boxplot(as.numeric(dat$Qout) ~ dat$month, ylim=c(0,amn))
 
 # For some reason we need to convert these numeric fields to char, then to number
 # before sending to zoo since their retrieval is classifying them as factors instead of nums

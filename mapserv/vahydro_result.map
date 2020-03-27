@@ -411,7 +411,7 @@ LAYER
   CLASS
     TITLE "%div1% to %div2%%"
     EXPRESSION ( [delta_pct] >= %div1% and [delta_pct] < %div2% )
-    COLOR 255 211 127
+    COLOR 194 158 215
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
     LABEL
@@ -428,7 +428,7 @@ LAYER
   CLASS
     TITLE "%div2% to %div3%%"
     EXPRESSION ( [delta_pct] >= %div2% and [delta_pct] < %div3% )
-    COLOR 194 158 215
+    COLOR 255 211 127
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
     LABEL
@@ -599,7 +599,7 @@ LAYER
   CLASS
     TITLE "%div1% to %div2%"
     EXPRESSION ( [delta_val] >= %div1% and [delta_val] < %div2% )
-    COLOR 255 211 127
+    COLOR 194 158 215
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
     LABEL
@@ -616,7 +616,7 @@ LAYER
   CLASS
     TITLE "%div2% to %div3%"
     EXPRESSION ( [delta_val] >= %div2% and [delta_val] < %div3% )
-    COLOR 194 158 215
+    COLOR 255 211 127
     BACKGROUNDCOLOR 0 0 0
     OUTLINECOLOR 0 0 0
     LABEL

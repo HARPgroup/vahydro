@@ -1,6 +1,6 @@
 ---
 title: "WaterSystem"
-output: pdf_document
+output: word_document
 classoption: landscape
 ---
 
@@ -10,15 +10,14 @@ save_directory <- "E:/Github stuff/VAhydroMycodes/"
 site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 #----------------------------------------------
 # Load Libraries
-#basepath='/var/www/R';
-basepath="E:/Github stuff/VAhydroMycodes/"
+basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 ```
 
 ```{r}
-elid = 306746                                                                 
-Name=" BROOKNEAL WTP:Lower Falling River"
-runid = 11
+elid = 298522                                                                 
+Name="Harrisonburg WTP;Dry River & North River"
+runid = 13
 ```
 
 ```{r,include=FALSE}
@@ -35,10 +34,27 @@ dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 boxplot(as.numeric(dat$Qriver) ~ dat$year, ylim=c(0,amn))
 ```
 
+```{r,echo=FALSE,fig.align="center",fig.cap="Qriver"}
+mud <- max(dat$unmet_demand)
+
+boxplot(as.numeric(dat$unmet_demand_mgd) ~ dat$year, ylim=c(0,mud))
+
+
+ddat <- window(dat, start = as.Date("2002-08-01"), end = as.Date("2002-08-30"));
+
+dmx = max(ddat$Qout)
+plot(ddat$Qintake + (ddat$discharge_mgd - ddat$wd_mgd) * 1.547, ylim=c(0,dmx))
+lines(ddat$Qintake, col='purple')
+lines(ddat$demand, col='orange')
+lines(ddat$base_demand_mgd * 1.547, col='blue')
+lines(ddat$unmet_demand_mgd * 1.547, col='red')
+
+```
+
 ```{r,echo=FALSE}
 dat$unmet_demand<-dat$base_demand_mgd-dat$wd_mgd
 dat$drought_adj<-dat$adj_demand_mgd-dat$wd_mgd
-
+droughts <- group2(dat$unmet_demand_mgd)
 datdf <- as.data.frame(dat)
 modat <- sqldf("select month, avg(wd_mgd) as wd_mgd, avg(discharge_mgd) as ps_mgd, avg(unmet_demand)as unmet_d,
                avg(drought_adj)as drought_adj from datdf group by month")

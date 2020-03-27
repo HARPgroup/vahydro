@@ -12,5 +12,12 @@ data_raw <- read.csv(paste(base_url,runid,metric,sep="/"))
 
 dest <- "wsp2020.model.riverseg.all.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+metrics = c('l90_Qout', 'l30_Qout', '7q10', 'ml8')
+alldata = FALSE
 
-
+for (i in metrics) {
+  print(i)
+  if (alldata == FALSE) {
+    
+  }
+}

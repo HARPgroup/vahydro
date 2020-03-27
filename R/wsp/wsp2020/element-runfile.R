@@ -8,8 +8,8 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff
-elid = 207925  	#347363 #297938 # 236079  # 278660 #345486 #344054     	
-runid = 11
+elid = 284801   	#347363 #297938 # 236079  # 278660 #345486 #344054     	
+runid = 203
 
 omsite = "http://deq2.bse.vt.edu"
 finfo <- fn_get_runfile_info(elid, runid)
