@@ -176,7 +176,7 @@ kable(by_system_type,  booktabs = T,
    #column_spec(4, width = "4em") %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_type_no_power_",mb_abbrev,"_kable",file_ext,sep=""))
  
- #---------------------------------------------------------------#
+#---------------------------------------------------------------#
  
 #Demand by System Type 
 system_sql <- paste('SELECT 
@@ -209,7 +209,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
     #column_spec(4, width = "4em") %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_type_yes_power_",mb_abbrev,"_kable",file_ext,sep=""))
 
- ###############################################################
+###############################################################
 
  #Demand by System Type 
  source_sql <- paste('SELECT 
@@ -284,6 +284,75 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
                      GROUP BY wsp_ftype, MP_bundle', sep="")
  
  system_source <- sqldf(system_source_sql)
+ 
+ #BAR GRAPH
+ e <- system_source[1:6]
+ e[6] <- system_source[6] / 2
+ e <- melt(e, id=c("system_type","source_type"))
+ 
+v1 <- ggplot(e, aes(x = source_type, y = value, fill =  system_type)) + 
+    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "bottom", legend.title = element_text(size = 9), legend.key.width = unit(.3, "cm")) +
+    xlab(label = element_blank())  +
+    labs(title = paste(mb_name," Minor Basin",sep=""), subtitle = "Withdrawal Demand by System and Source Type", fill = "System Type: ", caption = "*Agriculture and Large Self-Supplied User systems predict 0% change in demand") +
+    facet_grid(~ variable,
+               labeller = as_labeller( # redefine the text that shows up for the facets
+                  c(MGD_2020 = "Total 2020 Demand", MGD_2030 = "Total 2030 Demand", MGD_2040 = "Total 2040 Demand", pct_change = "Demand Change"))) +
+    scale_y_continuous(name = "MGD", 
+                       sec.axis = sec_axis(~ . * 2 , name = "Percent Change (%)")) +
+    
+    ggsave(path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filename = paste("demand_system_source_",mb_abbrev,"_v1_graph.png",sep=""))
+ 
+#BAR GRAPH GW VS. SW
+v2 <- ggplot(e, aes(x = system_type, y = value, fill = variable )) + 
+    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
+    xlab(label = element_blank())  +
+    labs(title = paste(mb_name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by System", fill = "Demand: ", caption = "*Agriculture and Large Self-Supplied User systems predict 0% change in demand") +
+    facet_grid(~ source_type) +
+   scale_fill_discrete(labels = c("2020","2030","2040","Change")) +
+    scale_y_continuous(name = "MGD",
+                       sec.axis = sec_axis(~ . * 2 , name = "Percent Change (%)")) +
+    
+    ggsave(path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filename = paste("demand_system_source_",mb_abbrev,"_v2_graph.png",sep=""))
+
+
+#LINE GRAPH 
+
+e <- system_source[1:6]
+e <- melt(e, id=c("system_type","source_type", "pct_change"))
+e[e == 0] <- NA
+h <- sqldf("SELECT *,
+            ( select CASE
+            WHEN pct_change IS NOT NULL
+            THEN round(pct_change,1) || '%'
+            ELSE pct_change IS NULL
+            END
+            FROM e
+            WHERE variable LIKE '%2040%'
+            AND system_type = a.system_type
+            AND source_type = a.source_type
+            AND variable = a.variable) as pct_change2
+            FROM e as a
+            ")
+h$pct_change2 <- na_if(h$pct_change2,1)
+
+g <- ggplot(data=h, aes(x=variable, y=value, group=system_type,colour = system_type, label = pct_change2))  +
+   geom_line(size = 1.6) +
+   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 11), legend.position = "bottom", legend.title = element_text(size = 9)) +
+   xlab(label = element_blank())  +
+   labs(title = paste(mb_name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by System", colour = "System: ", caption = "*Agriculture and Large Self-Supplied User systems predict 0% change in demand") +
+   facet_grid(~ source_type) +
+   scale_x_discrete(labels = c("2020","2030","2040")) +
+   scale_y_continuous(name = "MGD") +
+   geom_text(show.legend = F, check_overlap = F, nudge_y = 1.4, nudge_x = -.3, na.rm = T) +
+   
+ guides(colour = guide_legend(ncol = 2, byrow = TRUE)) +
+
+    ggsave(path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filename = paste("demand_system_source_",mb_abbrev,"_line_graph.png",sep=""))
+
+
+ 
  #calculate columns sums 
  totals <- as.data.frame(lapply(system_source[1:5], totals_func),stringsAsFactors = F)
  #calculate total percentage change
