@@ -39,13 +39,17 @@ mud <- max(dat$unmet_demand)
 
 boxplot(as.numeric(dat$unmet_demand_mgd) ~ dat$year, ylim=c(0,mud))
 
+unmets <- group2(dat$unmet_demand)
+u90 <- unmets["90 Day Max"];
+ndx = which.max(as.numeric(u90[,"90 Day Max"]));
+u90_mgd = round(unmets[ndx,]$"90 Day Max",6);
+u90_year = unmets[ndx,]$"year";
+ddat <- window(dat, start = as.Date(paste0(u90_year, "-06-01")), end = as.Date(paste0(u90_year,"-09-15") ));
 
-ddat <- window(dat, start = as.Date("2002-08-01"), end = as.Date("2002-08-30"));
-
-dmx = max(ddat$Qout)
+dmx = max(ddat$Qintake)
 plot(ddat$Qintake + (ddat$discharge_mgd - ddat$wd_mgd) * 1.547, ylim=c(0,dmx))
-lines(ddat$Qintake, col='purple')
-lines(ddat$demand, col='orange')
+#lines(ddat$Qintake, col='purple')
+#lines(ddat$demand, col='orange')
 lines(ddat$base_demand_mgd * 1.547, col='blue')
 lines(ddat$unmet_demand_mgd * 1.547, col='red')
 
