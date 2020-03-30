@@ -4,8 +4,8 @@ library("sqldf")
 library("stringr") #for str_remove()
 
 # Location of source data
-source <- "wsp2020.fac.all.csv"
-#source <- "wsp2020.mp.all.csv"
+#source <- "wsp2020.fac.all.csv"
+source <- "wsp2020.mp.all.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 data_raw <- read.csv(paste(folder,source,sep=""))
 data_sp <- data_raw
@@ -20,6 +20,9 @@ MinorBasins_layer <- 'MinorBasins'
 
 VAHydro_RSegs_path <- "hydro-tools/GIS_LAYERS/VAHydro_RSegs.gdb"
 VAHydro_RSegs_layer <- 'VAHydro_RSegs'
+
+# tidal_boundary_path <- 'hydro-tools/GIS_LAYERS/'
+# tidal_boundary_layer <- 
 
 #LOAD FIPS CENTROIDS
 fips_centroids <- read.csv(paste("https://deq1.bse.vt.edu/d.dh/usafips_centroid_export",sep=""))
@@ -52,6 +55,10 @@ data_sp <- sqldf("SELECT *,
 coordinates(data_sp) <- c("corrected_longitude", "corrected_latitude") #sp_contain_mb() requires a coordinates column
 data_sp_cont <- sp_contain_mb(paste(localpath,MinorBasins_path,sep="/"),MinorBasins_layer,data_sp)
 data_sp_cont <- data.frame(data_sp_cont)
+###########################################################################
+# coordinates(data_sp_cont) <- c("corrected_longitude", "corrected_latitude") #sp_contain() requires a coordinates column
+# data_sp_cont <- sp_contain(paste(localpath,tidal_boundary_path,sep="/"),tidal_boundary_layer,data_sp_cont)
+# data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 coordinates(data_sp_cont) <- c("corrected_longitude", "corrected_latitude") #sp_contain_vahydro_rseg() requires a coordinates column
 data_sp_cont <- sp_contain_vahydro_rseg(paste(localpath,VAHydro_RSegs_path,sep="/"),VAHydro_RSegs_layer,data_sp_cont)

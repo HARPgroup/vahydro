@@ -161,6 +161,13 @@ wsp2020_2040$delta_2040_pct <- ((wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020
 wsp2020_2040$mp_2030_mgy <- (wsp2020_2040$mp_2020_mgy + wsp2020_2040$mp_2040_mgy)/2
 wsp2020_2040 <- sqldf("SELECT MP_hydroid, 
                     MP_bundle,
+                    CASE
+        WHEN MP_bundle in ('intake') 
+          THEN 'Surface Water'
+        WHEN MP_bundle in ('well') 
+          THEN 'Groundwater'
+          ELSE MP_bundle
+      END as source_type,
                     mp_status,
                     MPID,
                     Latitude, 
@@ -172,7 +179,18 @@ wsp2020_2040 <- sqldf("SELECT MP_hydroid,
                     fips_Code,
                     facility_lat,
                     facility_long,
-                    wsp_ftype, 
+                    wsp_ftype,
+                    CASE
+        WHEN wsp_ftype in ('wsp_plan_system-ssuag') 
+          THEN 'Agriculture'
+        WHEN wsp_ftype in ('wsp_plan_system-ssulg') 
+          THEN 'Large Self-Supplied User'
+        WHEN wsp_ftype in ('wsp_plan_system-cws') 
+          THEN 'Municipal'
+        WHEN wsp_ftype in ('wsp_plan_system-ssusm') 
+          THEN 'Small Self-Supplied User'
+          ELSE wsp_ftype
+      END as system_type,
                     mp_2020_mgy,
                     mp_2030_mgy,
                     mp_2040_mgy, 
