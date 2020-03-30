@@ -129,7 +129,7 @@ for (i in 1:length(gage)) {
 	  geom_histogram(aes(x=n_f_flow), colour="black", fill = "lightblue",bins = 30) + 
 	  
 	  # plot the lines at the most recent and median winter flows
-	  geom_vline(data=lines, aes(xintercept=values, color=names), linetype="longdash", size=1, show_guide=TRUE) +
+	  geom_vline(data=lines, aes(xintercept=values, color=names), linetype="longdash", size=1, show.legend=TRUE) +
 	  
 	  # Y scale showing only integers
 	  scale_y_continuous(breaks= pretty_breaks()) +
