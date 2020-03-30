@@ -386,13 +386,6 @@ v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable, label = pct_cha
    
    ggsave(path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filename = paste("demand_system_source_",mb_abbrev,"_v3_graph.png",sep=""))
 
-   
-   
-   
-   
-   
-   
- 
  #calculate columns sums 
  totals <- as.data.frame(lapply(system_source[1:5], totals_func),stringsAsFactors = F)
  #calculate total percentage change
@@ -519,14 +512,16 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
 #append totals to table
 system_source_specific_facility <- rbind(cbind(' '=' ', system_source_specific_facility), cbind(' '='Total', totals))
 
-# #Add footnotes to table
-# #latex column superscripts
-# names(system_source_specific_facility)[4] <- paste0("Total Source Count",footnote_marker_number(1))
-# names(system_source_specific_facility)[5] <- paste0("Specific Source Count",footnote_marker_number(2))
-# 
-#html column superscripts
-names(system_source_specific_facility)[4] <- "Total Source Count<sup>[1]<sup>"
-names(system_source_specific_facility)[5] <- "Specific Source Count<sup>[2]<sup>"
+#Add footnotes to table
+if (file_ext == '.tex') {
+   #latex column superscripts (using latex options) 
+   names(system_source_specific_facility)[4] <- paste0("Total Source Count",footnote_marker_number(1))
+   names(system_source_specific_facility)[5] <- paste0("Specific Source Count",footnote_marker_number(2))
+} else {
+   #html column superscripts (using html options)
+   names(system_source_specific_facility)[4] <- "Total Source Count<sup>[1]<sup>"
+   names(system_source_specific_facility)[5] <- "Specific Source Count<sup>[2]<sup>"
+}
 # OUTPUT TABLE IN KABLE FORMAT
 kable(system_source_specific_facility,  booktabs = T, escape = F,
       caption = paste("Withdrawal Demand by System and Source Type in ",mb_name," Minor Basin",sep=""),
@@ -552,9 +547,79 @@ kable(system_source_specific_facility,  booktabs = T, escape = F,
    #column_spec(4, width = "4em") %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_source_with_count_",mb_abbrev,"_kable",file_ext,sep=""))
 
-
 ############################################################################
- 
+ #Top 5 Users by Source Type
+top_5_gw_sql <- paste('SELECT facility_name, system_type, 
+               ',aggregate_select,',
+               round(((sum(mp_2040_mgy)/365.25) /
+               (SELECT (sum(mp_2040_mgy)/365.25)
+                     FROM mb_mps
+                     )) * 100,2) as pct_total_use
+               ,fips_name
+               FROM mb_mps
+               WHERE MP_bundle = "well"
+               AND wsp_ftype NOT LIKE "%ssusm"
+               GROUP BY Facility_hydroid
+               ORDER BY MGD_2040 DESC
+               LIMIT 5', sep="")
+
+top_5_gw <- sqldf(top_5_gw_sql)
+#calculate columns sums 
+totals <- as.data.frame(lapply(top_5_gw, totals_func),stringsAsFactors = F)
+#calculate total percentage change
+totals$pct_change <- round(((sum(totals$MGD_2040) - sum(totals$MGD_2020)) / sum(totals$MGD_2020)) * 100,2)
+#append totals to table
+top_5_gw <- rbind(cbind(' '=' ', top_5_gw), cbind(' '='Total', totals))
+
+top_5_sw_sql <- paste('SELECT facility_name, system_type, 
+               ',aggregate_select,',
+               round(((sum(mp_2040_mgy)/365.25) /
+               (SELECT (sum(mp_2040_mgy)/365.25)
+                     FROM mb_mps
+                     )) * 100,2) as pct_total_use
+               ,fips_name
+               FROM mb_mps
+               WHERE MP_bundle = "intake"
+               AND wsp_ftype NOT LIKE "%ssusm"
+               GROUP BY Facility_hydroid
+               ORDER BY MGD_2040 DESC
+               LIMIT 5', sep="")
+
+top_5_sw <- sqldf(top_5_sw_sql)
+#calculate columns sums 
+totals <- as.data.frame(lapply(top_5_sw, totals_func),stringsAsFactors = F)
+#calculate total percentage change
+totals$pct_change <- round(((sum(totals$MGD_2040) - sum(totals$MGD_2020)) / sum(totals$MGD_2020)) * 100,2)
+#append totals to table
+top_5_sw <- rbind(cbind(' '=' ', top_5_sw), cbind(' '='Total', totals))
+
+# #initcaps attempt
+# sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
+#                   from top_5_sw
+#                   WHERE facility_name > 0")
+top_5 <- rbind(top_5_gw, top_5_sw)
+
+
+# OUTPUT TABLE IN KABLE FORMAT
+kable(top_5,  booktabs = T,
+      caption = paste("Top 5 Users by Source Type in ",mb_name," Minor Basin",sep=""),
+      label = paste("top_5_",mb_abbrev,sep=""),
+      col.names = c("",
+                    "Facility Name",
+                    "System Type",
+                    "2020 Demand (MGD)",
+                    "2030 Demand (MGD)",
+                    "2040 Demand (MGD)",
+                    "20 Year Percent Change",
+                    "Percent of Total Source Use",
+                    "Locality")) %>%
+   kable_styling(latex_options = latexoptions) %>%
+   #column_spec(1, width = "5em") %>%
+   #column_spec(2, width = "5em") %>%
+   #column_spec(3, width = "5em") %>%
+   #column_spec(4, width = "4em") %>%
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
+
 ############################################################################
  
 ############################################################################
