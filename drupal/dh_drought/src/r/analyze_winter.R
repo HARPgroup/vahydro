@@ -24,7 +24,7 @@ library('httr')
 # Must open and run contents of config.local.private once per session
 source("/var/www/R/config.local.private"); 
 # override the file save directory
-file_directory = '/var/www/html/images/dh/';
+file_directory = '/var/www/html/images/dh';
 # load libraries
 source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
 source(paste(hydro_tools,"auth.private", sep = "/"));#load rest username and password, contained in auth.private file
