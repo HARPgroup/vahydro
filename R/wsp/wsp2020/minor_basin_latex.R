@@ -30,8 +30,22 @@ round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030,
 round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
 round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct_change'
 
-#totals function which allows us to append column sums to table to generate in kable
+#totals function which quickly applies sum to each numeric column (skips non-numeric)
 totals_func <- function(z) if (is.numeric(z)) sum(z) else ''
+
+#function which allows us to append column sums to table to generate in kable
+append_totals <- function(table_x){
+   
+   #calculate columns sums 
+   totals <- as.data.frame(lapply(table_x, totals_func),stringsAsFactors = F)
+   #calculate total percentage change
+   totals$pct_change <- round(((sum(totals$MGD_2040) - sum(totals$MGD_2020)) / sum(totals$MGD_2020)) * 100,2)
+   #append totals to table
+   table_z <- rbind(cbind(' '=' ', table_x), cbind(' '='Total', totals))
+   
+   return(table_z)
+} 
+
 #--------------------------------LOAD DATA-------------------------------#
 
 # Location of source data
@@ -154,15 +168,7 @@ system_sql <- paste('SELECT
 
 by_system_type <- sqldf(system_sql)
    
-#calculate columns sums 
-totals <- as.data.frame(lapply(by_system_type[1:4], totals_func),stringsAsFactors = F)
-#calculate total percentage change
-totals <- sqldf("SELECT *, 
-round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
-      FROM totals")
-#append totals to table
-by_system_type <- rbind(cbind(' '=' ', by_system_type),
-                        cbind(' '='Total', totals))
+by_system_type <- append_totals(by_system_type)
 
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_system_type,  booktabs = T,
@@ -187,16 +193,8 @@ system_sql <- paste('SELECT
 
 by_system_type <- sqldf(system_sql)
  
- #calculate columns sums 
- totals <- as.data.frame(lapply(by_system_type[1:4], totals_func),stringsAsFactors = F)
- #calculate total percentage change
- totals <- sqldf("SELECT *, 
-round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
-      FROM totals")
- #append totals to table
- by_system_type <- rbind(cbind(' '=' ', by_system_type),
-                         cbind(' '='Total', totals))
- 
+by_system_type <- append_totals(by_system_type)
+
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_system_type,  booktabs = T,
        caption = paste("Withdrawal Demand by System Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
@@ -221,15 +219,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
  
  by_source_type <- sqldf(source_sql)
  
- #calculate columns sums 
- totals <- as.data.frame(lapply(by_source_type[1:4], totals_func),stringsAsFactors = F)
- #calculate total percentage change
- totals <- sqldf("SELECT *, 
-round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
-      FROM totals")
- #append totals to table
- by_source_type <- rbind(cbind(' '=' ', by_source_type),
-                         cbind(' '='Total', totals))
+ by_source_type <- append_totals(by_source_type)
  
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_source_type,  booktabs = T,
@@ -253,15 +243,8 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
                      GROUP BY MP_bundle', sep="")
  by_source_type <- sqldf(source_sql)
  
- #calculate columns sums 
- totals <- as.data.frame(lapply(by_source_type[1:4], totals_func),stringsAsFactors = F)
- #calculate total percentage change
- totals <- sqldf("SELECT *, 
-round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
-      FROM totals")
- #append totals to table
- by_source_type <- rbind(cbind(' '=' ', by_source_type),
-                         cbind(' '='Total', totals))
+ by_source_type <- append_totals(by_source_type)
+ 
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_source_type,  booktabs = T,
        caption = paste("Withdrawal Demand by Source Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
@@ -386,16 +369,8 @@ v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable, label = pct_cha
    
    ggsave(path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filename = paste("demand_system_source_",mb_abbrev,"_v3_graph.png",sep=""))
 
- #calculate columns sums 
- totals <- as.data.frame(lapply(system_source[1:5], totals_func),stringsAsFactors = F)
- #calculate total percentage change
- totals <- sqldf("SELECT *, 
-round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
-      FROM totals")
- #append totals to table
- system_source <- rbind(cbind(' '=' ', system_source),
-                        cbind(' '='Total', totals))
- 
+system_source <- append_totals(system_source)
+
  # OUTPUT TABLE IN KABLE FORMAT
  kable(system_source,  booktabs = T,
        caption = paste("Withdrawal Demand by System and Source Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
@@ -503,14 +478,7 @@ round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
  
 system_source_specific_facility <- sqldf(system_source_specific_sql)
 
-#calculate columns sums 
-totals <- as.data.frame(lapply(system_source_specific_facility[1:7], totals_func),stringsAsFactors = F)
-#calculate total percentage change
-totals <- sqldf("SELECT *, 
-round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
-      FROM totals")
-#append totals to table
-system_source_specific_facility <- rbind(cbind(' '=' ', system_source_specific_facility), cbind(' '='Total', totals))
+system_source_specific_facility <- append_totals(system_source_specific_facility)
 
 #Add footnotes to table
 if (file_ext == '.tex') {
@@ -564,12 +532,8 @@ top_5_gw_sql <- paste('SELECT facility_name, system_type,
                LIMIT 5', sep="")
 
 top_5_gw <- sqldf(top_5_gw_sql)
-#calculate columns sums 
-totals <- as.data.frame(lapply(top_5_gw, totals_func),stringsAsFactors = F)
-#calculate total percentage change
-totals$pct_change <- round(((sum(totals$MGD_2040) - sum(totals$MGD_2020)) / sum(totals$MGD_2020)) * 100,2)
-#append totals to table
-top_5_gw <- rbind(cbind(' '=' ', top_5_gw), cbind(' '='Total', totals))
+
+top_5_gw <- append_totals(top_5_gw)
 
 top_5_sw_sql <- paste('SELECT facility_name, system_type, 
                ',aggregate_select,',
@@ -586,22 +550,18 @@ top_5_sw_sql <- paste('SELECT facility_name, system_type,
                LIMIT 5', sep="")
 
 top_5_sw <- sqldf(top_5_sw_sql)
-#calculate columns sums 
-totals <- as.data.frame(lapply(top_5_sw, totals_func),stringsAsFactors = F)
-#calculate total percentage change
-totals$pct_change <- round(((sum(totals$MGD_2040) - sum(totals$MGD_2020)) / sum(totals$MGD_2020)) * 100,2)
-#append totals to table
-top_5_sw <- rbind(cbind(' '=' ', top_5_sw), cbind(' '='Total', totals))
+
+top_5_sw <- append_totals(top_5_sw)
+
+top_5 <- rbind(top_5_gw, top_5_sw)
 
 # #initcaps attempt
 # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
 #                   from top_5_sw
 #                   WHERE facility_name > 0")
-top_5 <- rbind(top_5_gw, top_5_sw)
-
 
 # OUTPUT TABLE IN KABLE FORMAT
-kable(top_5,  booktabs = T,
+kable(top_5,align = c('r','l','l','c','c','c','c','c','l'),  booktabs = T,
       caption = paste("Top 5 Users by Source Type in ",mb_name," Minor Basin",sep=""),
       label = paste("top_5_",mb_abbrev,sep=""),
       col.names = c("",
@@ -610,10 +570,12 @@ kable(top_5,  booktabs = T,
                     "2020 Demand (MGD)",
                     "2030 Demand (MGD)",
                     "2040 Demand (MGD)",
-                    "20 Year Percent Change",
-                    "Percent of Total Source Use",
+                    "20 Year % Change",
+                    "Total Source Use %",
                     "Locality")) %>%
    kable_styling(latex_options = latexoptions) %>%
+   pack_rows("Groundwater", 1, 6) %>%
+   pack_rows("Surface Water", 7, 11) %>%
    #column_spec(1, width = "5em") %>%
    #column_spec(2, width = "5em") %>%
    #column_spec(3, width = "5em") %>%
