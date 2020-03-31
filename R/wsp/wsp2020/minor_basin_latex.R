@@ -553,7 +553,16 @@ top_5_sw <- sqldf(top_5_sw_sql)
 
 top_5_sw <- append_totals(top_5_sw)
 
-top_5 <- rbind(top_5_gw, top_5_sw)
+sw_header <- cbind(' '='Surface Water', data.frame("facility_name" = '',
+                           "system_type" = '',
+                           "MGD_2020" = '',
+                           "MGD_2030" ='',
+                           "MGD_2040" ='',
+                           "pct_change" = '',
+                           "pct_total_use" = '% of Total Surface Water',
+                           "fips_name" = ''))
+
+top_5 <- rbind(top_5_gw, sw_header, top_5_sw)
 
 # #initcaps attempt
 # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
@@ -561,7 +570,7 @@ top_5 <- rbind(top_5_gw, top_5_sw)
 #                   WHERE facility_name > 0")
 
 # OUTPUT TABLE IN KABLE FORMAT
-kable(top_5,align = c('r','l','l','c','c','c','c','c','l'),  booktabs = T,
+kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
       caption = paste("Top 5 Users by Source Type in ",mb_name," Minor Basin",sep=""),
       label = paste("top_5_",mb_abbrev,sep=""),
       col.names = c("",
@@ -571,16 +580,20 @@ kable(top_5,align = c('r','l','l','c','c','c','c','c','l'),  booktabs = T,
                     "2030 Demand (MGD)",
                     "2040 Demand (MGD)",
                     "20 Year % Change",
-                    "Total Source Use %",
+                    "% of Total Groundwater",
                     "Locality")) %>%
    kable_styling(latex_options = latexoptions) %>%
    pack_rows("Groundwater", 1, 6) %>%
-   pack_rows("Surface Water", 7, 11) %>%
-   #column_spec(1, width = "5em") %>%
-   #column_spec(2, width = "5em") %>%
-   #column_spec(3, width = "5em") %>%
-   #column_spec(4, width = "4em") %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
+   pack_rows(" ", 7, 13, label_row_css = FALSE, latex_gap_space = "2em") %>%
+   row_spec(7, bold=T) %>%
+   #horizontal solid line depending on html or latex output
+   row_spec(7, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+   # 
+   # row_spec(7, hline_after = if (file_ext == '.tex') { TRUE
+   # } else {FALSE}) %>%
+   # row_spec(7, extra_css = if (file_ext == '.html') { "border-bottom: 1px solid"
+   # } ) %>%
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_v3_kable",file_ext,sep=""))
 
 ############################################################################
  
