@@ -583,17 +583,12 @@ kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
                     "% of Total Groundwater",
                     "Locality")) %>%
    kable_styling(latex_options = latexoptions) %>%
+   column_spec(2, width = "10em") %>%
    pack_rows("Groundwater", 1, 6) %>%
    pack_rows(" ", 7, 13, label_row_css = FALSE, latex_gap_space = "2em") %>%
-   row_spec(7, bold=T) %>%
    #horizontal solid line depending on html or latex output
-   row_spec(7, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-   # 
-   # row_spec(7, hline_after = if (file_ext == '.tex') { TRUE
-   # } else {FALSE}) %>%
-   # row_spec(7, extra_css = if (file_ext == '.html') { "border-bottom: 1px solid"
-   # } ) %>%
-   cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_v3_kable",file_ext,sep=""))
+   row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
 
 ############################################################################
  
