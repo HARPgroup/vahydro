@@ -198,13 +198,16 @@ kable(by_source_type,  booktabs = T,
 by_county <- sqldf("SELECT 
 fips_code, 
 fips_name, 
-sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
+round(sum(mp_2020_mgy)/365.25,2) AS 'MGD_2020',
+round(sum(mp_2030_mgy)/365.25,2) AS 'MGD_2030', 
+round(sum(mp_2040_mgy)/365.25,2) AS 'MGD_2040',
 round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
                         FROM mps 
+                        WHERE fips_code LIKE '51%'
                         GROUP BY fips_code
                         ORDER BY pct_change DESC")
+
+
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_county[1:6],  booktabs = T,
       caption = "Withdrawal Demand by Locality",
