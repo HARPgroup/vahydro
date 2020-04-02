@@ -206,7 +206,7 @@ round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pc
                         WHERE fips_code LIKE '51%'
                         GROUP BY fips_code
                         ORDER BY pct_change DESC")
-
+write.csv(by_county, paste(folder,"kable_tables/statewide/demand_by_county_statewide.csv",sep=""))
 
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_county[1:6],  booktabs = T,
@@ -223,7 +223,41 @@ kable(by_county[1:6],  booktabs = T,
   #column_spec(2, width = "5em") %>%
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_locality_statewide_kable",file_ext,sep=""))
+  cat(., file = paste(folder,"kable_tables/statewide/demand_by_county_statewide_kable",file_ext,sep=""))
+
+#---------------------------------------------------------------#
+
+#Demand by County 
+by_county_no_power <- sqldf("SELECT 
+fips_code, 
+fips_name, 
+round(sum(mp_2020_mgy)/365.25,2) AS 'MGD_2020',
+round(sum(mp_2030_mgy)/365.25,2) AS 'MGD_2030', 
+round(sum(mp_2040_mgy)/365.25,2) AS 'MGD_2040',
+round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
+                        FROM mps 
+                        WHERE fips_code LIKE '51%'
+                        AND facility_ftype NOT LIKE '%power'
+                        GROUP BY fips_code
+                        ORDER BY pct_change DESC")
+write.csv(by_county, paste(folder,"kable_tables/statewide/demand_by_county_statewide_no_power.csv",sep=""))
+
+# OUTPUT TABLE IN KABLE FORMAT
+kable(by_county_no_power[1:6],  booktabs = T,
+      caption = "Withdrawal Demand by Locality (excluding Power Generation)",
+      label = "demand_locality_statewide_no_power",
+      col.names = c("Fips Code",
+                    "Locality",
+                    "2020 Demand (MGD)",
+                    "2030 Demand (MGD)",
+                    "2040 Demand (MGD)",
+                    "20 Year Percent Change")) %>%
+  kable_styling(latex_options = latexoptions) %>%
+  #column_spec(1, width = "5em") %>%
+  #column_spec(2, width = "5em") %>%
+  #column_spec(3, width = "5em") %>%
+  #column_spec(4, width = "4em") %>%
+  cat(., file = paste(folder,"kable_tables/statewide/demand_by_county_statewide_no_power_kable",file_ext,sep=""))
 #---------------------------------------------------------------#
 
 #Transform
