@@ -34,7 +34,8 @@ for (i in 1:length(gage)) {
   
   # Saving file to the correct location
   filename <- paste("usgs", gage[i], "mllr_bar_winterflows", target_year, ".png", sep="_")
-  if (file.exists(filename)) {
+  filepath <- paste(file_directory, filename, sep="/")
+  if (file.exists(filepath)) {
     next 
   }
 	# Initialize variables
