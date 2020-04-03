@@ -6,9 +6,9 @@ $a = array();
 while ($arg = drush_shift()) {
   $args[] = $arg;
 }
-$fid = $a[1];
-if (isset($a[2])) {
-  $year = $a[2];
+$fid = $a[0];
+if (isset($a[1])) {
+  $year = $a[1];
 } else {
   $year = date('Y');
 }
