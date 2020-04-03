@@ -15,7 +15,7 @@ if (isset($a[1])) {
 if ($fid == 'all') {
   // query all gages
   $q = db_query("select hydroid from dh_feature where bundle = 'usgsgage' LIMIT 3");
-  $fids = $result->fetchCol();
+  $fids = $q->fetchCol();
 } else {
   // just grab the gage in question
   $fids = array($fid);
