@@ -20,6 +20,8 @@ if ($fid == 'all') {
   // just grab the gage in question
   $fids = array($fid);
 }
+
+error_log("FIDS " . print_r($fids,1));
 foreach ($fids as $fid) {
   error_log("Running MLLR for $year hydroid $fid ");
   $gage = entity_load_single('dh_feature', $fid);
