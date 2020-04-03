@@ -4,7 +4,7 @@ module_load_include('module', 'om');
 
 $a = array();
 while ($arg = drush_shift()) {
-  $args[] = $arg;
+  $a[] = $arg;
 }
 $fid = $a[0];
 if (isset($a[1])) {
