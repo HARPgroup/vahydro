@@ -14,14 +14,14 @@ if (isset($a[1])) {
 }
 if ($fid == 'all') {
   // query all gages
-  $q = db_query("select hydroid from dh_feature where bundle = 'usgsgage' LIMIT 3");
+  $q = db_query("select hydroid from dh_feature where bundle = 'usgsgage'");
   $fids = $q->fetchCol();
 } else {
   // just grab the gage in question
   $fids = array($fid);
 }
 
-error_log("FIDS " . print_r($fids,1));
+//error_log("FIDS " . print_r($fids,1));
 foreach ($fids as $fid) {
   error_log("Running MLLR for $year hydroid $fid ");
   $gage = entity_load_single('dh_feature', $fid);
