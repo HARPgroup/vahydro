@@ -6,7 +6,7 @@
 #
 #target_year=2018
 #gage <- c(01636316) 
-
+  
 gage <- sprintf("%08d", gage)
 gage <- as.character(gage)
 
@@ -31,7 +31,12 @@ source(paste(hydro_tools,"auth.private", sep = "/"));#load rest username and pas
 token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
 
 for (i in 1:length(gage)) {
-
+  
+  # Saving file to the correct location
+  filename <- paste("usgs", gage[i], "mllr_bar_winterflows", target_year, ".png", sep="_")
+  if (file.exists(filename)) {
+    next 
+  }
 	# Initialize variables
 	n_f_flow <- c()
 	year <- year(Sys.Date())
@@ -117,9 +122,6 @@ for (i in 1:length(gage)) {
 	  "Mean flows from November to February of each year on record ",
 	  "(Updated ", Sys.Date(), ")", sep=""
 	);
-	
-	# Saving file to the correct location
-	filename <- paste("usgs", gage[i], "mllr_bar_winterflows", target_year, ".png", sep="_")
 	
 	# ******************************************************************************************
 	# Plot 1: Create histogram/density plot to show recent winter flow vs historic winter flows
