@@ -146,7 +146,57 @@ kable(mb_totals_source_yes_power,  booktabs = T,
       col.names = c("Minor Basin","Source Type",kable_col_names[3:6])) %>%
    kable_styling(latex_options = latexoptions) %>%
    cat(., file = paste(folder,"kable_tables/mb_totals_source_yes_power_kable",file_ext,sep=""))
+
 #---------------------------------------------------------------#
+#All Minor Basins in a single table for comparison (excluding power generation)
+mb_totals_sql <- paste('SELECT 
+                     MinorBasin_Name,',
+                       aggregate_select,'
+                     FROM mp_all
+                     WHERE facility_ftype NOT LIKE "%power"
+                     GROUP BY MinorBasin_Name', sep="")
+mb_totals_no_power <- sqldf(mb_totals_sql)
+
+# OUTPUT TABLE IN KABLE FORMAT
+kable(mb_totals_no_power,  booktabs = T,
+      caption = "All Minor Basins Withdrawal Demand (excluding Power Generation)",
+      label = "mb_totals_no_power",
+      col.names = c("Minor Basin",kable_col_names[3:6])) %>%
+   kable_styling(latex_options = latexoptions) %>%
+   cat(., file = paste(folder,"kable_tables/mb_totals_no_power_kable",file_ext,sep=""))
+
+mb_totals_system_sql <- paste('SELECT  
+                     MinorBasin_Name,system_type,',
+                              aggregate_select,'
+                     FROM mp_all
+                     WHERE facility_ftype NOT LIKE "%power"
+                     GROUP BY MinorBasin_Name, system_type', sep="")
+mb_totals_system_no_power <- sqldf(mb_totals_system_sql)
+
+# OUTPUT TABLE IN KABLE FORMAT
+kable(mb_totals_system_no_power,  booktabs = T,
+      caption = "All Minor Basins Withdrawal Demand by System (excluding Power Generation)",
+      label = "mb_totals_system_no_power",
+      col.names = c("Minor Basin",kable_col_names[2:6])) %>%
+   kable_styling(latex_options = latexoptions) %>%
+   cat(., file = paste(folder,"kable_tables/mb_totals_system_no_power_kable",file_ext,sep=""))
+
+mb_totals_source_sql <- paste('SELECT 
+                     MinorBasin_Name, source_type,',
+                              aggregate_select,'
+                     FROM mp_all
+                     WHERE facility_ftype NOT LIKE "%power"
+                     GROUP BY MinorBasin_Name, source_type', sep="")
+mb_totals_source_no_power <- sqldf(mb_totals_source_sql)
+# OUTPUT TABLE IN KABLE FORMAT
+kable(mb_totals_source_no_power,  booktabs = T,
+      caption = "All Minor Basins Withdrawal Demand by Source (excluding Power Generation)",
+      label = "mb_totals_source_no_power",
+      col.names = c("Minor Basin","Source Type",kable_col_names[3:6])) %>%
+   kable_styling(latex_options = latexoptions) %>%
+   cat(., file = paste(folder,"kable_tables/mb_totals_source_no_power_kable",file_ext,sep=""))
+#---------------------------------------------------------------#
+#SINGLE BASIN SUMMARIES
 
 #Demand by System Type 
 system_sql <- paste('SELECT 
@@ -199,7 +249,7 @@ by_system_type <- append_totals(by_system_type)
 
 ###############################################################
 
- #Demand by System Type 
+ #Demand by Source Type 
  source_sql <- paste('SELECT 
                      source_type,',
                      aggregate_select,'
@@ -215,7 +265,7 @@ by_system_type <- append_totals(by_system_type)
  kable(by_source_type,  booktabs = T,
        caption = paste("Withdrawal Demand by Source Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demand_source_type_no_power_",mb_abbrev,sep=""),
-       col.names = kable_col_names) %>%
+       col.names = c("","Source Type",kable_col_names[3:6])) %>%
      kable_styling(latex_options = latexoptions) %>%
    #column_spec(1, width = "5em") %>%
    #column_spec(2, width = "5em") %>%
@@ -239,7 +289,7 @@ by_system_type <- append_totals(by_system_type)
  kable(by_source_type,  booktabs = T,
        caption = paste("Withdrawal Demand by Source Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demand_source_type_yes_power_",mb_abbrev,sep=""),
-       col.names = kable_col_names) %>%
+       col.names = c("","Source Type",kable_col_names[3:6])) %>%
      kable_styling(latex_options = latexoptions) %>%
    #column_spec(1, width = "5em") %>%
    #column_spec(2, width = "5em") %>%
@@ -248,7 +298,7 @@ by_system_type <- append_totals(by_system_type)
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_source_type_yes_power_",mb_abbrev,"_kable",file_ext,sep=""))
  
 ############################################################################
- 
+ #GRAPH
  #Demand by System & Source Type with count
  system_source_sql <- paste('SELECT 
                      system_type, source_type,',
@@ -365,13 +415,7 @@ system_source <- append_totals(system_source)
  kable(system_source,  booktabs = T,
        caption = paste("Withdrawal Demand by System and Source Type (including Power Generation) in ",mb_name," Minor Basin",sep=""),
        label = paste("demand_source_type_no_power_",mb_abbrev,sep=""),
-       col.names = c("",
-                     "System Type",
-                     "Source Type",
-                     "2020 Demand (MGD)",
-                     "2030 Demand (MGD)",
-                     "2040 Demand (MGD)",
-                     "20 Year Percent Change")) %>%
+       col.names = c("","System Type","Source Type",kable_col_names[3:6])) %>%
     kable_styling(latex_options = latexoptions) %>%
     #column_spec(1, width = "6em") %>%
     #column_spec(2, width = "5em") %>%
@@ -394,11 +438,7 @@ system_source <- append_totals(system_source)
        caption = paste("Withdrawal Demand by Locality in ",mb_name," Minor Basin",sep=""),
        label = paste("demand_locality_",mb_abbrev,sep=""),
        col.names = c("Fips Code",
-                     "Locality",
-                     "2020 Demand (MGD)",
-                     "2030 Demand (MGD)",
-                     "2040 Demand (MGD)",
-                     "20 Year Percent Change")) %>%
+                     "Locality",kable_col_names[3:6])) %>%
     kable_styling(latex_options = latexoptions) %>%
     #column_spec(1, width = "5em") %>%
     #column_spec(2, width = "5em") %>%
@@ -423,11 +463,7 @@ system_source <- append_totals(system_source)
        label = paste("demand_locality_by_source",mb_abbrev,sep=""),
        col.names = c("Fips Code",
                      "Locality",
-                     "Source Type",
-                     "2020 Demand (MGD)",
-                     "2030 Demand (MGD)",
-                     "2040 Demand (MGD)",
-                     "20 Year Percent Change")) %>%
+                     "Source Type",kable_col_names[3:6])) %>%
     kable_styling(latex_options = latexoptions) %>%
     #column_spec(1, width = "5em") %>%
     #column_spec(2, width = "5em") %>%
@@ -489,10 +525,7 @@ kable(system_source_specific_facility,  booktabs = T, escape = F,
                     "Source Type",
                     names(system_source_specific_facility)[4],
                     names(system_source_specific_facility)[5],
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
+                    kable_col_names[3:6])) %>%
    kable_styling(latex_options = latexoptions) %>%
    footnote(
       general = "Each locality has a single diffuse demand estimate for each system and source combination",
@@ -566,10 +599,7 @@ kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
       col.names = c("",
                     "Facility Name",
                     "System Type",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year % Change",
+                    kable_col_names[3:6],
                     "% of Total Groundwater",
                     "Locality")) %>%
    kable_styling(latex_options = latexoptions) %>%
