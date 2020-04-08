@@ -146,7 +146,7 @@ shen_counties <- subset(county_shp, FIPS %in% c(51187,
 s_try <- spTransform(shen_counties, CRS("+proj=longlat +datum=WGS84"))
 s_try@data$id = rownames(s_try@data)
 s_try.points = fortify(s_try, region="id")
-s_try.df = join(s_try.points, s_try@data, by="id")
+s_try.df = inner_join(s_try.points, s_try@data, by="id")
 
 #select by subsetting with the minor basin boundary
 proj4string(MBProjected) <- CRS("+proj=longlat +datum=WGS84")
@@ -155,7 +155,7 @@ c_try <- spTransform(county_shp, CRS("+proj=longlat +datum=WGS84"))
 county_subset <- c_try[MBProjected, ]
 county_subset@data$id = rownames(county_subset@data)
 county_subset.points = fortify(county_subset, region="id")
-county_subset.df = join(county_subset.points, county_subset@data, by="id")
+county_subset.df = inner_join(county_subset.points, county_subset@data, by="id")
 names(county_subset.df)
 
 ######################################################################################################
@@ -167,20 +167,21 @@ rseg_shp <- readOGR(dsn = 'C:/Users/maf95834/Documents/Github/hydro-tools/GIS_LA
 rseg_subset2 <- rseg_shp
 rseg_subset2@data$id = rownames(rseg_subset2@data)
 rseg_subset2.points = fortify(rseg_subset2, region="id")
-rseg_subset2_df = join(rseg_subset2.points, rseg_subset2@data, by="id")
+rseg_subset2_df = inner_join(rseg_subset2.points, rseg_subset2@data, by="id")
 names(rseg_subset2_df)
 rseg_subset2_df <- sqldf("SELECT *
                          FROM rseg_subset2_df
                          WHERE code LIKE '%PS%'")
-# #spatial subset rseg spatialpolygon to minor basin extent
-# proj4string(rseg_shp) <- CRS("+proj=longlat +datum=WGS84")
-# rsegProjected <- spTransform(rseg_shp, CRS("+proj=longlat +datum=WGS84"))
-# rseg_subset <- rsegProjected[MBProjected, ]
-# plot(rseg_subset)
-# rseg_subset@data$id = rownames(rseg_subset@data)
-# rseg_subset.points = fortify(rseg_subset, region="id")
-# rseg_subset_df = join(rseg_subset.points, rseg_subset@data, by="id")
-# names(rseg_subset_df)
+
+#spatial subset rseg spatialpolygon to minor basin extent
+proj4string(rseg_shp) <- CRS("+proj=longlat +datum=WGS84")
+rsegProjected <- spTransform(rseg_shp, CRS("+proj=longlat +datum=WGS84"))
+rseg_subset <- rsegProjected[MBProjected, ]
+plot(rseg_subset)
+rseg_subset@data$id = rownames(rseg_subset@data)
+rseg_subset.points = fortify(rseg_subset, region="id")
+rseg_subset_df = inner_join(rseg_subset.points, rseg_subset@data, by="id")
+names(rseg_subset_df)
 
 # #group mb_points by rseg
 # mb_points_grouped <- sqldf("SELECT round(sum(mp_2020_mgy)/365.25,2) as MGD_2020, VAHydro_RSeg_Code, VAHydro_RSeg_Name
@@ -205,14 +206,14 @@ rseg_7q10_results <- read.csv(paste(folder,"metrics_watershed_7q10.csv",sep=""))
 #climate change 2020-p90 change
 #exempt change 2020-exempt change
 rseg_7q10_df <- sqldf("SELECT *,
-round(((runid_13 - runid_11) / runid_11) * 100,2) AS current_pct,
-round(((runid_15 - runid_11) / runid_11) * 100,2) AS cc_p10_pct,
-round(((runid_16 - runid_11) / runid_11) * 100,2) AS cc_p90_pct,
-round(((runid_18 - runid_11) / runid_11) * 100,2) AS exempt_pct
+    round(((b.runid_13 - b.runid_11) / b.runid_11) * 100,2) AS current_pct,
+    round(((b.runid_15 - b.runid_11) / b.runid_11) * 100,2) AS cc_p10_pct,
+    round(((b.runid_16 - b.runid_11) / b.runid_11) * 100,2) AS cc_p90_pct,
+    round(((b.runid_18 - b.runid_11) / b.runid_11) * 100,2) AS exempt_pct
                       FROM rseg_subset_df a
                       LEFT OUTER JOIN rseg_7q10_results b
                       ON a.code = b.hydrocode
-                      WHERE b.hydrocode LIKE '%PS%'")
+                      WHERE a.code LIKE '%PS%'")
 
 #--------------------------------l30-------------------------------#
 
@@ -261,21 +262,22 @@ map +
 #       label.position = "bottom"))
 #   
 #############################################################################
-#rseg 7q10 - runid11
-map +
-  geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = runid_11), color='black') +
+#rseg 7q10 - current percent change
+model_7q10_current_map <- map +
+  geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = current_pct), color='black') +
   scale_fill_gradientn(
-    limits = c(0,180),
-    labels = seq(0,180,20),
-    breaks = seq(0,180,20),
+    limits = c(-35,35),
+    labels = seq(-35,35,10),
+    breaks = seq(-35,35,10),
     colors = c("chocolate2","hotpink","cornflowerblue"),
-    space ="Lab", name = "runid_11",
+    space ="Lab", name = "20 Year \n % Change",
     guide = guide_colourbar(
       direction = "vertical",
       title.position = "top",
       label.position = "left")) +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
-  theme(subtitle = "7q10 - runid11")
+  labs(subtitle = "7q10 - Current Model")
+ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_current_map.png"), width=6.5, height=7.5)
 #############################################################################
 #All points in minor basin 
 
