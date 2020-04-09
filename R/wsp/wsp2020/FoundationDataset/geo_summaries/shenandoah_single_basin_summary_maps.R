@@ -20,6 +20,8 @@ data_minorbasin_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.c
 
 county_shp <- readOGR("U:/OWS/GIS/VA_Counties", "VA_Counties")
 
+#load in rseg_shp shapefile
+rseg_shp <- readOGR(dsn = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/VAHydro_Rsegs.gdb', layer = 'VAHydro_RSegs')
 #--------------------------------------------------------------------------------------------
 
 #specify spatial extent for map  
@@ -160,8 +162,8 @@ names(county_subset.df)
 
 ######################################################################################################
 #RIVER SEGMENTS
-#load in rseg_shp shapefile
-rseg_shp <- readOGR(dsn = 'C:/Users/maf95834/Documents/Github/hydro-tools/GIS_LAYERS/VAHydro_Rsegs.gdb', layer = 'VAHydro_RSegs')
+# #load in rseg_shp shapefile
+# rseg_shp <- readOGR(dsn = 'C:/Users/maf95834/Documents/Github/hydro-tools/GIS_LAYERS/VAHydro_Rsegs.gdb', layer = 'VAHydro_RSegs')
 
 #sql subset to minor basin extent
 rseg_subset2 <- rseg_shp
