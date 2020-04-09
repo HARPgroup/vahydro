@@ -242,7 +242,7 @@ rseg_l90_results <- read.csv(paste(folder,"metrics_watershed_l90_Qout.csv",sep="
 #climate change 2020-p10 change
 #climate change 2020-p90 change
 #exempt change 2020-exempt change
-rseg_l30_df <- sqldf("SELECT *,
+rseg_l90_df <- sqldf("SELECT *,
     round(((b.runid_13 - b.runid_11) / b.runid_11) * 100,2) AS current_pct,
     round(((b.runid_15 - b.runid_11) / b.runid_11) * 100,2) AS cc_p10_pct,
     round(((b.runid_16 - b.runid_11) / b.runid_11) * 100,2) AS cc_p90_pct,
@@ -349,13 +349,14 @@ ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/
 ###q10 cc p10 - percent change is -2 to 1800 - only one rseg is negative which skews the whole color ramp - might need to do custom scale'
 up_lim <- max(rseg_7q10_df$cc_p10_pct)
 low_lim <- min(rseg_7q10_df$cc_p10_pct)
-#low_lim <- 1
+low_lim <- 1
 rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
 
 model_7q10_cc_p10_map <- map +
   geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = cc_p10_pct), color='black') +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
   labs(subtitle = "7q10 - Climate Change Dry Model") +
+  #rseg_fill_scale +
   scale_fill_gradient(low = "cornflowerblue", high = "slateblue4",
                       limits = c(low_lim,up_lim),
                       na.value = 'chocolate2',
@@ -368,10 +369,30 @@ model_7q10_cc_p10_map <- map +
 ggsave(plot = model_7q10_cc_p10_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_cc_p10_map.png"), width=6.5, height=7.5)
 
 #----------------------------#climate change 2020-p90 change-----------------------------------#
+up_lim <- max(rseg_7q10_df$cc_p90_pct)
+low_lim <- min(rseg_7q10_df$cc_p90_pct)
+rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
 
+model_7q10_p90_map <- map +
+  geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = cc_p90_pct), color='black') +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "7q10 - Climate Change Wet Model") +
+  rseg_fill_scale
+
+ggsave(plot = model_7q10_p90_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_p90_map.png"), width=6.5, height=7.5)
 
 #----------------------------#exempt change 2020-exempt change-----------------------------------#
+up_lim <- max(rseg_7q10_df$exempt_pct)
+low_lim <- min(rseg_7q10_df$exempt_pct)
+rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
 
+model_7q10_exempt_map <- map +
+  geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = exempt_pct), color='black') +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "7q10 - Exempt Model") +
+  rseg_fill_scale
+
+ggsave(plot = model_7q10_exempt_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_exempt_map.png"), width=6.5, height=7.5)
 
 ###################################### l30##################################
 #rseg l30 - current percent change
@@ -423,13 +444,57 @@ ggsave(plot = model_l30_exempt_map, file = paste0(folder, "state_plan_figures/PS
 ###################################### l90##################################
 #rseg l90 - current percent change
 
+up_lim <- max(rseg_l90_df$current_pct)
+low_lim <- min(rseg_l90_df$current_pct)
+rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
 
+model_l90_current_map <- map +
+  geom_polygon(data = rseg_l90_df, aes(x = long, y = lat, fill = current_pct), color='black') +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "l90 - Current Model") +
+  rseg_fill_scale 
+ggsave(plot = model_l90_current_map, file = paste0(folder, "state_plan_figures/PS_model_l90_current_map.png"), width=6.5, height=7.5)
 #----------------------------climate change p10 change-----------------------------------#
+up_lim <- max(rseg_l90_df$cc_p10_pct)
+low_lim <- min(rseg_l90_df$cc_p10_pct)
+rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
 
+model_l90_p10_map <- map +
+  geom_polygon(data = rseg_l90_df, aes(x = long, y = lat, fill = cc_p10_pct), color='black') +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "l90 - Climate Change Dry Model") +
+  rseg_fill_scale 
+ggsave(plot = model_l90_p10_map, file = paste0(folder, "state_plan_figures/PS_model_l90_p10_map.png"), width=6.5, height=7.5)
 #----------------------------#climate change p90 change-----------------------------------#
+up_lim <- max(rseg_l90_df$cc_p90_pct)
+low_lim <- min(rseg_l90_df$cc_p90_pct)
+rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
+
+model_l30_p90_map <- map +
+  geom_polygon(data = rseg_l90_df, aes(x = long, y = lat, fill = cc_p90_pct), color='black') +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "l90 - Climate Change Wet Model") +
+  rseg_fill_scale
+ggsave(plot = model_l90_p90_map, file = paste0(folder, "state_plan_figures/PS_model_l90_p90_map.png"), width=6.5, height=7.5)
 
 #----------------------------#exempt change 2020-exempt change-----------------------------------#
+up_lim <- max(rseg_l90_df$exempt_pct)
+low_lim <- min(rseg_l90_df$exempt_pct)
+rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
 
+model_l90_exempt_map <- map +
+  geom_polygon(data = rseg_l90_df, aes(x = long, y = lat, fill = exempt_pct), color='black') +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "l90 - Exempt User Model") +
+  rseg_fill_scale
+ggsave(plot = model_l90_exempt_map, file = paste0(folder, "state_plan_figures/PS_model_l90_exempt_map.png"), width=6.5, height=7.5)
+
+#############################################################################
+#############################################################################
+#############################################################################
+#############################################################################
+#############################################################################
+#############################################################################
 #############################################################################
 #All points in minor basin 
 
