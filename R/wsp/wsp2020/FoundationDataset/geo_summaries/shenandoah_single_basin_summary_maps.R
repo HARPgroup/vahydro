@@ -252,6 +252,42 @@ rseg_l30_df <- sqldf("SELECT *,
                       ON a.code = b.hydrocode
                       WHERE a.code LIKE '%PS%'")
 ######################################################################################################
+#Choose RSEG modeling scale_fill_continuous
+#set the upper and lower limits of the pct change columns as low_lim and up_lim variables
+#tests if lower limit is positive
+#then tests if upper limit is negative
+#if lower limit is negative, and upper limit is positive, then use the 3rd scale which uses divergent colors
+pick_scale_fx <- function(low_lim,up_lim){
+  
+  if(low_lim > 0){
+    chosen_scale <- scale_fill_gradient(low = "cornflowerblue", high = "slateblue4",
+                                        limits = c(low_lim,up_lim),
+                                        name = "% Change",
+                                        guide = guide_colourbar(
+                                          direction = "vertical",
+                                          title.position = "top",
+                                          label.position = "left"))
+  } else if(up_lim < 0){
+    chosen_scale <- scale_fill_gradient(low = "chocolate2", high = "orangered4",
+                                        limits = c(low_lim,up_lim),
+                                        name = "% Change",
+                                        guide = guide_colourbar(
+                                          direction = "vertical",
+                                          title.position = "top",
+                                          label.position = "left"))
+  } else {
+    chosen_scale <-  scale_fill_gradientn(
+      limits = c(low_lim,up_lim),
+      labels = c( 'More Than -20%','-20%','-10%','-5%','0%','More Than 0%'),
+      breaks =  c(low_lim,-20,-10,-5,0,up_lim),
+      colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
+      space ="Lab", name = "% Change",
+      guide = guide_colourbar(
+        direction = "vertical",
+        title.position = "top",
+        label.position = "left"))
+  }}
+###########################################################################################
 #SET UP BASE MAP
 base_map <- ggplot(data = MB.df, aes(x = long, y = lat, group = group))+
   geom_polygon(data = bbDF, color="black", fill = "gray",lwd=0.5) +
@@ -298,11 +334,11 @@ map +
 model_7q10_current_map <- map +
   geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = current_pct), color='black') +
   scale_fill_gradientn(
-    limits = c(-35,35),
-    labels = seq(-35,35,10),
-    breaks = seq(-35,35,10),
-    colors = c("chocolate2","hotpink","cornflowerblue"),
-    space ="Lab", name = "20 Year \n % Change",
+    limits = c(low_lim,up_lim),
+    labels = c( 'More Than -20%','-20%','-10%','-5%','>= 0%',''),
+    breaks =  c(low_lim,-20,-10,-5,0,up_lim),
+    colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
+    space ="Lab", name = "Current \n % Change",
     guide = guide_colourbar(
       direction = "vertical",
       title.position = "top",
@@ -316,11 +352,11 @@ ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/
 model_7q10_cc_p10_map <- map +
   geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = cc_p10_pct), color='black') +
   scale_fill_gradientn(
-    limits = c(-35,35),
-    labels = seq(-35,35,10),
-    breaks = seq(-35,35,10),
-    colors = c("chocolate2","hotpink","cornflowerblue"),
-    space ="Lab", name = "20 Year \n % Change",
+    limits = c(low_lim,up_lim),
+    labels = c( 'More Than -20%','-20%','-10%','-5%','>= 0%',''),
+    breaks =  c(low_lim,-20,-10,-5,0,up_lim),
+    colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
+    space ="Lab", name = " 2020 to 10th Percentile \n % Change",
     guide = guide_colourbar(
       direction = "vertical",
       title.position = "top",
@@ -340,11 +376,11 @@ ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/
 model_l30_current_map <- map +
   geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = current_pct), color='black') +
   scale_fill_gradientn(
-    limits = c(-20,12),
-    labels = c('>= 0%','-5 to 0%','-10% to -5%', '-20% to -10%', 'More Than -20%'),
-    breaks =  c(-20,-10,-5,0,12),
-    colors = c("green","blue","purple","red","red"),
-    space ="Lab", name = "20 Year \n % Change",
+    limits = c(low_lim,up_lim),
+    labels = c( 'More Than -20%','-20%','-10%','-5%','>= 0%',''),
+    breaks =  c(low_lim,-20,-10,-5,0,up_lim),
+    colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
+    space ="Lab", name = "Current \n % Change",
     guide = guide_colourbar(
       direction = "vertical",
       title.position = "top",
@@ -358,6 +394,46 @@ up_lim <- max(rseg_l30_df$cc_p10_pct)
 low_lim <- min(rseg_l30_df$cc_p10_pct)
 model_l30_p10_map <- map +
   geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = cc_p10_pct), color='black') +
+  chosen_scale
+  scale_fill_gradientn(
+    limits = c(low_lim,up_lim),
+    labels = c( 'More Than -20%','-20%','-10%','-5%','0%','More Than 0%'),
+    breaks =  c(low_lim,-20,-10,-5,0,up_lim),
+    colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
+    space ="Lab", name = " 2020 to 10th Percentile \n % Change",
+    guide = guide_colourbar(
+      direction = "vertical",
+      title.position = "top",
+      label.position = "left")) +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "l30 - Climate Change Dry Model")
+ggsave(plot = model_l30_p10_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p10_map.png"), width=6.5, height=7.5)
+
+#----------------------------#climate change p90 change-----------------------------------#
+up_lim <- max(rseg_l30_df$cc_p90_pct)
+low_lim <- min(rseg_l30_df$cc_p90_pct)
+midd <- (up_lim - low_lim)/2
+
+
+
+x <- pick_scale_fx(low_lim,up_lim)
+
+
+
+
+
+
+
+
+model_l30_p90_map <- map +
+  geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = cc_p90_pct), color='black') +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "l30 - Climate Change Wet Model") +
+  chosen_scale
+  # scale_fill_gradient2(midpoint=midd,
+  #                      limits = c(low_lim,up_lim),
+  #                       low="chocolate2", mid="cornflowerblue", high="slateblue4")
+  
   scale_fill_gradientn(
     limits = c(low_lim,up_lim),
     labels = c( 'More Than -20%','-20%','-10%','-5%','>= 0%',''),
@@ -367,16 +443,8 @@ model_l30_p10_map <- map +
     guide = guide_colourbar(
       direction = "vertical",
       title.position = "top",
-      label.position = "left")) +
-  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
-  labs(subtitle = "l30 - Climate Change Dry Model")
-ggsave(plot = model_l30_p10_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p10_map.png"), width=6.5, height=7.5)
-
-str(rseg_l30_df)
-library(RColorBrewer)
-display.brewer.pal(name = 'Dark2', n = 5)
-#----------------------------#climate change p90 change-----------------------------------#
-
+      label.position = "left"))
+ggsave(plot = model_l30_p90_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p90_map.png"), width=6.5, height=7.5)
 #----------------------------#exempt change 2020-exempt change-----------------------------------#
 
 ###################################### l90##################################
