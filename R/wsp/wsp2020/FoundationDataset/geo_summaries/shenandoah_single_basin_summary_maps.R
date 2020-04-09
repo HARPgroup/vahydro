@@ -339,17 +339,8 @@ model_7q10_current_map <- map +
   geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = current_pct), color='black') +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
   labs(subtitle = "7q10 - Current Model") +
-  #rseg_fill_scale
-  scale_fill_gradientn(
-    limits = c(low_lim,up_lim),
-    labels = c( 'Negative','0%','500%','1000%','1500%','Greater than 1500%'),
-    breaks =  c(low_lim,0,500,1000,1500,up_lim),
-    colors = c("orangered4","green","lightseagreen","slateblue1","slateblue2","slateblue3","slateblue4"),
-    space ="Lab", name = "% Change",
-    guide = guide_colourbar(
-      direction = "vertical",
-      title.position = "top",
-      label.position = "left"))
+  rseg_fill_scale
+  
 ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_current_map.png"), width=6.5, height=7.5)
 
 #----------------------------climate change p10 change-----------------------------------#
@@ -365,8 +356,15 @@ model_7q10_cc_p10_map <- map +
   geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = cc_p10_pct), color='black') +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
   labs(subtitle = "7q10 - Climate Change Dry Model") +
-  rseg_fill_scale
- 
+  scale_fill_gradient(low = "cornflowerblue", high = "slateblue4",
+                      limits = c(low_lim,up_lim),
+                      na.value = 'chocolate2',
+                      #oob = scales::squish, 
+                      name = "% Change",
+                      guide = guide_colourbar(
+                        direction = "vertical",
+                        title.position = "top",
+                        label.position = "left"))
 ggsave(plot = model_7q10_cc_p10_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_cc_p10_map.png"), width=6.5, height=7.5)
 
 #----------------------------#climate change 2020-p90 change-----------------------------------#
