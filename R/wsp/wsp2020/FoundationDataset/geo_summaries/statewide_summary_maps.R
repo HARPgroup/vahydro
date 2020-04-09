@@ -171,7 +171,7 @@ map <- base_map +
                     name = "Legend",
                     labels = c("In Progress",
                                ">= 0%", 
-                               "-5% 50 0%", 
+                               "-5% to 0%", 
                                "-10% to -5%", 
                                "-20% to -10%", 
                                "More than -20%"))+
