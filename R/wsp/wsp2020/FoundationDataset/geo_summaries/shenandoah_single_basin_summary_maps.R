@@ -341,7 +341,7 @@ model_7q10_current_map <- map +
   labs(subtitle = "7q10 - Current Model") +
   rseg_fill_scale
   
-ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_current_map.png"), width=6.5, height=7.5)
+ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_current_map.png"), width=9.5, height=7.5)
 
 #----------------------------climate change p10 change-----------------------------------#
 #rseg 7q10
@@ -405,7 +405,7 @@ model_l30_current_map <- map +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
   labs(subtitle = "l30 - Current Model") +
   rseg_fill_scale 
-ggsave(plot = model_l30_current_map, file = paste0(folder, "state_plan_figures/PS_model_l30_current_map.png"), width=6.5, height=7.5)
+ggsave(plot = model_l30_current_map, file = paste0(folder, "state_plan_figures/PS_model_l30_current_map.png"), width=9, height=7.5)
 
 #----------------------------climate change p10 change-----------------------------------#
 up_lim <- max(rseg_l30_df$cc_p10_pct)
@@ -417,7 +417,7 @@ model_l30_p10_map <- map +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
   labs(subtitle = "l30 - Climate Change Dry Model") +
   rseg_fill_scale 
-ggsave(plot = model_l30_p10_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p10_map.png"), width=6.5, height=7.5)
+ggsave(plot = model_l30_p10_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p10_map.png"), width=9.5, height=7.5)
 
 #----------------------------#climate change p90 change-----------------------------------#
 up_lim <- max(rseg_l30_df$cc_p90_pct)
@@ -429,18 +429,28 @@ model_l30_p90_map <- map +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
   labs(subtitle = "l30 - Climate Change Wet Model") +
   rseg_fill_scale
-ggsave(plot = model_l30_p90_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p90_map.png"), width=6.5, height=7.5)
+ggsave(plot = model_l30_p90_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p90_map.png"), width=9.5, height=7.5)
 #----------------------------#exempt change 2020-exempt change----------------------------#
 up_lim <- max(rseg_l30_df$exempt_pct)
 low_lim <- min(rseg_l30_df$exempt_pct)
+#up_lim = -1
 rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
 
 model_l30_exempt_map <- map +
   geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = exempt_pct), color='black') +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
-  labs(subtitle = "l30 - Exempt User Model") +
-  rseg_fill_scale
-ggsave(plot = model_l30_exempt_map, file = paste0(folder, "state_plan_figures/PS_model_l30_exempt_map.png"), width=6.5, height=7.5)
+  labs(subtitle = "l30 - Exempt User Model")+
+  #rseg_fill_scale +
+  scale_fill_gradient(low = "orangered4", high = "goldenrod1",
+                      limits = c(low_lim,-1),
+                      na.value = 'cornflowerblue',
+                      #oob = scales::squish, 
+                      name = "% Change",
+                      guide = guide_colourbar(
+                        direction = "vertical",
+                        title.position = "top",
+                        label.position = "left"))
+ggsave(plot = model_l30_exempt_map, file = paste0(folder, "state_plan_figures/PS_model_l30_exempt_map.png"), width=9.5, height=7.5)
 ###################################### l90##################################
 #rseg l90 - current percent change
 
@@ -624,19 +634,19 @@ MB_summary
 
 ######################################################################################################
 ######################################################################################################
-# OUTPUT TABLE IN KABLE FORMAT
-kable(MB_summary, "latex", booktabs = T,
-      caption = paste("Minor Basin",sep=""), 
-      label = paste("MinorBasin",sep=""),
-      col.names = c("HUC 6 Name",
-                    "Minor Basin Name",
-                    "Minor Basin Code",
-                    "Facility Count",
-                    "2020 (MGY)",
-                    "2040 (MGY)")) %>%
-  kable_styling(bootstrap_options = c("striped", "scale_down")) %>% 
-  #column_spec(1, width = "5em") %>%
-  #column_spec(2, width = "5em") %>%
-  #column_spec(3, width = "5em") %>%
-  #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/MinorBasin_statewide_kable.tex",sep=""))
+# # OUTPUT TABLE IN KABLE FORMAT
+# kable(MB_summary, "latex", booktabs = T,
+#       caption = paste("Minor Basin",sep=""), 
+#       label = paste("MinorBasin",sep=""),
+#       col.names = c("HUC 6 Name",
+#                     "Minor Basin Name",
+#                     "Minor Basin Code",
+#                     "Facility Count",
+#                     "2020 (MGY)",
+#                     "2040 (MGY)")) %>%
+#   kable_styling(bootstrap_options = c("striped", "scale_down")) %>% 
+#   #column_spec(1, width = "5em") %>%
+#   #column_spec(2, width = "5em") %>%
+#   #column_spec(3, width = "5em") %>%
+#   #column_spec(4, width = "4em") %>%
+#   cat(., file = paste(folder,"kable_tables/MinorBasin_statewide_kable.tex",sep=""))
