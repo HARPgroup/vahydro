@@ -339,15 +339,26 @@ model_7q10_current_map <- map +
   geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = current_pct), color='black') +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
   labs(subtitle = "7q10 - Current Model") +
-  rseg_fill_scale
-
+  #rseg_fill_scale
+  scale_fill_gradientn(
+    limits = c(low_lim,up_lim),
+    labels = c( 'Negative','0%','500%','1000%','1500%','Greater than 1500%'),
+    breaks =  c(low_lim,0,500,1000,1500,up_lim),
+    colors = c("orangered4","green","lightseagreen","slateblue1","slateblue2","slateblue3","slateblue4"),
+    space ="Lab", name = "% Change",
+    guide = guide_colourbar(
+      direction = "vertical",
+      title.position = "top",
+      label.position = "left"))
 ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_current_map.png"), width=6.5, height=7.5)
 
 #----------------------------climate change p10 change-----------------------------------#
 #rseg 7q10
+
+###q10 cc p10 - percent change is -2 to 1800 - only one rseg is negative which skews the whole color ramp - might need to do custom scale'
 up_lim <- max(rseg_7q10_df$cc_p10_pct)
 low_lim <- min(rseg_7q10_df$cc_p10_pct)
-low_lim <- 1
+#low_lim <- 1
 rseg_fill_scale <- pick_scale_fx(low_lim,up_lim)
 
 model_7q10_cc_p10_map <- map +
