@@ -218,7 +218,7 @@ rseg_7q10_df <- sqldf("SELECT *,
 #--------------------------------l30-------------------------------#
 #load in rseg modeling 7q10 results
 rseg_l30_results <- read.csv(paste(folder,"metrics_watershed_l30_Qout.csv",sep=""))
-#join rseg_7q10_results to rseg.df
+#join rseg_x_results to rseg.df
 #percent change is calculated for:
 #current 2020-2040 change
 #climate change 2020-p10 change
@@ -235,6 +235,22 @@ rseg_l30_df <- sqldf("SELECT *,
                       WHERE a.code LIKE '%PS%'")
 #--------------------------------l90-------------------------------#
 
+rseg_l90_results <- read.csv(paste(folder,"metrics_watershed_l90_Qout.csv",sep=""))
+#join rseg_x_results to rseg.df
+#percent change is calculated for:
+#current 2020-2040 change
+#climate change 2020-p10 change
+#climate change 2020-p90 change
+#exempt change 2020-exempt change
+rseg_l30_df <- sqldf("SELECT *,
+    round(((b.runid_13 - b.runid_11) / b.runid_11) * 100,2) AS current_pct,
+    round(((b.runid_15 - b.runid_11) / b.runid_11) * 100,2) AS cc_p10_pct,
+    round(((b.runid_16 - b.runid_11) / b.runid_11) * 100,2) AS cc_p90_pct,
+    round(((b.runid_18 - b.runid_11) / b.runid_11) * 100,2) AS exempt_pct
+                      FROM rseg_subset_df a
+                      LEFT OUTER JOIN rseg_l90_results b
+                      ON a.code = b.hydrocode
+                      WHERE a.code LIKE '%PS%'")
 ######################################################################################################
 #SET UP BASE MAP
 base_map <- ggplot(data = MB.df, aes(x = long, y = lat, group = group))+
@@ -300,7 +316,7 @@ ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/
 model_7q10_cc_p10_map <- map +
   geom_polygon(data = rseg_7q10_df, aes(x = long, y = lat, fill = cc_p10_pct), color='black') +
   scale_fill_gradientn(
-    limits = c(,35),
+    limits = c(-35,35),
     labels = seq(-35,35,10),
     breaks = seq(-35,35,10),
     colors = c("chocolate2","hotpink","cornflowerblue"),
@@ -313,7 +329,6 @@ model_7q10_cc_p10_map <- map +
   labs(subtitle = "7q10 - Current Model")
 ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/PS_model_7q10_current_map.png"), width=6.5, height=7.5)
 
-
 #----------------------------#climate change 2020-p90 change-----------------------------------#
 
 
@@ -325,10 +340,10 @@ ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/
 model_l30_current_map <- map +
   geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = current_pct), color='black') +
   scale_fill_gradientn(
-    limits = c(-20,23),
+    limits = c(-20,12),
     labels = c('>= 0%','-5 to 0%','-10% to -5%', '-20% to -10%', 'More Than -20%'),
-    breaks =  c(23,0,-5,-10,-20),
-    colors = c("red","purple","blue","green","yellow"),
+    breaks =  c(-20,-10,-5,0,12),
+    colors = c("green","blue","purple","red","red"),
     space ="Lab", name = "20 Year \n % Change",
     guide = guide_colourbar(
       direction = "vertical",
@@ -339,7 +354,27 @@ model_l30_current_map <- map +
 ggsave(plot = model_l30_current_map, file = paste0(folder, "state_plan_figures/PS_model_l30_current_map.png"), width=6.5, height=7.5)
 
 #----------------------------climate change p10 change-----------------------------------#
+up_lim <- max(rseg_l30_df$cc_p10_pct)
+low_lim <- min(rseg_l30_df$cc_p10_pct)
+model_l30_p10_map <- map +
+  geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = cc_p10_pct), color='black') +
+  scale_fill_gradientn(
+    limits = c(low_lim,up_lim),
+    labels = c( 'More Than -20%','-20%','-10%','-5%','>= 0%',''),
+    breaks =  c(low_lim,-20,-10,-5,0,up_lim),
+    colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
+    space ="Lab", name = " 2020 to 90th Percentile \n % Change",
+    guide = guide_colourbar(
+      direction = "vertical",
+      title.position = "top",
+      label.position = "left")) +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "l30 - Climate Change Dry Model")
+ggsave(plot = model_l30_p10_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p10_map.png"), width=6.5, height=7.5)
 
+str(rseg_l30_df)
+library(RColorBrewer)
+display.brewer.pal(name = 'Dark2', n = 5)
 #----------------------------#climate change p90 change-----------------------------------#
 
 #----------------------------#exempt change 2020-exempt change-----------------------------------#
