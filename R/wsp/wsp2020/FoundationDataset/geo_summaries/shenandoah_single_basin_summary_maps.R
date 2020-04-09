@@ -280,7 +280,7 @@ pick_scale_fx <- function(low_lim,up_lim){
       limits = c(low_lim,up_lim),
       labels = c( 'More Than -20%','-20%','-10%','-5%','0%','More Than 0%'),
       breaks =  c(low_lim,-20,-10,-5,0,up_lim),
-      colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
+      colors = c("orangered4","chocolate2","goldenrod1","lightseagreen","slateblue4"),
       space ="Lab", name = "% Change",
       guide = guide_colourbar(
         direction = "vertical",
@@ -373,80 +373,51 @@ ggsave(plot = model_7q10_current_map, file = paste0(folder, "state_plan_figures/
 
 ###################################### l30##################################
 #rseg l30 - current percent change
+up_lim <- max(rseg_l30_df$current_pct)
+low_lim <- min(rseg_l30_df$current_pct)
+chosen_scale <- pick_scale_fx(low_lim,up_lim)
+
 model_l30_current_map <- map +
   geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = current_pct), color='black') +
-  scale_fill_gradientn(
-    limits = c(low_lim,up_lim),
-    labels = c( 'More Than -20%','-20%','-10%','-5%','>= 0%',''),
-    breaks =  c(low_lim,-20,-10,-5,0,up_lim),
-    colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
-    space ="Lab", name = "Current \n % Change",
-    guide = guide_colourbar(
-      direction = "vertical",
-      title.position = "top",
-      label.position = "left")) +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
-  labs(subtitle = "l30 - Current Model")
+  labs(subtitle = "l30 - Current Model") +
+  chosen_scale 
 ggsave(plot = model_l30_current_map, file = paste0(folder, "state_plan_figures/PS_model_l30_current_map.png"), width=6.5, height=7.5)
 
 #----------------------------climate change p10 change-----------------------------------#
 up_lim <- max(rseg_l30_df$cc_p10_pct)
 low_lim <- min(rseg_l30_df$cc_p10_pct)
+chosen_scale <- pick_scale_fx(low_lim,up_lim)
+
 model_l30_p10_map <- map +
   geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = cc_p10_pct), color='black') +
-  chosen_scale
-  scale_fill_gradientn(
-    limits = c(low_lim,up_lim),
-    labels = c( 'More Than -20%','-20%','-10%','-5%','0%','More Than 0%'),
-    breaks =  c(low_lim,-20,-10,-5,0,up_lim),
-    colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
-    space ="Lab", name = " 2020 to 10th Percentile \n % Change",
-    guide = guide_colourbar(
-      direction = "vertical",
-      title.position = "top",
-      label.position = "left")) +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
-  labs(subtitle = "l30 - Climate Change Dry Model")
+  labs(subtitle = "l30 - Climate Change Dry Model") +
+  chosen_scale 
 ggsave(plot = model_l30_p10_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p10_map.png"), width=6.5, height=7.5)
 
 #----------------------------#climate change p90 change-----------------------------------#
 up_lim <- max(rseg_l30_df$cc_p90_pct)
 low_lim <- min(rseg_l30_df$cc_p90_pct)
-midd <- (up_lim - low_lim)/2
-
-
-
-x <- pick_scale_fx(low_lim,up_lim)
-
-
-
-
-
-
-
+chosen_scale <- pick_scale_fx(low_lim,up_lim)
 
 model_l30_p90_map <- map +
   geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = cc_p90_pct), color='black') +
   geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
   labs(subtitle = "l30 - Climate Change Wet Model") +
   chosen_scale
-  # scale_fill_gradient2(midpoint=midd,
-  #                      limits = c(low_lim,up_lim),
-  #                       low="chocolate2", mid="cornflowerblue", high="slateblue4")
-  
-  scale_fill_gradientn(
-    limits = c(low_lim,up_lim),
-    labels = c( 'More Than -20%','-20%','-10%','-5%','>= 0%',''),
-    breaks =  c(low_lim,-20,-10,-5,0,up_lim),
-    colors = c("orangered4","chocolate2","goldenrod1","slateblue4","slateblue4"),
-    space ="Lab", name = " 2020 to 90th Percentile \n % Change",
-    guide = guide_colourbar(
-      direction = "vertical",
-      title.position = "top",
-      label.position = "left"))
 ggsave(plot = model_l30_p90_map, file = paste0(folder, "state_plan_figures/PS_model_l30_p90_map.png"), width=6.5, height=7.5)
-#----------------------------#exempt change 2020-exempt change-----------------------------------#
+#----------------------------#exempt change 2020-exempt change----------------------------#
+up_lim <- max(rseg_l30_df$exempt_pct)
+low_lim <- min(rseg_l30_df$exempt_pct)
+chosen_scale <- pick_scale_fx(low_lim,up_lim)
 
+model_l30_exempt_map <- map +
+  geom_polygon(data = rseg_l30_df, aes(x = long, y = lat, fill = exempt_pct), color='black') +
+  geom_polygon(data = MB.df,fill = NA, color = 'black', size = 1.5) +
+  labs(subtitle = "l30 - Exempt User Model") +
+  chosen_scale
+ggsave(plot = model_l30_exempt_map, file = paste0(folder, "state_plan_figures/PS_model_l30_exempt_map.png"), width=6.5, height=7.5)
 ###################################### l90##################################
 #rseg l90 - current percent change
 
