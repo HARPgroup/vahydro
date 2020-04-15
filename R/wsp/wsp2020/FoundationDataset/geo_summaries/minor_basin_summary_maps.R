@@ -98,7 +98,7 @@ print(st_data$code[z])
  MB_geom <- readWKT(st_data$geom[z])
 #print(MB_geom)
  MB_geom_clip <- gIntersection(bb, MB_geom)
- MBProjected <- SpatialPolygonsDataFrame(MB_geom_clip, data.frame('id'), match.ID = TRUE)
+ MBProjected <- sp::SpatialPolygonsDataFrame(MB_geom_clip, data.frame('id'), match.ID = TRUE)
  MBProjected@data$id <- as.character(z)
  MB.list[[z]] <- MBProjected
 }
@@ -108,6 +108,20 @@ MB@data <- MB@data[,-c(2:3)]
 MB.df <- fortify(MB, region = 'id')
 MB.df <- merge(MB.df, MB@data, by = 'id')
 
+######################################################################################################
+### PROCESS Rivers
+river_shp <- readOGR("C:/Users/maf95834/Documents/Github/hydro-tools/GIS_LAYERS/MajorRivers", "MajorRivers")
+summary(river_shp)
+plot(river_shp)
+
+
+proj4string(MBProjected) <- CRS("+proj=longlat +datum=WGS84")
+MBProjected <- spTransform(MBProjected, CRS("+proj=longlat +datum=WGS84"))
+river_shpProjected <- spTransform(river_shp, CRS("+proj=longlat +datum=WGS84"))
+river_clip <- gIntersection(MBProjected,river_shpProjected)
+river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = TRUE)
+summary(river.df)
+plot(river.df)
 ######################################################################################################
 ### PROCESS RSegs
 ######################################################################################################
@@ -175,7 +189,10 @@ group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
 #SET UP BASE MAP
 base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group))+
   geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
-  geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5)
+  geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5)+
+  #geom_line(data = z,x = long, y = lat, group = NULL,inherit.aes = FALSE)
+geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'navy', lwd = .75) +
+geom_polygon(data = MB.df, aes(x = long, y = lat, group = group), fill = NA, color = 'chocolate2', lwd = 2)
 
 #colnames(RSeg_data)
 map <- base_map + 

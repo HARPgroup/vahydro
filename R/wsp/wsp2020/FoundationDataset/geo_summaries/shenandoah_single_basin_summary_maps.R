@@ -20,8 +20,6 @@ data_minorbasin_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.c
 
 county_shp <- readOGR("U:/OWS/GIS/VA_Counties", "VA_Counties")
 
-#load in rseg_shp shapefile
-rseg_shp <- readOGR(dsn = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/VAHydro_Rsegs.gdb', layer = 'VAHydro_RSegs')
 #--------------------------------------------------------------------------------------------
 
 #specify spatial extent for map  
@@ -131,10 +129,12 @@ mb_points <- sqldf("SELECT *
                    FROM data_minorbasin_raw
                    WHERE MinorBasin_Code = 'PS'")
 
+###Good QA Method to see if any MPs might have the wrong fips - this would skew the by county kable tables
 # # #view what fips actually have MPs in them (helps with manual county selection)
 # x <- sqldf("SELECT distinct fips_code, fips_name from mb_points")
 # x$fips_code
 # shen_counties2 <- subset(county_shp, FIPS %in% x$fips_code)
+# plot(shen_counties2)
 
 shen_counties <- subset(county_shp, FIPS %in% c(51187,
                                                 51165, 
@@ -162,8 +162,8 @@ names(county_subset.df)
 
 ######################################################################################################
 #RIVER SEGMENTS
-# #load in rseg_shp shapefile
-# rseg_shp <- readOGR(dsn = 'C:/Users/maf95834/Documents/Github/hydro-tools/GIS_LAYERS/VAHydro_Rsegs.gdb', layer = 'VAHydro_RSegs')
+#load in rseg_shp shapefile
+rseg_shp <- readOGR(dsn = 'C:/Users/maf95834/Documents/Github/hydro-tools/GIS_LAYERS/VAHydro_Rsegs.gdb', layer = 'VAHydro_RSegs')
 
 #sql subset to minor basin extent
 rseg_subset2 <- rseg_shp
@@ -218,7 +218,7 @@ rseg_7q10_df <- sqldf("SELECT *,
                       WHERE a.code LIKE '%PS%'")
 
 #--------------------------------l30-------------------------------#
-#load in rseg modeling 7q10 results
+#load in rseg modeling l30 results
 rseg_l30_results <- read.csv(paste(folder,"metrics_watershed_l30_Qout.csv",sep=""))
 #join rseg_x_results to rseg.df
 #percent change is calculated for:
@@ -509,52 +509,118 @@ ggsave(plot = model_l90_exempt_map, file = paste0(folder, "state_plan_figures/PS
 #############################################################################
 #############################################################################
 #All points in minor basin 
-
-map + geom_point(data=mb_points, aes(x=corrected_longitude, y=corrected_latitude, size=mp_2040_mgy, fill=mp_2040_mgy, group = NULL), shape=21, alpha=0.8) 
-
-#############################################################################
-#all points in minor basin (specific facility, no ssu)
-
-specific_fac_sql <- paste('SELECT facility_name, system_type, MP_bundle,
-               ',aggregate_select,',fips_name, corrected_latitude, corrected_longitude
+all_points_sql <- paste('SELECT facility_name, system_type, MP_bundle,
+               round(mp_2020_mgy/365.25,2) AS MGD_2020,
+               round(mp_2030_mgy/365.25,2) AS MGD_2030,
+               round(mp_2040_mgy/365.25,2) AS MGD_2040,
+               delta_2040_pct, fips_name, corrected_latitude, corrected_longitude
                FROM mb_points
                WHERE wsp_ftype NOT LIKE "%ssusm"
-               GROUP BY Facility_hydroid', sep="")
+                        ORDER BY MGD_2040 DESC', sep="")
 
-specific_fac_points <- sqldf(specific_fac_sql)
+all_points <- sqldf(all_points_sql)
+# hanover <- sqldf("SELECT *
+#                  from mb_points
+#                  where fips_name like '%hanover'")
+# map + geom_point(data=hanover, aes(x=corrected_longitude, y=corrected_latitude, group = NULL), alpha=0.7, size = 4)
 
-
-specific_fac_map <- map + geom_point(data=specific_fac_points, aes(x=corrected_longitude, y=corrected_latitude, size=MGD_2040, fill=MGD_2040, group = NULL), alpha=0.8) +
-  labs(subtitle = "2040 Demand - Facility Locations") +
-  # scale_shape_manual(values=c(21, 24), name = "Source Type", labels = c("Surface Water","Groundwater"),
-  #                    guide = guide_legend(
-  #                      direction = "horizontal",
-  #                      title.position = "top",ncol = 2,
-  #                      label.position = "bottom",
-  #                      title.hjust = 0.5)) +
+all_points_map <- map +
+  geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5) +
+geom_point(data=all_points, aes(x=corrected_longitude, y=corrected_latitude, fill=MGD_2040, size=MGD_2040, group = NULL, shape = MP_bundle), alpha=0.7) +
+  labs(subtitle = "2040 Demand - Well & Intake Source Locations") +
+  scale_shape_manual(values=c(22, 24), name = "Source Type", labels = c("Surface Water","Groundwater"),
+                     guide = guide_legend(
+                       direction = "horizontal",
+                       title.position = "top",ncol = 2,
+                       label.position = "bottom",
+                       title.hjust = 0.5)) +
   scale_fill_gradient(
     limits = c(0,10),
     labels = seq(0,10,2),
     breaks = seq(0,10,2),
-    low="green2", high="orange", space ="Lab", name = "2040 Demand (MGD)",
+    low="snow", high="navy", space ="Lab", name = "2040 Demand (MGD)",
     guide = guide_colourbar(
       direction = "horizontal",
       title.position = "top",
       label.position = "bottom")) +
-  #geom_text(data = top5_points,aes(x=corrected_longitude, y=corrected_latitude, label=facility_name, group = NULL),hjust=0, vjust=0, size = 2) 
-  # geom_label_repel(data = top5_points,aes(x=corrected_longitude, y=corrected_latitude, label=label_names, group = NULL,color = MP_bundle),
-  #                  box.padding   = 0.2, 
-  #                  point.padding = 0.3,label.padding = .12,
-  #                  segment.color = 'grey50', size = 3) +
-  guides(color = FALSE, size = FALSE)+
+  scale_size_continuous(range = c(3, 11)) +
+  guides(size = FALSE, fill = FALSE, shape = FALSE)+
   theme(legend.position = "bottom",
-        legend.box = "horizontal")
-ggsave(plot = specific_fac_map, file = paste0(folder, "state_plan_figures/PS_2040_MinorBasin_specific_fac_map.png"), width=6.5, height=7.5)
+        legend.box = "horizontal")+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_blank())
+ggsave(plot = all_points_map, file = paste0(folder, "state_plan_figures/PS_2040_MinorBasin_all_points_map.png"), width=6.5, height=5)
+
+#############################################################################
+# #all facilities in minor basin (specific facility, no ssu)
+# 
+# specific_fac_sql <- paste('SELECT facility_name, system_type, MP_bundle,
+#                ',aggregate_select,',fips_name, corrected_latitude, corrected_longitude
+#                FROM mb_points
+#                WHERE wsp_ftype NOT LIKE "%ssusm"
+#                GROUP BY Facility_hydroid', sep="")
+# 
+# specific_fac_points <- sqldf(specific_fac_sql)
+# 
+# 
+# specific_fac_map2 <- map + 
+#   geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5) +
+#   geom_point(data=specific_fac_points, aes(x=corrected_longitude, y=corrected_latitude, fill=MGD_2040,  size=MGD_2040,group = NULL), alpha=0.8, shape = 21) +
+#   labs(subtitle = "2040 Demand - Facility Locations") +
+#   # scale_shape_manual(values=c(21, 24), name = "Source Type", labels = c("Surface Water","Groundwater"),
+#   #                    guide = guide_legend(
+#   #                      direction = "horizontal",
+#   #                      title.position = "top",ncol = 2,
+#   #                      label.position = "bottom",
+#   #                      title.hjust = 0.5)) +
+#   scale_color_gradient(
+#     limits = c(0,10),
+#     labels = seq(0,10,2),
+#     breaks = seq(0,10,2),
+#     low="green2", high="orange", space ="Lab", name = "2040 Demand (MGD)",
+#     guide = guide_colourbar(
+#       direction = "horizontal",
+#       title.position = "top",
+#       label.position = "bottom")) +
+#   guides(size = FALSE, fill = FALSE, shape = FALSE)+
+#   theme(legend.position = "bottom",
+#         legend.box = "horizontal")+
+#   theme(axis.title.x=element_blank(),
+#         axis.text.x=element_blank(),
+#         axis.ticks.x=element_blank(),
+#         axis.title.y=element_blank(),
+#         axis.text.y=element_blank(),
+#         axis.ticks.y=element_blank(),
+#         panel.grid.major = element_blank(), 
+#         panel.grid.minor = element_blank(),
+#         panel.background = element_blank(),
+#         panel.border = element_blank())
+# ggsave(plot = specific_fac_map2, file = paste0(folder, "state_plan_figures/PS_2040_MinorBasin_specific_fac_map.png"), width=6.5, height=7.5)
 
 #############################################################################
 
   #only county-wide estimates (ssu aka diffuse county demand)
-  map + geom_point(data=ssu_points, aes(x=corrected_longitude, y=corrected_latitude, size=mp_2040_mgy, fill=mp_2040_mgy, group = NULL), shape=21, alpha=0.8) 
+
+ssu_points_sql <- ('SELECT facility_name, system_type, MP_bundle,
+               round(mp_2020_mgy/365.25,2) AS MGD_2020,
+               round(mp_2030_mgy/365.25,2) AS MGD_2030,
+               round(mp_2040_mgy/365.25,2) AS MGD_2040,
+               delta_2040_pct,
+               fips_name, corrected_latitude, corrected_longitude
+               FROM mb_points
+               WHERE wsp_ftype LIKE "%ssusm"')
+
+ssu_points <- sqldf(ssu_points_sql)
+  map + geom_point(data=ssu_points, aes(x=corrected_longitude, y=corrected_latitude, size=MGD_2040, fill=MGD_2040, group = NULL), shape=21, alpha=0.8) +
+  geom_polygon(data = s_try.df, aes(x = long, y = lat, group = NULL,fill = Name), alpha = .5) 
 #############################################################################
   #TOP 5
   
@@ -602,10 +668,13 @@ ggsave(plot = specific_fac_map, file = paste0(folder, "state_plan_figures/PS_204
 
 #RBIND INTO 1 TOP5 table 
 top5_points <- rbind(gw_top5_points, sw_top5_points) 
-top5_points$label_names <- c('A','B','C','D','E','A','B','C','D','E')
+top5_points$label_names <- c('A','B','C','D','E','F','G','H','I','J')
+
 
 #top 5 GW
-top5_map <- map + geom_point(data=top5_points, aes(x=corrected_longitude, y=corrected_latitude, size=MGD_2040, fill=MGD_2040, group = NULL, shape= MP_bundle) , size = 4.5) +
+top5_map <- map + 
+  geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5) + 
+  geom_point(data=top5_points, aes(x=corrected_longitude, y=corrected_latitude, size=MGD_2040, fill=MGD_2040, group = NULL, shape= MP_bundle) , size = 7) +
   labs(subtitle = "2040 Demand - Top 5 Users") +
   scale_shape_manual(values=c(22, 24), name = "Source Type", labels = c("Surface Water","Groundwater"),
       guide = guide_legend(
@@ -616,23 +685,47 @@ top5_map <- map + geom_point(data=top5_points, aes(x=corrected_longitude, y=corr
   scale_fill_gradient(
     limits = c(0,10),
     labels = seq(0,10,2),
-    breaks = seq(0,10,2),
-    low="green2", high="orange", space ="Lab", name = "2040 Demand (MGD)",
+    breaks = seq(0,10,2), low = 'snow',
+    high="navy", space ="Lab", name = "2040 Demand (MGD)",
     guide = guide_colourbar(
       direction = "horizontal",
       title.position = "top",
       label.position = "bottom")) +
-  #geom_text(data = top5_points,aes(x=corrected_longitude, y=corrected_latitude, label=facility_name, group = NULL),hjust=0, vjust=0, size = 2) 
-  geom_label_repel(data = top5_points,aes(x=corrected_longitude, y=corrected_latitude, label=label_names, group = NULL,color = MP_bundle),
-                   box.padding   = 0.2, 
-                   point.padding = 0.3,label.padding = .12,
-                   segment.color = 'grey50', size = 3) +
-  guides(color = FALSE)+
+  geom_text_repel(data = top5_points,
+                  aes(x=corrected_longitude, 
+                      y=corrected_latitude, 
+#  label=paste(label_names,': ', MGD_2040,' MGD', sep = " "), 
+                    label = label_names,
+                      group = NULL),
+                  #hjust=1, vjust=1, 
+                  size = 4.4,
+                  nudge_x = -.059,
+                  nudge_y = .021,
+                  color ='snow', segment.colour = NA) +
+  guides(color = FALSE) +
   theme(legend.position = "bottom",
-        legend.box = "horizontal")
-ggsave(plot = top5_map, file = paste0(folder, "state_plan_figures/PS_2040_MinorBasin_top5_map.png"), width=6.5, height=7.5)
+        legend.box = "horizontal") +
+  guides(size = FALSE, fill = FALSE, shape = FALSE)+
+  theme(legend.position = "bottom",
+        legend.box = "horizontal")+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        panel.border = element_blank())
 
-MB_summary
+  # geom_label_repel(data = top5_points,aes(x=corrected_longitude, y=corrected_latitude, label=label_names, group = NULL),
+  #                  box.padding   = 0.2, 
+  #                  point.padding = 0.3,label.padding = .12,
+  #                  segment.color = 'grey50', size = 3,) +
+
+  
+ggsave(plot = top5_map, file = paste0(folder, "state_plan_figures/PS_2040_MinorBasin_top5_map.png"), width=6.5, height=5)
 
 ######################################################################################################
 ######################################################################################################
