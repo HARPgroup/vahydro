@@ -96,10 +96,10 @@ write.csv(mb_mps, paste(folder,"kable_tables/",mb_name,"/all_mps_",mb_abbrev,".c
 
 #---------------------------------------------------------------#
 #select MPs with no minor basin  
-null_minorbasin <- sqldf("SELECT *
-      FROM mp_all
-      WHERE MinorBasin_Name IS NULL")
-write.csv(null_minorbasin, paste(folder,"/null_minorbasin_mp.csv", sep=""))
+# null_minorbasin <- sqldf("SELECT *
+#       FROM mp_all
+#       WHERE MinorBasin_Name IS NULL")
+# write.csv(null_minorbasin, paste(folder,"/null_minorbasin_mp.csv", sep=""))
 
 #---------------------------------------------------------------#
 #All Minor Basins in a single table for comparison (including power generation)
@@ -446,7 +446,30 @@ system_source <- append_totals(system_source)
     #column_spec(4, width = "4em") %>%
     cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_",mb_abbrev,"_kable",file_ext,sep=""))
 ############################################################################
- by_county_source_sql <- paste('SELECT 
+ if (mb_abbrev == 'PS') {
+    hanover_mps <- sqldf("SELECT *
+                           FROM mb_mps
+                           WHERE fips_name like '%hanover'")
+    hanover_mps$fips_code <- '51171'
+    hanover_mps$fips_name <- 'Shenandoah'
+    no_hanover <- sqldf("SELECT *
+                           FROM mb_mps
+                           WHERE fips_name not like '%hanover'")
+    ps_mb_mps <- sqldf("SELECT *
+                     from hanover_mps 
+                    UNION  Select * from no_hanover
+                    ")
+    by_county_source_sql <- paste('SELECT 
+                     fips_code,
+                     fips_name,
+                     source_type,
+                     ',aggregate_select,'
+                     FROM ps_mb_mps
+                     GROUP BY fips_code, MP_bundle
+                     ORDER BY fips_code, MP_bundle DESC', sep="")
+    by_county_source <- sqldf(by_county_source_sql)
+ } else {
+  by_county_source_sql <- paste('SELECT 
                      fips_code,
                      fips_name,
                      source_type,
@@ -454,7 +477,9 @@ system_source <- append_totals(system_source)
                      FROM mb_mps
                      GROUP BY fips_code, MP_bundle
                      ORDER BY fips_code, MP_bundle DESC', sep="")
- by_county_source <- sqldf(by_county_source_sql)
+ by_county_source <- sqldf(by_county_source_sql)   
+    
+ }
 
  write.csv(by_county_source, paste(folder,"kable_tables/",mb_name,"/county_source_type_demand_",mb_abbrev,".csv", sep=""))
  
@@ -576,7 +601,8 @@ top_5_sw <- sqldf(top_5_sw_sql)
 
 top_5_sw <- append_totals(top_5_sw)
 
-sw_header <- cbind(' '='Surface Water', data.frame("facility_name" = '',
+sw_header <- cbind(' '='Surface Water', 
+                   data.frame("facility_name" = '',
                            "system_type" = '',
                            "MGD_2020" = '',
                            "MGD_2030" ='',
@@ -587,13 +613,15 @@ sw_header <- cbind(' '='Surface Water', data.frame("facility_name" = '',
 
 top_5 <- rbind(top_5_gw, sw_header, top_5_sw)
 
+top_5[1] <- c('A','B','C','D','E','Total','Surface Water','F','G','H','I','J','Total')
+
 # #initcaps attempt
 # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
 #                   from top_5_sw
 #                   WHERE facility_name > 0")
 
 # OUTPUT TABLE IN KABLE FORMAT
-kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+kable(top_5[1:6],align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
       caption = paste("Top 5 Users by Source Type in ",mb_name," Minor Basin",sep=""),
       label = paste("top_5_",mb_abbrev,sep=""),
       col.names = c("",
@@ -609,6 +637,27 @@ kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
    #horizontal solid line depending on html or latex output
    row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
+
+
+top_5[2] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
+#presentation table
+# OUTPUT TABLE IN KABLE FORMAT
+kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+      caption = "",
+      label = paste("top_5_",mb_abbrev,sep=""),
+      col.names = c("",
+                    "Organization Name",
+                    "System Type",
+                    kable_col_names[3:6],
+                    "% of Total Groundwater",
+                    "Locality")) %>%
+   kable_styling(latex_options = latexoptions) %>%
+   column_spec(2, width = "10em") %>%
+   pack_rows("Groundwater", 1, 6) %>%
+   pack_rows(" ", 7, 13, label_row_css = FALSE, latex_gap_space = "2em") %>%
+   #horizontal solid line depending on html or latex output
+   row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+   cat(., file = paste(folder,"kable_tables/",mb_name,"/PPT_Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
 
 ############################################################################
  

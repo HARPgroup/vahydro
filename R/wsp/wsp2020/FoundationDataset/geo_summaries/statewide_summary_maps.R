@@ -16,8 +16,8 @@ MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgrou
 RSeg.csv <- read.table(file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/VAHydro_RSegs.csv', sep = ',', header = TRUE)
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
-metric <- "l30_Qout"
-plot_title <- "30 Day Low Flow (Percent Change 2020 to 2040)"
+metric <- "l90_Qout"
+plot_title <- "90 Day Low Flow (Percent Change 2020 to Exempt Users Run)"
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
@@ -115,31 +115,31 @@ length(RSeg_data[,1])
 #colnames(RSeg_data)
 group_0_plus <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE chg_11_to_13 >= 0")  
+                  WHERE chg_11_to_18 >= 0")  
 group_0_plus <- sqldf(group_0_plus)
 group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
 #-----------------------------------------------------------------------------------------------------
 group_neg5_0 <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE chg_11_to_13 < 0 AND chg_11_to_13 >= -5")  
+                  WHERE chg_11_to_18 < 0 AND chg_11_to_18 >= -5")  
 group_neg5_0 <- sqldf(group_neg5_0)
 group_neg5_0 <- st_as_sf(group_neg5_0, wkt = 'geom')
 #-----------------------------------------------------------------------------------------------------
 group_neg10_neg5 <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE chg_11_to_13 < -5 AND chg_11_to_13 >= -10")  
+                  WHERE chg_11_to_18 < -5 AND chg_11_to_18 >= -10")  
 group_neg10_neg5 <- sqldf(group_neg10_neg5)
 group_neg10_neg5 <- st_as_sf(group_neg10_neg5, wkt = 'geom')
 #-----------------------------------------------------------------------------------------------------
 group_neg20_neg10 <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE chg_11_to_13 < -10 AND chg_11_to_13 >= -20")  
+                  WHERE chg_11_to_18 < -10 AND chg_11_to_18 >= -20")  
 group_neg20_neg10 <- sqldf(group_neg20_neg10)
 group_neg20_neg10 <- st_as_sf(group_neg20_neg10, wkt = 'geom')
 #-----------------------------------------------------------------------------------------------------
 group_negInf_neg20 <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE chg_11_to_13 <= -20")  
+                  WHERE chg_11_to_18 <= -20")  
 group_negInf_neg20 <- sqldf(group_negInf_neg20)
 group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
 ######################################################################################################
@@ -152,15 +152,27 @@ RSeg_data <- st_as_sf(RSeg_data, wkt = 'geom')
 ### GENERATE YOUR MAP  ###############################################################################
 ######################################################################################################
 #SET UP BASE MAP
-base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group))+
-  geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
-  geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5)
+base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group)) +
+  geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5) +
+  geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5) + 
+  ggsn::scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'mi',
+           transform = TRUE, model = 'WGS84',st.bottom=FALSE,
+           st.size = 3.5, st.dist = 0.0285,
+           anchor = c(
+             x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])-2.0,
+             y = extent$y[1]+(extent$y[1])*0.001
+           )) +
+  xlab('Longitude (deg W)') + ylab('Latitude (deg N)')+
+  north(bbDF, symbol = 3, scale=0.12,
+        anchor = c(
+          x = extent$x[2],
+          y = extent$y[2]-(0.002*extent$y[2])
+        )) +
+  #no group on this layer, so don't inherit aes
+  geom_sf(data = RSeg_data,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
 
 #colnames(RSeg_data)
 map <- base_map + 
-  #no group on this layer, so don't inherit aes
-  geom_sf(data = RSeg_data,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)+ 
-  
   geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE)+ 
   geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE)+ 
   geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)+ 
@@ -179,20 +191,6 @@ map <- base_map +
   geom_polygon(data = MB.df, color="black", fill = NA,lwd=0.5)+
   ggtitle(plot_title)+
   theme(legend.justification=c(0,1), legend.position=c(0,1)) +
-  xlab('Longitude (deg W)') + ylab('Latitude (deg N)')+
-  north(bbDF, symbol = 3, scale=0.12,
-          anchor = c(
-            x = extent$x[2],
-            y = extent$y[2]-(0.002*extent$y[2])
-          )
-        )+
-  scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'mi', 
-           transform = TRUE, model = 'WGS84',st.bottom=FALSE, 
-           st.size = 3.5, st.dist = 0.0285,
-           anchor = c(
-             x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])-2.0,
-             y = extent$y[1]+(extent$y[1])*0.001
-           ))+
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
@@ -204,7 +202,7 @@ map <- base_map +
         panel.background = element_blank(),
         panel.border = element_blank())
 
-ggsave(plot = map, file = paste0(folder, "state_plan_figures/statewide/chg_11_to_13_",metric,"_map.png"), width=6.5, height=5)
+ggsave(plot = map, file = paste0(folder, "state_plan_figures/statewide/chg_11_to_18_",metric,"_map.png"), width=6.5, height=5)
 
 
 
