@@ -9,10 +9,11 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 337722
+elid = 352004 
 runid = 201
 
-omsite = site <- "http://deq2.bse.vt.edu"
+fname = 'watershed'
+omsite = "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
 syear = min(dat$year)
 eyear = max(dat$year)
@@ -31,6 +32,8 @@ amn <- 10.0 * mean(dat$Qout)
 amnwd <- 1.1 * max(as.numeric(dat$wd_cumulative_mgd))
 
 datdf <- as.data.frame(dat, stringsAsFactors = FALSE)
+datdf$storage_pct <- datdf$impoundment_use_remain_mg * 3.07 / datdf$impoundment_max_usable
+
 modat <- sqldf(
   "select year, month, 
     round(avg(wd_mgd),2) as wd_mgd, 
@@ -39,49 +42,13 @@ modat <- sqldf(
     round(min(impoundment_days_remaining)) as min_days, 
     round(min(impoundment_use_remain_mg)) as use_remain_mg, 
     round(min(impoundment_lake_elev)) as lake_elev, 
-    round(min(storage_pct),2) * 100 as storage_pct
+    round(min(storage_pct),2) * 100 as storage_pct_min, 
+    round(avg(storage_pct),2) * 100 as storage_pct_mean
   from datdf 
   group by year, month
   order by year, month"
 )
 modat
-
-datpd <- window(
-  dat, 
-  start = as.Date("2002-01-01"), 
-  end = as.Date("2002-11-30")
-);
-datpdf <- as.data.frame(datpd)
-modatpd <- sqldf(
-  "select year, month, 
-    round(avg(wd_mgd),2) as wd_mgd, 
-    round(avg(release),2) as release, 
-    round(avg(local_channel_Qout),2) as Qin, 
-    round(avg(Qout),2) as Qout, 
-    round(min(Qout),2) as minout, 
-    round(min(impoundment_days_remaining)) as min_days, 
-    round(min(impoundment_use_remain_mg)) as use_remain_mg, 
-    round(min(impoundment_lake_elev)) as lake_elev, 
-    round(min(storage_pct),2) * 100 as storage_pct
-  from datpdf 
-  group by year, month
-  order by year, month"
-)
-modatpd
-plot(datpd$impoundment_Qin, ylim=c(-0.1,15))
-lines(datpd$Qout,col='blue')
-
-par(mar = c(5,5,2,5))
-plot(
-  datpd$impoundment_lake_elev, 
-  ylim=c(520,540), 
-  ylab="Reservoir Surface Elevation (ft. asl)"
-)
-par(new = TRUE)
-plot(datpd$impoundment_Qin,col='blue', axes=FALSE, xlab="", ylab="")
-lines(datpd$impoundment_Qout,col='green')
-axis(side = 4)
-mtext(side = 4, line = 3, 'Flow (cfs)')
 
 
 mot <- t(as.matrix(modat[,c('wd_cumulative_mgd', 'wd_mgd', 'ps_cumulative_mgd', 'ps_mgd')]) )
@@ -98,7 +65,7 @@ boxplot(as.numeric(dat$Qout) ~ dat$year, ylim=c(0,amn))
 # For some reason we need to convert these numeric fields to char, then to number
 # before sending to zoo since their retrieval is classifying them as factors instead of nums
 # now there may be away to get around that but...
-flows <- zoo(as.numeric(as.character( dat$Qout )), order.by = dat$thisdate);
+flows <- zoo(as.numeric(as.character( dat$Qout )), order.by = index(dat)) 
 
 #flows <- fn_get_rundata(elid, runid);
 if (!is.null(flows)) {
@@ -108,7 +75,7 @@ if (!is.null(flows)) {
   x7q10 = 'na';
   alf = 'na';
 }
-wds <- zoo(as.numeric(as.character( dat$wd_cumulative_mgd )), order.by = dat$thisdate);
+wds <- zoo(as.numeric(as.character( dat$wd_cumulative_mgd )), order.by =index(dat) );
 drainage <- mean(dat$area_sqmi );
 #wds <- fn_get_rundata(elid, runid, "wd_cumulative_mgd");
 if (is.numeric(wds)) {
@@ -156,28 +123,96 @@ newline = data.frame(
   "WD (mean/max)" = paste(as.character(mean_wd),as.character(max_wd),sep="/")
 );
 
-wshed_summary_tbl <- rbind(wshed_summary_tbl, newline);
+#wshed_summary_tbl <- rbind(wshed_summary_tbl, newline);
 dat$wd_cumulative_mgd <- as.numeric(dat$wd_cumulative_mgd);
 dat$month <- as.numeric(dat$month);
+
 # Monthly Mean Withdrawal table
-mo_wds <- group1(wds,'calendar','mean');
-if (length(mostash) == 0) {
-  mostash <- cbind(mo_wds[1,]);
-} else {
-  mostash <- cbind(mostash, mo_wds[1,])
-}
+# this was in a loop in a previous version?  Do we need it?
+# or is this all handled by sqldf now?
+#mo_wds <- group1(wds,'calendar','mean');
+#if (length(mostash) == 0) {
+#  mostash <- cbind(mo_wds[1,]);
+#} else {
+#  mostash <- cbind(mostash, mo_wds[1,])
+#}
+
 # Monthly Median Low-Flow table
 mo_lows <- group1(flows,'calendar','min');
 molo = apply(mo_lows,2,function (x) median(x, na.rm = TRUE))
-if (length(molo_stash) == 0) {
-  molo_stash <- molo;
-} else {
-  molo_stash <- rbind(molo_stash, molo)
-}
+# this was in a loop in a previous version?  Do we need it?
+#if (is.logical(molo_stash)) {
+#  molo_stash <- molo;
+#} else {
+#  molo_stash <- rbind(molo_stash, molo)
+#}
 
-colnames(wshed_summary_tbl) <- c(
-  "Run ID", 
-  "Segment Name (D. Area)", 
-  "7Q10/ALF/Min Month", 
-  "WD (mean/max)" 
+dat$storage_pct <- (
+  dat$impoundment_use_remain_mg * 3.07 
+  / dat$impoundment_max_usable
+)
+plot(dat$impoundment_lake_elev ~ dat$impoundment_Qout)
+
+plot(dat$impoundment_Qin, ylim=c(-0.1,15))
+lines(dat$Qout,col='blue')
+ymn <- 1
+ymx <- 100
+par(mar = c(5,5,2,5))
+plot(
+  dat$storage_pct * 100.0, 
+  ylim=c(ymn,ymx), 
+  ylab="Reservoir Storage (%)"
+)
+par(new = TRUE)
+plot(dat$impoundment_Qin,col='blue', axes=FALSE, xlab="", ylab="")
+lines(dat$impoundment_Qout,col='green')
+lines(dat$wd_mgd * 1.547,col='red')
+axis(side = 4)
+mtext(side = 4, line = 3, 'Flow (cfs)')
+
+# Now zoom in on critical drought period
+datpd <- window(
+  dat, 
+  start = as.Date(paste0(l90_year,"-06-01") ), 
+  end = as.Date(paste0(l90_year, "-10-30") )
 );
+
+datpd$storage_pct <- datpd$impoundment_use_remain_mg * 3.07 / datpd$impoundment_max_usable
+datpdf <- as.data.frame(datpd)
+modatpd <- sqldf(
+  "select year, month, 
+    round(avg(wd_mgd),2) as wd_mgd, 
+    round(avg(release),2) as release, 
+    round(avg(local_channel_Qout),2) as Qin, 
+    round(avg(impoundment_Qout),2) as Qout, 
+    round(avg(Qreach),2) as Qreach, 
+    round(min(Qreach),2) as minQreach, 
+    round(min(Qout),2) as minout, 
+    round(min(impoundment_days_remaining)) as min_days, 
+    round(min(impoundment_use_remain_mg)) as use_remain_mg, 
+    round(min(impoundment_lake_elev)) as lake_elev, 
+    round(min(storage_pct),2) * 100 as storage_pct
+  from datpdf 
+  group by year, month
+  order by year, month"
+)
+modatpd
+plot(datpd$impoundment_lake_elev ~ datpd$impoundment_Qout)
+
+plot(datpd$impoundment_Qin, ylim=c(-0.1,15))
+lines(datpd$Qout,col='blue')
+ymn <- 1
+ymx <- 100
+par(mar = c(5,5,2,5))
+plot(
+  datpd$storage_pct * 100.0, 
+  ylim=c(ymn,ymx), 
+  ylab="Reservoir Storage (%)"
+)
+par(new = TRUE)
+plot(datpd$impoundment_Qin,col='blue', axes=FALSE, xlab="", ylab="")
+lines(datpd$impoundment_Qout,col='green')
+lines(datpd$wd_mgd * 1.547,col='red')
+axis(side = 4)
+mtext(side = 4, line = 3, 'Flow/Demand (cfs)')
+

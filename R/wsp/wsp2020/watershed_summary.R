@@ -9,7 +9,7 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 207885     	
+elid = 207847      	
 runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
@@ -182,5 +182,13 @@ datpd <- window(
 );
 datpdf <- as.data.frame(datpd)
 amnpd <- max(datpd$Qout)
+wmxpd <- max(datpd$wd_mgd)
+plot(dat$Qout, ylim=c(0,amnpd),col='blue') 
+lines(dat$wd_cumulative_mgd * 1.547,col='red')
+
 plot(datpd$Qout, ylim=c(0,amnpd),col='blue') 
-lines(datpd$wd_cumulative_mgd * 1.547,col='red')
+par(new = TRUE)
+plot(datpd$wd_mgd,col='red', axes=FALSE, xlab="", ylab="", ylim=c(0, round(1.2*wmxpd) ))
+axis(side = 4)
+mtext(side = 4, line = 3, 'WD (mgd)')
+
