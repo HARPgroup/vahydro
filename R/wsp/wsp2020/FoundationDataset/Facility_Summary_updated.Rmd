@@ -24,8 +24,6 @@ params:
 
 #elid and Name and riverseg has to changed for the facility we intend to run it for.
 
-
-save_directory <- "E:/Github stuff/VAhydroMycodes/"
 library(ggpubr)
 library(radarchart)
 library(fmsb)
@@ -42,11 +40,13 @@ site<-params$omsite
 cn1 <- params$cn1
 cn2 <- params$cn2
 gage_number<-params$gage_number
-basepath='E:/Github stuff/VAhydroMycodes/';
+basepath='C:/var/www/R'
+source(paste(basepath,'config.local.private',sep='/'))
+source(paste0(cbp6_location,"/code/cbp6_functions.R"))
+source(paste(github_location,"auth.private", sep = "/"));
+source(paste(cbp6_location, "/code/fn_vahydro-1.0.R", sep = ''))
 source(paste(basepath,'config.R',sep='/'))
 
-cbp6_link <- paste0(basepath, "/cbp6/code");
-source(paste0(basepath,"/code/cbp6_functions.R"))
 
 ```
 
@@ -58,7 +58,7 @@ Title<- paste('elid',': ', elid,', ', 'Facility', Name, ': ', runid1, ' vs. ', r
 
 
 ```{r,include=FALSE}
-
+setwd(basepath)
 dat1 <- fn_get_runfile(elid, runid1, site= omsite,  cached = FALSE);
 mode(dat1) <- 'numeric'
 amn1 <- 10.0 * mean(as.numeric(dat1$Qriver))
