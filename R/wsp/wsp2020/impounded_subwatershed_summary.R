@@ -10,7 +10,7 @@ source(paste(basepath,'config.R',sep='/'))
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
 elid = 352004 
-runid = 201
+runid = 14
 
 fname = 'watershed'
 omsite = "http://deq2.bse.vt.edu"
@@ -91,17 +91,17 @@ if (!is.null(flows)) {
   loflows <- group2(flows);
   l90 <- loflows["90 Day Min"];
   ndx = which.min(as.numeric(l90[,"90 Day Min"]));
-  dor_flow = round(loflows[ndx,]$"90 Day Min",1);
-  dor_year = loflows[ndx,]$"year";
+  l90_flow = round(loflows[ndx,]$"90 Day Min",1);
+  l90_year = loflows[ndx,]$"year";
   
   #moflows <- aggregate(flows, function(tt) as.Date(as.yearmon(tt), na.rm = TRUE), mean);
   #ndx = which.min(moflows);
   #x2a <- aggregate(flows, as.Date(as.yearmon(flows), na.rm = TRUE), mean);
-  #dor_flow = round(moflows[ndx],2);
-  #dor_year = index(moflows[ndx]);
+  #l90_flow = round(moflows[ndx],2);
+  #l90_year = index(moflows[ndx]);
 } else {
-  dor_flow = 'na';
-  dor_year = 1776;
+  l90_flow = 'na';
+  l90_year = 1776;
 }
 newline = data.frame( 
   "Run ID" = runid, 
