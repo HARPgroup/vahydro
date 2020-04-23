@@ -1,0 +1,1077 @@
+---
+header-includes: \pagenumbering{gobble}
+
+output: pdf_document 
+pdf_document: default 
+word_document: default
+html_document: default
+classoption: landscape
+params:
+ elid: '299330'                       
+ Name: 'SHENANDOAH (TOWN) WTP:SF Shenandoah River @ Luray'
+ riv.seg: 'PS4_5840_5240'
+ runid1: '11'
+ runid2: '18'
+ omsite: 'http://deq2.bse.vt.edu'
+ cn1: 'VA Hydro: Base'
+ cn2: 'VA Hydro: Exempt Users'
+ gage_number: '00000000'
+---
+
+
+
+```{r,include=FALSE}
+
+#elid and Name and riverseg has to changed for the facility we intend to run it for.
+
+
+save_directory <- "E:/Github stuff/VAhydroMycodes/"
+library(ggpubr)
+library(radarchart)
+library(fmsb)
+library(knitr)
+  #----------------------------------------------
+#Load Libraries
+elid<-params$elid
+Name<-params$Name
+runid1<-params$runid1
+runid2<-params$runid2
+omsite<-params$omsite
+riv.seg<-params$riv.seg
+site<-params$omsite
+cn1 <- params$cn1
+cn2 <- params$cn2
+gage_number<-params$gage_number
+basepath='E:/Github stuff/VAhydroMycodes/';
+source(paste(basepath,'config.R',sep='/'))
+
+cbp6_link <- paste0(basepath, "/cbp6/code");
+source(paste0(basepath,"/code/cbp6_functions.R"))
+
+```
+
+```{r, include=FALSE}
+Title<- paste('elid',': ', elid,', ', 'Facility', Name, ': ', runid1, ' vs. ', runid2, sep = ' ')
+```
+
+`r Title`
+
+
+```{r,include=FALSE}
+
+dat1 <- fn_get_runfile(elid, runid1, site= omsite,  cached = FALSE);
+mode(dat1) <- 'numeric'
+amn1 <- 10.0 * mean(as.numeric(dat1$Qriver))
+dat1 <- window(dat1, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
+datdf1<-as.data.frame(dat1)
+date = (seq(from = as.Date("1984-10-01"), to = as.Date("2014-09-30"), by = 'day'))
+datdf1<-cbind.data.frame(date,datdf1)
+flow1<-as.data.frame(datdf1$Qintake + (datdf1$discharge_mgd - datdf1$wd_mgd))
+coln<-c("date", "flow")
+# data1<- datdf1%>%
+#   select(date,Qriver)
+data1<-cbind.data.frame(date,flow1)
+colnames(data1)<-coln
+Qriver_mettics1 <- metrics_calc_all(data1)
+```
+
+```{r,include=FALSE}
+
+dat2 <- fn_get_runfile(elid, runid2, site= omsite,  cached = FALSE);
+mode(dat2) <- 'numeric'
+amn2 <- 10.0 * mean(as.numeric(dat2$Qriver))
+dat2 <- window(dat2, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
+datdf2<-as.data.frame(dat2)
+datdf2<-cbind.data.frame(date,datdf2)
+# data2<- datdf2%>%
+#   select(date,Qriver)
+flow2<-as.data.frame(datdf2$Qintake + (datdf2$discharge_mgd - datdf2$wd_mgd))
+data2<-cbind.data.frame(date,flow2)
+colnames(data2)<-coln
+Qriver_mettics2 <- metrics_calc_all(data2)
+
+```
+
+```{r include=FALSE}
+percent_difference <- metrics_compare(Qriver_mettics1, Qriver_mettics2, elid)
+
+all_data <- all_data_maker(data1, data2)
+Table1 <- tab1.monthly.low.flows(percent_difference, cn1, cn2)
+Table2 <- tab2.monthly.average.flows(percent_difference, cn1, cn2)
+Table3 <- tab3.monthly.high.flows(percent_difference, cn1, cn2)
+Table4 <- tab4.period.low.flows(percent_difference, cn1, cn2)
+Table5 <- tab5.period.high.flows(percent_difference, cn1, cn2)
+Table6 <- tab6.nonexceedence.flows(percent_difference, cn1, cn2)
+```
+
+```{r include=FALSE}
+
+fig1.hydrograph(all_data, cn1, cn2)
+fig2.zoomed.hydrograph(all_data, cn1, cn2)
+fig3.flow.exceedance(all_data, cn1, cn2)
+fig4.baseflow.hydrograph(all_data, cn1, cn2)
+fig5.combined.hydrograph(all_data)
+OUTPUT_MATRIXsaver <- figs6to8.largest.diff.periods(all_data, cn1, cn2)
+fig9a.residual.plot(all_data, cn1, cn2)
+figs11to13.smallest.diff.periods(all_data, cn1, cn2)
+#fig.gis(riv.seg, site_number = gage_number, site_url = site, cbp6_link, token)
+
+```
+```{r,echo=FALSE,fig.align="center",fig.cap="Qriver"}
+boxplot(as.numeric(dat1$Qriver) ~ dat1$year, ylim=c(0,amn1))
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="Qriver"}
+boxplot(as.numeric(dat2$Qriver) ~ dat2$year, ylim=c(0,amn2))
+```
+
+```{r,include=FALSE}
+
+mud1 <- max(dat1$unmet_demand)
+
+boxplot(as.numeric(dat1$unmet_demand_mgd) ~ dat1$year, ylim=c(0,mud1))
+```
+
+```{r,include=FALSE}
+unmets1 <- group2(dat1$unmet_demand_mgd*1.547)
+
+u901 <- unmets1["90 Day Max"]
+ndx1 = which.max(as.numeric(u901[,"90 Day Max"]));
+u90_mgd1 = round(unmets1[ndx1,]$"90 Day Max",6);
+u90_year1 = unmets1[ndx1,]$"year";
+ddat1 <- window(dat1, start = as.Date(paste0(u90_year1, "-06-01")), end = as.Date(paste0(u90_year1,"-09-15") ));
+dmx1 = max(ddat1$Qintake)
+map1<-as.data.frame(ddat1$Qintake + (ddat1$discharge_mgd - ddat1$wd_mgd) * 1.547)
+colnames(map1)<-"flow"
+map1$date <- rownames(map1)
+map1$base_demand_mgd<-ddat1$base_demand_mgd * 1.547
+map1$unmetdemand<-ddat1$unmet_demand_mgd * 1.547
+```
+
+
+```{r,echo=FALSE,fig.align="center",fig.cap="U90"}
+df <- data.frame(as.Date(map1$date), map1$flow, map1$base_demand_mgd,map1$unmetdemand); 
+
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+options(scipen=5, width = 1400, height = 950)
+myplot<- ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=flow, color="Flow"), size=0.5) +
+  geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+  geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+  theme_bw()+ 
+  theme(legend.position="top", 
+        legend.title=element_blank(),
+        legend.box = "horizontal", 
+        legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"),
+        legend.text=element_text(size=12),
+        axis.text=element_text(size=12, color = "black"),
+        axis.title=element_text(size=14, color="black"),
+        axis.line = element_line(color = "black", 
+                                 size = 0.5, linetype = "solid"),
+        axis.ticks = element_line(color="black"),
+        panel.grid.major=element_line(color = "light grey"), 
+        panel.grid.minor=element_blank())+
+  scale_colour_manual(values=c("purple","black","blue"))+
+  guides(colour = guide_legend(override.aes = list(size=5)))+
+  labs(y = "Flow (cfs)")
+
+ggsave("90daymax11.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+
+```
+
+```{r,include=FALSE}
+l901 <- unmets1["90 Day Min"]
+ndx1 = which.max(as.numeric(l901[,"90 Day Min"]));
+l90_mgd1 = round(unmets1[ndx1,]$"90 Day Min",6);
+l90_year1 = unmets1[ndx1,]$"year";
+ddat1 <- window(dat1, start = as.Date(paste0(l90_year1, "-06-01")), end = as.Date(paste0(l90_year1,"-09-15") ));
+dmx1 = max(ddat1$Qintake)
+map1<-as.data.frame(ddat1$Qintake + (ddat1$discharge_mgd - ddat1$wd_mgd) * 1.547)
+colnames(map1)<-"flow"
+map1$date <- rownames(map1)
+map1$base_demand_mgd<-ddat1$base_demand_mgd * 1.547
+map1$unmetdemand<-ddat1$unmet_demand_mgd * 1.547
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="U90"}
+df <- data.frame(as.Date(map1$date), map1$flow, map1$base_demand_mgd,map1$unmetdemand); 
+
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+options(scipen=5, width = 1400, height = 950)
+myplot<- ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=flow, color="Flow"), size=0.5) +
+  geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+  geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+  theme_bw()+ 
+  theme(legend.position="top", 
+        legend.title=element_blank(),
+        legend.box = "horizontal", 
+        legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"),
+        legend.text=element_text(size=12),
+        axis.text=element_text(size=12, color = "black"),
+        axis.title=element_text(size=14, color="black"),
+        axis.line = element_line(color = "black", 
+                                 size = 0.5, linetype = "solid"),
+        axis.ticks = element_line(color="black"),
+        panel.grid.major=element_line(color = "light grey"), 
+        panel.grid.minor=element_blank())+
+  scale_colour_manual(values=c("purple","black","blue"))+
+  guides(colour = guide_legend(override.aes = list(size=5)))+
+  labs(y = "Flow (cfs)")
+
+ggsave("90daymin11.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+
+```
+
+
+```{r,include=FALSE}
+mud2 <- max(dat2$unmet_demand)
+
+boxplot(as.numeric(dat2$unmet_demand_mgd) ~ dat2$year, ylim=c(0,mud2))
+
+unmets2 <- group2(dat2$unmet_demand_mgd*1.547)
+u902 <- unmets2["90 Day Max"];
+ndx2 = which.max(as.numeric(u902[,"90 Day Max"]));
+u90_mgd2 = round(unmets2[ndx2,]$"90 Day Max",6);
+u90_year2 = unmets2[ndx2,]$"year";
+year<-unmets1[,c(1)]
+all_data <- cbind.data.frame(year,u901, u902)
+colnames(all_data) <- c("year", "run11", "run18")
+
+ddat2 <- window(dat2, start = as.Date(paste0(u90_year2, "-06-01")), end = as.Date(paste0(u90_year2,"-09-15") ));
+
+dmx2 = max(ddat2$Qintake)
+map2<-as.data.frame(ddat2$Qintake + (ddat2$discharge_mgd - ddat2$wd_mgd) * 1.547)
+colnames(map2)<-"flow"
+map2$date <- rownames(map2)
+map2$base_demand_mgd<-ddat2$base_demand_mgd * 1.547
+map2$unmetdemand<-ddat2$unmet_demand_mgd * 1.547
+```
+
+
+
+
+```{r,echo=FALSE,fig.align="center",fig.cap="90 day max"}
+df <- data.frame(as.Date(map2$date), map2$flow, map2$base_demand_mgd,map2$unmetdemand); 
+  
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+  options(scipen=5, width = 1400, height = 950)
+ myplot<- ggplot(df, aes(x=date)) + 
+    geom_line(aes(y=flow, color="Flow"), size=0.5) +
+    geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+    geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+    theme_bw()+ 
+    theme(legend.position="top", 
+          legend.title=element_blank(),
+          legend.box = "horizontal", 
+          legend.background = element_rect(fill="white",
+                                           size=0.5, linetype="solid", 
+                                           colour ="white"),
+          legend.text=element_text(size=12),
+          axis.text=element_text(size=12, color = "black"),
+          axis.title=element_text(size=14, color="black"),
+          axis.line = element_line(color = "black", 
+                                   size = 0.5, linetype = "solid"),
+          axis.ticks = element_line(color="black"),
+          panel.grid.major=element_line(color = "light grey"), 
+          panel.grid.minor=element_blank())+
+    scale_colour_manual(values=c("purple","black","blue"))+
+    guides(colour = guide_legend(override.aes = list(size=5)))+
+    labs(y = "Flow (cfs)")
+  
+  ggsave("90daymax18.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+# plot(ddat2$Qintake + (ddat2$discharge_mgd - ddat2$wd_mgd) * 1.547, ylim=c(0,dmx2),xlab=paste0('Months',' ', u90_year2, ' '),ylab= ("Q (cfs)"),
+#       main=paste0('90 Day Max', ' ',  'Runid', runid2 ,' '),)
+# #lines(ddat2$Qintake, col='purple')
+# #lines(ddat2$demand, col='orange')
+# lines(ddat2$base_demand_mgd * 1.547, col='blue')
+# lines(ddat2$unmet_demand_mgd * 1.547, col='red')
+# legend("topright", legend=c("Q", "base demand ", "unmet_demand"),
+#        col=c("black", "blue", "red"), lty=1:3, cex=0.8)
+```
+
+
+```{r,include=FALSE}
+l902 <- unmets2["90 Day Min"];
+ndx2 = which.max(as.numeric(l902[,"90 Day Min"]));
+l90_mgd2 = round(unmets2[ndx2,]$"90 Day Min",6);
+l90_year2 = unmets2[ndx2,]$"year";
+year<-unmets1[,c(1)]
+all_data <- cbind.data.frame(year,l901, l902)
+colnames(all_data) <- c("year", "run11", "run18")
+
+ddat2 <- window(dat2, start = as.Date(paste0(l90_year2, "-06-01")), end = as.Date(paste0(l90_year2,"-09-15") ));
+
+dmx2 = max(ddat2$Qintake)
+map2<-as.data.frame(ddat2$Qintake + (ddat2$discharge_mgd - ddat2$wd_mgd) * 1.547)
+colnames(map2)<-"flow"
+map2$date <- rownames(map2)
+map2$base_demand_mgd<-ddat2$base_demand_mgd * 1.547
+map2$unmetdemand<-ddat2$unmet_demand_mgd * 1.547
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="90 day min"}
+df <- data.frame(as.Date(map2$date), map2$flow, map2$base_demand_mgd,map2$unmetdemand); 
+  
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+  options(scipen=5, width = 1400, height = 950)
+ myplot<- ggplot(df, aes(x=date)) + 
+    geom_line(aes(y=flow, color="Flow"), size=0.5) +
+    geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+    geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+    theme_bw()+ 
+    theme(legend.position="top", 
+          legend.title=element_blank(),
+          legend.box = "horizontal", 
+          legend.background = element_rect(fill="white",
+                                           size=0.5, linetype="solid", 
+                                           colour ="white"),
+          legend.text=element_text(size=12),
+          axis.text=element_text(size=12, color = "black"),
+          axis.title=element_text(size=14, color="black"),
+          axis.line = element_line(color = "black", 
+                                   size = 0.5, linetype = "solid"),
+          axis.ticks = element_line(color="black"),
+          panel.grid.major=element_line(color = "light grey"), 
+          panel.grid.minor=element_blank())+
+    scale_colour_manual(values=c("purple","black","blue"))+
+    guides(colour = guide_legend(override.aes = list(size=5)))+
+    labs(y = "Flow (cfs)")
+  
+  ggsave("90daymin18.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+
+```
+
+```{r,include=FALSE}
+u301 <- unmets1["30 Day Max"]
+ndx1 = which.max(as.numeric(u301[,"30 Day Max"]));
+u30_mgd1 = round(unmets1[ndx1,]$"30 Day Max",6);
+u30_year1 = unmets1[ndx1,]$"year";
+ddat1 <- window(dat1, start = as.Date(paste0(u30_year1, "-06-01")), end = as.Date(paste0(u30_year1,"-09-15") ));
+dmx1 = max(ddat1$Qintake)
+map1<-as.data.frame(ddat1$Qintake + (ddat1$discharge_mgd - ddat1$wd_mgd) * 1.547)
+colnames(map1)<-"flow"
+map1$date <- rownames(map1)
+map1$base_demand_mgd<-ddat1$base_demand_mgd * 1.547
+map1$unmetdemand<-ddat1$unmet_demand_mgd * 1.547
+```
+
+
+
+```{r,echo=FALSE,fig.align="center",fig.cap="U90"}
+df <- data.frame(as.Date(map1$date), map1$flow, map1$base_demand_mgd,map1$unmetdemand); 
+
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+options(scipen=5, width = 1400, height = 950)
+myplot<- ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=flow, color="Flow"), size=0.5) +
+  geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+  geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+  theme_bw()+ 
+  theme(legend.position="top", 
+        legend.title=element_blank(),
+        legend.box = "horizontal", 
+        legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"),
+        legend.text=element_text(size=12),
+        axis.text=element_text(size=12, color = "black"),
+        axis.title=element_text(size=14, color="black"),
+        axis.line = element_line(color = "black", 
+                                 size = 0.5, linetype = "solid"),
+        axis.ticks = element_line(color="black"),
+        panel.grid.major=element_line(color = "light grey"), 
+        panel.grid.minor=element_blank())+
+  scale_colour_manual(values=c("purple","black","blue"))+
+  guides(colour = guide_legend(override.aes = list(size=5)))+
+  labs(y = "Flow (cfs)")
+
+ggsave("30daymax11.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+```
+
+```{r,include=FALSE}
+u302 <- unmets2["30 Day Max"];
+ndx2 = which.max(as.numeric(u302[,"30 Day Max"]));
+u30_mgd2 = round(unmets2[ndx2,]$"30 Day Max",6);
+u30_year2 = unmets2[ndx2,]$"year";
+year<-unmets1[,c(1)]
+all_data <- cbind.data.frame(year,u301, u302)
+colnames(all_data) <- c("year", "run11", "run18")
+
+ddat2 <- window(dat2, start = as.Date(paste0(u30_year2, "-06-01")), end = as.Date(paste0(u30_year2,"-09-15") ));
+
+dmx2 = max(ddat2$Qintake)
+map2<-as.data.frame(ddat2$Qintake + (ddat2$discharge_mgd - ddat2$wd_mgd) * 1.547)
+colnames(map2)<-"flow"
+map2$date <- rownames(map2)
+map2$base_demand_mgd<-ddat2$base_demand_mgd * 1.547
+map2$unmetdemand<-ddat2$unmet_demand_mgd * 1.547
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="U30"}
+df <- data.frame(as.Date(map2$date), map2$flow, map2$base_demand_mgd,map2$unmetdemand); 
+
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+options(scipen=5, width = 1400, height = 950)
+myplot<- ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=flow, color="Flow"), size=0.5) +
+  geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+  geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+  theme_bw()+ 
+  theme(legend.position="top", 
+        legend.title=element_blank(),
+        legend.box = "horizontal", 
+        legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"),
+        legend.text=element_text(size=12),
+        axis.text=element_text(size=12, color = "black"),
+        axis.title=element_text(size=14, color="black"),
+        axis.line = element_line(color = "black", 
+                                 size = 0.5, linetype = "solid"),
+        axis.ticks = element_line(color="black"),
+        panel.grid.major=element_line(color = "light grey"), 
+        panel.grid.minor=element_blank())+
+  scale_colour_manual(values=c("purple","black","blue"))+
+  guides(colour = guide_legend(override.aes = list(size=5)))+
+  labs(y = "Flow (cfs)")
+
+ggsave("30daymax18.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+```
+
+```{r,include=FALSE}
+u71 <- unmets1["7 Day Max"]
+ndx1 = which.max(as.numeric(u71[,"7 Day Max"]));
+u7_mgd1 = round(unmets1[ndx1,]$"7 Day Max",6);
+u7_year1 = unmets1[ndx1,]$"year";
+ddat1 <- window(dat1, start = as.Date(paste0(u7_year1, "-06-01")), end = as.Date(paste0(u7_year1,"-09-15") ));
+dmx1 = max(ddat1$Qintake)
+map1<-as.data.frame(ddat1$Qintake + (ddat1$discharge_mgd - ddat1$wd_mgd) * 1.547)
+colnames(map1)<-"flow"
+map1$date <- rownames(map1)
+map1$base_demand_mgd<-ddat1$base_demand_mgd * 1.547
+map1$unmetdemand<-ddat1$unmet_demand_mgd * 1.547
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="U30"}
+df <- data.frame(as.Date(map1$date), map1$flow, map1$base_demand_mgd,map1$unmetdemand); 
+
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+options(scipen=5, width = 1400, height = 950)
+myplot<- ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=flow, color="Flow"), size=0.5) +
+  geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+  geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+  theme_bw()+ 
+  theme(legend.position="top", 
+        legend.title=element_blank(),
+        legend.box = "horizontal", 
+        legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"),
+        legend.text=element_text(size=12),
+        axis.text=element_text(size=12, color = "black"),
+        axis.title=element_text(size=14, color="black"),
+        axis.line = element_line(color = "black", 
+                                 size = 0.5, linetype = "solid"),
+        axis.ticks = element_line(color="black"),
+        panel.grid.major=element_line(color = "light grey"), 
+        panel.grid.minor=element_blank())+
+  scale_colour_manual(values=c("purple","black","blue"))+
+  guides(colour = guide_legend(override.aes = list(size=5)))+
+  labs(y = "Flow (cfs)")
+
+ggsave("7daymax11.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+```
+```{r,include=FALSE}
+u72 <- unmets2["7 Day Max"];
+ndx2 = which.max(as.numeric(u72[,"7 Day Max"]));
+u7_mgd2 = round(unmets2[ndx2,]$"7 Day Max",6);
+u7_year2 = unmets2[ndx2,]$"year";
+year<-unmets1[,c(1)]
+all_data <- cbind.data.frame(year,u71, u72)
+colnames(all_data) <- c("year", "run11", "run18")
+
+ddat2 <- window(dat2, start = as.Date(paste0(u7_year2, "-06-01")), end = as.Date(paste0(u7_year2,"-09-15") ));
+
+dmx2 = max(ddat2$Qintake)
+map2<-as.data.frame(ddat2$Qintake + (ddat2$discharge_mgd - ddat2$wd_mgd) * 1.547)
+colnames(map2)<-"flow"
+map2$date <- rownames(map2)
+map2$base_demand_mgd<-ddat2$base_demand_mgd * 1.547
+map2$unmetdemand<-ddat2$unmet_demand_mgd * 1.547
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="U30"}
+df <- data.frame(as.Date(map2$date), map2$flow, map2$base_demand_mgd,map2$unmetdemand); 
+
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+options(scipen=5, width = 1400, height = 950)
+myplot<- ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=flow, color="Flow"), size=0.5) +
+  geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+  geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+  theme_bw()+ 
+  theme(legend.position="top", 
+        legend.title=element_blank(),
+        legend.box = "horizontal", 
+        legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"),
+        legend.text=element_text(size=12),
+        axis.text=element_text(size=12, color = "black"),
+        axis.title=element_text(size=14, color="black"),
+        axis.line = element_line(color = "black", 
+                                 size = 0.5, linetype = "solid"),
+        axis.ticks = element_line(color="black"),
+        panel.grid.major=element_line(color = "light grey"), 
+        panel.grid.minor=element_blank())+
+  scale_colour_manual(values=c("purple","black","blue"))+
+  guides(colour = guide_legend(override.aes = list(size=5)))+
+  labs(y = "Flow (cfs)")
+
+ggsave("7daymax18.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+```
+```{r,include=FALSE}
+u11 <- unmets1["1 Day Max"]
+ndx1 = which.max(as.numeric(u11[,"1 Day Max"]));
+u1_mgd1 = round(unmets1[ndx1,]$"1 Day Max",6);
+u1_year1 = unmets1[ndx1,]$"year";
+ddat1 <- window(dat1, start = as.Date(paste0(u1_year1, "-06-01")), end = as.Date(paste0(u1_year1,"-09-15") ));
+dmx1 = max(ddat1$Qintake)
+map1<-as.data.frame(ddat1$Qintake + (ddat1$discharge_mgd - ddat1$wd_mgd) * 1.547)
+colnames(map1)<-"flow"
+map1$date <- rownames(map1)
+map1$base_demand_mgd<-ddat1$base_demand_mgd * 1.547
+map1$unmetdemand<-ddat1$unmet_demand_mgd * 1.547
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="U30"}
+df <- data.frame(as.Date(map1$date), map1$flow, map1$base_demand_mgd,map1$unmetdemand); 
+
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+options(scipen=5, width = 1400, height = 950)
+myplot<- ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=flow, color="Flow"), size=0.5) +
+  geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+  geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+  theme_bw()+ 
+  theme(legend.position="top", 
+        legend.title=element_blank(),
+        legend.box = "horizontal", 
+        legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"),
+        legend.text=element_text(size=12),
+        axis.text=element_text(size=12, color = "black"),
+        axis.title=element_text(size=14, color="black"),
+        axis.line = element_line(color = "black", 
+                                 size = 0.5, linetype = "solid"),
+        axis.ticks = element_line(color="black"),
+        panel.grid.major=element_line(color = "light grey"), 
+        panel.grid.minor=element_blank())+
+  scale_colour_manual(values=c("purple","black","blue"))+
+  guides(colour = guide_legend(override.aes = list(size=5)))+
+  labs(y = "Flow (cfs)")
+
+ggsave("1daymax11.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+```
+```{r,include=FALSE}
+u12 <- unmets2["1 Day Max"];
+ndx2 = which.max(as.numeric(u12[,"1 Day Max"]));
+u1_mgd2 = round(unmets2[ndx2,]$"1 Day Max",6);
+u1_year2 = unmets2[ndx2,]$"year";
+year<-unmets1[,c(1)]
+all_data <- cbind.data.frame(year,u11, u12)
+colnames(all_data) <- c("year", "run11", "run18")
+
+ddat2 <- window(dat2, start = as.Date(paste0(u1_year2, "-06-01")), end = as.Date(paste0(u1_year2,"-09-15") ));
+
+dmx2 = max(ddat2$Qintake)
+map2<-as.data.frame(ddat2$Qintake + (ddat2$discharge_mgd - ddat2$wd_mgd) * 1.547)
+colnames(map2)<-"flow"
+map2$date <- rownames(map2)
+map2$base_demand_mgd<-ddat2$base_demand_mgd * 1.547
+map2$unmetdemand<-ddat2$unmet_demand_mgd * 1.547
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="U30"}
+df <- data.frame(as.Date(map2$date), map2$flow, map2$base_demand_mgd,map2$unmetdemand); 
+
+colnames(df)<-c("date","flow","base_demand_mgd","unmetdemand")
+options(scipen=5, width = 1400, height = 950)
+myplot<- ggplot(df, aes(x=date)) + 
+  geom_line(aes(y=flow, color="Flow"), size=0.5) +
+  geom_line(aes(y=base_demand_mgd, colour="Base demand"), size=0.5)+
+  geom_line(aes(y=unmetdemand, colour="Unmet demand"), size=0.5)+
+  theme_bw()+ 
+  theme(legend.position="top", 
+        legend.title=element_blank(),
+        legend.box = "horizontal", 
+        legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"),
+        legend.text=element_text(size=12),
+        axis.text=element_text(size=12, color = "black"),
+        axis.title=element_text(size=14, color="black"),
+        axis.line = element_line(color = "black", 
+                                 size = 0.5, linetype = "solid"),
+        axis.ticks = element_line(color="black"),
+        panel.grid.major=element_line(color = "light grey"), 
+        panel.grid.minor=element_blank())+
+  scale_colour_manual(values=c("purple","black","blue"))+
+  guides(colour = guide_legend(override.aes = list(size=5)))+
+  labs(y = "Flow (cfs)")
+
+ggsave("1daymax18.png", plot = myplot, device = 'png', width = 8, height = 5.5, units = 'in')
+
+```
+```{r,echo=FALSE}
+#dat1$unmet_demand<-dat1$base_demand_mgd-dat1$wd_mgd
+dat1$drought_adj<-dat1$adj_demand_mgd-dat1$wd_mgd
+droughts1 <- group1(dat1$unmet_demand_mgd)
+datdf1 <- as.data.frame(dat1)
+modat1 <- sqldf("select month, avg(wd_mgd) as wd_mgd, avg(discharge_mgd) as ps_mgd, avg(unmet_demand_mgd)as unmet_d,avg(drought_adj)as drought_adj from datdf1 group by month")
+mot1 <- t(as.matrix(modat1[,c('wd_mgd', 'ps_mgd','unmet_d','drought_adj')]) )
+mode(mot1) <- 'numeric'
+flowby1<-sqldf("select month,avg(flowby)as flowby from datdf1 group by month")
+
+```
+
+```{r,echo=FALSE}
+# dat2$unmet_demand<-dat2$base_demand_mgd-dat2$wd_mgd
+dat2$drought_adj<-dat2$adj_demand_mgd-dat2$wd_mgd
+droughts2 <- group2(dat2$unmet_demand_mgd)
+datdf2 <- as.data.frame(dat2)
+modat2 <- sqldf("select month, avg(wd_mgd) as wd_mgd, avg(discharge_mgd) as ps_mgd, avg(unmet_demand_mgd)as unmet_d,avg(drought_adj)as drought_adj from datdf2 group by month")
+
+mot2 <- t(as.matrix(modat2[,c('wd_mgd', 'ps_mgd','unmet_d','drought_adj')]) )
+mode(mot2) <- 'numeric'
+flowby2<-sqldf("select month,avg(flowby)as flowby from datdf2 group by month")
+flowby<-merge.data.frame(flowby1,flowby2, by = "month")
+flowby <- t(as.matrix(flowby[,c('flowby.x', 'flowby.y')]) )
+```
+
+```{r,include=FALSE}
+ud_change<-((modat2$unmet_d-modat1$unmet_d))
+ud_change[is.nan(ud_change)]<-0
+ud_level<-factor( ifelse(ud_change > 0, "increase","reduce" ))
+ud<-cbind.data.frame(ud_change,ud_level)
+ud$months<-c(1:12)
+ud$months<-month.abb[ud$months]
+
+ad_change<-((modat2$unmet_d-modat1$unmet_d))
+ad_change[is.nan(ad_change)]<-0
+ad_level<-factor( ifelse(ad_change > 0, "increase","reduce" ))
+ad<-cbind.data.frame(ad_change,ad_level)
+ad$months<-c(1:12)
+ad$months<-month.abb[ad$months]
+```
+
+```{r, include=FALSE}
+unmets1 <- group2(dat1$unmet_demand_mgd*1.547)
+unmets2 <- group2(dat2$unmet_demand_mgd*1.547)
+ume1<-as.data.frame(colMeans(unmets1))
+names(ume1)<-"run 11"
+
+ume2<-as.data.frame(colMeans(unmets2))
+names(ume2)<-"run 18"
+cunmets<-cbind.data.frame(ume1,ume2)
+
+g1<-group1(dat1$unmet_demand_mgd*1.547)
+g2<-group1(dat2$unmet_demand_mgd*1.547)
+
+g1mean<-as.data.frame(colMeans(g1))
+names(g1mean)<-"run 11"
+
+g2mean<-as.data.frame(colMeans(g2))
+names(g2mean)<-"run 18"
+
+cunmets1<-cbind.data.frame(g1mean,g2mean)
+
+# cunmets$PD<-(cunmets$`run 18`-cunmets$`run 11`)/cunmets$`run 11`
+# cunmets<-replace(cunmets,is.na(cunmets),0)
+
+cunmets<-as.data.frame(t(cunmets))
+cunmets$year<-NULL
+cunmets$`Base index`<-NULL
+cunmets$`Zero flow days`<-NULL
+round_df <- function(x, digits) {
+    # round all numeric variables
+    # x: data frame 
+    # digits: number of digits to round
+    numeric_columns <- sapply(x, mode) == 'numeric'
+    x[numeric_columns] <-  round(x[numeric_columns], digits)
+    x
+}
+
+
+maxv = max((cunmets["run 18",]))
+maxv <- (10 * ceiling(maxv/10))+10
+minv = min(as.numeric(cunmets["run 18",]))
+cunmets <- rbind(rep(maxv,5) , rep(minv,5) , cunmets)
+cunmets<-round_df(cunmets, 3)
+
+
+cunmets1<-as.data.frame(t(cunmets1))
+cunmets1$year<-NULL
+
+maxv1 = max((cunmets1["run 18",]))
+maxv1 <- 10 * ceiling(maxv1/10)
+minv1 = min(as.numeric(cunmets1["run 18",]))
+cunmets1 <- rbind(rep(maxv1,10) , rep(minv1,10) , cunmets1)
+cunmets1<-round_df(cunmets1, 3)
+
+
+```
+
+```{r,echo=FALSE,fig.align="center", fig.cap="Unmet Demands"}
+# colors_border=c( rgb(0.2,0.5,0.5,0.9), rgb(0.8,0.2,0.5,0.9) , rgb(0.7,0.5,0.1,0.9) )
+# 
+# radarchart(cunmets  , axistype=1, 
+#     #custom polygon
+#      plwd=2 , plty=1,pcol=colors_border , 
+#     #custom the grid
+#     cglcol="black", cglty=1, axislabcol="black", caxislabels=seq(0,maxv,10), cglwd=1,
+#     #custom labels
+#     vlcex=0.7 
+#     )
+# legend(x=1.5, y=1, legend = rownames(cunmets[-c(1,2),]), bty = "n", pch=20 , col=colors_border,text.col = "black", cex=1.2, pt.cex=3)
+
+```
+
+
+```{r,echo=FALSE,fig.align="center", fig.cap="Unmet Demands"}
+# colors_border=c( rgb(0.2,0.5,0.5,0.9), rgb(0.8,0.2,0.5,0.9) , rgb(0.7,0.5,0.1,0.9) )
+# 
+# radarchart(cunmets1  , axistype=1, 
+#            #custom polygon
+#            plwd=2 , plty=1,pcol=colors_border , 
+#            #custom the grid
+#            cglcol="black", cglty=1, axislabcol="black", caxislabels=seq(0,maxv1,5), cglwd=1,
+#            #custom labels
+#            vlcex=0.8 
+# )
+# legend(x=1.5, y=1, legend = rownames(cunmets1[-c(1,2),]), bty = "n", pch=20 , col=colors_border,text.col = "black", cex=1.2, pt.cex=3)
+```
+
+    
+    
+```{r,echo=FALSE,fig.align="center", fig.cap="Demands"}
+ggbarplot(ud, x = "months", y = "ud_change",
+          fill = "ud_level",           
+          color = "white",            
+          palette = "jco",            
+          sort.by.groups = FALSE,     
+          x.text.angle = 90,         
+          ylab = "Unmet Demend (cfs)",
+          xlab = FALSE,
+          legend.title = "Unmet demands from runid 11 to  runid 18 "
+          )
+```
+
+```{r,echo=FALSE,fig.align="center", fig.cap="Demands"}
+ggbarplot(ad, x = "months", y = "ad_change",
+          fill = "ad_level",           
+          color = "white",            
+          palette = "jco",            
+          sort.by.groups = FALSE,     
+          x.text.angle = 90,         
+          ylab = "Adjusted Drought (cfs)",
+          xlab = FALSE,
+          legend.title = "Increase between runid 11 and runid 18 "
+          )
+
+```
+
+```{r,echo=FALSE,fig.align="center", fig.cap="Demands"}
+barplot(
+  mot1,
+  main=paste0(Name,' ',  'Runid',' ', runid1 ,' '),
+  xlab="Month", 
+  col=c("darkblue","darkgreen","grey","red"),xpd=TRUE,
+  legend = c('Withdrawal', 'Discharge','Unmet Demand','Adjusted Drought'),
+  args.legend=list(bty="n" , x="bottom" , ncol=4, inset = -0.20),beside=TRUE)
+
+```
+
+```{r,echo=FALSE,fig.align="center",fig.cap="Demands"}
+barplot(
+  mot2,
+  main=paste0(Name, ' ',  'Runid', ' ', runid2 ,' '),
+  xlab="Month", 
+  col=c("darkblue","darkgreen","grey","red"),xpd=TRUE,
+   legend = c('Withdrawal', 'Discharge','Unmet Demand','Adjusted Drought'),
+  args.legend=list(bty="n" , x="bottom" , ncol=4, inset = -0.20),beside=TRUE)
+
+```
+
+
+
+```{r,echo=FALSE,fig.align="center",fig.cap="Flowby"}
+barplot(flowby,
+  main=  'Flowby' ,
+  xlab="Month", 
+  col=c("darkblue","darkgreen"),xpd=TRUE,
+  legend = c('Run 11', 'Run 18'),
+  args.legend=list(bty="n" , x="bottom" , ncol=4, inset = -0.20),beside=TRUE)
+
+```
+
+
+```{r,include=FALSE}
+availiable_mgd1<-as.data.frame(quantile(dat1$available_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+Qintake1<-as.data.frame(quantile(dat1$Qintake, c(0.01,0.05, 0.1,0.2,0.3)))
+flowby1<-as.data.frame(quantile(dat1$flowby, c(0.01,0.05, 0.1,0.2,0.3)))
+base_demand_mgd1<-as.data.frame(quantile(dat1$base_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+rejected_demand_pct1<-as.data.frame(quantile(dat1$rejected_demand_pct, c(0.9,0.95, 0.97,0.98,0.99, 1.0), na.rm=TRUE))
+adj_demand_mgd1<-as.data.frame(quantile(dat1$adj_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3),na.rm=TRUE))
+wd_mgd1<-as.data.frame(quantile(dat1$wd_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+unmet_demand1<-as.data.frame(quantile(dat1$unmet_demand, c(0.01,0.05, 0.1,0.2,0.3)))
+drought_adj1<-as.data.frame(quantile(dat1$drought_adj, c(0.01,0.05, 0.1,0.2,0.3)))
+quantile1<-cbind.data.frame(availiable_mgd1,Qintake1,flowby1,base_demand_mgd1,adj_demand_mgd1,wd_mgd1,unmet_demand1,drought_adj1)
+names(quantile1)<-c("availiable_mgd","Qintake","flowby","base_demand_mgd","adj_demand_mgd","wd_mgd","unmet_demand","drought_adj")
+names(rejected_demand_pct1)<-c("Rejected Demand")
+
+```
+
+```{r,include=FALSE}
+availiable_mgd2<-as.data.frame(quantile(dat2$available_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+Qintake2<-as.data.frame(quantile(dat2$Qintake, c(0.01,0.05, 0.1,0.2,0.3),na.rm=TRUE))
+flowby2<-as.data.frame(quantile(dat2$flowby, c(0.01,0.05, 0.1,0.2,0.3)))
+base_demand_mgd2<-as.data.frame(quantile(dat2$base_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+rejected_demand_pct2<-as.data.frame(quantile(dat2$rejected_demand_pct, c(0.9,0.95, 0.97,0.98,0.99, 1.0), na.rm=TRUE))
+adj_demand_mgd2<-as.data.frame(quantile(dat2$adj_demand_mgd, c(0.01,0.05, 0.1,0.2,0.3),na.rm=TRUE))
+wd_mgd2<-as.data.frame(quantile(dat2$wd_mgd, c(0.01,0.05, 0.1,0.2,0.3)))
+unmet_demand2<-as.data.frame(quantile(dat2$unmet_demand, c(0.01,0.05, 0.1,0.2,0.3)))
+drought_adj2<-as.data.frame(quantile(dat2$drought_adj, c(0.01,0.05, 0.1,0.2,0.3)))
+quantile2<-cbind.data.frame(availiable_mgd2,Qintake2,flowby2,base_demand_mgd2,adj_demand_mgd2,wd_mgd2,unmet_demand2,drought_adj2)
+names(quantile2)<-c("availiable_mgd","Qintake","flowby","base_demand_mgd","adj_demand_mgd","wd_mgd","unmet_demand","drought_adj")
+names(rejected_demand_pct2)<-c("Rejected Demand")
+
+```
+
+```{r,include=FALSE}
+onedaymin1<-as.data.frame(quantile(unmets1$`1 Day Min`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+onedaymax1<-as.data.frame(quantile(unmets1$`1 Day Max`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+threedaymin1<-as.data.frame(quantile(unmets1$`3 Day Min`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+threedaymax1<-as.data.frame(quantile(unmets1$`3 Day Max`,c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+sevendaymin1<-as.data.frame(quantile(unmets1$`7 Day Min`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+sevendaymax1<-as.data.frame(quantile(unmets1$`7 Day Max`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+thirtydaymin1<-as.data.frame(quantile(unmets1$`30 Day Min`,c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+thirtydaymax1<-as.data.frame(quantile(unmets1$`30 Day Max`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+nintydaymin1<-as.data.frame(quantile(unmets1$`90 Day Min`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+nintydaymax1<-as.data.frame(quantile(unmets1$`90 Day Max`,c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+zeroflowdays1<-as.data.frame(quantile(unmets1$`Zero flow days`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+quantile3<-cbind.data.frame(onedaymin1,onedaymax1,threedaymin1,threedaymax1,sevendaymin1,sevendaymax1,thirtydaymin1,thirtydaymax1,nintydaymin1,nintydaymax1,zeroflowdays1)
+names(quantile3)<-c("1 Day Min","1 Day Max","3 Day Min","3 Day Max","7 Day Min","7 Day Max","30 Day Min","30 Day Max","90 Day Min","90 Day Max","Zero Flow Days")
+```
+
+```{r,include=FALSE}
+onedaymin2<-as.data.frame(quantile(unmets2$`1 Day Min`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+onedaymax2<-as.data.frame(quantile(unmets2$`1 Day Max`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+threedaymin2<-as.data.frame(quantile(unmets2$`3 Day Min`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+threedaymax2<-as.data.frame(quantile(unmets2$`3 Day Max`,c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+sevendaymin2<-as.data.frame(quantile(unmets2$`7 Day Min`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+sevendaymax2<-as.data.frame(quantile(unmets2$`7 Day Max`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+thirtydaymin2<-as.data.frame(quantile(unmets2$`30 Day Min`,c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+thirtydaymax2<-as.data.frame(quantile(unmets2$`30 Day Max`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+nintydaymin2<-as.data.frame(quantile(unmets2$`90 Day Min`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+nintydaymax2<-as.data.frame(quantile(unmets2$`90 Day Max`,c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+zeroflowdays2<-as.data.frame(quantile(unmets2$`Zero flow days`, c(0.01,0.05, 0.1,0.25,0.5,0.75,0.9,0.95,0.99)))
+quantile4<-cbind.data.frame(onedaymin2,onedaymax2,threedaymin2,threedaymax2,sevendaymin2,sevendaymax2,thirtydaymin2,thirtydaymax2,nintydaymin2,nintydaymax2,zeroflowdays2)
+names(quantile4)<-c("1 Day Min","1 Day Max","3 Day Min","3 Day Max","7 Day Min","7 Day Max","30 Day Min","30 Day Max","90 Day Min","90 Day Max","Zero Flow Days")
+
+
+```
+
+```{r,echo=FALSE}
+library(knitr)
+kable(quantile1, caption =  paste0('Quantiles',runid1,' '))
+```
+
+```{r,echo=FALSE}
+library(knitr)
+kable(quantile2, caption =  paste0('Quantiles', runid2,' '))
+```
+
+```{r,echo=FALSE}
+
+kable(rejected_demand_pct1, caption = paste0('Rejected Demand',runid1, ' '))
+```
+
+```{r,echo=FALSE}
+
+kable(rejected_demand_pct2, caption = paste0('Rejected Demand',runid2, ' '))
+```
+
+```{r,echo=FALSE}
+library(knitr)
+kable(quantile3, caption =  paste0('Unmet Demands Quantiles', runid1,' '))
+```
+
+```{r,echo=FALSE}
+library(knitr)
+kable(quantile4, caption =  paste0('Unmet Demands Quantiles', runid2,' '))
+```
+
+\pagebreak
+## Table 1: Monthly Low Flows
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+Table1
+```
+
+## Table 2: Monthly Average Flows
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+Table2
+```
+
+## Table 3: Monthly High Flows
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+Table3
+```
+
+## Table 4: Period Low Flows
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+Table4
+```
+
+## Table 5: Period High Flows
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+Table5
+```
+
+## Table 6: Non-Exceedance Flows
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+Table6
+```
+
+```{r pagebreak, results='asis', eval=is_latex_output(), echo = FALSE, warning=FALSE, message = FALSE}
+cat('\\pagebreak')
+```
+
+## Fig. 1: Hydrograph
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig1.png")
+```
+
+# Fig. 2: Zoomed Hydrograph
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig2.png")
+```
+
+# Fig. 3: Flow Exceedance
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig3.png")
+```
+
+# Fig. 4: Baseflow
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig4.png")
+```
+
+# Fig. 5: Combined Baseflow
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig5.png")
+```
+
+# Fig. 6: Largest Difference Period
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig6.png")
+```
+
+# Fig. 7: Second Largest Difference Period
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig7.png")
+```
+
+# Fig. 8: Third Largest Difference Period
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig8.png")
+```
+
+# Fig. 9A: Residuals Plot
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig9A.png")
+```
+
+
+# Fig. 11: Smallest Difference Period
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig11.png")
+```
+
+# Fig. 12: Second Smallest Difference Period
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig12.png")
+```
+
+# Fig. 13: Third Smallest Difference Period
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("fig13.png")
+```
+# Fig. 14: Summer Months for year with max 90 day max Run 11
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("90daymax11.png")
+```
+
+# Fig. 15: Summer Months for year with max in 90 day max Run 18
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("90daymax18.png")
+```
+
+# Fig. 16: Summer Months for year with max 30 day max Run 11
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("30daymax11.png")
+```
+
+# Fig. 17: Summer Months for year with max in 30 day max Run 18
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("30daymax18.png")
+```
+
+# Fig. 18: Summer Months for year with max in 7 day max Run 11
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("7daymax11.png")
+```
+
+# Fig. 19: Summer Months for year with max in 7 day max Run 18
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("7daymax18.png")
+```
+# Fig. 18: Summer Months for year with max in 1 day max Run 11
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("1daymax11.png")
+```
+
+# Fig. 19: Summer Months for year with max in 1 day max Run 18
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("1daymax18.png")
+```
+
+# Fig. 20: Summer Months for year with  90 day min Run 11
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("90daymin11.png")
+```
+
+# Fig. 21: Summer Months for year with  90 day min Run 18
+```{r, echo=FALSE, warning=FALSE, message=FALSE, out.width="95%"}
+include_graphics("90daymin18.png")
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results="asis", out.width="150%", fig.align='center'}
+cat("\n\n\\pagebreak\n")
+```
