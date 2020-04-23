@@ -8,8 +8,8 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279191
-elid = 236595
-runid = 18
+elid = 241783
+runid = 13
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
@@ -25,8 +25,8 @@ boxplot(as.numeric(dat$Qin) ~ dat$month, ylim=c(0,amn))
 boxplot(as.numeric(dat$Qout) ~ dat$month, ylim=c(0,amn))
 boxplot(as.numeric(dat$Runit) ~ dat$month, ylim=c(0,10))
 
-ddat <- window(dat, start = as.Date("2002-08-01"), end = as.Date("2002-08-30"));
-
+ddat <- window(dat, start = as.Date("2002-08-01"), end = as.Date("2002-09-30"));
+ddatdf <- as.data.frame(ddat)
 dmx = max(ddat$Qout)
 plot(ddat$Qout, ylim=c(0,dmx))
 lines(ddat$Qin, col='purple')

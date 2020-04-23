@@ -12,7 +12,7 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771
 elid = 207925
-runid = 203
+runid = 15
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
@@ -22,7 +22,11 @@ amn <- 10.0 * mean(as.numeric(dat$Qin))
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 mode(dat) <- 'numeric'
 dat$precip_mgd <- (dat$area * dat$precip_in / 12.0 / 86400.0) * 28157.7; 
-mean(dat$precip_mgd, na.rm=TRUE);
+precip = mean(dat$precip_mgd, na.rm=TRUE);
+et = mean(dat$evap_mgd, na.rm=TRUE)
+netprecip = precip - et
+netprecip
+
 boxplot(as.numeric(dat$Qin) ~ dat$year, ylim=c(0,amn))
 boxplot(as.numeric(dat$Qout) ~ dat$year, ylim=c(0,amn))
 
