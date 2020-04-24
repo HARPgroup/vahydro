@@ -12,6 +12,8 @@ library(wicket) #wkt_centroid()
 ######################################################################################################
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
+
+folder <- "U:/OWS/foundation_datasets/wsp/wsp2020"
 minorbasin <- "NR" #PS, NR, YP
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
@@ -28,8 +30,8 @@ basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
-RSeg.csv <- read.table(file = paste(localpath,'/hydro-tools/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
-river_shp <- readOGR(paste(localpath,'/hydro-tools/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
+RSeg.csv <- read.table(file = paste(folder,'/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
+river_shp <- readOGR(paste(github_location,'/hydro-tools/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
 
 #selects plot title based on chosen metric
 metric_title <- case_when(metric == "l30_Qout" ~ "30 Day Low Flow",
@@ -46,7 +48,6 @@ scenario_b_title <- case_when(runid_b == "runid_12" ~ "2030",
                               runid_b == "runid_16" ~ "p90 Climate Change",
                               runid_b == "runid_18" ~ "Exempt Users")
 
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
 ######################################################################################################
 ######################################################################################################
