@@ -5,9 +5,10 @@ require("sqldf")
 #----------------------------------------------
 # USER INPUTS
 #
-basepath <- 'http://deq2.bse.vt.edu/d.dh/'
 y = 2018
-export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
+basepath <- "/var/www/R/"
+source(paste(basepath,"config.local.private",sep = '/'))
+
 #----------------------------------------------
 
 #pulls directly from map export view BUT locality = NA for all rows
@@ -22,7 +23,7 @@ export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
    localpath <- tempdir()
    filename <- paste("data.all_",y,".csv",sep="")
    destfile <- paste(localpath,filename,sep="\\")
-   download.file(paste(basepath,"ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=hydropower&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B%5D=well&bundle%5B%5D=intake&dh_link_admin_reg_issuer_target_id%5B%5D=65668&dh_link_admin_reg_issuer_target_id%5B%5D=91200&dh_link_admin_reg_issuer_target_id%5B%5D=77498",sep=""), destfile = destfile, method = "libcurl")
+   download.file(paste(base_url,"/ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=hydropower&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B%5D=well&bundle%5B%5D=intake&dh_link_admin_reg_issuer_target_id%5B%5D=65668&dh_link_admin_reg_issuer_target_id%5B%5D=91200&dh_link_admin_reg_issuer_target_id%5B%5D=77498",sep=""), destfile = destfile, method = "libcurl")
    data.all <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
    data_all <- data.all
@@ -30,13 +31,13 @@ export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
    localpath <- tempdir()
    filename <- paste("data.vwp_",y,".csv",sep="")
    destfile <- paste(localpath,filename,sep="\\")
-   download.file(paste(basepath,"ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=hydropower&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B1%5D=intake&dh_link_admin_reg_issuer_target_id%5B0%5D=",vwp,sep=""), destfile = destfile, method = "libcurl")
+   download.file(paste(base_url,"ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=hydropower&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B1%5D=intake&dh_link_admin_reg_issuer_target_id%5B0%5D=",vwp,sep=""), destfile = destfile, method = "libcurl")
    data_vwp <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
  #GWP
    localpath <- tempdir()
    filename <- paste("data.gwp_",y,".csv",sep="")
    destfile <- paste(localpath,filename,sep="\\")
-   download.file(paste(basepath,"ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=hydropower&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B0%5D=well&dh_link_admin_reg_issuer_target_id%5B0%5D=",gwp,sep=""), destfile = destfile, method = "libcurl")
+   download.file(paste(base_url,"ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=hydropower&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B0%5D=well&dh_link_admin_reg_issuer_target_id%5B0%5D=",gwp,sep=""), destfile = destfile, method = "libcurl")
    data_gwp <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
 

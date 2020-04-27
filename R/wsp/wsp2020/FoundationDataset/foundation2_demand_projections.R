@@ -4,11 +4,11 @@ require(httr)
 #----------------------------------------------
 # USER INPUTS
 
-basepath <- 'http://deq2.bse.vt.edu/d.dh/'
+basepath <- "/var/www/R/"
+source(paste(basepath,"config.local.private",sep = '/'))
 y = 2018
 
 export_date <- Sys.Date()
-export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
 #----------------------------------------------
 
 #prevents scientific notation

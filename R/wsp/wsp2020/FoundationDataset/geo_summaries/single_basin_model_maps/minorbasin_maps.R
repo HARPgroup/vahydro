@@ -13,7 +13,6 @@ library(wicket) #wkt_centroid()
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020"
 minorbasin <- "NR" #PS, NR, YP
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
@@ -329,4 +328,4 @@ map <- source_current +
   #geom_polygon(data = county_border.df, aes(x = long, y = lat, group = group),color = 'gray40',fill = 'cornflowerblue', alpha = .1,inherit.aes = FALSE,  show.legend=FALSE) +
   #geom_polygon(data = county_bb.df, aes(x = long, y = lat, group = group),color = 'gray40',fill = 'cornflowerblue', alpha = .1,inherit.aes = FALSE,  show.legend=FALSE)
 
-ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
+ggsave(plot = map, file = paste0(export_path, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)

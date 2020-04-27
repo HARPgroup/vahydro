@@ -9,14 +9,14 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 352004 
-runid = 14
+elid = 352006  
+runid = 201
 
 fname = 'watershed'
 omsite = "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
-syear = min(dat$year)
-eyear = max(dat$year)
+syear = as.numeric(min(dat$year))
+eyear = as.numeric(max(dat$year))
 if (syear < (eyear - 2)) {
   sdate <- as.Date(paste0(syear,"-10-01"))
   edate <- as.Date(paste0(eyear,"-09-30"))
@@ -37,6 +37,8 @@ datdf$storage_pct <- datdf$impoundment_use_remain_mg * 3.07 / datdf$impoundment_
 modat <- sqldf(
   "select year, month, 
     round(avg(wd_mgd),2) as wd_mgd, 
+    round(avg(wd_cumulative_mgd),2) as wd_cumulative_mgd, 
+    round(avg(child_ps_mgd),2) as ps_mgd, 
     round(avg(release),2) as release, 
     round(avg(local_channel_Qout),2) as Qin, 
     round(min(impoundment_days_remaining)) as min_days, 
@@ -51,7 +53,7 @@ modat <- sqldf(
 modat
 
 
-mot <- t(as.matrix(modat[,c('wd_cumulative_mgd', 'wd_mgd', 'ps_cumulative_mgd', 'ps_mgd')]) )
+mot <- t(as.matrix(modat[,c('wd_cumulative_mgd', 'wd_mgd', 'ps_mgd')]) )
 mode(mot) <- 'numeric'
 barplot(mot, main="Monthly Mean Withdrawals",
         xlab="Month", col=c("darkblue","lightblue", "darkgreen", "lightgreen"),

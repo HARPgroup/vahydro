@@ -8,14 +8,16 @@ library(sqldf)
 library(kableExtra)
 library(viridis) #magma
 
+basepath <- "/var/www/R/"
+source(paste(basepath,"config.local.private",sep = '/'))
+
 ######################################################################################################
 ### LOAD LAYERS  #####################################################################################
 ######################################################################################################
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
-RSeg <- read.table(file = 'C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/GIS_LAYERS/VAHydro_RSegs.csv', sep = ',', header = TRUE)
+RSeg <- read.table(file = paste(folder,'/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
 
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 data_rseg_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 ######################################################################################################
 
