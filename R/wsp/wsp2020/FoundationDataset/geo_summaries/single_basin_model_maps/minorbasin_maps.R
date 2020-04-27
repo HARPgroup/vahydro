@@ -13,8 +13,8 @@ library(wicket) #wkt_centroid()
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020"
-minorbasin <- "NR" #PS, NR, YP
+minorbasin <- "PS" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+#MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
 metric <- "l30_Qout"
@@ -30,7 +30,7 @@ basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
-RSeg.csv <- read.table(file = paste(folder,'/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
+RSeg.csv <- read.table(file = paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
 river_shp <- readOGR(paste(github_location,'/hydro-tools/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
 
 #selects plot title based on chosen metric
@@ -152,6 +152,7 @@ MB.df <- merge(MB.df, MB@data, by = 'id')
 
 ######################################################################################################
 ### PROCESS Rivers
+#####################################################################################################
 #summary(river_shp)
 #plot(river_shp)
 proj4string(MBProjected) <- CRS("+proj=longlat +datum=WGS84")
@@ -324,9 +325,6 @@ map <- source_current +
   north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
   base_river +
   base_scale +
-  base_theme #+
-  #geom_polygon(data = county_points.df, aes(x = long, y = lat, fill = Name), alpha = .5,inherit.aes = FALSE,  show.legend=FALSE) +
-  #geom_polygon(data = county_border.df, aes(x = long, y = lat, group = group),color = 'gray40',fill = 'cornflowerblue', alpha = .1,inherit.aes = FALSE,  show.legend=FALSE) +
-  #geom_polygon(data = county_bb.df, aes(x = long, y = lat, group = group),color = 'gray40',fill = 'cornflowerblue', alpha = .1,inherit.aes = FALSE,  show.legend=FALSE)
+  base_theme
 
 ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
