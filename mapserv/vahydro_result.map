@@ -385,6 +385,7 @@ LAYER
     ) 
     where f.ftype = '%ftype%'
       and f.bundle = '%bundle%'
+    order by st_area2d(g.dh_geofield_geom) DESC 
   ) AS foo USING UNIQUE pid using SRID=4326 "
   #FILTER "model_version = '%model_version%' and runid = '%runid%' and propname = '%propname%' "
   TEMPLATE webmap.html
