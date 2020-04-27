@@ -9,8 +9,8 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771, James River - 214907, Rapp above Hazel confluence 257471
 # Rapidan above Rapp - 258123
-elid = 207927       	
-runid = 15
+elid = 303684       	
+runid = 13
 
 omsite = site <- "http://deq2.bse.vt.edu"
 fn_hydro_runfile <- function(
@@ -31,3 +31,4 @@ fn_hydro_runfile <- function(
   return(dat)
 }
 
+dat <- fn_hydro_runfile(elid, runid)
