@@ -266,61 +266,62 @@ ggsave(plot = v3, path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filen
     kable_styling(latex_options = latexoptions) %>%
     cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_",mb_abbrev,"_kable",file_ext,sep=""))
 ############################################################################
- if (mb_abbrev == 'PS') {
-    hanover_mps <- sqldf("SELECT *
-                           FROM mb_mps
-                           WHERE fips_name like '%hanover'")
-    hanover_mps$fips_code <- '51171'
-    hanover_mps$fips_name <- 'Shenandoah'
-    no_hanover <- sqldf("SELECT *
-                           FROM mb_mps
-                           WHERE fips_name not like '%hanover'")
-    ps_mb_mps <- sqldf("SELECT *
-                     from hanover_mps 
-                    UNION  Select * from no_hanover
-                    ")
-    by_county_source_sql <- paste('SELECT 
-                     fips_code,
-                     fips_name,
-                     source_type,
-                     ',aggregate_select,'
-                     FROM ps_mb_mps
-                     GROUP BY fips_code, MP_bundle
-                     ORDER BY fips_code, MP_bundle DESC', sep="")
-    by_county_source <- sqldf(by_county_source_sql)
- } else {
-  by_county_source_sql <- paste('SELECT 
-                     fips_code,
-                     fips_name,
-                     source_type,
-                     ',aggregate_select,'
-                     FROM mb_mps
-                     GROUP BY fips_code, MP_bundle
-                     ORDER BY fips_code, MP_bundle DESC', sep="")
- by_county_source <- sqldf(by_county_source_sql)   
-    
- }
-
- write.csv(by_county_source, paste(folder,"kable_tables/",mb_name,"/county_source_type_demand_",mb_abbrev,".csv", sep=""))
- 
- kable(by_county_source[1:7],  booktabs = T,
-       caption = paste("GW vs. SW Withdrawal Demand by Locality in ",mb_name," Minor Basin",sep=""),
-       label = paste("demand_locality_by_source",mb_abbrev,sep=""),
-       col.names = c("Fips Code",
-                     "Locality",
-                     "Source Type",kable_col_names[3:6])) %>%
-    kable_styling(latex_options = latexoptions) %>%
-    #column_spec(1, width = "5em") %>%
-    #column_spec(2, width = "5em") %>%
-    #column_spec(3, width = "5em") %>%
-    #column_spec(4, width = "4em") %>%
-    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_by_source_",mb_abbrev,"_kable",file_ext,sep=""))
+# ###PS Powerpoint presentation cleanup
+#  if (mb_abbrev == 'PS') {
+#     hanover_mps <- sqldf("SELECT *
+#                            FROM mb_mps
+#                            WHERE fips_name like '%hanover'")
+#     hanover_mps$fips_code <- '51171'
+#     hanover_mps$fips_name <- 'Shenandoah'
+#     no_hanover <- sqldf("SELECT *
+#                            FROM mb_mps
+#                            WHERE fips_name not like '%hanover'")
+#     ps_mb_mps <- sqldf("SELECT *
+#                      from hanover_mps 
+#                     UNION  Select * from no_hanover
+#                     ")
+#     by_county_source_sql <- paste('SELECT 
+#                      fips_code,
+#                      fips_name,
+#                      source_type,
+#                      ',aggregate_select,'
+#                      FROM ps_mb_mps
+#                      GROUP BY fips_code, MP_bundle
+#                      ORDER BY fips_code, MP_bundle DESC', sep="")
+#     by_county_source <- sqldf(by_county_source_sql)
+#  } else {
+#   by_county_source_sql <- paste('SELECT 
+#                      fips_code,
+#                      fips_name,
+#                      source_type,
+#                      ',aggregate_select,'
+#                      FROM mb_mps
+#                      GROUP BY fips_code, MP_bundle
+#                      ORDER BY fips_code, MP_bundle DESC', sep="")
+#  by_county_source <- sqldf(by_county_source_sql)   
+#     
+#  }
+# 
+#  write.csv(by_county_source, paste(folder,"kable_tables/",mb_name,"/county_source_type_demand_",mb_abbrev,".csv", sep=""))
+#  
+#  kable(by_county_source[1:7],  booktabs = T,
+#        caption = paste("GW vs. SW Withdrawal Demand by Locality in ",mb_name," Minor Basin",sep=""),
+#        label = paste("demand_locality_by_source",mb_abbrev,sep=""),
+#        col.names = c("Fips Code",
+#                      "Locality",
+#                      "Source Type",kable_col_names[3:6])) %>%
+#     kable_styling(latex_options = latexoptions) %>%
+#     #column_spec(1, width = "5em") %>%
+#     #column_spec(2, width = "5em") %>%
+#     #column_spec(3, width = "5em") %>%
+#     #column_spec(4, width = "4em") %>%
+#     cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_by_source_",mb_abbrev,"_kable",file_ext,sep=""))
 ############################################################################
 #basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
 #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
 #specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
  
- system_specific_sql <- paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
+ system_specific_facility <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
             (SELECT count(MP_hydroid)
              FROM mb_mps
              WHERE facility_ftype NOT LIKE "wsp%"
@@ -329,13 +330,11 @@ ggsave(plot = v3, path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filen
                        aggregate_select,'
                      FROM mb_mps a
        WHERE facility_ftype NOT LIKE "%power"
-       GROUP BY a.wsp_ftype', sep="")
- 
- system_specific_facility <- sqldf(system_specific_sql)
+       GROUP BY a.wsp_ftype', sep=""))
  
  #----------------------------------------------------------------#
  
- system_source_specific_sql <- paste('SELECT a.system_type, a.source_type,  count(MP_hydroid) as "count_with_county_estimates",
+ system_source_specific_facility <- sqldf(paste('SELECT a.system_type, a.source_type,  count(MP_hydroid) as "count_with_county_estimates",
             (SELECT count(MP_hydroid)
              FROM mb_mps
              WHERE facility_ftype NOT LIKE "wsp%"
@@ -345,9 +344,7 @@ ggsave(plot = v3, path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filen
                        aggregate_select,'
                      FROM mb_mps a
        WHERE facility_ftype NOT LIKE "%power"
-       GROUP BY a.wsp_ftype, a.MP_bundle', sep="")
- 
-system_source_specific_facility <- sqldf(system_source_specific_sql)
+       GROUP BY a.wsp_ftype, a.MP_bundle', sep=""))
 
 system_source_specific_facility <- append_totals(system_source_specific_facility)
 
@@ -365,8 +362,7 @@ if (file_ext == '.tex') {
 kable(system_source_specific_facility,  booktabs = T, escape = F,
       caption = paste("Withdrawal Demand by System and Source Type in ",mb_name," Minor Basin",sep=""),
       label = paste("demand_system_source_specific_count",mb_abbrev,sep=""),
-      col.names = c("",
-                    "System Type",
+      col.names = c("System Type",
                     "Source Type",
                     names(system_source_specific_facility)[4],
                     names(system_source_specific_facility)[5],
@@ -377,10 +373,6 @@ kable(system_source_specific_facility,  booktabs = T, escape = F,
       number = c("includes diffuse demand estimates; ", "shows only demand amounts from specific facilities (no diffuse demand estimates) "),
       number_title = "Count Note: ",
       footnote_as_chunk = T) %>%
-   #column_spec(1, width = "6em") %>%
-   #column_spec(2, width = "5em") %>%
-   #column_spec(3, width = "5em") %>%
-   #column_spec(4, width = "4em") %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_source_with_count_",mb_abbrev,"_kable",file_ext,sep=""))
 
 ############################################################################
