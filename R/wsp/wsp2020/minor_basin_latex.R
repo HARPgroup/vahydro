@@ -2,7 +2,7 @@ library("reshape2")
 library("kableExtra")
 library("sqldf")
 
-#---------------------INITIALIZE GLOBAL VARIABLES------------------------#
+#---------------------INITIALIZE GLOBAL VARIABLES------------------------
 #change minor basin code
 minorbasin <- "PS" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #mb_name <- "Potomac Shenandoah"
@@ -50,7 +50,7 @@ append_totals <- function(table_x, row_name = "Total"){
    return(table_z)
 } 
 
-#--------------------------------LOAD DATA-------------------------------#
+#--------------------------------LOAD DATA-------------------------------
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 #folder <- "C:/Users/maf95834/Documents/vpn_connection_down_folder/" #JM use when vpn can't connect to common drive
@@ -95,14 +95,14 @@ mb_mps <- sqldf(paste('SELECT  MP_hydroid,
 
 write.csv(mb_mps, paste(folder,"kable_tables/",mb_name,"/all_mps_",mb_code,".csv", sep=""))
 
-#---------------------------------------------------------------#
+#------------select MPs with no minor basin---------------------------------------
 # ## select MPs with no minor basin
 # null_minorbasin <- sqldf("SELECT *
 #       FROM mp_all
 #       WHERE MinorBasin_Name IS NULL")
 # write.csv(null_minorbasin, paste(folder,"/null_minorbasin_mp.csv", sep=""))
 
-#---------------------------------------------------------------#
+#--------All Minor Basins including power -----------------------------------------
 #All Minor Basins in a single table for comparison (including power generation)
 mb_totals_yes_power <- sqldf(paste('SELECT 
                      MinorBasin_Name,',
@@ -148,7 +148,7 @@ kable(mb_totals_source_yes_power,  booktabs = T,
    kable_styling(latex_options = latexoptions) %>%
    cat(., file = paste(folder,"kable_tables/mb_totals_source_yes_power_kable",file_ext,sep=""))
 
-#---------------------------------------------------------------#
+#---------All Minor Basins excluding power ----------------------------------------
 #All Minor Basins in a single table for comparison (excluding power generation)
 mb_totals_no_power <- sqldf(paste('SELECT 
                      MinorBasin_Name,',
@@ -195,11 +195,10 @@ kable(mb_totals_source_no_power,  booktabs = T,
    kable_styling(latex_options = latexoptions) %>%
    cat(., file = paste(folder,"kable_tables/mb_totals_source_no_power_kable",file_ext,sep=""))
 #---------------------------------------------------------------#
-#SINGLE BASIN SUMMARIES
 
-############################################################################
- #GRAPH
- #Demand by System & Source Type with count
+###############    SINGLE BASIN SUMMARIES      #####################################
+
+######### GRAPH - Demand by System & Source Type###########################################
 system_source <- sqldf(paste('SELECT 
                      source_type,system_type,',
                             aggregate_select,'
@@ -216,8 +215,7 @@ kable(system_source,  booktabs = T,
       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
    kable_styling(latex_options = latexoptions) %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_source_",mb_abbrev,"_kable",file_ext,sep=""))
-
-#BAR GRAPH V3 - with percent change line and label
+#-------------BAR GRAPH V3 - with percent change line and label-------------------------------
 system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
 system_source[system_source == 0] <- NA
 h <- sqldf("SELECT *,
@@ -247,7 +245,7 @@ v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable, label = pct_cha
    
 ggsave(plot = v3, path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filename = paste("demand_system_source_",mb_abbrev,"_graph.png",sep=""))
 
- ############################################################################
+ #################by_locality###########################################
 
  by_locality <- sqldf(paste('SELECT 
                      fips_code,
@@ -265,7 +263,7 @@ ggsave(plot = v3, path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filen
                      "Locality",kable_col_names[3:6])) %>%
     kable_styling(latex_options = latexoptions) %>%
     cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_",mb_abbrev,"_kable",file_ext,sep=""))
-############################################################################
+########### PS Powerpoint presentation cleanup #######################################
 # ###PS Powerpoint presentation cleanup
 #  if (mb_abbrev == 'PS') {
 #     hanover_mps <- sqldf("SELECT *
@@ -316,7 +314,7 @@ ggsave(plot = v3, path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filen
 #     #column_spec(3, width = "5em") %>%
 #     #column_spec(4, width = "4em") %>%
 #     cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_locality_by_source_",mb_abbrev,"_kable",file_ext,sep=""))
-############################################################################
+############system_specific_facility######################################################
 #basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
 #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
 #specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
@@ -332,7 +330,7 @@ ggsave(plot = v3, path = paste(folder,"kable_tables/",mb_name,"/", sep=""),filen
        WHERE facility_ftype NOT LIKE "%power"
        GROUP BY a.wsp_ftype', sep=""))
  
- #----------------------------------------------------------------#
+ #--------------- system_source_specific_facility ----------------------------------------------
  
  system_source_specific_facility <- sqldf(paste('SELECT a.system_type, a.source_type,  count(MP_hydroid) as "count_with_county_estimates",
             (SELECT count(MP_hydroid)
@@ -375,8 +373,7 @@ kable(system_source_specific_facility,  booktabs = T, escape = F,
       footnote_as_chunk = T) %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/demand_system_source_with_count_",mb_abbrev,"_kable",file_ext,sep=""))
 
-############################################################################
- #Top 5 Users by Source Type
+###################### #Top 5 Users by Source Type ##########################################
 top_5_gw <- sqldf(paste('SELECT facility_name, system_type, 
                ',aggregate_select,',
                round(((sum(mp_2040_mgy)/365.25) /
@@ -443,8 +440,7 @@ kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
    #horizontal solid line depending on html or latex output
    row_spec(7, bold=T, hline_after = F) %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
-
-
+#--------#PS power point presentation table---------------------------------
 #PS power point presentation table
 top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
 
