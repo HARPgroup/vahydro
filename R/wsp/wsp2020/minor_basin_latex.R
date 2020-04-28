@@ -1,8 +1,12 @@
-library("knitr")
+#library("knitr")
 library("kableExtra")
 library("sqldf")
 
 #---------------------INITIALIZE GLOBAL VARIABLES------------------------#
+#change minor basin code
+minorbasin <- "PS" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+#mb_name <- "Potomac Shenandoah"
+
 #switch between file types to save in common drive folder; html or latex
 
 options(knitr.table.format = "html") #"html" for viewing in Rstudio Viewer pane
@@ -12,7 +16,8 @@ file_ext <- ".html" #view in R
 #file_ext <- ".tex" #for easy upload to Overleaf
 
 #Kable Styling
-latexoptions <- c("striped","scale_down")
+latexoptions <- c("scale_down")
+
 kable_col_names <- c("",
                      "System Type",
                      "2020 Demand (MGD)",
@@ -31,46 +36,44 @@ round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct
 totals_func <- function(z) if (is.numeric(z)) sum(z) else ''
 
 #function which allows us to append column sums to table to generate in kable
-append_totals <- function(table_x){
+append_totals <- function(table_x, row_name = "Total"){
    
    #calculate columns sums 
    totals <- as.data.frame(lapply(table_x, totals_func),stringsAsFactors = F)
    #calculate total percentage change
    totals$pct_change <- round(((sum(totals$MGD_2040) - sum(totals$MGD_2020)) / sum(totals$MGD_2020)) * 100,2)
+   #set total row name to given name or default to "Total"
+   totals[1] <- row_name
    #append totals to table
-   table_z <- rbind(cbind(' '=' ', table_x), cbind(' '='Total', totals))
-   
+   #table_z <- rbind(cbind(' '=' ', table_x), cbind(' '='Total', totals)) #adds extra column at front for Totals
+   table_z <- rbind(table_x,totals)
    return(table_z)
 } 
 
 #--------------------------------LOAD DATA-------------------------------#
-
-# Location of source data
-source <- "wsp2020.mp.all.MinorBasins_RSegs.csv"
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+basepath <- "/var/www/R/"
+source(paste(basepath,"config.local.private",sep = '/'))
 #folder <- "C:/Users/maf95834/Documents/vpn_connection_down_folder/" #JM use when vpn can't connect to common drive
 
-data_raw <- read.csv(paste(folder,source,sep=""))
+data_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 mp_all <- data_raw
 
-###############################################################################
-
 ########################### CHOOSE A MINOR BASIN ##############################
-
 #Output all Minor Basin options
 mb_options <- sqldf('SELECT DISTINCT MinorBasin_Name, MinorBasin_Code
       FROM mp_all
       ')
-#change minor basin name
-mb_name <- "Potomac Shenandoah"
 #select minor basin code to know folder to save in
-sql <- paste('SELECT MinorBasin_Code
+mb_code <- sqldf(paste('SELECT MinorBasin_Code
                    From mb_options
-                   WHERE MinorBasin_Name = ','\"',mb_name,'\"','
-              ',sep="")
-mb_abbrev <- sqldf(sql)
-#Select measuring points within HUC of interest, Restict output to columns of interest
-sql <- paste('SELECT  MP_hydroid,
+                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
+              ',sep=""))
+mb_name <- sqldf(paste('SELECT MinorBasin_Name
+                   From mb_options
+                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
+              ',sep=""))
+#Select measuring points within minor basin of interest, Restrict output to columns of interest
+mb_mps <- sqldf(paste('SELECT  MP_hydroid,
                       MP_bundle,
                       source_type,
                       Facility_hydroid, 
@@ -87,15 +90,13 @@ sql <- paste('SELECT  MP_hydroid,
                       corrected_latitude,
                       corrected_longitude
                   FROM mp_all 
-                  WHERE MinorBasin_Name = ','\"',mb_name,'\"','
-                  ORDER BY mp_2020_mgy DESC', sep="")
+                  WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
+                  ORDER BY mp_2020_mgy DESC', sep=""))
 
-mb_mps <- sqldf(sql)
-write.csv(mb_mps, paste(folder,"kable_tables/",mb_name,"/all_mps_",mb_abbrev,".csv", sep=""))
-
+write.csv(mb_mps, paste(folder,"kable_tables/",mb_name,"/all_mps_",mb_code,".csv", sep=""))
 
 #---------------------------------------------------------------#
-#select MPs with no minor basin  
+# ## select MPs with no minor basin
 # null_minorbasin <- sqldf("SELECT *
 #       FROM mp_all
 #       WHERE MinorBasin_Name IS NULL")
@@ -117,6 +118,8 @@ kable(mb_totals_yes_power,  booktabs = T,
       col.names = c("Minor Basin",kable_col_names[3:6])) %>%
    kable_styling(latex_options = latexoptions) %>%
    cat(., file = paste(folder,"kable_tables/mb_totals_yes_power_kable",file_ext,sep=""))
+
+
 
 mb_totals_system_sql <- paste('SELECT  
                      MinorBasin_Name,system_type,',
@@ -660,205 +663,3 @@ kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
    cat(., file = paste(folder,"kable_tables/",mb_name,"/PPT_Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
 
 ############################################################################
- 
-# ############################################################################
-# #Locality Plan Updates 
-# summary(mp_all) 
-# summary_total <- sqldf("SELECT 
-# sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
-#                        FROM mp_all")
-# 
-# #----------------------------------------------------------------#
-# 
-# updated_by_user <- sqldf("SELECT *
-#                          FROM mp_all
-#                          WHERE fips_code IN (51015, 51033, 51041, 51047, 51069, 51099, 51103, 51113, 51133, 51159, 51165, 51193, 51660, 51760)")
-# sqldf("SELECT  
-# sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
-#       FROM updated_by_user")
-# 
-# user_type <- sqldf("SELECT 
-# wsp_ftype, 
-# sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# round(sum(mp_2020_mgy)/2504894,2) as '2020 % of Total', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD', 
-# round(sum(mp_2040_mgy)/2943110,2) as '2040 % of Total'
-#       FROM updated_by_user
-#       group by wsp_ftype")
-# 
-# kable(user_type, booktabs = T,
-#       caption = "Updated by Locality",
-#       label = "Updated by Locality",
-#       col.names = c("System Type",
-#                     "2020 Demand (MGY)",
-#                     "2020 Demand (MGD)",
-#                     "2020 % of Total",
-#                     "2040 Demand (MGY)",
-#                     "2040 Demand (MGD)",
-#                     "2040 % of Total")) %>%
-#    kable_styling(latex_options = c("striped", "full_width"))
-# 
-# #----------------------------------------------------------------#
-# 
-# updated_by_DEQ_staff <- sqldf("SELECT *
-#                          FROM mp_all
-#                          WHERE fips_code IN (51003, 51029, 51036, 51041, 51049, 51061, 51069, 51075, 51085, 51087, 51109, 51113, 51127, 51137, 51145, 51159, 51165, 51171, 51540)")
-# 
-# sqldf("SELECT  
-# sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
-#       FROM updated_by_DEQ_staff")
-# 
-# staff_type <- sqldf("SELECT 
-# wsp_ftype, sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# round(sum(mp_2020_mgy)/2504894,2) as '2020 % of Total', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD', 
-# round(sum(mp_2040_mgy)/2943110,2) as '2040 % of Total'
-#       FROM updated_by_DEQ_staff
-#       group by wsp_ftype")
-# 
-# kable(staff_type,  booktabs = T,
-#       caption = "Updated by DEQ Staff",
-#       label = "Updated by DEQ Staff",
-#       col.names = c("System Type",
-#                     "2020 Demand (MGY)",
-#                     "2020 Demand (MGD)",
-#                     "2020 % of Total",
-#                     "2040 Demand (MGY)",
-#                     "2040 Demand (MGD)",
-#                     "2040 % of Total")) %>%
-#    kable_styling(latex_options = c("striped", "full_width"))
-# 
-# #----------------------------------------------------------------#
-# 
-# updated_by_both <- sqldf("SELECT *
-#                          FROM mp_all
-#                          WHERE fips_code IN (51003,
-# 51015,
-# 51029,
-# 51033,
-# 51036,
-# 51041,
-# 51047,
-# 51049,
-# 51061,
-# 51069,
-# 51075,
-# 51085,
-# 51087,
-# 51099,
-# 51103,
-# 51109,
-# 51113,
-# 51127,
-# 51133,
-# 51137,
-# 51159,
-# 51165,
-# 51171,
-# 51193,
-# 51540,
-# 51660,
-# 51760)")
-# 
-# sqldf("SELECT 
-# sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
-#       FROM updated_by_both")
-# 
-# both <- sqldf("SELECT 
-# wsp_ftype, 
-# sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# round(sum(mp_2020_mgy)/2504894,2) as '2020 % of Total', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD', 
-# round(sum(mp_2040_mgy)/2943110,2) as '2040 % of Total'
-#       FROM updated_by_both
-#       group by wsp_ftype")
-# 
-# kable(both,  booktabs = T,
-#       caption = "Updated by Locality & DEQ Staff",
-#       label = "Updated by Locality & DEQ Staff",
-#       col.names = c("System Type",
-#                     "2020 Demand (MGY)",
-#                     "2020 Demand (MGD)",
-#                     "2020 % of Total",
-#                     "2040 Demand (MGY)",
-#                     "2040 Demand (MGD)",
-#                     "2040 % of Total")) %>%
-#    kable_styling(latex_options = c("striped", "full_width"))
-# 
-# #----------------------------------------------------------------#
-# not_updated_by_both <- sqldf("SELECT *
-#                          FROM mp_all
-#                          WHERE fips_code NOT IN (51003,
-# 51015,
-# 51029,
-# 51033,
-# 51036,
-# 51041,
-# 51047,
-# 51049,
-# 51061,
-# 51069,
-# 51075,
-# 51085,
-# 51087,
-# 51099,
-# 51103,
-# 51109,
-# 51113,
-# 51127,
-# 51133,
-# 51137,
-# 51159,
-# 51165,
-# 51171,
-# 51193,
-# 51540,
-# 51660,
-# 51760)")
-# 
-# sqldf("SELECT  
-# sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD'
-#       FROM not_updated_by_both")
-# 
-# not_updated <- sqldf("SELECT 
-# wsp_ftype, sum(mp_2020_mgy) as 'Total 2020 MGY', 
-# sum(mp_2020_mgy)/365.25 as 'Total 2020 MGD', 
-# round(sum(mp_2020_mgy)/2504894,2) as '2020 % of Total', 
-# sum(mp_2040_mgy) as 'Total 2040 MGY',  
-# sum(mp_2040_mgy)/365.25 as 'Total 2040 MGD', 
-# round(sum(mp_2040_mgy)/2943110,2) as '2040 % of Total'
-#       FROM not_updated_by_both
-#       group by wsp_ftype")
-# 
-# kable(not_updated,  booktabs = T,
-#       caption = "Not Updated",
-#       label = "Not Updated",
-#       col.names = c("System Type",
-#                     "2020 Demand (MGY)",
-#                     "2020 Demand (MGD)",
-#                     "2020 % of Total",
-#                     "2040 Demand (MGY)",
-#                     "2040 Demand (MGD)",
-#                     "2040 % of Total")) %>%
-#    kable_styling(latex_options = c("striped", "full_width"))
