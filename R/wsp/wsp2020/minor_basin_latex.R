@@ -445,24 +445,24 @@ kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
    cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
 
 
-top_5[2] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
-#presentation table
+#PS power point presentation table
+top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
+
 # OUTPUT TABLE IN KABLE FORMAT
-kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
       caption = "",
       label = paste("top_5_",mb_abbrev,sep=""),
-      col.names = c("",
-                    "Organization Name",
+      col.names = c("Organization Name",
                     "System Type",
                     kable_col_names[3:6],
                     "% of Total Groundwater",
                     "Locality")) %>%
-   kable_styling(latex_options = latexoptions) %>%
-   column_spec(2, width = "10em") %>%
+   kable_styling(latex_options = latexoptions)%>%
+   column_spec(1, width = "10em") %>%
    pack_rows("Groundwater", 1, 6) %>%
-   pack_rows(" ", 7, 13, label_row_css = FALSE, latex_gap_space = "2em") %>%
+   pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
    #horizontal solid line depending on html or latex output
-   row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+   row_spec(7, bold=T, hline_after = F) %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/PPT_Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
 
 ############################################################################
