@@ -13,7 +13,7 @@ library(wicket) #wkt_centroid()
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
-minorbasin <- "PS" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "RL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
@@ -31,7 +31,7 @@ source(paste(basepath,"config.local.private",sep = '/'))
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
 RSeg.csv <- read.table(file = paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
-river_shp <- readOGR(paste(github_location,'/hydro-tools/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
+river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
 
 #selects plot title based on chosen metric
 metric_title <- case_when(metric == "l30_Qout" ~ "30 Day Low Flow",
@@ -90,35 +90,34 @@ bbDF <- merge(bbPoints, bbProjected@data, by = "id")
 STATES$id <- as.numeric(rownames(STATES))
 state.list <- list()
 
-#i <- 1
-for (i in 1:length(STATES$state)) {
-  print(paste("i = ",i,sep=''))
-  print(as.character(STATES$state[i]))
-  state_geom <- readWKT(STATES$geom[i])
-  #print(state_geom)
-  state_geom_clip <- gIntersection(bb, state_geom)
-  
-  if (is.null(state_geom_clip) == TRUE) {
-    print("STATE OUT OF MINOR BASIN EXTENT - SKIPPING") 
-    next
+  #i <- 1
+  for (i in 1:length(STATES$state)) {
+    print(paste("i = ",i,sep=''))
+    print(as.character(STATES$state[i]))
+    state_geom <- readWKT(STATES$geom[i])
+    #print(state_geom)
+    state_geom_clip <- gIntersection(bb, state_geom)
+    
+    if (is.null(state_geom_clip) == TRUE) {
+      print("STATE OUT OF MINOR BASIN EXTENT - SKIPPING") 
+      next
     }
+    
+    stateProjected <- SpatialPolygonsDataFrame(state_geom_clip, data.frame('id'), match.ID = TRUE)
+    stateProjected@data$id <- as.character(i)
+    state.list[[i]] <- stateProjected
+  }
   
-  stateProjected <- SpatialPolygonsDataFrame(state_geom_clip, data.frame('id'), match.ID = TRUE)
-  stateProjected@data$id <- as.character(i)
-  state.list[[i]] <- stateProjected
-}
-
-length(state.list)
-#REMOVE THOSE STATES THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
-state.list <- state.list[which(!sapply(state.list, is.null))]
-length(state.list)
-
-state <- do.call('rbind', state.list)
-state@data <- merge(state@data, STATES, by = 'id')
-state@data <- state@data[,-c(2:3)]
-state.df <- fortify(state, region = 'id')
-state.df <- merge(state.df, state@data, by = 'id')
-
+  length(state.list)
+  #REMOVE THOSE STATES THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
+  state.list <- state.list[which(!sapply(state.list, is.null))]
+  length(state.list)
+  
+  state <- do.call('rbind', state.list)
+  state@data <- merge(state@data, STATES, by = 'id')
+  state@data <- state@data[,-c(2:3)]
+  state.df <- fortify(state, region = 'id')
+  state.df <- merge(state.df, state@data, by = 'id') 
 ######################################################################################################
 ### PROCESS Minor Basin LAYER  #######################################################################
 ######################################################################################################
@@ -190,7 +189,8 @@ length(RSeg_data[,1])
 #SET UP BASE MAP
 base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group))+
   geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
-  geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5) 
+  geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5) +
+  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)
 
 base_river <- geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
@@ -328,3 +328,15 @@ map <- source_current +
   base_theme
 
 ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
+
+
+
+
+#------------------------------------------------------
+base_map +
+  ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+  #xlab('Longitude (deg W)') + ylab('Latitude (deg N)') +
+  north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+  base_river +
+  base_scale +
+  base_theme
