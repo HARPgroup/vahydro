@@ -377,7 +377,7 @@ kable(system_source_specific_facility,  booktabs = T, escape = F,
 
 ############################################################################
  #Top 5 Users by Source Type
-top_5_gw_sql <- paste('SELECT facility_name, system_type, 
+top_5_gw <- sqldf(paste('SELECT facility_name, system_type, 
                ',aggregate_select,',
                round(((sum(mp_2040_mgy)/365.25) /
                (SELECT (sum(mp_2040_mgy)/365.25)
@@ -389,13 +389,11 @@ top_5_gw_sql <- paste('SELECT facility_name, system_type,
                AND wsp_ftype NOT LIKE "%ssusm"
                GROUP BY Facility_hydroid
                ORDER BY MGD_2040 DESC
-               LIMIT 5', sep="")
+               LIMIT 5', sep=""))
 
-top_5_gw <- sqldf(top_5_gw_sql)
+top_5_gw <- append_totals(top_5_gw, "Total GW")
 
-top_5_gw <- append_totals(top_5_gw)
-
-top_5_sw_sql <- paste('SELECT facility_name, system_type, 
+top_5_sw <- sqldf(paste('SELECT facility_name, system_type, 
                ',aggregate_select,',
                round(((sum(mp_2040_mgy)/365.25) /
                (SELECT (sum(mp_2040_mgy)/365.25)
@@ -407,25 +405,22 @@ top_5_sw_sql <- paste('SELECT facility_name, system_type,
                AND wsp_ftype NOT LIKE "%ssusm"
                GROUP BY Facility_hydroid
                ORDER BY MGD_2040 DESC
-               LIMIT 5', sep="")
+               LIMIT 5', sep=""))
 
-top_5_sw <- sqldf(top_5_sw_sql)
+top_5_sw <- append_totals(top_5_sw, "Total SW")
 
-top_5_sw <- append_totals(top_5_sw)
-
-sw_header <- cbind(' '='Surface Water', 
-                   data.frame("facility_name" = '',
+sw_header <- data.frame("facility_name" = '',
                            "system_type" = '',
                            "MGD_2020" = '',
                            "MGD_2030" ='',
                            "MGD_2040" ='',
                            "pct_change" = '',
                            "pct_total_use" = '% of Total Surface Water',
-                           "fips_name" = ''))
+                           "fips_name" = '')
 
 top_5 <- rbind(top_5_gw, sw_header, top_5_sw)
 
-top_5[1] <- c('A','B','C','D','E','Total','Surface Water','F','G','H','I','J','Total')
+#top_5[1] <- c('A','B','C','D','E','Total','Surface Water','F','G','H','I','J','Total')
 
 # #initcaps attempt
 # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
@@ -433,21 +428,20 @@ top_5[1] <- c('A','B','C','D','E','Total','Surface Water','F','G','H','I','J','T
 #                   WHERE facility_name > 0")
 
 # OUTPUT TABLE IN KABLE FORMAT
-kable(top_5[1:6],align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
       caption = paste("Top 5 Users by Source Type in ",mb_name," Minor Basin",sep=""),
       label = paste("top_5_",mb_abbrev,sep=""),
-      col.names = c("",
-                    "Facility Name",
+      col.names = c("Facility Name",
                     "System Type",
                     kable_col_names[3:6],
                     "% of Total Groundwater",
                     "Locality")) %>%
    kable_styling(latex_options = latexoptions) %>%
-   column_spec(2, width = "10em") %>%
+   column_spec(1, width = "10em") %>%
    pack_rows("Groundwater", 1, 6) %>%
-   pack_rows(" ", 7, 13, label_row_css = FALSE, latex_gap_space = "2em") %>%
+   pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
    #horizontal solid line depending on html or latex output
-   row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+   row_spec(7, bold=T, hline_after = F) %>%
    cat(., file = paste(folder,"kable_tables/",mb_name,"/Top_5_",mb_abbrev,"_kable",file_ext,sep=""))
 
 
