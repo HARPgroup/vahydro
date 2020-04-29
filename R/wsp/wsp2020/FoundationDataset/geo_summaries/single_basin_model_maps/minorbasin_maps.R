@@ -362,7 +362,7 @@ ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runi
 
 #----------- RUN MAPS IN BULK --------------------------
 
-minorbasin <- "RU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 
 #runids
 runid_a <- "runid_11"
@@ -372,12 +372,12 @@ m <- c("7q10", "l30_Qout", "l90_Qout")
 x[1]
 r <- c("runid_13","runid_15","runid_16","runid_18") 
 
-tic("Total:")
+tic("Total")
 for (i in m) {
-  tic(paste("Metric:",i))
+  tic(paste("Metric - ",i))
   print(paste("Metric:",i,"has started"))
   for (z in r) {
-    tic(paste("Scenario:",z))
+    tic(paste("Scenario - ",z))
     print(paste("Scenario:",z,"has started"))
     rseg_map_function(minorbasin,i,runid_a,z) 
     print(paste("Scenario:",z,"has been completed"))
