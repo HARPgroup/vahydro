@@ -214,7 +214,7 @@ base_scale <-  ggsn::scalebar(data = bbDF, location = 'bottomright', dist = 25, 
                               ))
   
 base_theme <- theme(legend.justification=c(0,1), 
-                    legend.position=c(0,1),
+                    legend.position="none",
                     axis.title.x=element_blank(),
                     axis.text.x=element_blank(),
                     axis.ticks.x=element_blank(),
@@ -361,7 +361,7 @@ ggsave(plot = q, file = paste0(folder, "state_plan_figures/single_basin/",runid_
 
 
 
-minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "RU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
