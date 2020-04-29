@@ -10,6 +10,7 @@ library(viridis) #magma
 library(wicket) #wkt_centroid() 
 library(cowplot) #plot static legend
 library(magick) #plot static legend
+library(tictoc) #time elapsed
  ######################################################################################################
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
@@ -340,44 +341,50 @@ map <- ggdraw(source_current +
   base_theme) +
   draw_image(paste(folder, 'state_plan_figures/single_basin/Legend_nodata.png',sep=''),height = .32, x = -.25, y = .551) 
 
-ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map2.png",sep = ""), width=6.5, height=5)
+ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
 }
 
 #------------------------------------------------------
-##empty basemap for plotting points with no rseg background
-q <- ggdraw(base_map +
-  ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
-  #xlab('Longitude (deg W)') + ylab('Latitude (deg N)') +
-  north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-  base_river +
-  base_scale +
-  base_theme +
-  labs(subtitle = mb_name$name)) +
-  draw_image(paste(folder, 'state_plan_figures/single_basin/Legend_nodata.png',sep=''),height = .33, x = -.352, y = .55) 
-
-ggsave(plot = q, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map_legend_test.png",sep = ""), width=6.5, height=5)
-
-
+# ##empty basemap for plotting points with no rseg background
+# q <- ggdraw(base_map +
+#   ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+#   #xlab('Longitude (deg W)') + ylab('Latitude (deg N)') +
+#   north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+#   base_river +
+#   base_scale +
+#   base_theme +
+#   labs(subtitle = mb_name$name)) +
+#   draw_image(paste(folder, 'state_plan_figures/single_basin/Legend_nodata.png',sep=''),height = .33, x = -.352, y = .55) 
+# 
+# ggsave(plot = q, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map_legend_test.png",sep = ""), width=6.5, height=5)
 
 
+
+#----------- RUN MAPS IN BULK --------------------------
 
 minorbasin <- "RU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
-#MinorBasins.csv[,2:3]
-
-#Metric options include "7q10", "l30_Qout", "l90_Qout"
-metric <- "7q10"
 
 #runids
 runid_a <- "runid_11"
 runid_b <- "runid_18"
-rseg_map_function(minorbasin,metric,runid_a,runid_b)
-
 
 m <- c("7q10", "l30_Qout", "l90_Qout")
 x[1]
+r <- c("runid_13","runid_15","runid_16","runid_18") 
 
+tic("Total:")
 for (i in m) {
+  tic(paste("Metric:",i))
   print(paste("Metric:",i,"has started"))
-  rseg_map_function(minorbasin,i,runid_a,runid_b)
+  for (z in r) {
+    tic(paste("Scenario:",z))
+    print(paste("Scenario:",z,"has started"))
+    rseg_map_function(minorbasin,i,runid_a,z) 
+    print(paste("Scenario:",z,"has been completed"))
+    toc()
+  }
   print(paste("Metric:",i,"has been completed"))
+  toc()
 }
+toc()
+
