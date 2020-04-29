@@ -7,9 +7,10 @@ library(sf) # needed for st_read()
 library(sqldf)
 library(kableExtra)
 library(viridis) #magma
-library(wicket) #wkt_centroid()
-
-######################################################################################################
+library(wicket) #wkt_centroid() 
+library(cowplot) #plot static legend
+library(magick) #plot static legend
+ ######################################################################################################
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
@@ -32,6 +33,12 @@ STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/ma
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
 RSeg.csv <- read.table(file = paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
 river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
+
+rseg_map_function <- function(MinorBasin_Code,metric,runid_a,runid_b,mp_points = FALSE){
+#selects minor basin name
+mb_name <-sqldf(paste('SELECT name
+              FROM "MinorBasins.csv" 
+              WHERE code == "',minorbasin,'"',sep=""))
 
 #selects plot title based on chosen metric
 metric_title <- case_when(metric == "l30_Qout" ~ "30 Day Low Flow",
@@ -166,11 +173,15 @@ river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = T
 ######################################################################################################
 # JOIN DATA BY RIVER SEGMENT TO RIVER SEGMENT GEOMETRY LAYER
 RSeg_data <- paste('SELECT *,
-                  round(((b.',runid_b,' - b.',runid_a,') / b.',runid_a,') * 100,2) AS pct_chg
+                  case
+                  when b.',runid_a,' = 0
+                  then 0
+                  else round(((b.',runid_b,' - b.',runid_a,') / b.',runid_a,') * 100,2)
+                  end AS pct_chg
                   FROM "RSeg.csv" AS a
                   LEFT OUTER JOIN RSeg_summary AS b
                   ON (a.hydrocode = b.hydrocode)
-                  WHERE a.hydrocode LIKE "%',minorbasin,'%"',sep = '')  
+                  WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '')  
 
 
 RSeg_data <- sqldf(RSeg_data)
@@ -318,25 +329,55 @@ scale_fill_manual(values=color_values,
   
   guides(fill = guide_legend(reverse=TRUE))
 
-map <- source_current +
+map <- ggdraw(source_current +
   geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5) +
   ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+  labs(subtitle = mb_name$name) +
   #xlab('Longitude (deg W)') + ylab('Latitude (deg N)') +
   north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
   base_river +
   base_scale +
-  base_theme
+  base_theme) +
+  draw_image(paste(folder, 'state_plan_figures/single_basin/Legend_nodata.png',sep=''),height = .32, x = -.25, y = .551) 
 
-ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
-
-
-
+ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map2.png",sep = ""), width=6.5, height=5)
+}
 
 #------------------------------------------------------
-base_map +
+##empty basemap for plotting points with no rseg background
+q <- ggdraw(base_map +
   ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
   #xlab('Longitude (deg W)') + ylab('Latitude (deg N)') +
   north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
   base_river +
   base_scale +
-  base_theme
+  base_theme +
+  labs(subtitle = mb_name$name)) +
+  draw_image(paste(folder, 'state_plan_figures/single_basin/Legend_nodata.png',sep=''),height = .33, x = -.352, y = .55) 
+
+ggsave(plot = q, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map_legend_test.png",sep = ""), width=6.5, height=5)
+
+
+
+
+
+minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+#MinorBasins.csv[,2:3]
+
+#Metric options include "7q10", "l30_Qout", "l90_Qout"
+metric <- "7q10"
+
+#runids
+runid_a <- "runid_11"
+runid_b <- "runid_18"
+rseg_map_function(minorbasin,metric,runid_a,runid_b)
+
+
+m <- c("7q10", "l30_Qout", "l90_Qout")
+x[1]
+
+for (i in m) {
+  print(paste("Metric:",i,"has started"))
+  rseg_map_function(minorbasin,i,runid_a,runid_b)
+  print(paste("Metric:",i,"has been completed"))
+}
