@@ -4,7 +4,7 @@ library("sqldf")
 
 #--INITIALIZE GLOBAL VARIABLES------------------------
 #change minor basin code
-minorbasin <- "PS" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "RL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #mb_name <- "Potomac Shenandoah"
 
 #switch between file types to save in common drive folder; html or latex

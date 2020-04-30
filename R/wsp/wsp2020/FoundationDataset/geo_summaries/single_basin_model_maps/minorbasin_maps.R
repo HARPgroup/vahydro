@@ -226,6 +226,21 @@ base_theme <- theme(legend.justification=c(0,1),
                     panel.grid.minor = element_blank(),
                     panel.background = element_blank(),
                     panel.border = element_blank())
+
+#select correct image path for the right legend (regular or with tidal segment)
+if (minorbasin %in% c('RL','JU')) {
+  
+  image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
+  
+} else {
+  image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
+}
+#select the legend position based on how much marginal space each minorbasin has around it
+if (minorbasin %in% c('RL','JU')) {
+  base_legend <- draw_image(image_path,height = .32, x = -.2, y = .05)
+} else  {
+  base_legend <- draw_image(image_path,height = .32, x = -.25, y = .551)
+}  
 ######################################################################################################
 #colnames(RSeg_data)
 group_0_plus <- paste("SELECT *
@@ -241,8 +256,8 @@ if (nrow(group_0_plus) >0) {
   label_values <- ">= 0%"
   
 } else  {
-  
-  geom1 <- geom_blank()
+  geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom),fill = 'gray40',alpha = .5, inherit.aes = FALSE)
+  #geom1 <- geom_blank()
   
 }
 #-----------------------------------------------------------------------------------------------------
@@ -339,7 +354,9 @@ map <- ggdraw(source_current +
   base_river +
   base_scale +
   base_theme) +
-  draw_image(paste(folder, 'state_plan_figures/single_basin/Legend_nodata.png',sep=''),height = .32, x = -.25, y = .551) 
+  base_legend
+
+map
 
 ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
 }
@@ -369,8 +386,10 @@ runid_a <- "runid_11"
 runid_b <- "runid_18"
 
 m <- c("7q10", "l30_Qout", "l90_Qout")
-x[1]
 r <- c("runid_13","runid_15","runid_16","runid_18") 
+
+m <- c("l30_Qout")
+r <- c("runid_13") 
 
 tic("Total")
 for (i in m) {
