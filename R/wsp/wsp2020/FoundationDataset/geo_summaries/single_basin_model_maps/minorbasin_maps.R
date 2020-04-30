@@ -15,7 +15,7 @@ library(tictoc) #time elapsed
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
-minorbasin <- "RL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "YL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
@@ -167,13 +167,24 @@ MB.df <- merge(MB.df, MB@data, by = 'id')
 ######################################################################################################
 ### PROCESS Rivers
 #####################################################################################################
+# #summary(river_shp)
+# #plot(river_shp)
+# proj4string(MBProjected) <- CRS("+proj=longlat +datum=WGS84")
+# MBProjected <- spTransform(MBProjected, CRS("+proj=longlat +datum=WGS84"))
+# river_shpProjected <- spTransform(river_shp, CRS("+proj=longlat +datum=WGS84"))
+# river_clip <- gIntersection(MBProjected,river_shpProjected)
+# river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = TRUE)
+# #summary(river.df)
+
+
 #summary(river_shp)
 #plot(river_shp)
-proj4string(MBProjected) <- CRS("+proj=longlat +datum=WGS84")
-MBProjected <- spTransform(MBProjected, CRS("+proj=longlat +datum=WGS84"))
+proj4string(bbProjected) <- CRS("+proj=longlat +datum=WGS84")
+bbProjected <- spTransform(bbProjected, CRS("+proj=longlat +datum=WGS84"))
 river_shpProjected <- spTransform(river_shp, CRS("+proj=longlat +datum=WGS84"))
-river_clip <- gIntersection(MBProjected,river_shpProjected)
+river_clip <- gIntersection(bbProjected,river_shpProjected)
 river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = TRUE)
+#plot(river_clip)
 #summary(river.df)
 
 ######################################################################################################
@@ -207,8 +218,8 @@ length(RSeg_data[,1])
 ######################################################################################################
 #SET UP BASE MAP
 base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group))+
+  geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
   geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5) +
-  geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
   geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)
 
 base_river <- geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
