@@ -57,6 +57,13 @@ scenario_b_title <- case_when(runid_b == "runid_12" ~ "2030",
                               runid_b == "runid_18" ~ "Exempt Users")
 
 RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
+
+#figure out what MBs are tidal
+# sqldf("SELECT substr(hydrocode,1,18) AS basin
+#       from RSeg_summary
+#       WHERE hydrocode like '%_0000'
+#       GROUP BY basin
+#       ORDER BY basin")
 ######################################################################################################
 ######################################################################################################
 # DETERMINE MAP EXTENT FROM MINOR BASIN CENTROID
@@ -200,8 +207,8 @@ length(RSeg_data[,1])
 ######################################################################################################
 #SET UP BASE MAP
 base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group))+
-  geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
   geom_polygon(data = state.df, color="gray46", fill = "gray",lwd=0.5) +
+  geom_polygon(data = bbDF, color="black", fill = "powderblue",lwd=0.5)+
   geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)
 
 base_river <- geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
@@ -228,7 +235,7 @@ base_theme <- theme(legend.justification=c(0,1),
                     panel.border = element_blank())
 
 #select correct image path for the right legend (regular or with tidal segment)
-if (minorbasin %in% c('RL','JU')) {
+if (minorbasin %in% c('BS','JA','NR','OR','PL','RL','YL','YM','YP')) {
   
   image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
   
@@ -236,7 +243,7 @@ if (minorbasin %in% c('RL','JU')) {
   image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
 }
 #select the legend position based on how much marginal space each minorbasin has around it
-if (minorbasin %in% c('RL','JU')) {
+if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL')) {
   base_legend <- draw_image(image_path,height = .32, x = -.2, y = .05)
 } else  {
   base_legend <- draw_image(image_path,height = .32, x = -.25, y = .551)
@@ -256,8 +263,10 @@ if (nrow(group_0_plus) >0) {
   label_values <- ">= 0%"
   
 } else  {
-  geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom),fill = 'gray40',alpha = .5, inherit.aes = FALSE)
-  #geom1 <- geom_blank()
+  # geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE)
+  # color_values <- "gray40"
+  # label_values <- "Tidal Segment"
+  geom1 <- geom_blank()
   
 }
 #-----------------------------------------------------------------------------------------------------
@@ -274,7 +283,9 @@ if (nrow(group_neg5_0) >0) {
   label_values <- rbind(label_values,"-5% to 0%")
   
 } else  {
-  
+  # geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'gray'), inherit.aes = FALSE)
+  # color_values <- rbind(color_values,"gray40")
+  # label_values <- rbind(label_values,"Tidal Segment")
   geom2 <- geom_blank()
   
 }
@@ -293,9 +304,14 @@ if (nrow(group_neg10_neg5) >0) {
   
 } else  {
   
+  # geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'gray01'), inherit.aes = FALSE)
+  # color_values <- rbind(color_values,"gray40")
+  # label_values <- rbind(label_values,"Tidal Segment")
   geom3 <- geom_blank()
   
 }
+
+
 #-----------------------------------------------------------------------------------------------------
 group_neg20_neg10 <- paste("SELECT *
                   FROM RSeg_data
@@ -311,6 +327,9 @@ if (nrow(group_neg20_neg10) >0) {
   
 } else  {
   
+  # geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'gray03'), inherit.aes = FALSE)
+  # color_values <- rbind(color_values,"gray40")
+  # label_values <- rbind(label_values,"Tidal Segment")
   geom4 <- geom_blank()
   
 }
@@ -329,11 +348,28 @@ if (nrow(group_negInf_neg20) >0) {
   
 } else  {
   
+  # geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
+  # color_values <- rbind(color_values,"gray40")
+  # label_values <- rbind(label_values,"Tidal Segment")
   geom5 <- geom_blank()
   
 }
+
+#create a geom_sf for the tidal segments that are plotted a default color
+if (
+  any(nrow(group_0_plus) == 0,nrow(group_neg5_0) == 0,nrow(group_neg10_neg5) == 0,nrow(group_neg20_neg10) == 0,nrow(group_negInf_neg20) == 0) == TRUE) {
+  group_tidal <- st_as_sf(RSeg_data, wkt = 'geom')
+  geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
+  color_values <- rbind(color_values,"gray40")
+  label_values <- rbind(label_values,"Tidal Segment")
+}  else  {
+  
+  geom5 <- geom_blank()
+  
+} 
 ####################################################################
 source_current <- base_map +
+  geom_tidal +
   geom1 +
   geom2 +
   geom3 +
@@ -358,7 +394,7 @@ map <- ggdraw(source_current +
 
 map
 
-ggsave(plot = map, file = paste0(folder, "state_plan_figures/single_basin/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
+ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
 }
 
 #------------------------------------------------------
