@@ -13,12 +13,12 @@ data_sp <- data_raw
 
 #LOAD FUNCTIONS AND GDB FILES
 source("/var/www/R/config.local.private"); 
-source(paste(localpath,'hydro-tools/GIS_LAYERS','GIS_functions.R',sep='/'));
+source(paste(hydro_tools_location,'/GIS_LAYERS/GIS_functions.R', sep = ''));
 
-MinorBasins_path <- "hydro-tools/GIS_LAYERS/MinorBasins.gdb"
+MinorBasins_path <- paste(hydro_tools_location,'/GIS_LAYERS/MinorBasins.gdb', sep = '')
 MinorBasins_layer <- 'MinorBasins'
 
-VAHydro_RSegs_path <- "hydro-tools/GIS_LAYERS/VAHydro_RSegs.gdb"
+VAHydro_RSegs_path <- paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.gdb', sep = '')
 VAHydro_RSegs_layer <- 'VAHydro_RSegs'
 
 # tidal_boundary_path <- 'hydro-tools/GIS_LAYERS/'
@@ -53,7 +53,7 @@ data_sp <- sqldf("SELECT *,
 
 ###########################################################################
 coordinates(data_sp) <- c("corrected_longitude", "corrected_latitude") #sp_contain_mb() requires a coordinates column
-data_sp_cont <- sp_contain_mb(paste(localpath,MinorBasins_path,sep="/"),MinorBasins_layer,data_sp)
+data_sp_cont <- sp_contain_mb(MinorBasins_path,MinorBasins_layer,data_sp)
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 # coordinates(data_sp_cont) <- c("corrected_longitude", "corrected_latitude") #sp_contain() requires a coordinates column
@@ -61,7 +61,7 @@ data_sp_cont <- data.frame(data_sp_cont)
 # data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 coordinates(data_sp_cont) <- c("corrected_longitude", "corrected_latitude") #sp_contain_vahydro_rseg() requires a coordinates column
-data_sp_cont <- sp_contain_vahydro_rseg(paste(localpath,VAHydro_RSegs_path,sep="/"),VAHydro_RSegs_layer,data_sp_cont)
+data_sp_cont <- sp_contain_vahydro_rseg(VAHydro_RSegs_path,VAHydro_RSegs_layer,data_sp_cont)
 data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 ###########################################################################
