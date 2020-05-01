@@ -88,7 +88,8 @@ mb_mps <- sqldf(paste('SELECT  MP_hydroid,
                       fips_code,
                       fips_name,
                       corrected_latitude,
-                      corrected_longitude
+                      corrected_longitude,
+                      
                   FROM mp_all 
                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
                   ORDER BY mp_2020_mgy DESC', sep=""))

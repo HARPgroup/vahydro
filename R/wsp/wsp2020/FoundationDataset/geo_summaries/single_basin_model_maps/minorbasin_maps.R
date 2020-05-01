@@ -11,19 +11,20 @@ library(wicket) #wkt_centroid()
 library(cowplot) #plot static legend
 library(magick) #plot static legend
 library(tictoc) #time elapsed
+library(beepr) #play beep sound when done running
  ######################################################################################################
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
-minorbasin <- "YL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
-metric <- "l30_Qout"
+metric <- "l90_Qout"
 
 #runids
 runid_a <- "runid_11"
-runid_b <- "runid_13"
+runid_b <- "runid_15"
 
 ######################################################################################################
 ######################################################################################################
@@ -54,7 +55,10 @@ scenario_b_title <- case_when(runid_b == "runid_12" ~ "2030",
                               runid_b == "runid_14" ~ "p50 Climate Change",
                               runid_b == "runid_15" ~ "p10 Climate Change",
                               runid_b == "runid_16" ~ "p90 Climate Change",
-                              runid_b == "runid_18" ~ "Exempt Users")
+                              runid_b == "runid_17" ~ "p10 Climate Change",
+                              runid_b == "runid_18" ~ "Exempt Users",
+                              runid_b == "runid_19" ~ "p50 Climate Change",
+                              runid_b == "runid_20" ~ "p90 Climate Change")
 
 RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
 
@@ -255,9 +259,9 @@ if (minorbasin %in% c('BS','JA','NR','OR','PL','RL','YL','YM','YP')) {
 }
 #select the legend position based on how much marginal space each minorbasin has around it
 if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL')) {
-  base_legend <- draw_image(image_path,height = .32, x = -.2, y = .05)
+  base_legend <- draw_image(image_path,height = .26, x = -.23, y = .05)
 } else  {
-  base_legend <- draw_image(image_path,height = .32, x = -.25, y = .551)
+  base_legend <- draw_image(image_path,height = .26, x = -.23, y = .61)
 }  
 ######################################################################################################
 #colnames(RSeg_data)
@@ -352,6 +356,8 @@ if (nrow(group_negInf_neg20) >0) {
   
 }
 
+#---------------------------------------------------------------
+
 #create a geom_sf for the tidal segments that are plotted a default color
 if (
   any(nrow(group_0_plus) == 0,nrow(group_neg5_0) == 0,nrow(group_neg10_neg5) == 0,nrow(group_neg20_neg10) == 0,nrow(group_negInf_neg20) == 0) == TRUE) {
@@ -361,7 +367,8 @@ if (
   label_values <- rbind(label_values,"Tidal Segment")
 }  else  {
   
-  geom5 <- geom_blank()
+  if(exists(x = 'group_tidal')){rm(group_tidal)}
+  geom_tidal <- geom_blank()
   
 } 
 ####################################################################
@@ -410,7 +417,7 @@ ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a
 
 #----------- RUN MAPS IN BULK --------------------------
 
-minorbasin <- "YL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 
 
 # CURRENT (2020 Comparison)
@@ -436,7 +443,7 @@ for (i in m) {
   toc()
 }
 toc()
-
+beep(3)
 #------------------------------------------------------------------
 # FUTURE (2040 Comparison)
 #runids
@@ -461,4 +468,4 @@ for (i in m) {
   toc()
 }
 toc()
-
+beep(3)
