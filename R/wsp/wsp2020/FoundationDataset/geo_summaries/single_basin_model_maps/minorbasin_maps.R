@@ -431,7 +431,7 @@ ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a
 
 #----------- RUN MAPS IN BULK --------------------------
 
-minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "OD" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 
 
 # CURRENT (2020 Comparison)
@@ -441,6 +441,7 @@ runid_a <- "runid_11"
 
 m <- c("7q10", "l30_Qout", "l90_Qout")
 r <- c("runid_13","runid_14","runid_15","runid_16","runid_18") 
+r <- c("runid_13","runid_18") 
 
 tic("Total")
 for (i in m) {
