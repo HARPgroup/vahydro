@@ -20,11 +20,11 @@ minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, 
 #MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
-metric <- "l90_Qout"
+metric <- "l30_Qout"
 
 #runids
-runid_a <- "runid_11"
-runid_b <- "runid_15"
+runid_a <- "runid_13"
+runid_b <- "runid_20"
 
 ######################################################################################################
 ######################################################################################################
@@ -199,6 +199,8 @@ RSeg_data <- paste('SELECT *,
                   case
                   when b.',runid_a,' = 0
                   then 0
+                  when b.',runid_b,' IS NULL
+                  then NULL
                   else round(((b.',runid_b,' - b.',runid_a,') / b.',runid_a,') * 100,2)
                   end AS pct_chg
                   FROM "RSeg.csv" AS a
@@ -217,6 +219,11 @@ RSeg_valid_geoms <- paste("SELECT *
 RSeg_data <- sqldf(RSeg_valid_geoms)
 length(RSeg_data[,1])
 
+#use this to investigate rseg data and see which rsegs might not have evaluated correctly or have NA/NULL values
+# missing_data <- sqldf("SELECT hydroid,name,hydrocode,featureid,runid_11,runid_12,runid_13,runid_14,runid_15,runid_16,runid_17,runid_18,runid_19,runid_20,pct_chg
+#       FROM RSeg_data
+#       WHERE pct_chg IS NULL")
+# write.csv(missing_data, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_missing_RSeg_data.csv",sep = ""))
 ######################################################################################################
 ### GENERATE MAPS  ###############################################################################
 ######################################################################################################
@@ -271,10 +278,15 @@ group_0_plus <- paste("SELECT *
 group_0_plus <- sqldf(group_0_plus)
 group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
 
+color_values <- list()
+label_values <- list()
+
 if (nrow(group_0_plus) >0) {
   
   geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE)
+  
   color_values <- "darkolivegreen3"
+  
   label_values <- ">= 0%"
   
 } else  {
@@ -390,13 +402,15 @@ map <- ggdraw(source_current +
   ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
   labs(subtitle = mb_name$name) +
   #xlab('Longitude (deg W)') + ylab('Latitude (deg N)') +
-  north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
   base_river +
+  north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
   base_scale +
   base_theme) +
   base_legend
 
 ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
+
+
 }
 
 #------------------------------------------------------
