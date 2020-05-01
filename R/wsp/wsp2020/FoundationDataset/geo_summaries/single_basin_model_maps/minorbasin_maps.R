@@ -274,9 +274,7 @@ if (nrow(group_0_plus) >0) {
   label_values <- ">= 0%"
   
 } else  {
-  # geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE)
-  # color_values <- "gray40"
-  # label_values <- "Tidal Segment"
+  
   geom1 <- geom_blank()
   
 }
@@ -294,9 +292,7 @@ if (nrow(group_neg5_0) >0) {
   label_values <- rbind(label_values,"-5% to 0%")
   
 } else  {
-  # geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'gray'), inherit.aes = FALSE)
-  # color_values <- rbind(color_values,"gray40")
-  # label_values <- rbind(label_values,"Tidal Segment")
+
   geom2 <- geom_blank()
   
 }
@@ -315,13 +311,9 @@ if (nrow(group_neg10_neg5) >0) {
   
 } else  {
   
-  # geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'gray01'), inherit.aes = FALSE)
-  # color_values <- rbind(color_values,"gray40")
-  # label_values <- rbind(label_values,"Tidal Segment")
   geom3 <- geom_blank()
   
 }
-
 
 #-----------------------------------------------------------------------------------------------------
 group_neg20_neg10 <- paste("SELECT *
@@ -338,9 +330,6 @@ if (nrow(group_neg20_neg10) >0) {
   
 } else  {
   
-  # geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'gray03'), inherit.aes = FALSE)
-  # color_values <- rbind(color_values,"gray40")
-  # label_values <- rbind(label_values,"Tidal Segment")
   geom4 <- geom_blank()
   
 }
@@ -359,9 +348,6 @@ if (nrow(group_negInf_neg20) >0) {
   
 } else  {
   
-  # geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
-  # color_values <- rbind(color_values,"gray40")
-  # label_values <- rbind(label_values,"Tidal Segment")
   geom5 <- geom_blank()
   
 }
@@ -403,8 +389,6 @@ map <- ggdraw(source_current +
   base_theme) +
   base_legend
 
-map
-
 ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
 }
 
@@ -426,17 +410,41 @@ ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a
 
 #----------- RUN MAPS IN BULK --------------------------
 
-minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "YL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 
+
+# CURRENT (2020 Comparison)
 #runids
 runid_a <- "runid_11"
-runid_b <- "runid_18"
+#runid_b <- "runid_18"
 
 m <- c("7q10", "l30_Qout", "l90_Qout")
-r <- c("runid_13","runid_15","runid_16","runid_18") 
+r <- c("runid_13","runid_14","runid_15","runid_16","runid_18") 
 
-m <- c("l30_Qout")
-r <- c("runid_13") 
+tic("Total")
+for (i in m) {
+  tic(paste("Metric - ",i))
+  print(paste("Metric:",i,"has started"))
+  for (z in r) {
+    tic(paste("Scenario - ",z))
+    print(paste("Scenario:",z,"has started"))
+    rseg_map_function(minorbasin,i,runid_a,z) 
+    print(paste("Scenario:",z,"has been completed"))
+    toc()
+  }
+  print(paste("Metric:",i,"has been completed"))
+  toc()
+}
+toc()
+
+#------------------------------------------------------------------
+# FUTURE (2040 Comparison)
+#runids
+runid_a <- "runid_13"
+#runid_b <- "runid_18"
+
+m <- c("7q10", "l30_Qout", "l90_Qout")
+r <- c("runid_17","runid_19","runid_20") 
 
 tic("Total")
 for (i in m) {
