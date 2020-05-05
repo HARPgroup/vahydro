@@ -16,7 +16,7 @@ library(beepr) #play beep sound when done running
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
-minorbasin <- "JU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "JA" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
@@ -219,7 +219,7 @@ RSeg_valid_geoms <- paste("SELECT *
 RSeg_data <- sqldf(RSeg_valid_geoms)
 length(RSeg_data[,1])
 
-#use this to investigate rseg data and see which rsegs might not have evaluated correctly or have NA/NULL values
+# ## # use this to investigate rseg data and see which rsegs might not have evaluated correctly or have NA/NULL values
 # missing_data <- sqldf("SELECT hydroid,name,hydrocode,featureid,runid_11,runid_12,runid_13,runid_14,runid_15,runid_16,runid_17,runid_18,runid_19,runid_20,pct_chg
 #       FROM RSeg_data
 #       WHERE pct_chg IS NULL")
@@ -431,7 +431,7 @@ ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a
 
 #----------- RUN MAPS IN BULK --------------------------
 
-minorbasin <- "OD" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "JA" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 
 
 # CURRENT (2020 Comparison)
@@ -441,7 +441,7 @@ runid_a <- "runid_11"
 
 m <- c("7q10", "l30_Qout", "l90_Qout")
 r <- c("runid_13","runid_14","runid_15","runid_16","runid_18") 
-r <- c("runid_13","runid_18") 
+#r <- c("runid_13","runid_18") 
 
 tic("Total")
 for (i in m) {
