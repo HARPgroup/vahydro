@@ -409,7 +409,18 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    }
 }
 
-summary_table_func("RL")
+##########################################################################################
+# call summary table function in for loop to iterate through basins
+#basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
+basins <- c('PS','YM','YP','YL','JU','JA','BS','TU','OD')
+for (b in basins) {
+   tic(paste(b,"Minor Basin"))
+   print(paste("Begin",b,"Table Generation"))
+   summary_table_func(b)
+   print(paste(b,"Minor Basin Tables Complete"))
+   toc()
+}
+
 
 ######### GRAPH - Demand by System & Source Type###########################################
 system_source <- sqldf(paste('SELECT 
