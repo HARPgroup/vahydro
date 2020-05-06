@@ -4,35 +4,8 @@ library("sqldf")
 library("sjmisc")
 #library("beepr") #play beep sound when done running
 library("assertive.base")
+
 #--INITIALIZE GLOBAL VARIABLES------------------------
-#change minor basin code
-minorbasin <- "RL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
-#mb_name$MinorBasin_Name <- "Potomac Shenandoah"
-
-#switch between file types to save in common drive folder; html or latex
-
-options(knitr.table.format = "html") #"html" for viewing in Rstudio Viewer pane
-file_ext <- ".html" #view in R
-
-#options(knitr.table.format = "latex") #"latex" when ready to output to Overleaf
-#file_ext <- ".tex" #for easy upload to Overleaf
-
-#Kable Styling
-latexoptions <- c("scale_down")
-
-kable_col_names <- c("",
-                     "System Type",
-                     "2020 Demand (MGD)",
-                     "2030 Demand (MGD)",
-                     "2040 Demand (MGD)",
-                     "20 Year Percent Change")
-
-#SQL
-aggregate_select <- '
-round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
-round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
-round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct_change'
 
 #totals function which quickly applies sum to each numeric column (skips non-numeric)
 totals_func <- function(z) if (is.numeric(z)) sum(z) else ''
@@ -60,40 +33,6 @@ source(paste(basepath,"config.local.private",sep = '/'))
 data_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 mp_all <- data_raw
 
-#------CHOOSE A MINOR BASIN ##############################
-#Output all Minor Basin options
-mb_options <- sqldf('SELECT DISTINCT MinorBasin_Name, MinorBasin_Code
-      FROM mp_all
-      ')
-#select minor basin code to know folder to save in
-mb_code <- minorbasin
-mb_name <- sqldf(paste('SELECT MinorBasin_Name
-                   From mb_options
-                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
-              ',sep=""))
-#Select measuring points within minor basin of interest, Restrict output to columns of interest
-mb_mps <- sqldf(paste('SELECT  MP_hydroid,
-                      MP_bundle,
-                      source_type,
-                      Facility_hydroid, 
-                      facility_name, 
-                      facility_ftype,
-                      wsp_ftype,
-                      system_type,
-                      mp_2020_mgy,
-                      mp_2030_mgy,
-                      mp_2040_mgy, 
-                      MinorBasin_Name, 
-                      fips_code,
-                      fips_name,
-                      corrected_latitude,
-                      corrected_longitude
-                  FROM mp_all 
-                  WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
-                  ORDER BY mp_2020_mgy DESC', sep=""))
-
-write.csv(mb_mps, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/all_mps_",mb_code,".csv", sep=""), row.names = F)
-
 #--------select MPs with no minor basin---------------------------------------
 # ## select MPs with no minor basin
 # null_minorbasin <- sqldf("SELECT *
@@ -101,17 +40,9 @@ write.csv(mb_mps, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/all_mps_
 #       WHERE MinorBasin_Name IS NULL")
 # write.csv(null_minorbasin, paste(folder,"tables_maps/all_minor_basins/NA_minorbasin_mp.csv", sep=""))
 
-
-####################################################################################
-####################################################################################
-###############    SINGLE BASIN SUMMARIES      #####################################
-####################################################################################
-####################################################################################
-####################################################################################
-
 ######### SUMMARY TABLE #############################
 ##############################################################
-summary_table_func <- function(minorbasin = "RL", file_extension = ".html"){
+summary_table_func <- function(minorbasin = "PS", file_extension = ".html"){
    
    #switch between file types to save in common drive folder; html or latex
    if (file_extension == ".html") {
