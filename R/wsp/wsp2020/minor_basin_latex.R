@@ -337,13 +337,85 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(15, bold=T) %>%
       cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code,"_table",file_ext,sep=""))
    
-   }
+}
+   
+   #TOP 5 USERS Table
+   #NOTE: these are sums of each source type by facility (aka the #1 groundwater user may have 4 wells that add up to a huge amount, it's not a table showing simply the largest MP withdrawal by source)
+   top_5_gw <- sqldf(paste('SELECT facility_name, system_type, 
+               ',aggregate_select,',
+               round(((sum(mp_2040_mgy)/365.25) /
+               (SELECT (sum(mp_2040_mgy)/365.25)
+                     FROM mb_mps
+                     )) * 100,2) as pct_total_use
+               ,fips_name
+               FROM mb_mps
+               WHERE MP_bundle = "well"
+               AND wsp_ftype NOT LIKE "%ssusm"
+               GROUP BY Facility_hydroid
+               ORDER BY MGD_2040 DESC
+               LIMIT 5', sep=""))
+   
+   top_5_gw <- append_totals(top_5_gw, "Total GW")
+   
+   top_5_sw <- sqldf(paste('SELECT facility_name, system_type, 
+               ',aggregate_select,',
+               round(((sum(mp_2040_mgy)/365.25) /
+               (SELECT (sum(mp_2040_mgy)/365.25)
+                     FROM mb_mps
+                     )) * 100,2) as pct_total_use
+               ,fips_name
+               FROM mb_mps
+               WHERE MP_bundle = "intake"
+               AND wsp_ftype NOT LIKE "%ssusm"
+               GROUP BY Facility_hydroid
+               ORDER BY MGD_2040 DESC
+               LIMIT 5', sep=""))
+   
+   top_5_sw <- append_totals(top_5_sw, "Total SW")
+   
+   sw_header <- data.frame("facility_name" = '',
+                           "system_type" = '',
+                           "MGD_2020" = '',
+                           "MGD_2030" ='',
+                           "MGD_2040" ='',
+                           "pct_change" = '',
+                           "pct_total_use" = '% of Total Surface Water',
+                           "fips_name" = '')
+   
+   top_5 <- rbind(top_5_gw, sw_header, top_5_sw)
+   
+   index <- c('A','B','C','D','E','','Surface Water','F','G','H','I','J','')
+   top_5 <- cbind(index,top_5)
+   # #initcaps attempt
+   # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
+   #                   from top_5_sw
+   #                   WHERE facility_name > 0")
+   
+   # OUTPUT TABLE IN KABLE FORMAT
+   kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         label = paste("top_5_",mb_code,sep=""),
+         col.names = c("Map Index",
+                       "Facility Name",
+                       "System Type",
+                       kable_col_names[3:6],
+                       "% of Total Groundwater",
+                       "Locality")) %>%
+      kable_styling(latex_options = latexoptions) %>%
+      column_spec(1, width = "10em") %>%
+      pack_rows("Groundwater", 1, 6) %>%
+      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
+      #horizontal solid line depending on html or latex output
+      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_",mb_code,"_table",file_ext,sep=""))
+   
 }
 
 ##########################################################################################
 # call summary table function in for loop to iterate through basins
 #basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 basins <- c('PS','YM','YP','YL','JU','JA','BS','TU','OD')
+basins <- c('PS','YM')
 for (b in basins) {
    tic(paste(b,"Minor Basin"))
    print(paste("Begin",b,"Table Generation"))
@@ -351,6 +423,15 @@ for (b in basins) {
    print(paste(b,"Minor Basin Tables Complete"))
    toc()
 }
+
+
+
+
+
+
+
+
+
 
 
 ######### GRAPH - Demand by System & Source Type###########################################
@@ -529,72 +610,8 @@ kable(system_source_specific_facility,  booktabs = T, escape = F,
    cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_system_source_with_count_",mb_code,"_kable",file_ext,sep=""))
 
 ######### Top 5 Users by Source Type ##########################################
-top_5_gw <- sqldf(paste('SELECT facility_name, system_type, 
-               ',aggregate_select,',
-               round(((sum(mp_2040_mgy)/365.25) /
-               (SELECT (sum(mp_2040_mgy)/365.25)
-                     FROM mb_mps
-                     )) * 100,2) as pct_total_use
-               ,fips_name
-               FROM mb_mps
-               WHERE MP_bundle = "well"
-               AND wsp_ftype NOT LIKE "%ssusm"
-               GROUP BY Facility_hydroid
-               ORDER BY MGD_2040 DESC
-               LIMIT 5', sep=""))
 
-top_5_gw <- append_totals(top_5_gw, "Total GW")
 
-top_5_sw <- sqldf(paste('SELECT facility_name, system_type, 
-               ',aggregate_select,',
-               round(((sum(mp_2040_mgy)/365.25) /
-               (SELECT (sum(mp_2040_mgy)/365.25)
-                     FROM mb_mps
-                     )) * 100,2) as pct_total_use
-               ,fips_name
-               FROM mb_mps
-               WHERE MP_bundle = "intake"
-               AND wsp_ftype NOT LIKE "%ssusm"
-               GROUP BY Facility_hydroid
-               ORDER BY MGD_2040 DESC
-               LIMIT 5', sep=""))
-
-top_5_sw <- append_totals(top_5_sw, "Total SW")
-
-sw_header <- data.frame("facility_name" = '',
-                           "system_type" = '',
-                           "MGD_2020" = '',
-                           "MGD_2030" ='',
-                           "MGD_2040" ='',
-                           "pct_change" = '',
-                           "pct_total_use" = '% of Total Surface Water',
-                           "fips_name" = '')
-
-top_5 <- rbind(top_5_gw, sw_header, top_5_sw)
-
-#top_5[1] <- c('A','B','C','D','E','Total','Surface Water','F','G','H','I','J','Total')
-
-# #initcaps attempt
-# sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
-#                   from top_5_sw
-#                   WHERE facility_name > 0")
-
-# OUTPUT TABLE IN KABLE FORMAT
-kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
-      caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-      label = paste("top_5_",mb_code,sep=""),
-      col.names = c("Facility Name",
-                    "System Type",
-                    kable_col_names[3:6],
-                    "% of Total Groundwater",
-                    "Locality")) %>%
-   kable_styling(latex_options = latexoptions) %>%
-   column_spec(1, width = "10em") %>%
-   pack_rows("Groundwater", 1, 6) %>%
-   pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
-   #horizontal solid line depending on html or latex output
-   row_spec(7, bold=T, hline_after = F) %>%
-   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_",mb_code,"_kable",file_ext,sep=""))
 #---------PS power point presentation table---------------------------------
 #PS power point presentation table
 top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
