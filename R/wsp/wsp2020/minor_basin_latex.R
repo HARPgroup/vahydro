@@ -2,7 +2,7 @@ library("reshape2")
 library("kableExtra")
 library("sqldf")
 library("sjmisc")
-library("beepr") #play beep sound when done running
+#library("beepr") #play beep sound when done running
 library("assertive.base")
 #--INITIALIZE GLOBAL VARIABLES------------------------
 #change minor basin code
@@ -66,10 +66,7 @@ mb_options <- sqldf('SELECT DISTINCT MinorBasin_Name, MinorBasin_Code
       FROM mp_all
       ')
 #select minor basin code to know folder to save in
-mb_code$MinorBasin_Code <- sqldf(paste('SELECT MinorBasin_Code
-                   From mb_options
-                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
-              ',sep=""))
+mb_code <- minorbasin
 mb_name <- sqldf(paste('SELECT MinorBasin_Name
                    From mb_options
                    WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
@@ -95,7 +92,7 @@ mb_mps <- sqldf(paste('SELECT  MP_hydroid,
                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
                   ORDER BY mp_2020_mgy DESC', sep=""))
 
-write.csv(mb_mps, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/all_mps_",mb_code$MinorBasin_Code,".csv", sep=""), row.names = F)
+write.csv(mb_mps, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/all_mps_",mb_code,".csv", sep=""), row.names = F)
 
 #--------select MPs with no minor basin---------------------------------------
 # ## select MPs with no minor basin
@@ -234,22 +231,16 @@ round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct
          kable_styling(latex_options = latexoptions) %>%
          cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_source_no_power_table",file_ext,sep=""))
       
-   } else
-   
-   #print message if a wrong minor basin is typed in
-   if (sjmisc::str_contains(unique(mp_all$MinorBasin_Code),minorbasin) == F) {
-      
+   } else if (sjmisc::str_contains(unique(mp_all$MinorBasin_Code),minorbasin) == F) {
+      #print message if a wrong minor basin is typed in
       stop("Minor Basin Code incorrectly written. Please choose from:\n", print_and_capture(sqldf('SELECT distinct MinorBasin_Name, MinorBasin_Code FROM mp_all ORDER BY MinorBasin_Code')))
       
-   }
+   } 
 
    #------CHOOSE A MINOR BASIN ##############################
    
    #select minor basin code to know folder to save in
-   mb_code <- sqldf(paste('SELECT distinct MinorBasin_Code
-                   From mp_all
-                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
-              ',sep=""))
+   mb_code <- minorbasin
    mb_name <- sqldf(paste('SELECT distinct MinorBasin_Name
                    From mp_all
                    WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
@@ -275,7 +266,7 @@ round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct
                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
                   ORDER BY mp_2020_mgy DESC', sep=""))
    
-   write.csv(mb_mps, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/all_mps_",mb_code$MinorBasin_Code,".csv", sep=""), row.names = F)
+   write.csv(mb_mps, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/all_mps_",mb_code,".csv", sep=""), row.names = F)
    
    #START SUMMARY TABLE GEN
 # when no power is detected in facility ftype column, then title of Summary table will not specify (including/excluding power generation) 
@@ -308,7 +299,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type",sep=""),
-         label = paste("summary_no_power",mb_code$MinorBasin_Code,sep=""),
+         label = paste("summary_no_power",mb_code,sep=""),
          col.names = c("",
                        "System Type",
                        kable_col_names[3:6])) %>%
@@ -320,7 +311,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #horizontal solid line depending on html or latex output
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       row_spec(15, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code$MinorBasin_Code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code,"_table",file_ext,sep=""))
    
 } else {
 
@@ -354,7 +345,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
-         label = paste("summary_yes_power",mb_code$MinorBasin_Code,sep=""),
+         label = paste("summary_yes_power",mb_code,sep=""),
          col.names = c("",
                        "System Type",
                        kable_col_names[3:6])) %>%
@@ -366,7 +357,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #horizontal solid line depending on html or latex output
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       row_spec(15, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_yes_power_",mb_code$MinorBasin_Code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_yes_power_",mb_code,"_table",file_ext,sep=""))
    
    #------------------------------------------------------------------------
    #NO power (excluding power generation)
@@ -401,7 +392,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
-         label = paste("summary_no_power",mb_code$MinorBasin_Code,sep=""),
+         label = paste("summary_no_power",mb_code,sep=""),
          col.names = c("",
                        "System Type",
                        kable_col_names[3:6])) %>%
@@ -413,12 +404,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #horizontal solid line depending on html or latex output
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       row_spec(15, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code$MinorBasin_Code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code,"_table",file_ext,sep=""))
    
    }
 }
 
-summary_table_func("all")
+summary_table_func("RL")
 
 ######### GRAPH - Demand by System & Source Type###########################################
 system_source <- sqldf(paste('SELECT 
@@ -433,10 +424,10 @@ system_source <- append_totals(system_source)
 # OUTPUT TABLE IN KABLE FORMAT
 kable(system_source,  booktabs = T,
       caption = paste("Withdrawal Demand by System and Source Type (including Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-      label = paste("demand_source_type_yes_power_",mb_code$MinorBasin_Code,sep=""),
+      label = paste("demand_source_type_yes_power_",mb_code,sep=""),
       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
    kable_styling(latex_options = latexoptions) %>%
-   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_system_source_",mb_code$MinorBasin_Code,"_kable",file_ext,sep=""))
+   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_system_source_",mb_code,"_kable",file_ext,sep=""))
 #---------BAR GRAPH V3 - with percent change line and label-------------------------------
 system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
 system_source[system_source == 0] <- NA
@@ -465,7 +456,7 @@ v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable, label = pct_cha
    scale_y_continuous(name = "MGD") +
    geom_text(show.legend = F, check_overlap = F, nudge_y = 2, na.rm = T)
    
-ggsave(plot = v3, path = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/", sep=""),filename = paste("demand_system_source_",mb_code$MinorBasin_Code,"_graph.png",sep=""))
+ggsave(plot = v3, path = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/", sep=""),filename = paste("demand_system_source_",mb_code,"_graph.png",sep=""))
 
  ######## by_locality###########################################
 
@@ -480,11 +471,11 @@ ggsave(plot = v3, path = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/"
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_locality[1:6],  booktabs = T,
        caption = paste("Withdrawal Demand by Locality in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-       label = paste("demand_locality_",mb_code$MinorBasin_Code,sep=""),
+       label = paste("demand_locality_",mb_code,sep=""),
        col.names = c("Fips Code",
                      "Locality",kable_col_names[3:6])) %>%
     kable_styling(latex_options = latexoptions) %>%
-    cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_locality_",mb_code$MinorBasin_Code,"_kable",file_ext,sep=""))
+    cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_locality_",mb_code,"_kable",file_ext,sep=""))
 #---------PS Powerpoint presentation cleanup #######################################
 # ###PS Powerpoint presentation cleanup
 #  if (mb_code$MinorBasin_Code == 'PS') {
@@ -581,7 +572,7 @@ if (file_ext == '.tex') {
 # OUTPUT TABLE IN KABLE FORMAT
 kable(system_source_specific_facility,  booktabs = T, escape = F,
       caption = paste("Withdrawal Demand by System and Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-      label = paste("demand_system_source_specific_count",mb_code$MinorBasin_Code,sep=""),
+      label = paste("demand_system_source_specific_count",mb_code,sep=""),
       col.names = c("System Type",
                     "Source Type",
                     names(system_source_specific_facility)[4],
@@ -593,7 +584,7 @@ kable(system_source_specific_facility,  booktabs = T, escape = F,
       number = c("includes diffuse demand estimates; ", "shows only demand amounts from specific facilities (no diffuse demand estimates) "),
       number_title = "Count Note: ",
       footnote_as_chunk = T) %>%
-   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_system_source_with_count_",mb_code$MinorBasin_Code,"_kable",file_ext,sep=""))
+   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_system_source_with_count_",mb_code,"_kable",file_ext,sep=""))
 
 ######### Top 5 Users by Source Type ##########################################
 top_5_gw <- sqldf(paste('SELECT facility_name, system_type, 
@@ -649,7 +640,7 @@ top_5 <- rbind(top_5_gw, sw_header, top_5_sw)
 # OUTPUT TABLE IN KABLE FORMAT
 kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
       caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-      label = paste("top_5_",mb_code$MinorBasin_Code,sep=""),
+      label = paste("top_5_",mb_code,sep=""),
       col.names = c("Facility Name",
                     "System Type",
                     kable_col_names[3:6],
@@ -661,7 +652,7 @@ kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
    pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
    #horizontal solid line depending on html or latex output
    row_spec(7, bold=T, hline_after = F) %>%
-   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_",mb_code$MinorBasin_Code,"_kable",file_ext,sep=""))
+   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_",mb_code,"_kable",file_ext,sep=""))
 #---------PS power point presentation table---------------------------------
 #PS power point presentation table
 top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
@@ -669,7 +660,7 @@ top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta 
 # OUTPUT TABLE IN KABLE FORMAT
 kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
       caption = "",
-      label = paste("top_5_",mb_code$MinorBasin_Code,sep=""),
+      label = paste("top_5_",mb_code,sep=""),
       col.names = c("Organization Name",
                     "System Type",
                     kable_col_names[3:6],
@@ -681,4 +672,4 @@ kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
    pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
    #horizontal solid line depending on html or latex output
    row_spec(7, bold=T, hline_after = F) %>%
-   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/PPT_Top_5_",mb_code$MinorBasin_Code,"_kable",file_ext,sep=""))
+   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/PPT_Top_5_",mb_code,"_kable",file_ext,sep=""))
