@@ -157,7 +157,7 @@ wsp2020_2040$mp_2020_mgy <- wsp2020_2040$mp_share
 wsp2020_2040$mp_share_2040 = wsp2020_2040$facility_use_fraction * wsp2020_2040$fac_value_2040
 wsp2020_2040$mp_2040_mgy <- wsp2020_2040$mp_share_2040
 wsp2020_2040$delta_2040_mgy <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy)
-wsp2020_2040$delta_2040_pct <- ((wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2040_mgy)*100
+wsp2020_2040$delta_2040_pct <- ((wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2020_mgy)*100
 wsp2020_2040$mp_2030_mgy <- (wsp2020_2040$mp_2020_mgy + wsp2020_2040$mp_2040_mgy)/2
 wsp2020_2040 <- sqldf("SELECT MP_hydroid, 
                     MP_bundle,
