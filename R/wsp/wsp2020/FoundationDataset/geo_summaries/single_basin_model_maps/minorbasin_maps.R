@@ -16,15 +16,15 @@ library(beepr) #play beep sound when done running
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
-minorbasin <- "JA" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "MN" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
-metric <- "l30_Qout"
+metric <- "l90_Qout"
 
 #runids
-runid_a <- "runid_13"
-runid_b <- "runid_20"
+runid_a <- "runid_11"
+runid_b <- "runid_15"
 
 ######################################################################################################
 ######################################################################################################
@@ -35,6 +35,9 @@ STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/ma
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
 RSeg.csv <- read.table(file = paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
 river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
+
+
+
 
 rseg_map_function <- function(MinorBasin_Code,metric,runid_a,runid_b,mp_points = FALSE){
 #selects minor basin name
@@ -77,15 +80,27 @@ mb.row <- paste('SELECT *
               WHERE code == "',minorbasin,'"',sep="")
 mb.row <- sqldf(mb.row)
 
-mb.centroid <- wkt_centroid(mb.row$geom)
+# mb.centroid <- wkt_centroid(mb.row$geom)
+# 
+# xmin <- mb.centroid$lng - 1
+# xmax <- mb.centroid$lng + 1
+# ymin <- mb.centroid$lat - 1
+# ymax <- mb.centroid$lat + 1
 
-xmin <- mb.centroid$lng - 1
-xmax <- mb.centroid$lng + 1
-ymin <- mb.centroid$lat - 1
-ymax <- mb.centroid$lat + 1
+# #alternative way to make extent of minor basin
+mb_bb <- wkt_bounding(mb.row$geom)
+x_length <- mb_bb$max_x - mb_bb$min_x
+y_length <- mb_bb$max_y - mb_bb$min_y
+
+xmin <- mb_bb$min_x - .1
+xmax <- mb_bb$max_x + .1
+ymin <- mb_bb$min_y - .4
+ymax <- mb_bb$max_y + .4
 
 extent <- data.frame(x = c(xmin, xmax),
                      y = c(ymin, ymax))
+plot(extent)
+plot(MBProjected, add = T)
 ######################################################################################################
 
 #bounding box
@@ -219,6 +234,12 @@ RSeg_valid_geoms <- paste("SELECT *
 RSeg_data <- sqldf(RSeg_valid_geoms)
 length(RSeg_data[,1])
 
+# #use this to save rseg data
+# rsegdata <- sqldf("SELECT hydroid,name,hydrocode,featureid,runid_11,runid_12,runid_13,runid_14,runid_15,runid_16,runid_17,runid_18,runid_19,runid_20,pct_chg
+#       FROM RSeg_data
+#       order by pct_chg desc")
+# write.csv(rsegdata, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_RSeg_data.csv",sep = ""))
+
 # ## # use this to investigate rseg data and see which rsegs might not have evaluated correctly or have NA/NULL values
 # missing_data <- sqldf("SELECT hydroid,name,hydrocode,featureid,runid_11,runid_12,runid_13,runid_14,runid_15,runid_16,runid_17,runid_18,runid_19,runid_20,pct_chg
 #       FROM RSeg_data
@@ -239,7 +260,7 @@ base_scale <-  ggsn::scalebar(data = bbDF, location = 'bottomright', dist = 25, 
                               transform = TRUE, model = 'WGS84',st.bottom=FALSE, 
                               st.size = 3, st.dist = 0.03,
                               anchor = c(
-                                x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])+0.9,
+                                x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])+1.1,
                                 y = extent$y[1]+(extent$y[1])*0.001
                               ))
   
@@ -265,10 +286,10 @@ if (minorbasin %in% c('BS','JA','NR','OR','PL','RL','YL','YM','YP')) {
   image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
 }
 #select the legend position based on how much marginal space each minorbasin has around it
-if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL')) {
-  base_legend <- draw_image(image_path,height = .26, x = -.23, y = .05)
+if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL','MN')) {
+  base_legend <- draw_image(image_path,height = .26, x = -.355, y = .05)
 } else  {
-  base_legend <- draw_image(image_path,height = .26, x = -.23, y = .61)
+  base_legend <- draw_image(image_path,height = .26, x = -.355, y = .5 )
 }  
 ######################################################################################################
 #colnames(RSeg_data)
@@ -408,7 +429,7 @@ map <- ggdraw(source_current +
   base_theme) +
   base_legend
 
-ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
+ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map_v2.png",sep = ""), width=6.5, height=5)
 
 
 }
@@ -431,17 +452,15 @@ ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a
 
 #----------- RUN MAPS IN BULK --------------------------
 
-minorbasin <- "JA" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
-
+minorbasin <- "MN" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 
 # CURRENT (2020 Comparison)
 #runids
 runid_a <- "runid_11"
-#runid_b <- "runid_18"
 
 m <- c("7q10", "l30_Qout", "l90_Qout")
 r <- c("runid_13","runid_14","runid_15","runid_16","runid_18") 
-#r <- c("runid_13","runid_18") 
+r <- c("runid_13","runid_18")
 
 tic("Total")
 for (i in m) {
