@@ -230,7 +230,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type",sep=""),
-         label = paste("summary_no_power",mb_code,sep=""),
+         label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c("",
                        "System Type",
                        kable_col_names[3:6])) %>%
@@ -276,7 +276,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
-         label = paste("summary_yes_power",mb_code,sep=""),
+         label = paste("summary_yes_power_",mb_code,sep=""),
          col.names = c("",
                        "System Type",
                        kable_col_names[3:6])) %>%
@@ -323,7 +323,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
-         label = paste("summary_no_power",mb_code,sep=""),
+         label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c("",
                        "System Type",
                        kable_col_names[3:6])) %>%
@@ -414,18 +414,24 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 ##########################################################################################
 # call summary table function in for loop to iterate through basins
 #basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
-basins <- c('PS','YM','YP','YL','JU','JA','BS','TU','OD')
-basins <- c('PS','YM')
+basins <- c('PS','RU','RL','YM','YP','YL','JU','JA','BS','TU','OD','NR')
+ext <- c(".html",".tex")
+basins <- c('NR')
+tic()
 for (b in basins) {
    tic(paste(b,"Minor Basin"))
    print(paste("Begin",b,"Table Generation"))
-   summary_table_func(b)
+   
+   for (e in ext) {
+      print(paste("Begin",e,"Table Generation"))
+      summary_table_func(b,e) 
+      print(paste(e,"Tables Complete"))
+   }
+  
    print(paste(b,"Minor Basin Tables Complete"))
    toc()
 }
-
-
-
+toc()
 
 
 
