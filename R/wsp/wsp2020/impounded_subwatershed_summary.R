@@ -15,8 +15,8 @@ runid = 13
 fname = 'watershed'
 omsite = "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
-syear = min(dat$year)
-eyear = max(dat$year)
+syear = as.numeric(min(dat$year))
+eyear = as.numeric(max(dat$year))
 if (syear < (eyear - 2)) {
   sdate <- as.Date(paste0(syear,"-10-01"))
   edate <- as.Date(paste0(eyear,"-09-30"))
@@ -38,7 +38,8 @@ modat <- sqldf(
   "select year, month, 
     round(avg(wd_mgd),2) as wd_mgd, 
     round(avg(release),2) as release, 
-    round(avg(local_channel_Qout),2) as Qin, 
+    round(avg(impoundment_Qin),2) as Qin, 
+    round(avg(impoundment_Qout),2) as Qout, 
     round(min(impoundment_days_remaining)) as min_days, 
     round(min(impoundment_use_remain_mg)) as use_remain_mg, 
     round(min(impoundment_lake_elev)) as lake_elev, 
@@ -59,6 +60,25 @@ barplot(mot, main="Monthly Mean Withdrawals",
 
 datdf <- as.data.frame(dat)
 Qyear <- sqldf("select year, avg(Qout) from datdf group by year order by year")
+modat <- sqldf(
+  "select year, month, 
+    round(avg(wd_mgd),2) as wd_mgd, 
+    round(avg(release),2) as release, 
+    round(avg(local_channel_Qout),2) as Qin, 
+    round(avg(impoundment_Qout),2) as Qout, 
+    round(avg(Qreach),2) as Qreach, 
+    round(min(Qreach),2) as minQreach, 
+    round(min(Qout),2) as minout, 
+    round(min(impoundment_days_remaining)) as min_days, 
+    round(min(impoundment_use_remain_mg)) as use_remain_mg, 
+    round(min(impoundment_lake_elev)) as lake_elev, 
+    round(min(storage_pct),2) * 100 as storage_pct
+  from datpdf 
+  group by year, month
+  order by year, month, jday"
+)
+modat
+
 
 boxplot(as.numeric(dat$Qout) ~ dat$year, ylim=c(0,amn))
 
@@ -147,10 +167,27 @@ molo = apply(mo_lows,2,function (x) median(x, na.rm = TRUE))
 #  molo_stash <- rbind(molo_stash, molo)
 #}
 
+
+
 dat$storage_pct <- (
   dat$impoundment_use_remain_mg * 3.07 
   / dat$impoundment_max_usable
 )
+# impoundment plots
+levels <- zoo(as.numeric(as.character( dat$storage_pct )), order.by = index(dat)) 
+# aggregate: https://stackoverflow.com/questions/5556135/how-to-get-the-date-of-maximum-values-of-rainfall-in-programming-language-r
+if (!is.null(levels)) {
+  # this is the 90 day low flow, better for Drought of Record?
+  lolevels <- group2(levels);
+  ll90 <- lolevels["90 Day Min"];
+  ndx = which.min(as.numeric(ll90[,"90 Day Min"]));
+  l90_level = round(lolevels[ndx,]$"90 Day Min",1);
+  ll90_year = lolevels[ndx,]$"year";
+  
+} else {
+  ll90_year = l90_year;
+}
+
 plot(dat$impoundment_lake_elev ~ dat$impoundment_Qout)
 
 plot(dat$impoundment_Qin, ylim=c(-0.1,15))
@@ -171,10 +208,12 @@ axis(side = 4)
 mtext(side = 4, line = 3, 'Flow (cfs)')
 
 # Now zoom in on critical drought period
+pdstart = as.Date(paste0(ll90_year,"-06-01") )
+pdend = as.Date(paste0(ll90_year, "-11-15") )
 datpd <- window(
   dat, 
-  start = as.Date(paste0(l90_year,"-06-01") ), 
-  end = as.Date(paste0(l90_year, "-10-30") )
+  start = pdstart, 
+  end = pdend
 );
 
 datpd$storage_pct <- datpd$impoundment_use_remain_mg * 3.07 / datpd$impoundment_max_usable
@@ -194,7 +233,7 @@ modatpd <- sqldf(
     round(min(storage_pct),2) * 100 as storage_pct
   from datpdf 
   group by year, month
-  order by year, month"
+  order by year, month, jday"
 )
 modatpd
 plot(datpd$impoundment_lake_elev ~ datpd$impoundment_Qout)
@@ -207,7 +246,8 @@ par(mar = c(5,5,2,5))
 plot(
   datpd$storage_pct * 100.0, 
   ylim=c(ymn,ymx), 
-  ylab="Reservoir Storage (%)"
+  ylab="Reservoir Storage (%)",
+  xlab=paste("Lowest 90 Day Flow Period",pdstart,"to",pdend)
 )
 par(new = TRUE)
 plot(datpd$impoundment_Qin,col='blue', axes=FALSE, xlab="", ylab="")
@@ -216,3 +256,53 @@ lines(datpd$wd_mgd * 1.547,col='red')
 axis(side = 4)
 mtext(side = 4, line = 3, 'Flow/Demand (cfs)')
 
+
+# l90 2 year
+# this has an impoundment.  Plot it up.
+# Now zoom in on critical drought period
+pdstart = as.Date(paste0( (as.integer(ll90_year) - 1),"-01-01") )
+pdend = as.Date(paste0(ll90_year, "-12-31") )
+datpd <- window(
+  dat, 
+  start = pdstart, 
+  end = pdend
+);
+plot(datpd$impoundment_Qin, ylim=c(-0.1,15))
+lines(datpd$Qout,col='blue')
+ymn <- 1
+ymx <- 100
+par(mar = c(5,5,2,5))
+plot(
+  datpd$storage_pct * 100.0, 
+  ylim=c(ymn,ymx), 
+  ylab="Reservoir Storage (%)",
+  xlab=paste("Lowest 90 Day Flow Period",pdstart,"to",pdend)
+)
+par(new = TRUE)
+plot(datpd$impoundment_Qin,col='blue', axes=FALSE, xlab="", ylab="")
+lines(datpd$impoundment_Qout,col='green')
+lines(datpd$wd_mgd * 1.547,col='red')
+axis(side = 4)
+mtext(side = 4, line = 3, 'Flow/Demand (cfs)')
+
+# All Periods
+# this has an impoundment.  Plot it up.
+# Now zoom in on critical drought period
+datpd <- dat
+plot(datpd$impoundment_Qin, ylim=c(-0.1,15))
+lines(datpd$Qout,col='blue')
+ymn <- 1
+ymx <- 100
+par(mar = c(5,5,2,5))
+plot(
+  datpd$storage_pct * 100.0, 
+  ylim=c(ymn,ymx), 
+  ylab="Reservoir Storage (%)",
+  xlab=paste("Full Modeling Period",pdstart,"to",pdend)
+)
+par(new = TRUE)
+plot(datpd$impoundment_Qin,col='blue', axes=FALSE, xlab="", ylab="")
+lines(datpd$impoundment_Qout,col='green')
+lines(datpd$wd_mgd * 1.547,col='red')
+axis(side = 4)
+mtext(side = 4, line = 3, 'Flow/Demand (cfs)')

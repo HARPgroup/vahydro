@@ -35,10 +35,10 @@ dat11 <- fn_hydro_runfile(elid, 11)
 dat14 <- fn_hydro_runfile(elid, 14)
 dat15 <- fn_hydro_runfile(elid, 15)
 dat16 <- fn_hydro_runfile(elid, 16)
-plot(dat11$Runit ~ dat11$et_in)
+plot(dat16$Runit ~ dat16$et_in)
+points(dat11$Runit ~ dat11$et_in, col='green')
 points(dat14$Runit ~ dat14$et_in, col='blue')
 points(dat15$Runit ~ dat15$et_in, col='red')
-points(dat16$Runit ~ dat16$et_in, col='green')
 
 datdf <- as.data.frame(dat)
 

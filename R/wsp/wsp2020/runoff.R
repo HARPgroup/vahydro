@@ -17,9 +17,16 @@ finfo <- fn_get_runfile_info( elid, runid, scenid = 37,
   site = "http://deq2.bse.vt.edu"
 )
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
+mode(dat) <- 'numeric'
+cols <- names(dat)
+if("Qunit" %in% cols) {
+  # copy Runit from Qunit
+  dat$Runit <- dat$Qunit 
+}
 rdat <- window(dat, start = as.Date("2002-08-01"), end = as.Date("2002-09-30"));
 rdatdf <- as.data.frame(rdat)
-
+mean(as.numeric(dat$Runit) )
+dat[1000:1010]$Runit
 dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
 boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
 # QA

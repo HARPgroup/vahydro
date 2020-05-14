@@ -8,8 +8,8 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279191
-elid = 241783
-runid = 13
+elid = 210937
+runid = 11
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
