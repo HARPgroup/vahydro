@@ -63,7 +63,7 @@ vahydro_foundation4_export <- function (
 }
 
 # Watersheds
-metrics = c('l90_Qout', 'l30_Qout', '7q10', 'ml8', 'wd_cumulative_mgd', 'ps_cumulative_mgd','wd_mgd', 'ps_mgd')
+metrics = c('l90_Qout', 'l30_Qout', '7q10', 'ml8', 'wd_cumulative_mgd', 'ps_cumulative_mgd','wd_mgd', 'ps_mgd', 'consumptive_use_frac')
 for (metric in metrics) {
   wshed_data <- vahydro_foundation4_export(metric, runids, folder, save_to_file = TRUE)
 }
