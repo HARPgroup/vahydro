@@ -347,7 +347,9 @@ LAYER
     CASE 
       WHEN ( (foo.propvalue is null) or (bar.propvalue is null) ) THEN -99999 
       WHEN ('%show_tidal%' = 0 and f.bundle = 'watershed' and f.ftype = 'vahydro' 
-        and ( (f.hydrocode ilike '%0000%') OR ((f.hydrocode ilike '%_PU%')) )
+        and ( (f.hydrocode ilike '%0000%') )
+  # Exclude Upper Potomac
+  #     and ( (f.hydrocode ilike '%0000%') OR ((f.hydrocode ilike '%_PU%')) )
       ) THEN -99999
       WHEN foo.propvalue > 0 THEN round(100.0 * ((bar.propvalue - foo.propvalue) / foo.propvalue)::numeric,4) 
       ELSE 0.0 
