@@ -416,7 +416,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 #basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 basins <- c('PS','RU','RL','YM','YP','YL','JU','JA','BS','TU','OD','NR')
 ext <- c(".html",".tex")
-basins <- c('NR')
+basins <- c('RU','BS','TU','OD','MN','OR')
 tic()
 for (b in basins) {
    tic(paste(b,"Minor Basin"))
