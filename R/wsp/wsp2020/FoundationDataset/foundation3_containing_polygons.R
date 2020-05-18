@@ -34,6 +34,11 @@ fips_join <- paste("SELECT *
                   ON (a.fips_code = b.fips_code)")  
 fips_join <- sqldf(fips_join)
 #-----------------------------------------------------------------
+
+#Remove duplicate fips_code column
+fips_join <- fips_join[,-which(colnames(fips_join)=="fips_code")[1]]
+
+
 #Set geoms equal to fips centroid if NA or outside of VA bounding box 
 data_sp <- sqldf("SELECT *,
               CASE
