@@ -14,6 +14,10 @@ export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020"
 #prevents scientific notation
 options(scipen = 20)
 #QA Check for demand projections (for Aquaveo export and SWRP update)
+ 
+
+################# Load Exempt Users export ##################################################
+exempt <- read.csv("U:/OWS/foundation_datasets/wsp/wsp2020/ows-exemptions-export.csv")
 
 ################# wd_current_mgy Facilities Data Summary ####################################
 
@@ -157,8 +161,9 @@ wsp2020_2040$mp_2020_mgy <- wsp2020_2040$mp_share
 wsp2020_2040$mp_share_2040 = wsp2020_2040$facility_use_fraction * wsp2020_2040$fac_value_2040
 wsp2020_2040$mp_2040_mgy <- wsp2020_2040$mp_share_2040
 wsp2020_2040$delta_2040_mgy <- (wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy)
-wsp2020_2040$delta_2040_pct <- ((wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2040_mgy)*100
+wsp2020_2040$delta_2040_pct <- ((wsp2020_2040$mp_2040_mgy - wsp2020_2040$mp_2020_mgy) / wsp2020_2040$mp_2020_mgy)*100
 wsp2020_2040$mp_2030_mgy <- (wsp2020_2040$mp_2020_mgy + wsp2020_2040$mp_2040_mgy)/2
+
 wsp2020_2040 <- sqldf("SELECT MP_hydroid, 
                     mp_name,
                     MP_bundle,
@@ -199,6 +204,13 @@ wsp2020_2040 <- sqldf("SELECT MP_hydroid,
                     delta_2040_pct
              FROM wsp2020_2040
              WHERE facility_status != 'unknown'")
+
+#append exempt values 
+wsp2020_2040 <- sqldf('SELECT a.*, b.final_exempt_propcode, b.final_exempt_propvalue_mgd
+                      FROM wsp2020_2040 a
+                      LEFT OUTER JOIN exempt b
+                      ON a.MP_hydroid = b.mp_hydroid
+                      ')
 
 # Write this file
 write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ), row.names = F)
