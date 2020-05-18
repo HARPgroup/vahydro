@@ -17,7 +17,13 @@ source(paste(basepath,"config.local.private",sep = '/'))
 
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
-RSeg.csv <- read.table(file = paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
+#RSeg.csv <- read.table(file = paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
+#DOWNLOAD RSEG LAYER DIRECT FROM VAHYDRO
+  localpath <- tempdir()
+  filename <- paste("vahydro_riversegs_export.csv",sep="")
+  destfile <- paste(localpath,filename,sep="\\")
+  download.file(paste("http://deq2.bse.vt.edu/d.dh/vahydro_riversegs_export",sep=""), destfile = destfile, method = "libcurl")
+  RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
 
 runid_a <- "runid_11"
