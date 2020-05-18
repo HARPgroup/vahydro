@@ -27,16 +27,21 @@ VAHydro_RSegs_layer <- 'VAHydro_RSegs'
 #LOAD FIPS CENTROIDS
 fips_centroids <- read.csv(paste("https://deq1.bse.vt.edu/d.dh/usafips_centroid_export",sep=""))
 ###########################################################################
-# join fips centroids 
-fips_join <- paste("SELECT *
+# join fips centroids - explicitly name columns
+fips_join <- paste("SELECT a.*,
+                  b.fips_hydroid,
+                  b.fips_name,
+                  b.fips_latitude,
+                  b.fips_longitude,
+                  b.fips_centroid
                   FROM data_sp AS a
                   LEFT OUTER JOIN fips_centroids AS b
                   ON (a.fips_code = b.fips_code)")  
 fips_join <- sqldf(fips_join)
 #-----------------------------------------------------------------
 
-#Remove duplicate fips_code column
-fips_join <- fips_join[,-which(colnames(fips_join)=="fips_code")[1]]
+# #Remove duplicate fips_code column
+# fips_join <- fips_join[,-which(colnames(fips_join)=="fips_code..27")[1]]
 
 
 #Set geoms equal to fips centroid if NA or outside of VA bounding box 
