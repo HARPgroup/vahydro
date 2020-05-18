@@ -16,7 +16,7 @@ library(beepr) #play beep sound when done running
 ### USER INPUTS  #####################################################################################
 ######################################################################################################
 
-minorbasin <- "MN" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "JL" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 #MinorBasins.csv[,2:3]
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout"
@@ -24,7 +24,7 @@ metric <- "l90_Qout"
 
 #runids
 runid_a <- "runid_11"
-runid_b <- "runid_15"
+runid_b <- "runid_13"
 
 ######################################################################################################
 ######################################################################################################
@@ -34,6 +34,7 @@ source(paste(basepath,"config.local.private",sep = '/'))
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
 RSeg.csv <- read.table(file = paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
+#MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
 river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
 
 
@@ -74,33 +75,51 @@ RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep="")
 ######################################################################################################
 ######################################################################################################
 # DETERMINE MAP EXTENT FROM MINOR BASIN CENTROID
-
-mb.row <- paste('SELECT *
+if (minorbasin %in% c('TU','OR','MN','JL')) {
+  
+  mb.row <- paste('SELECT *
               FROM "MinorBasins.csv" 
               WHERE code == "',minorbasin,'"',sep="")
-mb.row <- sqldf(mb.row)
-
-# mb.centroid <- wkt_centroid(mb.row$geom)
-# 
-# xmin <- mb.centroid$lng - 1
-# xmax <- mb.centroid$lng + 1
-# ymin <- mb.centroid$lat - 1
-# ymax <- mb.centroid$lat + 1
-
-# #alternative way to make extent of minor basin
-mb_bb <- wkt_bounding(mb.row$geom)
-x_length <- mb_bb$max_x - mb_bb$min_x
-y_length <- mb_bb$max_y - mb_bb$min_y
-
-xmin <- mb_bb$min_x - .1
-xmax <- mb_bb$max_x + .1
-ymin <- mb_bb$min_y - .4
-ymax <- mb_bb$max_y + .4
-
-extent <- data.frame(x = c(xmin, xmax),
-                     y = c(ymin, ymax))
-plot(extent)
-plot(MBProjected, add = T)
+  mb.row <- sqldf(mb.row)
+  
+  mb.centroid <- wkt_centroid(mb.row$geom)
+  
+  xmin <- mb.centroid$lng - 1.4
+  xmax <- mb.centroid$lng + 1.4
+  ymin <- mb.centroid$lat - 1.4
+  ymax <- mb.centroid$lat + 1.4
+  
+  # # #alternative way to make extent of minor basin
+  # mb_bb <- wkt_bounding(mb.row$geom)
+  # x_length <- mb_bb$max_x - mb_bb$min_x
+  # y_length <- mb_bb$max_y - mb_bb$min_y
+  # 
+  # xmin <- mb_bb$min_x - .1
+  # xmax <- mb_bb$max_x + .1
+  # ymin <- mb_bb$min_y - .4
+  # ymax <- mb_bb$max_y + .4
+  # plot(extent)
+  # plot(MBProjected, add = T)
+  
+  extent <- data.frame(x = c(xmin, xmax),
+                       y = c(ymin, ymax))
+} else {
+  
+  mb.row <- paste('SELECT *
+              FROM "MinorBasins.csv" 
+              WHERE code == "',minorbasin,'"',sep="")
+  mb.row <- sqldf(mb.row)
+  
+  mb.centroid <- wkt_centroid(mb.row$geom)
+  
+  xmin <- mb.centroid$lng - 1
+  xmax <- mb.centroid$lng + 1
+  ymin <- mb.centroid$lat - 1
+  ymax <- mb.centroid$lat + 1
+  
+  extent <- data.frame(x = c(xmin, xmax),
+                       y = c(ymin, ymax))
+}
 ######################################################################################################
 
 #bounding box
@@ -185,17 +204,7 @@ MB.df <- merge(MB.df, MB@data, by = 'id')
 
 ######################################################################################################
 ### PROCESS Rivers
-#####################################################################################################
-# #summary(river_shp)
-# #plot(river_shp)
-# proj4string(MBProjected) <- CRS("+proj=longlat +datum=WGS84")
-# MBProjected <- spTransform(MBProjected, CRS("+proj=longlat +datum=WGS84"))
-# river_shpProjected <- spTransform(river_shp, CRS("+proj=longlat +datum=WGS84"))
-# river_clip <- gIntersection(MBProjected,river_shpProjected)
-# river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = TRUE)
-# #summary(river.df)
-
-
+# #####################################################################################################
 #summary(river_shp)
 #plot(river_shp)
 proj4string(bbProjected) <- CRS("+proj=longlat +datum=WGS84")
@@ -206,6 +215,41 @@ river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = T
 #plot(river_clip)
 #summary(river.df)
 
+
+
+
+# river_data <- MajorRivers.csv
+# 
+# river_data$id <- as.character(row_number(river_data$feature))
+# river.list <- list()
+# 
+# for (z in 1:length(river_data$feature)) {
+#   print(paste("z = ",z,sep=''))
+#   print(river_data$feature[z])
+#   river_geom <- readWKT(river_data$geom[z])
+#   
+#   river_geom_clip <- gIntersection(bb, river_geom)
+#   
+#   if (is.null(river_geom_clip) == TRUE) {
+#     print("RIVER OUT OF MINOR BASIN EXTENT - SKIPPING") 
+#     next
+#   }
+#   riverProjected <- SpatialLinesDataFrame(river_geom_clip, data.frame('id'), match.ID = TRUE)
+#   riverProjected@data$id <- as.character(z)
+#   river.list[[z]] <- riverProjected
+# }
+# 
+# 
+# length(river.list)
+# #REMOVE THOSE RIVERS THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
+# river.list <- river.list[which(!sapply(river.list, is.null))]
+# length(river.list)
+# 
+# river <- do.call('rbind', river.list)
+# river@data <- merge(river@data, river_data, by = 'id')
+# river@data <- river@data[,-c(2:3)]
+# river.df <- fortify(river, region = 'id')
+# river.df <- merge(river.df, river@data, by = 'id')
 ######################################################################################################
 ### PROCESS RSegs
 ######################################################################################################
@@ -289,7 +333,7 @@ if (minorbasin %in% c('BS','JA','NR','OR','PL','RL','YL','YM','YP')) {
 if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL','MN')) {
   base_legend <- draw_image(image_path,height = .26, x = -.355, y = .05)
 } else  {
-  base_legend <- draw_image(image_path,height = .26, x = -.355, y = .5 )
+  base_legend <- draw_image(image_path,height = .26, x = -.355, y = .6 )
 }  
 ######################################################################################################
 #colnames(RSeg_data)
@@ -419,7 +463,7 @@ scale_fill_manual(values=color_values,
   guides(fill = guide_legend(reverse=TRUE))
 
 map <- ggdraw(source_current +
-  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5) +
+  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
   ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
   labs(subtitle = mb_name$name) +
   #xlab('Longitude (deg W)') + ylab('Latitude (deg N)') +
@@ -429,7 +473,7 @@ map <- ggdraw(source_current +
   base_theme) +
   base_legend
 
-ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map_v2.png",sep = ""), width=6.5, height=5)
+ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a,"_to_",runid_b,"_",metric,"_",minorbasin,"_map.png",sep = ""), width=6.5, height=5)
 
 
 }
@@ -452,7 +496,7 @@ ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a
 
 #----------- RUN MAPS IN BULK --------------------------
 
-minorbasin <- "MN" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "TU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 
 # CURRENT (2020 Comparison)
 #runids
@@ -460,7 +504,7 @@ runid_a <- "runid_11"
 
 m <- c("7q10", "l30_Qout", "l90_Qout")
 r <- c("runid_13","runid_14","runid_15","runid_16","runid_18") 
-r <- c("runid_13","runid_18")
+#r <- c("runid_13","runid_18")
 
 tic("Total")
 for (i in m) {
@@ -503,3 +547,7 @@ for (i in m) {
 }
 toc()
 beep(3)
+
+
+
+#------------------------------------------------------------------------------
