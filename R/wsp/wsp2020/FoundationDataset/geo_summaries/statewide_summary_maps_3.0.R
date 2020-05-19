@@ -8,7 +8,7 @@ library(sqldf)
 library(kableExtra)
 library(viridis) #magma
 library(cowplot) #plot static legend and DEQ logo
-
+library(httr)
 ######################################################################################################
 ### LOAD LAYERS  #####################################################################################
 ######################################################################################################
@@ -26,15 +26,37 @@ river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = 
   download.file(paste("http://deq2.bse.vt.edu/d.dh/vahydro_riversegs_export",sep=""), destfile = destfile, method = "libcurl")
   RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
+######################################################################################################
+###      USER INPUTS      ############################################################################
+######################################################################################################
 
+#Metric options include "7q10", "l30_Qout", "l90_Qout","l30_cc_Qout","l90_cc_Qout"
+metric <- "l30_cc_Qout"
 runid_a <- "runid_11"
-runid_b <- "runid_13"
+runid_b <- "runid_17"
 
-#Metric options include "7q10", "l30_Qout", "l90_Qout"
-metric <- "l30_Qout"
+#selects plot title based on chosen metric
+metric_title <- case_when(metric == "l30_Qout" ~ "30 Day Low Flow",
+                          metric == "l90_Qout" ~ "90 Day Low Flow",
+                          metric == "7q10" ~ "7Q10",
+                          metric == "l30_cc_Qout" ~ "30 Day Low Flow",
+                          metric == "l90_cc_Qout" ~ "90 Day Low Flow")
 
-#plot_title <- paste("Percent Change in ",metric," (",runid_a," to ",runid_b,")",sep="")
-plot_title <- paste("30 Day Low Flow (Percent Change 2020 to 2040)",sep="")
+#selects plot title based on chosen scenarios
+scenario_a_title <- case_when(runid_a == "runid_11" ~ "2020",
+                              runid_a == "runid_12" ~ "2030",
+                              runid_a == "runid_13" ~ "2040")
+scenario_b_title <- case_when(runid_b == "runid_12" ~ "2030",
+                              runid_b == "runid_13" ~ "2040",
+                              runid_b == "runid_14" ~ "Median Climate Change Scenario",
+                              runid_b == "runid_15" ~ "Dry Climate Change Scenario",
+                              runid_b == "runid_16" ~ "Wet Climate Change Scenario",
+                              runid_b == "runid_17" ~ "Dry Climate Change Scenario",
+                              runid_b == "runid_18" ~ "Exempt Users",
+                              runid_b == "runid_19" ~ "Median Climate Change Scenario",
+                              runid_b == "runid_20" ~ "Wet Climate Change Scenario")
+
+plot_title <- paste("Percent Change in ",metric_title," (",scenario_a_title," to ",scenario_b_title,")",sep="")
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
