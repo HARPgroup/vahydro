@@ -33,7 +33,12 @@ basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
 MinorBasins.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MinorBasins.csv', sep = ',', header = TRUE)
-RSeg.csv <- read.table(file = paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.csv', sep = ''), sep = ',', header = TRUE)
+#DOWNLOAD RSEG LAYER DIRECT FROM VAHYDRO
+localpath <- tempdir()
+filename <- paste("vahydro_riversegs_export.csv",sep="")
+destfile <- paste(localpath,filename,sep="\\")
+download.file(paste("http://deq2.bse.vt.edu/d.dh/vahydro_riversegs_export",sep=""), destfile = destfile, method = "libcurl")
+RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 #MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
 river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
 
@@ -496,14 +501,14 @@ ggsave(plot = map, file = paste0(folder, "tables_maps/",mb_name$name,"/",runid_a
 
 #----------- RUN MAPS IN BULK --------------------------
 
-minorbasin <- "TU" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
+minorbasin <- "PM" #PS, NR, YP, TU, RL, OR, EL, ES, PU, RU, YM, JA, MN, PM, YL, BS, PL, OD, JU, JB, JL
 
 # CURRENT (2020 Comparison)
 #runids
 runid_a <- "runid_11"
 
 m <- c("7q10", "l30_Qout", "l90_Qout")
-r <- c("runid_13","runid_14","runid_15","runid_16","runid_18") 
+r <- c("runid_13","runid_14","runid_15","runid_16","runid_18","runid_17","runid_19","runid_20") 
 #r <- c("runid_13","runid_18")
 
 tic("Total")
@@ -525,29 +530,24 @@ beep(3)
 #------------------------------------------------------------------
 # FUTURE (2040 Comparison)
 #runids
-runid_a <- "runid_13"
-#runid_b <- "runid_18"
-
-m <- c("7q10", "l30_Qout", "l90_Qout")
-r <- c("runid_17","runid_19","runid_20") 
-
-tic("Total")
-for (i in m) {
-  tic(paste("Metric - ",i))
-  print(paste("Metric:",i,"has started"))
-  for (z in r) {
-    tic(paste("Scenario - ",z))
-    print(paste("Scenario:",z,"has started"))
-    rseg_map_function(minorbasin,i,runid_a,z) 
-    print(paste("Scenario:",z,"has been completed"))
-    toc()
-  }
-  print(paste("Metric:",i,"has been completed"))
-  toc()
-}
-toc()
-beep(3)
-
-
-
-#------------------------------------------------------------------------------
+# runid_a <- "runid_13"
+# #runid_b <- "runid_18"
+# 
+# m <- c("7q10", "l30_Qout", "l90_Qout")
+# r <- c("runid_17","runid_19","runid_20") 
+# 
+# tic("Total")
+# for (i in m) {
+#   tic(paste("Metric - ",i))
+#   print(paste("Metric:",i,"has started"))
+#   for (z in r) {
+#     tic(paste("Scenario - ",z))
+#     print(paste("Scenario:",z,"has started"))
+#     rseg_map_function(minorbasin,i,runid_a,z) 
+#     print(paste("Scenario:",z,"has been completed"))
+#     toc()
+#   }
+#   print(paste("Metric:",i,"has been completed"))
+#   toc()
+# }
+# toc()

@@ -344,10 +344,11 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5_gw <- sqldf(paste('SELECT facility_name, system_type, 
                ',aggregate_select,',
                round(((sum(mp_2040_mgy)/365.25) /
-               (SELECT (sum(mp_2040_mgy)/365.25)
+                     (SELECT (sum(mp_2040_mgy)/365.25)
                      FROM mb_mps
-                     )) * 100,2) as pct_total_use
-               ,fips_name
+                     )
+               ) * 100,2) as pct_total_use,
+               fips_name
                FROM mb_mps
                WHERE MP_bundle = "well"
                AND wsp_ftype NOT LIKE "%ssusm"
@@ -414,9 +415,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 ##########################################################################################
 # call summary table function in for loop to iterate through basins
 #basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
-basins <- c('PS','RU','RL','YM','YP','YL','JU','JA','BS','TU','OD','NR')
 ext <- c(".html",".tex")
-basins <- c('RU','BS','TU','OD','MN','OR')
+basins <- c('PU','PM','JL','PL')
+
 tic()
 for (b in basins) {
    tic(paste(b,"Minor Basin"))
