@@ -248,6 +248,7 @@ RSeg_base_sf <- st_as_sf(RSeg_data_base, wkt = 'geom')
 
 ### PROCESS Southern Rivers basins (no Climate Change model runs) LAYER  #######################################################################
 if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runid_20')) {
+  
   RSeg_southern_basins <- sqldf("SELECT * 
                                 FROM RSeg_data_base
                                 WHERE hydrocode LIKE 'vahydrosw_wshed_BS%'
@@ -256,9 +257,10 @@ if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runi
                                 OR hydrocode LIKE 'vahydrosw_wshed_OR%'
                                 OR hydrocode LIKE 'vahydrosw_wshed_OD%'
                                 OR hydrocode LIKE 'vahydrosw_wshed_MN%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_KU0_8980_0000'
                                 ")
   RSeg_southern_basins_sf <- st_as_sf(RSeg_southern_basins, wkt = 'geom')
-  RSeg_southern_b_geom <- geom_sf(data = RSeg_southern_basins_sf,aes(geometry = geom),fill = 'black',color = 'black', inherit.aes = FALSE)
+  RSeg_southern_b_geom <- geom_sf(data = RSeg_southern_basins_sf,aes(geometry = geom),fill = 'snow',color = 'snow', inherit.aes = FALSE)
 } else {
   RSeg_southern_b_geom <- geom_blank()
 }
