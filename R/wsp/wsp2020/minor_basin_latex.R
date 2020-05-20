@@ -619,7 +619,7 @@ basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'J
 ext <- c(".html",".tex")
 #basins <- c('YP','PM','JL','PL')
 
-summary_table_func(minorbasin = 'YP', file_extension = '.html')
+summary_table_func(minorbasin = 'PU', file_extension = '.tex')
 
 tic()
 for (b in basins) {
