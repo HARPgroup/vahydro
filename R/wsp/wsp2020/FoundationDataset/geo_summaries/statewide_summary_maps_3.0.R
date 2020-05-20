@@ -107,34 +107,6 @@ state@data <- state@data[,-c(2:3)]
 state.df <- fortify(state, region = 'id')
 state.df <- merge(state.df, state@data, by = 'id')
 
-# ### PROCESS VIRGINIA BOUNDARY LAYER  ############################################################################
-# ######################################################################################################
-# #select Virginia
-# VA <- sqldf(paste('SELECT *
-#                 FROM STATES 
-#                 WHERE state = "VA"
-#                 ',sep=""))
-# 
-# #STATES$id <- as.numeric(rownames(STATES))
-# va.list <- list()
-# 
-# #i <- 1
-# 
-#   print(paste("i = ",i,sep=''))
-#   print(as.character(STATES$state[i]))
-#   state_geom <- readWKT(STATES$geom[i])
-#   #print(state_geom)
-#   state_geom_clip <- gIntersection(bb, state_geom)
-#   stateProjected <- SpatialPolygonsDataFrame(state_geom_clip, data.frame('id'), match.ID = TRUE)
-#   stateProjected@data$id <- as.character(i)
-#   state.list[[i]] <- stateProjected
-# 
-# state <- do.call('rbind', state.list)
-# state@data <- merge(state@data, STATES, by = 'id')
-# state@data <- state@data[,-c(2:3)]
-# state.df <- fortify(state, region = 'id')
-# state.df <- merge(state.df, state@data, by = 'id')
-
 ######################################################################################################
 ### PROCESS Minor Basin LAYER  #######################################################################
 ######################################################################################################

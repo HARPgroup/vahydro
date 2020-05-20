@@ -209,7 +209,7 @@ wsp2020_2040 <- sqldf("SELECT MP_hydroid,
              WHERE facility_status != 'unknown'")
 
 #append exempt values 
-wsp2020_20402 <- sqldf('SELECT a.*, b.final_exempt_propcode, b.final_exempt_propvalue_mgd
+wsp2020_2040 <- sqldf('SELECT a.*, b.final_exempt_propcode, b.final_exempt_propvalue_mgd
                       FROM wsp2020_2040 a
                       LEFT OUTER JOIN exempt b
                       ON a.MP_hydroid = b.mp_hydroid
