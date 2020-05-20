@@ -56,7 +56,7 @@ scenario_b_title <- case_when(runid_b == "runid_12" ~ "2030",
                               runid_b == "runid_19" ~ "Median Climate Change Scenario",
                               runid_b == "runid_20" ~ "Wet Climate Change Scenario")
 
-plot_title <- paste("Percent Change in ",metric_title," (",scenario_a_title," to ",scenario_b_title,")",sep="")
+plot_title <- paste("Percent Change in ",metric_title," \n     (",scenario_a_title," to ",scenario_b_title,")",sep="")
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
@@ -107,6 +107,34 @@ state@data <- state@data[,-c(2:3)]
 state.df <- fortify(state, region = 'id')
 state.df <- merge(state.df, state@data, by = 'id')
 
+# ### PROCESS VIRGINIA BOUNDARY LAYER  ############################################################################
+# ######################################################################################################
+# #select Virginia
+# VA <- sqldf(paste('SELECT *
+#                 FROM STATES 
+#                 WHERE state = "VA"
+#                 ',sep=""))
+# 
+# #STATES$id <- as.numeric(rownames(STATES))
+# va.list <- list()
+# 
+# #i <- 1
+# 
+#   print(paste("i = ",i,sep=''))
+#   print(as.character(STATES$state[i]))
+#   state_geom <- readWKT(STATES$geom[i])
+#   #print(state_geom)
+#   state_geom_clip <- gIntersection(bb, state_geom)
+#   stateProjected <- SpatialPolygonsDataFrame(state_geom_clip, data.frame('id'), match.ID = TRUE)
+#   stateProjected@data$id <- as.character(i)
+#   state.list[[i]] <- stateProjected
+# 
+# state <- do.call('rbind', state.list)
+# state@data <- merge(state@data, STATES, by = 'id')
+# state@data <- state@data[,-c(2:3)]
+# state.df <- fortify(state, region = 'id')
+# state.df <- merge(state.df, state@data, by = 'id')
+
 ######################################################################################################
 ### PROCESS Minor Basin LAYER  #######################################################################
 ######################################################################################################
@@ -129,7 +157,6 @@ MB@data <- merge(MB@data, st_data, by = 'id')
 MB@data <- MB@data[,-c(2:3)]
 MB.df <- fortify(MB, region = 'id')
 MB.df <- merge(MB.df, MB@data, by = 'id')
-
 
 ######################################################################################################
 ### PROCESS Major Rivers LAYER  #######################################################################
@@ -156,7 +183,7 @@ RSeg_data <- paste('SELECT *,
                   #WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '') 
 RSeg_data <- sqldf(RSeg_data)
 length(RSeg_data[,1])
-RSeg_data <- RSeg_data[,-5] #need to remove duplicate hydrocode column? 
+RSeg_data <- RSeg_data[,-10] #need to remove duplicate hydrocode column? 
 # REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
 RSeg_valid_geoms <- paste("SELECT *
                   FROM RSeg_data
@@ -218,7 +245,23 @@ group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
 ######################################################################################################
 RSeg_sf <- st_as_sf(RSeg_data, wkt = 'geom')
 RSeg_base_sf <- st_as_sf(RSeg_data_base, wkt = 'geom')
-######################################################################################################
+
+### PROCESS Southern Rivers basins (no Climate Change model runs) LAYER  #######################################################################
+if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runid_20')) {
+  RSeg_southern_basins <- sqldf("SELECT * 
+                                FROM RSeg_data_base
+                                WHERE hydrocode LIKE 'vahydrosw_wshed_BS%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_TU%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_NR%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_OR%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_OD%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_MN%'
+                                ")
+  RSeg_southern_basins_sf <- st_as_sf(RSeg_southern_basins, wkt = 'geom')
+  RSeg_southern_b_geom <- geom_sf(data = RSeg_southern_basins_sf,aes(geometry = geom),fill = 'black',color = 'black', inherit.aes = FALSE)
+} else {
+  RSeg_southern_b_geom <- geom_blank()
+}
 
 ######################################################################################################
 ### GENERATE YOUR MAP  ###############################################################################
@@ -252,8 +295,8 @@ map <- base_map +
   geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)+ 
   geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)+ 
   geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)+ 
-
-    scale_fill_manual(values=c("gray55","darkolivegreen3","cornflowerblue","khaki2","plum3","coral3"), 
+  RSeg_southern_b_geom+
+  scale_fill_manual(values=c("gray55","darkolivegreen3","cornflowerblue","khaki2","plum3","coral3"), 
                     name = "Legend",
                     labels = c("Tidal Segment",
                                ">= 0%", 
@@ -269,7 +312,7 @@ map <- base_map +
   # ADD BORDER ####################################################################
   geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
   
-  ggtitle(paste("      ",plot_title,sep=""))+
+  ggtitle(paste("     ",plot_title,sep=""))+
   theme(legend.justification=c(0,1), 
         legend.position=c(0.051,0.945)) +
   theme(axis.title.x=element_blank(),
@@ -281,12 +324,11 @@ map <- base_map +
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
-        panel.border = element_blank())
-
+        panel.border = element_blank()) 
 
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
-ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map.png"), width=6.5, height=5)
+ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map2.png"), width=6.5, height=5)
 
 
 
