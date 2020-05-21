@@ -233,8 +233,10 @@ if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runi
                                 ")
   RSeg_southern_basins_sf <- st_as_sf(RSeg_southern_basins, wkt = 'geom')
   RSeg_southern_b_geom <- geom_sf(data = RSeg_southern_basins_sf,aes(geometry = geom),fill = 'gray30',color = 'gray30', inherit.aes = FALSE)
+  cc_models_box <- draw_image(paste(folder,'tables_maps/cc_models_box_gray30.png',sep=''),scale = 2.4, height = 1, x = extent$x[1]+3.1, y = extent$y[1]+1.4)
 } else {
   RSeg_southern_b_geom <- geom_blank()
+  cc_models_box <- geom_blank()
 }
 
 ######################################################################################################
@@ -282,7 +284,7 @@ map <- base_map +
   geom_polygon(data = MB.df, color="black", fill = NA,lwd=0.5)+
   
   draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 2, height = 1, x = extent$x[1]+0.56, y = extent$y[1])+ 
-  draw_image(paste(folder,'tables_maps/cc_models_box_gray30.png',sep=''),scale = 2, height = 1, x = extent$x[1]+3.3, y = extent$y[1]+1.4)+ 
+  cc_models_box+
   
   # ADD BORDER ####################################################################
   geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
@@ -303,7 +305,7 @@ map <- base_map +
 
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
-ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map3.png"), width=6.5, height=5)
+ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map.png"), width=6.5, height=5)
 
 
 
