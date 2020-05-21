@@ -4,7 +4,7 @@ library("sqldf")
 library("sjmisc")
 #library("beepr") #play beep sound when done running
 library("assertive.base")
-
+library("tictoc")
 #--INITIALIZE GLOBAL VARIABLES------------------------
 
 #totals function which quickly applies sum to each numeric column (skips non-numeric)
@@ -42,7 +42,7 @@ mp_all <- data_raw
 
 ######### SUMMARY TABLE #############################
 ##############################################################
-summary_table_func <- function(minorbasin = "PS", file_extension = ".html"){
+summary_table_func <- function(minorbasin = "YP", file_extension = ".html"){
    
    #switch between file types to save in common drive folder; html or latex
    if (file_extension == ".html") {
@@ -66,7 +66,7 @@ summary_table_func <- function(minorbasin = "PS", file_extension = ".html"){
 round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
 round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
 round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS pct_change'
+round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.25), 2) AS pct_change'
    
       if (minorbasin == "all") {
       #--------All Minor Basins including power -----------------------------------------
@@ -244,6 +244,95 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(15, bold=T) %>%
       cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code,"_table",file_ext,sep=""))
    
+   #-------------- TOP 5 USERS (NO POWER detected) ---------------------
+   top_sw_no <- sqldf('SELECT facility_name, system_type,
+                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+                        fips_name 
+               FROM mb_mps 
+               WHERE MP_bundle = "intake"
+                  AND facility_ftype NOT LIKE "%power"
+                  AND facility_ftype NOT LIKE "wsp_plan%"
+               GROUP BY Facility_hydroid')
+   
+   top_5_sw_no <- sqldf('SELECT facility_name, 
+                           system_type,
+                           fips_name,
+                           MGD_2020,
+                           MGD_2030,
+                           MGD_2040,
+                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+                  FROM top_sw_no
+                  ORDER BY MGD_2040 DESC
+                  limit 5')
+   
+   top_5_sw_no <- append_totals(top_5_sw_no, "Total SW")
+   
+   top_5_sw_no$pct_total_use <- round((top_5_sw_no$MGD_2040 / A$MGD_2040[5]) * 100,2)
+   
+   top_gw_no <- sqldf('SELECT facility_name, system_type,
+                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+                        fips_name 
+               FROM mb_mps 
+               WHERE MP_bundle = "well"
+                  AND facility_ftype NOT LIKE "%power"
+                  AND facility_ftype NOT LIKE "wsp_plan%"
+               GROUP BY Facility_hydroid')
+   
+   top_5_gw_no <- sqldf('SELECT facility_name, 
+                           system_type,
+                           fips_name,
+                           MGD_2020,
+                           MGD_2030,
+                           MGD_2040,
+                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+                  FROM top_gw_no
+                  ORDER BY MGD_2040 DESC
+                  limit 5')
+   
+   top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
+   
+   top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
+   
+   gw_header <- data.frame("facility_name" = '',
+                           "system_type" = '',
+                           "fips_name" = '',
+                           "MGD_2020" = '',
+                           "MGD_2030" ='',
+                           "MGD_2040" ='',
+                           "pct_change" = '',
+                           "pct_total_use" = '% of Total Ground Water')
+   
+   top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+   
+   index <- c('A','B','C','D','E','','Groundwater','F','G','H','I','J','')
+   top_5_no <- cbind(index,top_5_no)
+   # #initcaps attempt
+   # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
+   #                   from top_5_sw
+   #                   WHERE facility_name > 0")
+   
+   # OUTPUT TABLE IN KABLE FORMAT
+   kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         label = paste("top_5_no_power",mb_code,sep=""),
+         col.names = c("Map Index",
+                       "Facility Name",
+                       "System Type",
+                       "Locality",
+                       kable_col_names[3:6],
+                       "% of Total Surface Water")) %>%
+      kable_styling(latex_options = latexoptions) %>%
+      column_spec(1, width = "10em") %>%
+      pack_rows("Surface Water", 1, 6) %>%
+      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
+      #horizontal solid line depending on html or latex output
+      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_no_power_",mb_code,"_table",file_ext,sep=""))
+   
 } else {
 
    #when 'power' IS detected in facility ftype column, then generate 2 separate summary tables for yes/no power
@@ -256,14 +345,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
    sql_A[nrow(sql_A) + 1,] <- list(" ","Small Self-Supplied User",0.00,0.00,0.00,0.00)
-   A <- append_totals(sql_A,"Total SW")
+   AA <- append_totals(sql_A,"Total SW")
    sql_B <- sqldf(paste('SELECT " " AS source_type, system_type, ',
                         aggregate_select,'
                      FROM mb_mps
                      WHERE MP_bundle = "well"
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
-   B <- append_totals(sql_B,"Total GW")
+   BB <- append_totals(sql_B,"Total GW")
    sql_C <- sqldf(paste('SELECT " " AS source_type, system_type, ',
                         aggregate_select,'
                      FROM mb_mps
@@ -272,7 +361,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS source_type, "" AS system_type, ',
                          aggregate_select,'
                      FROM mb_mps',sep=""))
-   table_1 <- rbind(A,B,sql_C,sql_D)
+   table_1 <- rbind(AA,BB,sql_C,sql_D)
 #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
@@ -337,55 +426,75 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(15, bold=T) %>%
       cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code,"_table",file_ext,sep=""))
    
-}
-   
-   #TOP 5 USERS Table
+   ######## TOP 5 USERS Table ###############################################################
    #NOTE: these are sums of each source type by facility (aka the #1 groundwater user may have 4 wells that add up to a huge amount, it's not a table showing simply the largest MP withdrawal by source)
-   top_5_gw <- sqldf(paste('SELECT facility_name, system_type, 
-               ',aggregate_select,',
-               round(((sum(mp_2040_mgy)/365.25) /
-                     (SELECT (sum(mp_2040_mgy)/365.25)
-                     FROM mb_mps
-                     )
-               ) * 100,2) as pct_total_use,
-               fips_name
-               FROM mb_mps
-               WHERE MP_bundle = "well"
-               AND wsp_ftype NOT LIKE "%ssusm"
-               GROUP BY Facility_hydroid
-               ORDER BY MGD_2040 DESC
-               LIMIT 5', sep=""))
    
-   top_5_gw <- append_totals(top_5_gw, "Total GW")
-   
-   top_5_sw <- sqldf(paste('SELECT facility_name, system_type, 
-               ',aggregate_select,',
-               round(((sum(mp_2040_mgy)/365.25) /
-               (SELECT (sum(mp_2040_mgy)/365.25)
-                     FROM mb_mps
-                     )) * 100,2) as pct_total_use
-               ,fips_name
-               FROM mb_mps
+   #-------------- TOP 5 USERS INCLUDING POWER GENERATION (YES POWER) ---------------------
+   top_sw <- sqldf('SELECT facility_name, system_type,
+                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+                        fips_name 
+               FROM mb_mps 
                WHERE MP_bundle = "intake"
-               AND wsp_ftype NOT LIKE "%ssusm"
-               GROUP BY Facility_hydroid
-               ORDER BY MGD_2040 DESC
-               LIMIT 5', sep=""))
+                  AND facility_ftype NOT LIKE "wsp_plan%"
+               GROUP BY Facility_hydroid')
+   
+   top_5_sw <- sqldf('SELECT facility_name, 
+                           system_type,
+                           fips_name,
+                           MGD_2020,
+                           MGD_2030,
+                           MGD_2040,
+                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+                  FROM top_sw
+                  ORDER BY MGD_2040 DESC
+                  limit 5')
    
    top_5_sw <- append_totals(top_5_sw, "Total SW")
    
-   sw_header <- data.frame("facility_name" = '',
+   #need to select the AA for the YES power (including)
+   top_5_sw$pct_total_use <- round((top_5_sw$MGD_2040 / AA$MGD_2040[5]) * 100,2)
+   
+   top_gw <- sqldf('SELECT facility_name, system_type,
+                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+                        fips_name 
+               FROM mb_mps 
+               WHERE MP_bundle = "well"
+                  AND facility_ftype NOT LIKE "wsp_plan%"
+               GROUP BY Facility_hydroid')
+   
+   top_5_gw <- sqldf('SELECT facility_name, 
+                           system_type,
+                           fips_name,
+                           MGD_2020,
+                           MGD_2030,
+                           MGD_2040,
+                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+                  FROM top_gw
+                  ORDER BY MGD_2040 DESC
+                  limit 5')
+   
+   top_5_gw <- append_totals(top_5_gw, "Total GW")
+   
+   
+   #need to select the BB for the YES power (including)
+   top_5_gw$pct_total_use <- round((top_5_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
+   
+   gw_header <- data.frame("facility_name" = '',
                            "system_type" = '',
+                           "fips_name" = '',
                            "MGD_2020" = '',
                            "MGD_2030" ='',
                            "MGD_2040" ='',
                            "pct_change" = '',
-                           "pct_total_use" = '% of Total Surface Water',
-                           "fips_name" = '')
+                           "pct_total_use" = '% of Total Ground Water')
    
-   top_5 <- rbind(top_5_gw, sw_header, top_5_sw)
+   top_5 <- rbind(top_5_sw, gw_header, top_5_gw)
    
-   index <- c('A','B','C','D','E','','Surface Water','F','G','H','I','J','')
+   index <- c('A','B','C','D','E','','Groundwater','F','G','H','I','J','')
    top_5 <- cbind(index,top_5)
    # #initcaps attempt
    # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
@@ -394,29 +503,123 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-         label = paste("top_5_",mb_code,sep=""),
+         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
+         label = paste("top_5_yes_power",mb_code,sep=""),
          col.names = c("Map Index",
                        "Facility Name",
                        "System Type",
+                       "Locality",
                        kable_col_names[3:6],
-                       "% of Total Groundwater",
-                       "Locality")) %>%
+                       "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "10em") %>%
-      pack_rows("Groundwater", 1, 6) %>%
+      column_spec(1, width = "3em") %>%
+      column_spec(2, width = "10em") %>%
+      pack_rows("Surface Water", 1, 6) %>%
       #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_",mb_code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_yes_power_",mb_code,"_table",file_ext,sep=""))
+   
+   #-------------- TOP 5 USERS EXCLUDING POWER GENERATION (NO POWER) ---------------------
+   top_sw_no <- sqldf('SELECT facility_name, system_type,
+                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+                        fips_name 
+               FROM mb_mps 
+               WHERE MP_bundle = "intake"
+                  AND facility_ftype NOT LIKE "%power"
+                  AND facility_ftype NOT LIKE "wsp_plan%"
+               GROUP BY Facility_hydroid')
+   
+   top_5_sw_no <- sqldf('SELECT facility_name, 
+                           system_type,
+                           fips_name,
+                           MGD_2020,
+                           MGD_2030,
+                           MGD_2040,
+                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+                  FROM top_sw_no
+                  ORDER BY MGD_2040 DESC
+                  limit 5')
+   
+   top_5_sw_no <- append_totals(top_5_sw_no, "Total SW")
+   
+   top_5_sw_no$pct_total_use <- round((top_5_sw_no$MGD_2040 / A$MGD_2040[5]) * 100,2)
+   
+   top_gw_no <- sqldf('SELECT facility_name, system_type,
+                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+                        fips_name 
+               FROM mb_mps 
+               WHERE MP_bundle = "well"
+                  AND facility_ftype NOT LIKE "%power"
+                  AND facility_ftype NOT LIKE "wsp_plan%"
+               GROUP BY Facility_hydroid')
+   
+   top_5_gw_no <- sqldf('SELECT facility_name, 
+                           system_type,
+                           fips_name,
+                           MGD_2020,
+                           MGD_2030,
+                           MGD_2040,
+                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+                  FROM top_gw_no
+                  ORDER BY MGD_2040 DESC
+                  limit 5')
+   
+   top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
+   
+   top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
+   
+   gw_header <- data.frame("facility_name" = '',
+                           "system_type" = '',
+                           "fips_name" = '',
+                           "MGD_2020" = '',
+                           "MGD_2030" ='',
+                           "MGD_2040" ='',
+                           "pct_change" = '',
+                           "pct_total_use" = '% of Total Ground Water')
+   
+   top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+   
+   index <- c('A','B','C','D','E','','Groundwater','F','G','H','I','J','')
+   top_5_no <- cbind(index,top_5_no)
+   # #initcaps attempt
+   # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
+   #                   from top_5_sw
+   #                   WHERE facility_name > 0")
+   
+   # OUTPUT TABLE IN KABLE FORMAT
+   kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
+         label = paste("top_5_no_power",mb_code,sep=""),
+         col.names = c("Map Index",
+                       "Facility Name",
+                       "System Type",
+                       "Locality",
+                       kable_col_names[3:6],
+                       "% of Total Surface Water")) %>%
+      kable_styling(latex_options = latexoptions) %>%
+      column_spec(1, width = "10em") %>%
+      pack_rows("Surface Water", 1, 6) %>%
+      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
+      #horizontal solid line depending on html or latex output
+      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_no_power_",mb_code,"_table",file_ext,sep=""))
+   
+}
    
 }
 
 ##########################################################################################
 # call summary table function in for loop to iterate through basins
-#basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
+basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 ext <- c(".html",".tex")
-basins <- c('PU','PM','JL','PL')
+#basins <- c('YP','PM','JL','PL')
+
+summary_table_func(minorbasin = 'PU', file_extension = '.tex')
 
 tic()
 for (b in basins) {

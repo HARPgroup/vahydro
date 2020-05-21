@@ -1,5 +1,5 @@
-require(sqldf)
-require(httr)
+library(sqldf)
+library(httr)
 
 #----------------------------------------------
 # USER INPUTS
@@ -18,7 +18,10 @@ options(scipen = 20)
 
 ################# Load Exempt Users export ##################################################
 exempt <- read.csv("U:/OWS/foundation_datasets/wsp/wsp2020/ows-exemptions-export.csv")
-
+#exempt users screen shows permit linkage - meaning if a Facility is linked to multiple permits, a record for each permit will show - select distinct ensures no duplicates
+exempt <- sqldf("SELECT distinct mp_hydroid, final_exempt_propcode, final_exempt_propvalue_mgd
+                FROM exempt
+                ")
 ################# wd_current_mgy Facilities Data Summary ####################################
 
 localpath <- tempdir()

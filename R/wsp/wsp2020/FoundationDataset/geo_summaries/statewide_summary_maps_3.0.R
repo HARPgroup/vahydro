@@ -8,7 +8,7 @@ library(sqldf)
 library(kableExtra)
 library(viridis) #magma
 library(cowplot) #plot static legend and DEQ logo
-
+library(httr)
 ######################################################################################################
 ### LOAD LAYERS  #####################################################################################
 ######################################################################################################
@@ -26,15 +26,37 @@ river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = 
   download.file(paste("http://deq2.bse.vt.edu/d.dh/vahydro_riversegs_export",sep=""), destfile = destfile, method = "libcurl")
   RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 
+######################################################################################################
+###      USER INPUTS      ############################################################################
+######################################################################################################
 
+#Metric options include "7q10", "l30_Qout", "l90_Qout","l30_cc_Qout","l90_cc_Qout"
+metric <- "l30_cc_Qout"
 runid_a <- "runid_11"
-runid_b <- "runid_13"
+runid_b <- "runid_17"
 
-#Metric options include "7q10", "l30_Qout", "l90_Qout"
-metric <- "l30_Qout"
+#selects plot title based on chosen metric
+metric_title <- case_when(metric == "l30_Qout" ~ "30 Day Low Flow",
+                          metric == "l90_Qout" ~ "90 Day Low Flow",
+                          metric == "7q10" ~ "7Q10",
+                          metric == "l30_cc_Qout" ~ "30 Day Low Flow",
+                          metric == "l90_cc_Qout" ~ "90 Day Low Flow")
 
-#plot_title <- paste("Percent Change in ",metric," (",runid_a," to ",runid_b,")",sep="")
-plot_title <- paste("30 Day Low Flow (Percent Change 2020 to 2040)",sep="")
+#selects plot title based on chosen scenarios
+scenario_a_title <- case_when(runid_a == "runid_11" ~ "2020",
+                              runid_a == "runid_12" ~ "2030",
+                              runid_a == "runid_13" ~ "2040")
+scenario_b_title <- case_when(runid_b == "runid_12" ~ "2030",
+                              runid_b == "runid_13" ~ "2040",
+                              runid_b == "runid_14" ~ "Median Climate Change Scenario",
+                              runid_b == "runid_15" ~ "Dry Climate Change Scenario",
+                              runid_b == "runid_16" ~ "Wet Climate Change Scenario",
+                              runid_b == "runid_17" ~ "Dry Climate Change Scenario",
+                              runid_b == "runid_18" ~ "Exempt Users",
+                              runid_b == "runid_19" ~ "Median Climate Change Scenario",
+                              runid_b == "runid_20" ~ "Wet Climate Change Scenario")
+
+plot_title <- paste("Percent Change in ",metric_title," \n     (",scenario_a_title," to ",scenario_b_title,")",sep="")
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
@@ -108,7 +130,6 @@ MB@data <- MB@data[,-c(2:3)]
 MB.df <- fortify(MB, region = 'id')
 MB.df <- merge(MB.df, MB@data, by = 'id')
 
-
 ######################################################################################################
 ### PROCESS Major Rivers LAYER  #######################################################################
 ######################################################################################################
@@ -134,7 +155,7 @@ RSeg_data <- paste('SELECT *,
                   #WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '') 
 RSeg_data <- sqldf(RSeg_data)
 length(RSeg_data[,1])
-RSeg_data <- RSeg_data[,-5] #need to remove duplicate hydrocode column? 
+RSeg_data <- RSeg_data[,-10] #need to remove duplicate hydrocode column? 
 # REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
 RSeg_valid_geoms <- paste("SELECT *
                   FROM RSeg_data
@@ -196,7 +217,27 @@ group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
 ######################################################################################################
 RSeg_sf <- st_as_sf(RSeg_data, wkt = 'geom')
 RSeg_base_sf <- st_as_sf(RSeg_data_base, wkt = 'geom')
-######################################################################################################
+
+### PROCESS Southern Rivers basins (no Climate Change model runs) LAYER  #######################################################################
+if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runid_20')) {
+  
+  RSeg_southern_basins <- sqldf("SELECT * 
+                                FROM RSeg_data_base
+                                WHERE hydrocode LIKE 'vahydrosw_wshed_BS%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_TU%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_NR%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_OR%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_OD%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_MN%'
+                                OR hydrocode LIKE 'vahydrosw_wshed_KU0_8980_0000'
+                                ")
+  RSeg_southern_basins_sf <- st_as_sf(RSeg_southern_basins, wkt = 'geom')
+  RSeg_southern_b_geom <- geom_sf(data = RSeg_southern_basins_sf,aes(geometry = geom),fill = 'gray30',color = 'gray30', inherit.aes = FALSE)
+  cc_models_box <- draw_image(paste(folder,'tables_maps/cc_models_box_gray30.png',sep=''),scale = 2.4, height = 1, x = extent$x[1]+3.1, y = extent$y[1]+1.4)
+} else {
+  RSeg_southern_b_geom <- geom_blank()
+  cc_models_box <- geom_blank()
+}
 
 ######################################################################################################
 ### GENERATE YOUR MAP  ###############################################################################
@@ -230,8 +271,8 @@ map <- base_map +
   geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)+ 
   geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)+ 
   geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)+ 
-
-    scale_fill_manual(values=c("gray55","darkolivegreen3","cornflowerblue","khaki2","plum3","coral3"), 
+  RSeg_southern_b_geom+
+  scale_fill_manual(values=c("gray55","darkolivegreen3","cornflowerblue","khaki2","plum3","coral3"), 
                     name = "Legend",
                     labels = c("Tidal Segment",
                                ">= 0%", 
@@ -243,11 +284,12 @@ map <- base_map +
   geom_polygon(data = MB.df, color="black", fill = NA,lwd=0.5)+
   
   draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 2, height = 1, x = extent$x[1]+0.56, y = extent$y[1])+ 
+  cc_models_box+
   
   # ADD BORDER ####################################################################
   geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
   
-  ggtitle(paste("      ",plot_title,sep=""))+
+  ggtitle(paste("     ",plot_title,sep=""))+
   theme(legend.justification=c(0,1), 
         legend.position=c(0.051,0.945)) +
   theme(axis.title.x=element_blank(),
@@ -259,8 +301,7 @@ map <- base_map +
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
-        panel.border = element_blank())
-
+        panel.border = element_blank()) 
 
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
