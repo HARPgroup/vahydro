@@ -15,13 +15,13 @@ runid = 13
 fname = 'watershed'
 omsite = "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
-syear = min(dat$year)
-eyear = max(dat$year)
-if (syear < (eyear - 2)) {
+syear = as.integer(min(dat$year))
+eyear = as.integer(max(dat$year))
+if (syear != eyear) {
   sdate <- as.Date(paste0(syear,"-10-01"))
   edate <- as.Date(paste0(eyear,"-09-30"))
 } else {
-  sdate <- as.Date(paste0(syear,"-01-01"))
+  sdate <- as.Date(paste0(syear,"-02-01"))
   edate <- as.Date(paste0(eyear,"-12-31"))
 }
 dat <- window(dat, start = sdate, end = edate);
@@ -185,8 +185,6 @@ modatpd <- sqldf(
     round(avg(release),2) as release, 
     round(avg(local_channel_Qout),2) as Qin, 
     round(avg(impoundment_Qout),2) as Qout, 
-    round(avg(Qreach),2) as Qreach, 
-    round(min(Qreach),2) as minQreach, 
     round(min(Qout),2) as minout, 
     round(min(impoundment_days_remaining)) as min_days, 
     round(min(impoundment_use_remain_mg)) as use_remain_mg, 
