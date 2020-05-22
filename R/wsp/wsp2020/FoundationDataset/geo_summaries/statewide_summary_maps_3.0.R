@@ -182,6 +182,8 @@ RSeg_Tidal <- paste('SELECT *
                   AND hydrocode NOT LIKE "vahydrosw_wshed_YP%0000"
                   AND hydrocode NOT LIKE "vahydrosw_wshed_JB%0000"
                   AND hydrocode NOT LIKE "vahydrosw_wshed_MN%0000"
+                  AND hydrocode NOT LIKE "vahydrosw_wshed_ES%0000"
+                  AND hydrocode NOT LIKE "vahydrosw_wshed_EL%0000"
                    ',sep = '')  
 RSeg_data <- sqldf(RSeg_Tidal)
 length(RSeg_data[,1])  
@@ -287,10 +289,12 @@ map <- base_map +
                                "-20% to -10%", 
                                "More than -20%"))+
   guides(fill = guide_legend(reverse=TRUE))+
-  geom_polygon(data = MB.df, color="black", fill = NA,lwd=0.5)+
+  geom_polygon(data = MB.df, color="gray20", fill = NA,lwd=0.5)+
   
   draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 2, height = 1, x = extent$x[1]+0.56, y = extent$y[1])+ 
-  cc_models_box+
+  annotate("rect", xmin = extent$x[1]+2.5, xmax = extent$x[1]+5.3, ymin = extent$y[1]+1.75, ymax = extent$y[1]+2.03, color = 'black', fill = 'gray30', lwd = .4 )+
+  annotate("text", x = extent$x[1]+3.9, y = extent$y[1]+1.9, label = "Climate Models to be Developed", size = 3, color = 'snow')+
+  #cc_models_box+
   
   # ADD BORDER ####################################################################
   geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
@@ -308,8 +312,7 @@ map <- base_map +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         panel.border = element_blank())+
-  #geom_polygon(data = va_state.df,aes(x = long, y = lat, group = NULL), color="black", fill = NA,lwd=1, inherit.aes = FALSE) 
-geom_sf(data = va_state_sf,aes(geometry = geom),fill = NA,color = 'green',lwd = 1, inherit.aes = FALSE)
+geom_sf(data = va_state_sf, aes(geometry = geom), fill = NA, color="black", lwd = 1.1, inherit.aes = FALSE)
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
-ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map3.png"), width=6.5, height=5)
+ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map.png"), width=6.5, height=5)
