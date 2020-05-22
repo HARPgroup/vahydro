@@ -107,27 +107,12 @@ state@data <- state@data[,-c(2:3)]
 state.df <- fortify(state, region = 'id')
 state.df <- merge(state.df, state@data, by = 'id')
 
-# #VA
+######################################################################################################
+### PROCESS VIRGINIA STATE LAYER  ############################################################################
 
-## attempt 1
-va_state <- state.df[state.df$id == 1,]
-
-## attempt 3
 va_state <- STATES[STATES$state == 'VA',]
 va_state_sf <- st_as_sf(va_state, wkt = 'geom')
 
-# ##attempt 2
-# va_state <- STATES[STATES$state == 'VA',]
-# va_geom <- readWKT(va_state$geom)
-# #plot(va_geom)
-# #print(va_geom)
-# va_geom_clip <- gIntersection(bb, va_geom)
-# vaProjected <- SpatialPolygonsDataFrame(va_geom_clip, data.frame('id'), match.ID = TRUE)
-# vaProjected@data$id <- as.character(1)
-# va_state@data <- merge(vaProjected@data, va_state, by = 'id')
-# #va_state@data <- va_state@data[,-c(2:3)]
-# va_state.df <- fortify(vaProjected, region = 'id')
-# va_state.df <- merge(va_state.df, vaProjected@data, by = 'id')
 ######################################################################################################
 ### PROCESS Minor Basin LAYER  #######################################################################
 ######################################################################################################
