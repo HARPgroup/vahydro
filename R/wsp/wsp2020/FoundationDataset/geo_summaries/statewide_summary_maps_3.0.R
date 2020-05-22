@@ -228,7 +228,7 @@ RSeg_base_sf <- st_as_sf(RSeg_data_base, wkt = 'geom')
 
 ### PROCESS Southern Rivers basins (no Climate Change model runs) LAYER  #######################################################################
 if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runid_20')) {
-  
+  #subset
   RSeg_southern_basins <- sqldf("SELECT * 
                                 FROM RSeg_data_base
                                 WHERE hydrocode LIKE 'vahydrosw_wshed_BS%'
@@ -239,12 +239,19 @@ if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runi
                                 OR hydrocode LIKE 'vahydrosw_wshed_MN%'
                                 OR hydrocode LIKE 'vahydrosw_wshed_KU0_8980_0000'
                                 ")
+  #convert to spatial object
   RSeg_southern_basins_sf <- st_as_sf(RSeg_southern_basins, wkt = 'geom')
+  #geom_sf to plot object
   RSeg_southern_b_geom <- geom_sf(data = RSeg_southern_basins_sf,aes(geometry = geom),fill = 'gray30',color = 'gray30', inherit.aes = FALSE)
-  cc_models_box <- draw_image(paste(folder,'tables_maps/cc_models_box_gray30.png',sep=''),scale = 2.4, height = 1, x = extent$x[1]+3.1, y = extent$y[1]+1.4)
+  #annotation rectangle + text
+  cc_models_box <- annotate("rect", xmin = extent$x[1]+2.5, xmax = extent$x[1]+5.3, ymin = extent$y[1]+1.75, ymax = extent$y[1]+2.03, color = 'black', fill = 'gray30', lwd = .4 )
+  #annotate text
+  cc_models_text <- annotate("text", x = extent$x[1]+3.9, y = extent$y[1]+1.9, label = "Climate Models to be Developed", size = 3, color = 'snow')
+  
 } else {
   RSeg_southern_b_geom <- geom_blank()
   cc_models_box <- geom_blank()
+  cc_models_text <- geom_blank()
 }
 
 ######################################################################################################
@@ -292,9 +299,8 @@ map <- base_map +
   geom_polygon(data = MB.df, color="gray20", fill = NA,lwd=0.5)+
   
   draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 2, height = 1, x = extent$x[1]+0.56, y = extent$y[1])+ 
-  annotate("rect", xmin = extent$x[1]+2.5, xmax = extent$x[1]+5.3, ymin = extent$y[1]+1.75, ymax = extent$y[1]+2.03, color = 'black', fill = 'gray30', lwd = .4 )+
-  annotate("text", x = extent$x[1]+3.9, y = extent$y[1]+1.9, label = "Climate Models to be Developed", size = 3, color = 'snow')+
-  #cc_models_box+
+  cc_models_box+
+  cc_models_text+
   
   # ADD BORDER ####################################################################
   geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
