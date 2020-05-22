@@ -107,6 +107,27 @@ state@data <- state@data[,-c(2:3)]
 state.df <- fortify(state, region = 'id')
 state.df <- merge(state.df, state@data, by = 'id')
 
+# #VA
+
+## attempt 1
+va_state <- state.df[state.df$id == 1,]
+
+## attempt 3
+va_state <- STATES[STATES$state == 'VA',]
+va_state_sf <- st_as_sf(va_state, wkt = 'geom')
+
+# ##attempt 2
+# va_state <- STATES[STATES$state == 'VA',]
+# va_geom <- readWKT(va_state$geom)
+# #plot(va_geom)
+# #print(va_geom)
+# va_geom_clip <- gIntersection(bb, va_geom)
+# vaProjected <- SpatialPolygonsDataFrame(va_geom_clip, data.frame('id'), match.ID = TRUE)
+# vaProjected@data$id <- as.character(1)
+# va_state@data <- merge(vaProjected@data, va_state, by = 'id')
+# #va_state@data <- va_state@data[,-c(2:3)]
+# va_state.df <- fortify(vaProjected, region = 'id')
+# va_state.df <- merge(va_state.df, vaProjected@data, by = 'id')
 ######################################################################################################
 ### PROCESS Minor Basin LAYER  #######################################################################
 ######################################################################################################
@@ -260,8 +281,8 @@ base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group)) +
           y = extent$y[2]-(0.002*extent$y[2])
         )) +
   #no group on this layer, so don't inherit aes
-  #geom_sf(data = RSeg_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
-  geom_sf(data = RSeg_base_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
+  geom_sf(data = RSeg_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
+  #geom_sf(data = RSeg_base_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
 
 
 #colnames(RSeg_data)
@@ -301,11 +322,9 @@ map <- base_map +
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
-        panel.border = element_blank()) 
-
+        panel.border = element_blank())+
+  #geom_polygon(data = va_state.df,aes(x = long, y = lat, group = NULL), color="black", fill = NA,lwd=1, inherit.aes = FALSE) 
+geom_sf(data = va_state_sf,aes(geometry = geom),fill = NA,color = 'green',lwd = 1, inherit.aes = FALSE)
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
-ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map.png"), width=6.5, height=5)
-
-
-
+ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map3.png"), width=6.5, height=5)
