@@ -16,7 +16,7 @@ omsite = site <- "http://deq2.bse.vt.edu"
 fn_hydro_runfile <- function(
   elid, runid, cached = FALSE, site = 'http://deq2.bse.vt.edu'
 ) {
-  dat <- fn_get_runfile(elid, runid, cached)
+  dat <- fn_get_runfile(elid, runid, 37, site, cached)
   syear = min(dat$year)
   eyear = max(dat$year)
   if (syear != eyear) {
@@ -32,3 +32,4 @@ fn_hydro_runfile <- function(
 }
 
 dat <- fn_hydro_runfile(elid, runid)
+
