@@ -33,7 +33,7 @@ river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = 
 #Metric options include "7q10", "l30_Qout", "l90_Qout","l30_cc_Qout","l90_cc_Qout"
 metric <- "l30_cc_Qout"
 runid_a <- "runid_11"
-runid_b <- "runid_17"
+runid_b <- "runid_19"
 
 #selects plot title based on chosen metric
 metric_title <- case_when(metric == "l30_Qout" ~ "30 Day Low Flow",
@@ -139,11 +139,11 @@ MB.df <- merge(MB.df, MB@data, by = 'id')
 ######################################################################################################
 ### PROCESS Major Rivers LAYER  #######################################################################
 ######################################################################################################
-proj4string(bbProjected) <- CRS("+proj=longlat +datum=WGS84")
-bbProjected <- spTransform(bbProjected, CRS("+proj=longlat +datum=WGS84"))
-river_shpProjected <- spTransform(river_shp, CRS("+proj=longlat +datum=WGS84"))
-river_clip <- gIntersection(bbProjected,river_shpProjected)
-river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = TRUE)
+# proj4string(bbProjected) <- CRS("+proj=longlat +datum=WGS84")
+# bbProjected <- spTransform(bbProjected, CRS("+proj=longlat +datum=WGS84"))
+# river_shpProjected <- spTransform(river_shp, CRS("+proj=longlat +datum=WGS84"))
+# river_clip <- gIntersection(bbProjected,river_shpProjected)
+# river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = TRUE)
 ######################################################################################################
 ### PROCESS RSegs
 ######################################################################################################
@@ -184,7 +184,19 @@ RSeg_Tidal <- paste('SELECT *
                   AND hydrocode NOT LIKE "vahydrosw_wshed_MN%0000"
                   AND hydrocode NOT LIKE "vahydrosw_wshed_ES%0000"
                   AND hydrocode NOT LIKE "vahydrosw_wshed_EL%0000"
-                   ',sep = '')  
+                   ',sep = '')
+# #EXCLUDE TIDAL SEGMENTS FROM MAP
+# RSeg_Tidal <- paste('SELECT *
+#                   FROM RSeg_data
+#                   WHERE hydrocode NOT LIKE "vahydrosw_wshed_RL%0000"
+#                   AND hydrocode NOT LIKE "vahydrosw_wshed_YM%0000"
+#                   AND hydrocode NOT LIKE "vahydrosw_wshed_YL%0000"
+#                   AND hydrocode NOT LIKE "vahydrosw_wshed_YP%0000"
+#                   AND hydrocode NOT LIKE "vahydrosw_wshed_JB%0000"
+#                   AND hydrocode NOT LIKE "vahydrosw_wshed_MN%0000"
+#                   AND hydrocode NOT LIKE "vahydrosw_wshed_ES%0000"
+#                   AND hydrocode NOT LIKE "vahydrosw_wshed_EL%0000"
+#                    ',sep = '')  
 RSeg_data <- sqldf(RSeg_Tidal)
 length(RSeg_data[,1])  
 
@@ -244,9 +256,11 @@ if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runi
   #geom_sf to plot object
   RSeg_southern_b_geom <- geom_sf(data = RSeg_southern_basins_sf,aes(geometry = geom),fill = 'gray30',color = 'gray30', inherit.aes = FALSE)
   #annotation rectangle + text
-  cc_models_box <- annotate("rect", xmin = extent$x[1]+2.5, xmax = extent$x[1]+5.3, ymin = extent$y[1]+1.75, ymax = extent$y[1]+2.03, color = 'black', fill = 'gray30', lwd = .4 )
+  #cc_models_box <- annotate("rect", xmin = extent$x[1]+2.5, xmax = extent$x[1]+5.3, ymin = extent$y[1]+1.75, ymax = extent$y[1]+2.03, color = 'black', fill = 'gray30', lwd = .4 )
+  cc_models_box <- annotate("rect", xmin = extent$x[1]+ 3.05, xmax = extent$x[1]+4.8, ymin = extent$y[1]+1.68, ymax = extent$y[1]+2.1, color = 'black', fill = 'gray30', lwd = .4 )
   #annotate text
-  cc_models_text <- annotate("text", x = extent$x[1]+3.9, y = extent$y[1]+1.9, label = "Climate Models to be Developed", size = 3, color = 'snow')
+  #cc_models_text <- annotate("text", x = extent$x[1]+3.9, y = extent$y[1]+1.9, label = "Climate Models to be Developed", size = 3, color = 'snow')
+  cc_models_text <- annotate("text", x = extent$x[1]+3.9, y = extent$y[1]+1.9, label = "Climate Models to be \n developed prior to 2023", size = 2.5, color = 'snow')
   
 } else {
   RSeg_southern_b_geom <- geom_blank()
@@ -275,8 +289,14 @@ base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group)) +
           y = extent$y[2]-(0.002*extent$y[2])
         )) +
   #no group on this layer, so don't inherit aes
-  geom_sf(data = RSeg_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
-  #geom_sf(data = RSeg_base_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
+###no Tidal segments
+  #option A
+  #geom_sf(data = RSeg_sf,aes(geometry = geom,fill = 'aliceblue',alpha = .15), lwd = .3, inherit.aes = FALSE,  show.legend=FALSE)
+###include Tidal segments
+  #option B
+  #geom_sf(data = RSeg_base_sf,aes(geometry = geom,fill = 'aliceblue'), lwd = .3, inherit.aes = FALSE,  show.legend=FALSE)
+  #option c
+  geom_sf(data = RSeg_base_sf,aes(geometry = geom,fill = 'aliceblue',alpha = .15), lwd = .3, inherit.aes = FALSE,  show.legend=FALSE)
 
 
 #colnames(RSeg_data)
@@ -296,7 +316,7 @@ map <- base_map +
                                "-20% to -10%", 
                                "More than -20%"))+
   guides(fill = guide_legend(reverse=TRUE))+
-  geom_polygon(data = MB.df, color="gray20", fill = NA,lwd=0.5)+
+  geom_polygon(data = MB.df, color="gray20", fill = NA,lwd=0.7)+
   
   draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 2, height = 1, x = extent$x[1]+0.56, y = extent$y[1])+ 
   cc_models_box+
@@ -318,7 +338,8 @@ map <- base_map +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         panel.border = element_blank())+
-geom_sf(data = va_state_sf, aes(geometry = geom), fill = NA, color="black", lwd = 1.1, inherit.aes = FALSE)
+geom_sf(data = va_state_sf, aes(geometry = geom), fill = NA, color="snow", lwd = .6, inherit.aes = FALSE)
+
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
 ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map.png"), width=6.5, height=5)
