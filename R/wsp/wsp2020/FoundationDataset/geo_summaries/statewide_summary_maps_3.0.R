@@ -185,18 +185,7 @@ RSeg_Tidal <- paste('SELECT *
                   AND hydrocode NOT LIKE "vahydrosw_wshed_ES%0000"
                   AND hydrocode NOT LIKE "vahydrosw_wshed_EL%0000"
                    ',sep = '')
-# #EXCLUDE TIDAL SEGMENTS FROM MAP
-# RSeg_Tidal <- paste('SELECT *
-#                   FROM RSeg_data
-#                   WHERE hydrocode NOT LIKE "vahydrosw_wshed_RL%0000"
-#                   AND hydrocode NOT LIKE "vahydrosw_wshed_YM%0000"
-#                   AND hydrocode NOT LIKE "vahydrosw_wshed_YL%0000"
-#                   AND hydrocode NOT LIKE "vahydrosw_wshed_YP%0000"
-#                   AND hydrocode NOT LIKE "vahydrosw_wshed_JB%0000"
-#                   AND hydrocode NOT LIKE "vahydrosw_wshed_MN%0000"
-#                   AND hydrocode NOT LIKE "vahydrosw_wshed_ES%0000"
-#                   AND hydrocode NOT LIKE "vahydrosw_wshed_EL%0000"
-#                    ',sep = '')  
+ 
 RSeg_data <- sqldf(RSeg_Tidal)
 length(RSeg_data[,1])  
 
