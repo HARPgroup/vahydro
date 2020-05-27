@@ -323,7 +323,8 @@ base_map  <- ggplot(data = state.df, aes(x = long, y = lat, group = group)) +
         )) +
   #no group on this layer, so don't inherit aes
   #geom_sf(data = RSeg_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
-  geom_sf(data = RSeg_base_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
+  #geom_sf(data = RSeg_base_sf,aes(geometry = geom,fill = 'aliceblue'), inherit.aes = FALSE,  show.legend=FALSE)
+  geom_sf(data = RSeg_base_sf,aes(geometry = geom,fill = 'aliceblue',alpha = .15), lwd = .3, inherit.aes = FALSE,  show.legend=FALSE)
 
 
 map <- base_map + 
