@@ -167,9 +167,7 @@ RSeg_data <- paste('SELECT *
 RSeg_data <- sqldf(RSeg_data)
 length(RSeg_data[,1])
 
-
-
-RSeg_data <- RSeg_data[,-5] #need to remove duplicate hydrocode column? 
+RSeg_data <- RSeg_data[,-10] #need to remove duplicate hydrocode column? 
 RSeg_all <- RSeg_data
 # REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
 RSeg_valid_geoms <- paste("SELECT *
@@ -212,7 +210,7 @@ if (nrow(group_0_plus) >0) {
   
   color_values <- "darkolivegreen3"
   
-  label_values <- paste(metric," <= ",div1,sep="")
+  label_values <- paste(" <= ",div1,sep="")
   
 } else  {
   
@@ -230,7 +228,7 @@ if (nrow(group_neg5_0) >0) {
   
   geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE)
   color_values <- rbind(color_values,"cornflowerblue")
-  label_values <- rbind(label_values,paste(div1," < ",metric," <= ",div2,sep=""))
+  label_values <- rbind(label_values,paste(div1," - ",div2,sep=""))
   
 } else  {
   
@@ -248,7 +246,7 @@ if (nrow(group_neg10_neg5) >0) {
   
   geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)
   color_values <- rbind(color_values,"khaki2")
-  label_values <- rbind(label_values,paste(div2," < ",metric," <= ",div3,sep=""))
+  label_values <- rbind(label_values,paste(div2," - ",div3,sep=""))
   
 } else  {
   
@@ -268,7 +266,7 @@ if (nrow(group_neg20_neg10) >0) {
   geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)
   color_values <- rbind(color_values,"plum3")
   #label_values <- rbind(label_values,"-20% to -10%")
-  label_values <- rbind(label_values,paste(div3," < ",metric," <= ",div4,sep=""))
+  label_values <- rbind(label_values,paste(div3," - ",div4,sep=""))
   
 } else  {
   
@@ -289,7 +287,7 @@ if (nrow(group_negInf_neg20) > 0) {
   geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)
   color_values <- rbind(color_values,"coral3")
   #label_values <- rbind(label_values,paste(metric," >= ",div4,sep=""))
-  label_values <- rbind(label_values,paste(div4," < ",metric,sep=""))
+  label_values <- rbind(label_values,paste(" > ",div4,sep=""))
   
 } else  {
   
@@ -363,6 +361,6 @@ geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
 
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
-ggsave(plot = map, file = paste0(export_path,"tables_maps/statewide/",runid_a,"__",metric,"_map.png"), width=6.5, height=5)
+ggsave(plot = map, file = paste0(export_path,"tables_maps/statewide/",runid_a,"__",metric,"_mapx.png"), width=6.5, height=5)
 
 

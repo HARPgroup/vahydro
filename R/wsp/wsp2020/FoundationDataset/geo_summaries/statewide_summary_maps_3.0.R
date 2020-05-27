@@ -161,6 +161,7 @@ RSeg_data <- paste('SELECT *,
                   #WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '') 
 RSeg_data <- sqldf(RSeg_data)
 length(RSeg_data[,1])
+
 RSeg_data <- RSeg_data[,-10] #need to remove duplicate hydrocode column? 
 # REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
 RSeg_valid_geoms <- paste("SELECT *
