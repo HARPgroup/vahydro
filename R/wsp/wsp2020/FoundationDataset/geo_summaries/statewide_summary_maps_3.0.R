@@ -31,9 +31,9 @@ river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = 
 ######################################################################################################
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout","l30_cc_Qout","l90_cc_Qout"
-metric <- "l30_cc_Qout"
+metric <- "l30_Qout"
 runid_a <- "runid_11"
-runid_b <- "runid_20"
+runid_b <- "runid_18"
 
 #selects plot title based on chosen metric
 metric_title <- case_when(metric == "l30_Qout" ~ "30 Day Low Flow",
@@ -190,40 +190,6 @@ RSeg_data <- sqldf(RSeg_Tidal)
 length(RSeg_data[,1])  
 
 ######################################################################################################
-# ######################################################################################################
-# #colnames(RSeg_data)
-# group_0_plus <- paste("SELECT *
-#                   FROM RSeg_data
-#                   WHERE pct_chg >= 0")  
-# group_0_plus <- sqldf(group_0_plus)
-# group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
-# #-----------------------------------------------------------------------------------------------------
-# group_neg5_0 <- paste("SELECT *
-#                   FROM RSeg_data
-#                   WHERE pct_chg < 0 AND pct_chg >= -5")  
-# group_neg5_0 <- sqldf(group_neg5_0)
-# group_neg5_0 <- st_as_sf(group_neg5_0, wkt = 'geom')
-# #-----------------------------------------------------------------------------------------------------
-# group_neg10_neg5 <- paste("SELECT *
-#                   FROM RSeg_data
-#                   WHERE pct_chg < -5 AND pct_chg >= -10")  
-# group_neg10_neg5 <- sqldf(group_neg10_neg5)
-# group_neg10_neg5 <- st_as_sf(group_neg10_neg5, wkt = 'geom')
-# #-----------------------------------------------------------------------------------------------------
-# group_neg20_neg10 <- paste("SELECT *
-#                   FROM RSeg_data
-#                   WHERE pct_chg < -10 AND pct_chg >= -20")  
-# group_neg20_neg10 <- sqldf(group_neg20_neg10)
-# group_neg20_neg10 <- st_as_sf(group_neg20_neg10, wkt = 'geom')
-# #-----------------------------------------------------------------------------------------------------
-# group_negInf_neg20 <- paste("SELECT *
-#                   FROM RSeg_data
-#                   WHERE pct_chg <= -20")  
-# group_negInf_neg20 <- sqldf(group_negInf_neg20)
-# group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
-# ######################################################################################################
-
-
 #colnames(RSeg_data)
 group_0_plus <- paste("SELECT *
                   FROM RSeg_data
@@ -320,8 +286,6 @@ if (nrow(group_negInf_neg20) >0) {
   geom5 <- geom_blank()
   
 }
-
-
 ######################################################################################################
 RSeg_sf <- st_as_sf(RSeg_data, wkt = 'geom')
 RSeg_base_sf <- st_as_sf(RSeg_data_base, wkt = 'geom')
@@ -344,10 +308,8 @@ if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runi
   #geom_sf to plot object
   RSeg_southern_b_geom <- geom_sf(data = RSeg_southern_basins_sf,aes(geometry = geom),fill = 'gray30',color = 'gray30', inherit.aes = FALSE)
   #annotation rectangle + text
-  #cc_models_box <- annotate("rect", xmin = extent$x[1]+2.5, xmax = extent$x[1]+5.3, ymin = extent$y[1]+1.75, ymax = extent$y[1]+2.03, color = 'black', fill = 'gray30', lwd = .4 )
   cc_models_box <- annotate("rect", xmin = extent$x[1]+ 3.05, xmax = extent$x[1]+4.8, ymin = extent$y[1]+1.68, ymax = extent$y[1]+2.1, color = 'black', fill = 'gray30', lwd = .4 )
   #annotate text
-  #cc_models_text <- annotate("text", x = extent$x[1]+3.9, y = extent$y[1]+1.9, label = "Climate Models to be Developed", size = 3, color = 'snow')
   cc_models_text <- annotate("text", x = extent$x[1]+3.9, y = extent$y[1]+1.9, label = "Climate Models to be \n developed prior to 2023", size = 2.5, color = 'snow')
   
 } else {
@@ -355,7 +317,6 @@ if (runid_b  %in% c('runid_14','runid_15','runid_16','runid_17','runid_19','runi
   cc_models_box <- geom_blank()
   cc_models_text <- geom_blank()
 }
-
 ######################################################################################################
 ### GENERATE YOUR MAP  ###############################################################################
 ######################################################################################################
@@ -399,22 +360,9 @@ map <- base_map +
                     labels = c("Tidal Segment",label_values))+
   
   guides(fill = guide_legend(reverse=TRUE))+
-  # geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE)+ 
-  # geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE)+ 
-  # geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)+ 
-  # geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)+ 
-  # geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)+ 
   RSeg_southern_b_geom+
-  # scale_fill_manual(values=c("gray55","darkolivegreen3","cornflowerblue","khaki2","plum3","coral3"), 
-  #                   name = "Legend",
-  #                   labels = c("Tidal Segment",
-  #                              ">= 0%", 
-  #                              "-5% to 0%", 
-  #                              "-10% to -5%", 
-  #                              "-20% to -10%", 
-  #                              "More than -20%"))+
-  # guides(fill = guide_legend(reverse=TRUE))+
   geom_polygon(data = MB.df, color="gray20", fill = NA,lwd=0.7)+
+  draw_image(paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep=''),scale = 2.75, height = 1, x = extent$x[1]+0.56, y = extent$y[1]+4.1)+
   draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 2, height = 1, x = extent$x[1]+0.56, y = extent$y[1])+ 
   cc_models_box+
   cc_models_text+
@@ -424,7 +372,7 @@ map <- base_map +
   
   ggtitle(paste("     ",plot_title,sep=""))+
   theme(legend.justification=c(0,1), 
-        legend.position=c(0.051,0.945)) +
+        legend.position="none") +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
@@ -439,4 +387,4 @@ geom_sf(data = va_state_sf, aes(geometry = geom), fill = NA, color="snow", lwd =
 
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
-ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_mapX.png"), width=6.5, height=5)
+ggsave(plot = map, file = paste0(export_path, "tables_maps/statewide/chg_",runid_a,"_to_",runid_b,"_",metric,"_map.png"), width=6.5, height=5)
