@@ -33,7 +33,7 @@ river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = 
 #Metric options include "7q10", "l30_Qout", "l90_Qout","l30_cc_Qout","l90_cc_Qout"
 metric <- "l30_cc_Qout"
 runid_a <- "runid_11"
-runid_b <- "runid_19"
+runid_b <- "runid_20"
 
 #selects plot title based on chosen metric
 metric_title <- case_when(metric == "l30_Qout" ~ "30 Day Low Flow",
@@ -295,7 +295,7 @@ map <- base_map +
   geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)+ 
   geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)+ 
   geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)+ 
-  RSeg_southern_b_geom+
+  #RSeg_southern_b_geom+
   scale_fill_manual(values=c("gray55","darkolivegreen3","cornflowerblue","khaki2","plum3","coral3"), 
                     name = "Legend",
                     labels = c("Tidal Segment",
