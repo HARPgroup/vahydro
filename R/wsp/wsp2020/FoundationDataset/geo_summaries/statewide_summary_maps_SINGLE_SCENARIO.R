@@ -32,7 +32,7 @@ RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep
 
 #Metric options include "7q10", "l30_Qout", "l90_Qout","l30_cc_Qout","l90_cc_Qout"
 metric <- "consumptive_use_frac"
-runid_a <- "runid_18"
+runid_a <- "runid_13"
 
 #CUSTOM DIVS
 #good divs for consumptive_use_frac
@@ -121,6 +121,10 @@ state.df <- fortify(state, region = 'id')
 state.df <- merge(state.df, state@data, by = 'id')
 
 ######################################################################################################
+### PROCESS VIRGINIA STATE LAYER  ############################################################################
+
+va_state <- STATES[STATES$state == 'VA',]
+va_state_sf <- st_as_sf(va_state, wkt = 'geom')
 
 ######################################################################################################
 ### PROCESS Minor Basin LAYER  #######################################################################
@@ -339,7 +343,7 @@ map <- base_map +
                     labels = label_values)+
   
   guides(fill = guide_legend(reverse=TRUE))+
-  geom_polygon(data = MB.df, color="black", fill = NA,lwd=0.5)+
+  geom_polygon(data = MB.df, color="gray20", fill = NA,lwd=0.7)+
   
   draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 2, height = 1, x = extent$x[1]+0.56, y = extent$y[1])+ 
   
@@ -358,10 +362,11 @@ geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
         panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
-        panel.border = element_blank()) 
+        panel.border = element_blank())+
+  geom_sf(data = va_state_sf, aes(geometry = geom), fill = NA, color="snow", lwd = .6, inherit.aes = FALSE) 
 
 #map <- map + geom_line(data = river.df,aes(x=long,y=lat, group=group), inherit.aes = FALSE,  show.legend=FALSE, color = 'royalblue4', size = .5)
 
-ggsave(plot = map, file = paste0(export_path,"tables_maps/statewide/",runid_a,"__",metric,"_mapx.png"), width=6.5, height=5)
+ggsave(plot = map, file = paste0(export_path,"tables_maps/statewide/",runid_a,"__",metric,"_map.png"), width=6.5, height=5)
 
 
