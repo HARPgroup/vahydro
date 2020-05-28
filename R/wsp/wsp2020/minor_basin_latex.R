@@ -42,7 +42,7 @@ mp_all <- data_raw
 
 ######### SUMMARY TABLE #############################
 ##############################################################
-summary_table_func <- function(minorbasin = "YP", file_extension = ".html"){
+summary_table_func <- function(minorbasin = "NR", file_extension = ".html"){
    
    #switch between file types to save in common drive folder; html or latex
    if (file_extension == ".html") {
@@ -245,6 +245,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code,"_table",file_ext,sep=""))
    
    #-------------- TOP 5 USERS (NO POWER detected) ---------------------
+#SURFACE WATER
    top_sw_no <- sqldf('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
                         round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
@@ -267,10 +268,22 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
+#APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+   index <- list()
+   
+   for (i in 1:nrow(top_5_sw_no)) {
+      
+      index <- rbind(index, LETTERS[i])
+      #print(index)
+   }
+   top_5_sw_no <- cbind(index, top_5_sw_no)
+   
+#APPEND TOTALS to TOP 5 Surface Water Users table   
+   
    top_5_sw_no <- append_totals(top_5_sw_no, "Total SW")
    
    top_5_sw_no$pct_total_use <- round((top_5_sw_no$MGD_2040 / A$MGD_2040[5]) * 100,2)
-   
+#GROUNDWATER   
    top_gw_no <- sqldf('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
                         round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
@@ -293,28 +306,33 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
+#APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+   index <- list()
+   
+   for (i in 1:nrow(top_5_gw_no)) {
+      
+      index <- rbind(index, LETTERS[i])
+      #print(index)
+   }
+   top_5_gw_no <- cbind(index, top_5_gw_no)
+   
+#APPEND TOTALS to TOP 5 Surface Water Users table   
    top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
    
    top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("facility_name" = '',
+   gw_header <- data.frame("index" = 'Groundwater',
+                           "facility_name" = '',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
                            "MGD_2030" ='',
                            "MGD_2040" ='',
                            "pct_change" = '',
-                           "pct_total_use" = '% of Total Ground Water')
+                           "pct_total_use" = '% of Total Groundwater')
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
-   
-   index <- c('A','B','C','D','E','','Groundwater','F','G','H','I','J','')
-   top_5_no <- cbind(index,top_5_no)
-   # #initcaps attempt
-   # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
-   #                   from top_5_sw
-   #                   WHERE facility_name > 0")
-   
+
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
@@ -451,6 +469,17 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
+   #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+   index <- list()
+   
+   for (i in 1:nrow(top_5_sw)) {
+      
+      index <- rbind(index, LETTERS[i])
+      #print(index)
+   }
+   top_5_sw <- cbind(index, top_5_sw)
+   
+   #APPEND TOTALS to TOP 5 Surface Water Users table 
    top_5_sw <- append_totals(top_5_sw, "Total SW")
    
    #need to select the AA for the YES power (including)
@@ -477,30 +506,34 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
-   top_5_gw <- append_totals(top_5_gw, "Total GW")
+   #APPEND LETTERED INDEX TO TOP 5 Groundwater Users table   
+   index <- list()
    
+   for (i in 1:nrow(top_5_gw)) {
+      
+      index <- rbind(index, LETTERS[i])
+      #print(index)
+   }
+   top_5_gw <- cbind(index, top_5_gw)
+   
+   #APPEND TOTALS to TOP 5 Groundwater Users table 
+   top_5_gw <- append_totals(top_5_gw, "Total GW")
    
    #need to select the BB for the YES power (including)
    top_5_gw$pct_total_use <- round((top_5_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("facility_name" = '',
+   gw_header <- data.frame("index" = 'Groundwater',
+                           "facility_name" = '',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
                            "MGD_2030" ='',
                            "MGD_2040" ='',
                            "pct_change" = '',
-                           "pct_total_use" = '% of Total Ground Water')
+                           "pct_total_use" = '% of Total Groundwater')
    
    top_5 <- rbind(top_5_sw, gw_header, top_5_gw)
-   
-   index <- c('A','B','C','D','E','','Groundwater','F','G','H','I','J','')
-   top_5 <- cbind(index,top_5)
-   # #initcaps attempt
-   # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
-   #                   from top_5_sw
-   #                   WHERE facility_name > 0")
-   
+
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
@@ -543,6 +576,17 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
+   #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+   index <- list()
+   
+   for (i in 1:nrow(top_5_sw_no)) {
+      
+      index <- rbind(index, LETTERS[i])
+      #print(index)
+   }
+   top_5_sw_no <- cbind(index, top_5_sw_no)
+   
+   #APPEND TOTALS to TOP 5 Groundwater Users table 
    top_5_sw_no <- append_totals(top_5_sw_no, "Total SW")
    
    top_5_sw_no$pct_total_use <- round((top_5_sw_no$MGD_2040 / A$MGD_2040[5]) * 100,2)
@@ -569,27 +613,32 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
+   #APPEND LETTERED INDEX TO TOP 5 Groundwater Users table   
+   index <- list()
+   
+   for (i in 1:nrow(top_5_gw_no)) {
+      
+      index <- rbind(index, LETTERS[i])
+      #print(index)
+   }
+   top_5_gw_no <- cbind(index, top_5_gw_no)
+   
+   #APPEND TOTALS to TOP 5 Groundwater Users table 
    top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
    
    top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("facility_name" = '',
+   gw_header <- data.frame("index" = 'Groundwater',
+                           "facility_name" = '',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
                            "MGD_2030" ='',
                            "MGD_2040" ='',
                            "pct_change" = '',
-                           "pct_total_use" = '% of Total Ground Water')
+                           "pct_total_use" = '% of Total Groundwater')
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
-   
-   index <- c('A','B','C','D','E','','Groundwater','F','G','H','I','J','')
-   top_5_no <- cbind(index,top_5_no)
-   # #initcaps attempt
-   # sqldf("SELECT upper(substr(facility_name, 1,1)) || lower(substr(facility_name, 2)) as name
-   #                   from top_5_sw
-   #                   WHERE facility_name > 0")
    
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
@@ -617,9 +666,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 ext <- c(".html",".tex")
-#basins <- c('YP','PM','JL','PL')
-
-summary_table_func(minorbasin = 'PU', file_extension = '.tex')
+# basins <- c('RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
+# #PU fails because it only has 4 top facilities (look at top_sw_no dataframe)
+# basins <- c('PL', 'OD', 'JU', 'JB', 'JL')
+# #BS also fails for same reason
+# basins <- c('PU','BS')
+summary_table_func(minorbasin = 'NR', file_extension = '.html')
 
 tic()
 for (b in basins) {
