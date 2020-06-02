@@ -16,8 +16,9 @@ runids = c(
 )
  
 vahydro_foundation4_export <- function (
+  alldata,
   metric,
-  runids,
+  runid,
   folder,
   save_to_file = TRUE,
   featureid = 'all',
@@ -28,33 +29,31 @@ vahydro_foundation4_export <- function (
   base_url = "http://deq2.bse.vt.edu/d.dh/entity-model-prop-level-export"
 ) {
   alldata = NULL
-  for (runid in runids) {
-    params <- paste(featureid,entity_type,bundle,ftype,model_version, runid, metric,sep="/")
-    url <- paste(base_url,params,sep="/")
-    print(paste("retrieving ", url))
-    rawdata <- read.csv(url)
-    if (is.null(alldata) ) {
-      alldata = sqldf(
-        paste(
-          "select a.pid, a.propname, a.hydrocode, a.featureid, a.attribute_value as ",
-          runid, 
-          "from rawdata as a "
-        )
+  params <- paste(featureid,entity_type,bundle,ftype,model_version, runid, metric,sep="/")
+  url <- paste(base_url,params,sep="/")
+  print(paste("retrieving ", url))
+  rawdata <- read.csv(url)
+  if (is.null(alldata) ) {
+    alldata = sqldf(
+      paste(
+        "select a.pid, a.propname, a.hydrocode, a.featureid, a.attribute_value as ",
+        runid, 
+        "from rawdata as a "
       )
-    } else {
-      alldata = sqldf(
-        paste(
-          "select a.*, b.attribute_value as ",
-          runid, 
-          "from alldata as a 
-        left outer join rawdata as b 
-        on (
-          a.featureid = b.featureid
-          and a.pid = b.pid
-        )"
-        )
+    )
+  } else {
+    alldata = sqldf(
+      paste(
+        "select a.*, b.attribute_value as ",
+        runid, 
+        "from alldata as a 
+      left outer join rawdata as b 
+      on (
+        a.featureid = b.featureid
+        and a.pid = b.pid
+      )"
       )
-    }
+    )
   }
   # Save the metric specific file
   if (save_to_file == TRUE) {
@@ -65,17 +64,27 @@ vahydro_foundation4_export <- function (
 }
 
 # Watersheds
+alldata = NULL
 metrics = c('l90_Qout', 'l30_Qout', 'l90_cc_Qout', 'l30_cc_Qout', '7q10', 'ml8', 'wd_cumulative_mgd', 'ps_cumulative_mgd','wd_mgd', 'ps_mgd', 'consumptive_use_frac')
 for (metric in metrics) {
-  wshed_data <- vahydro_foundation4_export(metric, runids, folder, save_to_file = TRUE)
+  for (runid in runids) {
+    wshed_data <- vahydro_foundation4_export(
+      alldata, metric, runids, folder, save_to_file = TRUE
+    )
+  }
 }
+wshed_data = alldata
 
 # Facilities
+alldata = NULL
 metrics <- c('wd_mgd', 'ps_mgd', 'r1_mgd', 'r7_mgd', 'r30_mgd', 'r90_mgd')
 for (metric in metrics) {
-  fac_rseg <- vahydro_foundation4_export(
-    metric, runids, folder, save_to_file = TRUE,
-    featureid = 'all', entity_type = 'dh_feature', 
-    bundle = 'facility', ftype = 'all'
-  )
+  for (runid in runids) {
+    alldata <- vahydro_foundation4_export(
+      alldata, metric, runid, folder, save_to_file = TRUE,
+      featureid = 'all', entity_type = 'dh_feature', 
+      bundle = 'facility', ftype = 'all'
+    )
+  }
 } 
+fac_rseg <- alldata
