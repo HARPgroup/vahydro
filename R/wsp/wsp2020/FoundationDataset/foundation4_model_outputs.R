@@ -89,11 +89,14 @@ alldata = NULL
 metrics <- c('wd_mgd', 'ps_mgd', 'r1_mgd', 'r7_mgd', 'r30_mgd', 'r90_mgd')
 for (metric in metrics) {
   for (runid in runids) {
-    alldata <- vahydro_foundation4_export(
-      alldata, metric, runid, folder, save_to_file = TRUE,
+    alldata <- vahydro_foundation4_append_data(
+      alldata, metric, runid, 
       featureid = 'all', entity_type = 'dh_feature', 
       bundle = 'facility', ftype = 'all'
     )
   }
+  vahydro_foundation4_export_file(
+    alldata, metric, bundle = 'facility', folder
+  )
 } 
 fac_rseg <- alldata
