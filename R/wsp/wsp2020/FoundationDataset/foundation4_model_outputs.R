@@ -15,12 +15,10 @@ runids = c(
   'runid_19', 'runid_20'
 )
  
-vahydro_foundation4_export <- function (
+vahydro_foundation4_append_data <- function (
   alldata,
   metric,
   runid,
-  folder,
-  save_to_file = TRUE,
   featureid = 'all',
   entity_type = 'dh_feature',
   bundle = 'watershed',
@@ -28,12 +26,12 @@ vahydro_foundation4_export <- function (
   model_version = 'vahydro-1.0',
   base_url = "http://deq2.bse.vt.edu/d.dh/entity-model-prop-level-export"
 ) {
-  alldata = NULL
   params <- paste(featureid,entity_type,bundle,ftype,model_version, runid, metric,sep="/")
   url <- paste(base_url,params,sep="/")
   print(paste("retrieving ", url))
   rawdata <- read.csv(url)
-  if (is.null(alldata) ) {
+  if (!is.data.frame(alldata) ) {
+    print("No data passed in, retrieving first data set")
     alldata = sqldf(
       paste(
         "select a.pid, a.propname, a.hydrocode, a.featureid, a.attribute_value as ",
@@ -42,6 +40,7 @@ vahydro_foundation4_export <- function (
       )
     )
   } else {
+    print("Appending data set")
     alldata = sqldf(
       paste(
         "select a.*, b.attribute_value as ",
@@ -55,13 +54,20 @@ vahydro_foundation4_export <- function (
       )
     )
   }
-  # Save the metric specific file
-  if (save_to_file == TRUE) {
-    filename <- paste0(folder,"metrics_", bundle, "_", metric,".csv")
-    print(paste0("Writing file: ", filename))
-    write.csv(alldata,filename)
-  }
   return(alldata)
+}
+
+
+vahydro_foundation4_export_file <- function (
+  alldata,
+  metric,
+  bundle,
+  folder
+) {
+  # Save the metric specific file
+  filename <- paste0(folder,"metrics_", bundle, "_", metric,".csv")
+  print(paste0("Writing file: ", filename))
+  write.csv(alldata,filename)
 }
 
 # Watersheds
@@ -69,12 +75,14 @@ alldata = NULL
 metrics = c('l90_Qout', 'l30_Qout', 'l90_cc_Qout', 'l30_cc_Qout', '7q10', 'ml8', 'wd_cumulative_mgd', 'ps_cumulative_mgd','wd_mgd', 'ps_mgd', 'consumptive_use_frac')
 for (metric in metrics) {
   for (runid in runids) {
-    alldata <- vahydro_foundation4_export(
-      alldata, metric, runid, folder, save_to_file = TRUE
+    alldata <- vahydro_foundation4_append_data(
+      alldata, metric, runid
     )
   }
+  vahydro_foundation4_export_file(
+    alldata, metric, bundle = 'watershed', folder
+  )
 }
-wshed_data = alldata
 
 # Facilities
 alldata = NULL
