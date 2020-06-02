@@ -71,9 +71,9 @@ vahydro_foundation4_export_file <- function (
 }
 
 # Watersheds
-alldata = NULL
 metrics = c('l90_Qout', 'l30_Qout', 'l90_cc_Qout', 'l30_cc_Qout', '7q10', 'ml8', 'wd_cumulative_mgd', 'ps_cumulative_mgd','wd_mgd', 'ps_mgd', 'consumptive_use_frac')
 for (metric in metrics) {
+  alldata = NULL
   for (runid in runids) {
     alldata <- vahydro_foundation4_append_data(
       alldata, metric, runid
@@ -85,9 +85,9 @@ for (metric in metrics) {
 }
 
 # Facilities
-alldata = NULL
 metrics <- c('wd_mgd', 'ps_mgd', 'r1_mgd', 'r7_mgd', 'r30_mgd', 'r90_mgd')
 for (metric in metrics) {
+  alldata = NULL
   for (runid in runids) {
     alldata <- vahydro_foundation4_append_data(
       alldata, metric, runid, 
