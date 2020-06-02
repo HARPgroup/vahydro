@@ -4,8 +4,10 @@
 library("sqldf")
 library("stringr") #for str_remove()
 
-
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+#----LOAD DATA-------------------------------
+basepath <- "/var/www/R/"
+source(paste(basepath,"config.local.private",sep = '/'))
+#folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 #folder <- "C:/Workspace/tmp/"
 runids = c(
   'runid_11', 'runid_12', 'runid_13', 'runid_14',
