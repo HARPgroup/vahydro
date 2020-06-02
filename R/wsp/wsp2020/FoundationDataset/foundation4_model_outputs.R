@@ -69,8 +69,8 @@ alldata = NULL
 metrics = c('l90_Qout', 'l30_Qout', 'l90_cc_Qout', 'l30_cc_Qout', '7q10', 'ml8', 'wd_cumulative_mgd', 'ps_cumulative_mgd','wd_mgd', 'ps_mgd', 'consumptive_use_frac')
 for (metric in metrics) {
   for (runid in runids) {
-    wshed_data <- vahydro_foundation4_export(
-      alldata, metric, runids, folder, save_to_file = TRUE
+    alldata <- vahydro_foundation4_export(
+      alldata, metric, runid, folder, save_to_file = TRUE
     )
   }
 }
