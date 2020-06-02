@@ -58,6 +58,7 @@ vahydro_foundation4_export <- function (
   # Save the metric specific file
   if (save_to_file == TRUE) {
     filename <- paste0(folder,"metrics_", bundle, "_", metric,".csv")
+    print(paste0("Writing file: ", filename))
     write.csv(alldata,filename)
   }
   return(alldata)
