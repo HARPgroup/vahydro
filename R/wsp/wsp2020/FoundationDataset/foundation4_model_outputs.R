@@ -69,7 +69,7 @@ for (metric in metrics) {
 }
 
 # Facilities
-metrics <- c('wd_mgd', 'ps_mgd', 'r1_mgd', 'r7_mgd', 'r30_mgd', 'r90_mgd')
+metrics <- c('wd_mgd', 'ps_mgd', 'unmet_demand_mgd', 'unmet90_mgd', 'unmet30_mgd', 'unmet7_mgd', 'unmet1_mgd')
 for (metric in metrics) {
   fac_rseg <- vahydro_foundation4_export(
     metric, runids, folder, save_to_file = TRUE,
