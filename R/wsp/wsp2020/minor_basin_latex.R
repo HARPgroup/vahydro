@@ -43,7 +43,9 @@ mp_all <- data_raw
 ######### SUMMARY TABLE #############################
 ##############################################################
 summary_table_func <- function(minorbasin = "NR", file_extension = ".html"){
+
    
+   #-------- html or latex -----
    #switch between file types to save in common drive folder; html or latex
    if (file_extension == ".html") {
       options(knitr.table.format = "html") #"html" for viewing in Rstudio Viewer pane
@@ -52,6 +54,8 @@ summary_table_func <- function(minorbasin = "NR", file_extension = ".html"){
       options(knitr.table.format = "latex") #"latex" when ready to output to Overleaf
       file_ext <- ".tex" #for easy upload to Overleaf
    }
+   
+   #-------- Repeating Kable arguments -----
    #Kable Styling
    latexoptions <- c("scale_down")
    #Kable column names
@@ -68,105 +72,105 @@ round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030,
 round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
 round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.25), 2) AS pct_change'
    
-      if (minorbasin == "all") {
-      #--------All Minor Basins including power -----------------------------------------
-      #All Minor Basins in a single table for comparison (including power generation)
-      mb_totals_yes_power <- sqldf(paste('SELECT 
-                     MinorBasin_Name,',
-                                         aggregate_select,'
-                     FROM mp_all
-                     GROUP BY MinorBasin_Name', sep=""))
-      
-      # OUTPUT TABLE IN KABLE FORMAT
-      kable(mb_totals_yes_power,  booktabs = T,
-            caption = "All Minor Basins Withdrawal Demand (including Power Generation)",
-            label = "mb_totals_yes_power",
-            col.names = c("Minor Basin",kable_col_names[3:6])) %>%
-         kable_styling(latex_options = latexoptions) %>%
-         cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_yes_power_table",file_ext,sep=""))
-      
-      
-      
-      mb_totals_system_yes_power <- sqldf(paste('SELECT  
-                     MinorBasin_Name,system_type,',
-                                                aggregate_select,'
-                     FROM mp_all
-                     GROUP BY MinorBasin_Name, system_type', sep=""))
-      
-      # OUTPUT TABLE IN KABLE FORMAT
-      kable(mb_totals_system_yes_power,  booktabs = T,
-            caption = "All Minor Basins Withdrawal Demand by System (including Power Generation)",
-            label = "mb_totals_system_yes_power",
-            col.names = c("Minor Basin",kable_col_names[2:6])) %>%
-         kable_styling(latex_options = latexoptions) %>%
-         cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_system_yes_power_table",file_ext,sep=""))
-      
-      mb_totals_source_yes_power <- sqldf(paste('SELECT 
-                     MinorBasin_Name, source_type,',
-                                                aggregate_select,'
-                     FROM mp_all
-                     GROUP BY MinorBasin_Name, source_type', sep=""))
-      
-      # OUTPUT TABLE IN KABLE FORMAT
-      kable(mb_totals_source_yes_power,  booktabs = T,
-            caption = "All Minor Basins Withdrawal Demand by Source (including Power Generation)",
-            label = "mb_totals_source_yes_power",
-            col.names = c("Minor Basin","Source Type",kable_col_names[3:6])) %>%
-         kable_styling(latex_options = latexoptions) %>%
-         cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_source_yes_power_table",file_ext,sep=""))
-      
-      #--------All Minor Basins excluding power ----------------------------------------
-      #All Minor Basins in a single table for comparison (excluding power generation)
-      mb_totals_no_power <- sqldf(paste('SELECT 
-                     MinorBasin_Name,',
-                                        aggregate_select,'
-                     FROM mp_all
-                     WHERE facility_ftype NOT LIKE "%power"
-                     GROUP BY MinorBasin_Name', sep=""))
-      
-      # OUTPUT TABLE IN KABLE FORMAT
-      kable(mb_totals_no_power,  booktabs = T,
-            caption = "All Minor Basins Withdrawal Demand (excluding Power Generation)",
-            label = "mb_totals_no_power",
-            col.names = c("Minor Basin",kable_col_names[3:6])) %>%
-         kable_styling(latex_options = latexoptions) %>%
-         cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_no_power_table",file_ext,sep=""))
-      
-      mb_totals_system_no_power <- sqldf(paste('SELECT  
-                     MinorBasin_Name,system_type,',
-                                               aggregate_select,'
-                     FROM mp_all
-                     WHERE facility_ftype NOT LIKE "%power"
-                     GROUP BY MinorBasin_Name, system_type', sep=""))
-      
-      # OUTPUT TABLE IN KABLE FORMAT
-      kable(mb_totals_system_no_power,  booktabs = T,
-            caption = "All Minor Basins Withdrawal Demand by System (excluding Power Generation)",
-            label = "mb_totals_system_no_power",
-            col.names = c("Minor Basin",kable_col_names[2:6])) %>%
-         kable_styling(latex_options = latexoptions) %>%
-         cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_system_no_power_table",file_ext,sep=""))
-      
-      mb_totals_source_no_power <- sqldf(paste('SELECT 
-                     MinorBasin_Name, source_type,',
-                                               aggregate_select,'
-                     FROM mp_all
-                     WHERE facility_ftype NOT LIKE "%power"
-                     GROUP BY MinorBasin_Name, source_type', sep=""))
-      
-      # OUTPUT TABLE IN KABLE FORMAT
-      kable(mb_totals_source_no_power,  booktabs = T,
-            caption = "All Minor Basins Withdrawal Demand by Source (excluding Power Generation)",
-            label = "mb_totals_source_no_power",
-            col.names = c("Minor Basin","Source Type",kable_col_names[3:6])) %>%
-         kable_styling(latex_options = latexoptions) %>%
-         cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_source_no_power_table",file_ext,sep=""))
-      
-   } else if (sjmisc::str_contains(unique(mp_all$MinorBasin_Code),minorbasin) == F) {
-      #print message if a wrong minor basin is typed in
-      stop("Minor Basin Code incorrectly written. Please choose from:\n", print_and_capture(sqldf('SELECT distinct MinorBasin_Name, MinorBasin_Code FROM mp_all ORDER BY MinorBasin_Code')))
-      
-   } 
+   #    if (minorbasin == "all") {
+   #    #--------All Minor Basins including power -----------------------------------------
+   #    #All Minor Basins in a single table for comparison (including power generation)
+   #    mb_totals_yes_power <- sqldf(paste('SELECT 
+   #                   MinorBasin_Name,',
+   #                                       aggregate_select,'
+   #                   FROM mp_all
+   #                   GROUP BY MinorBasin_Name', sep=""))
+   #    
+   #    # OUTPUT TABLE IN KABLE FORMAT
+   #    kable(mb_totals_yes_power,  booktabs = T,
+   #          caption = "All Minor Basins Withdrawal Demand (including Power Generation)",
+   #          label = "mb_totals_yes_power",
+   #          col.names = c("Minor Basin",kable_col_names[3:6])) %>%
+   #       kable_styling(latex_options = latexoptions) %>%
+   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_yes_power_table",file_ext,sep=""))
+   #    
+   #    
+   #    
+   #    mb_totals_system_yes_power <- sqldf(paste('SELECT  
+   #                   MinorBasin_Name,system_type,',
+   #                                              aggregate_select,'
+   #                   FROM mp_all
+   #                   GROUP BY MinorBasin_Name, system_type', sep=""))
+   #    
+   #    # OUTPUT TABLE IN KABLE FORMAT
+   #    kable(mb_totals_system_yes_power,  booktabs = T,
+   #          caption = "All Minor Basins Withdrawal Demand by System (including Power Generation)",
+   #          label = "mb_totals_system_yes_power",
+   #          col.names = c("Minor Basin",kable_col_names[2:6])) %>%
+   #       kable_styling(latex_options = latexoptions) %>%
+   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_system_yes_power_table",file_ext,sep=""))
+   #    
+   #    mb_totals_source_yes_power <- sqldf(paste('SELECT 
+   #                   MinorBasin_Name, source_type,',
+   #                                              aggregate_select,'
+   #                   FROM mp_all
+   #                   GROUP BY MinorBasin_Name, source_type', sep=""))
+   #    
+   #    # OUTPUT TABLE IN KABLE FORMAT
+   #    kable(mb_totals_source_yes_power,  booktabs = T,
+   #          caption = "All Minor Basins Withdrawal Demand by Source (including Power Generation)",
+   #          label = "mb_totals_source_yes_power",
+   #          col.names = c("Minor Basin","Source Type",kable_col_names[3:6])) %>%
+   #       kable_styling(latex_options = latexoptions) %>%
+   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_source_yes_power_table",file_ext,sep=""))
+   #    
+   #    #--------All Minor Basins excluding power ----------------------------------------
+   #    #All Minor Basins in a single table for comparison (excluding power generation)
+   #    mb_totals_no_power <- sqldf(paste('SELECT 
+   #                   MinorBasin_Name,',
+   #                                      aggregate_select,'
+   #                   FROM mp_all
+   #                   WHERE facility_ftype NOT LIKE "%power"
+   #                   GROUP BY MinorBasin_Name', sep=""))
+   #    
+   #    # OUTPUT TABLE IN KABLE FORMAT
+   #    kable(mb_totals_no_power,  booktabs = T,
+   #          caption = "All Minor Basins Withdrawal Demand (excluding Power Generation)",
+   #          label = "mb_totals_no_power",
+   #          col.names = c("Minor Basin",kable_col_names[3:6])) %>%
+   #       kable_styling(latex_options = latexoptions) %>%
+   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_no_power_table",file_ext,sep=""))
+   #    
+   #    mb_totals_system_no_power <- sqldf(paste('SELECT  
+   #                   MinorBasin_Name,system_type,',
+   #                                             aggregate_select,'
+   #                   FROM mp_all
+   #                   WHERE facility_ftype NOT LIKE "%power"
+   #                   GROUP BY MinorBasin_Name, system_type', sep=""))
+   #    
+   #    # OUTPUT TABLE IN KABLE FORMAT
+   #    kable(mb_totals_system_no_power,  booktabs = T,
+   #          caption = "All Minor Basins Withdrawal Demand by System (excluding Power Generation)",
+   #          label = "mb_totals_system_no_power",
+   #          col.names = c("Minor Basin",kable_col_names[2:6])) %>%
+   #       kable_styling(latex_options = latexoptions) %>%
+   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_system_no_power_table",file_ext,sep=""))
+   #    
+   #    mb_totals_source_no_power <- sqldf(paste('SELECT 
+   #                   MinorBasin_Name, source_type,',
+   #                                             aggregate_select,'
+   #                   FROM mp_all
+   #                   WHERE facility_ftype NOT LIKE "%power"
+   #                   GROUP BY MinorBasin_Name, source_type', sep=""))
+   #    
+   #    # OUTPUT TABLE IN KABLE FORMAT
+   #    kable(mb_totals_source_no_power,  booktabs = T,
+   #          caption = "All Minor Basins Withdrawal Demand by Source (excluding Power Generation)",
+   #          label = "mb_totals_source_no_power",
+   #          col.names = c("Minor Basin","Source Type",kable_col_names[3:6])) %>%
+   #       kable_styling(latex_options = latexoptions) %>%
+   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_source_no_power_table",file_ext,sep=""))
+   #    
+   # } else if (sjmisc::str_contains(unique(mp_all$MinorBasin_Code),minorbasin) == F) {
+   #    #print message if a wrong minor basin is typed in
+   #    stop("Minor Basin Code incorrectly written. Please choose from:\n", print_and_capture(sqldf('SELECT distinct MinorBasin_Name, MinorBasin_Code FROM mp_all ORDER BY MinorBasin_Code')))
+   #    
+   # } 
 
    #------CHOOSE A MINOR BASIN ##############################
    
@@ -197,9 +201,10 @@ round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.
                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
                   ORDER BY mp_2020_mgy DESC', sep=""))
    
-   write.csv(mb_mps, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/all_mps_",mb_code,".csv", sep=""), row.names = F)
+   write.csv(mb_mps, paste(folder,"tables_maps/Xtables/",mb_code,"_mp_all",".csv", sep=""), row.names = F)
    
-   #START SUMMARY TABLE GEN
+   #### START SUMMARY TABLE GEN ####
+   #--- NO POWER ----
 # when no power is detected in facility ftype column, then title of Summary table will not specify (including/excluding power generation) 
 if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
@@ -671,7 +676,7 @@ ext <- c(".html",".tex")
 # basins <- c('PL', 'OD', 'JU', 'JB', 'JL')
 # #BS also fails for same reason
 # basins <- c('PU','BS')
-summary_table_func(minorbasin = 'NR', file_extension = '.html')
+summary_table_func(minorbasin = 'PL', file_extension = '.html')
 
 tic()
 for (b in basins) {
@@ -688,11 +693,6 @@ for (b in basins) {
    toc()
 }
 toc()
-
-
-
-
-
 
 
 
