@@ -41,7 +41,6 @@ mp_all <- data_raw
 # write.csv(null_minorbasin, paste(folder,"tables_maps/all_minor_basins/NA_minorbasin_mp.csv", sep=""))
 
 ######### SUMMARY TABLE #############################
-##############################################################
 summary_table_func <- function(minorbasin = "NR", file_extension = ".html"){
 
    
@@ -247,7 +246,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #horizontal solid line depending on html or latex output
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       row_spec(15, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
    
    #-------------- TOP 5 USERS (NO POWER detected) ---------------------
 #SURFACE WATER
@@ -354,7 +353,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_no_power_",mb_code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
 } else {
 
@@ -400,7 +399,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #horizontal solid line depending on html or latex output
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       row_spec(15, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_yes_power_",mb_code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
    
    #------------------------------------------------------------------------
    #NO power (excluding power generation)
@@ -447,7 +446,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #horizontal solid line depending on html or latex output
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       row_spec(15, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/summary_no_power_",mb_code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
    
    ######## TOP 5 USERS Table ###############################################################
    #NOTE: these are sums of each source type by facility (aka the #1 groundwater user may have 4 wells that add up to a huge amount, it's not a table showing simply the largest MP withdrawal by source)
@@ -556,7 +555,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_yes_power_",mb_code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_yes_power_table",file_ext,sep=""))
    
    #-------------- TOP 5 USERS EXCLUDING POWER GENERATION (NO POWER) ---------------------
    top_sw_no <- sqldf('SELECT facility_name, system_type,
@@ -661,22 +660,18 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/Top_5_no_power_",mb_code,"_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
 }
    
 }
 
-##########################################################################################
+### RUN TABLE GENERATION FUNCTION ########################
+summary_table_func(minorbasin = 'PL', file_extension = '.html')
+
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 ext <- c(".html",".tex")
-# basins <- c('RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
-# #PU fails because it only has 4 top facilities (look at top_sw_no dataframe)
-# basins <- c('PL', 'OD', 'JU', 'JB', 'JL')
-# #BS also fails for same reason
-# basins <- c('PU','BS')
-summary_table_func(minorbasin = 'PL', file_extension = '.html')
 
 tic()
 for (b in basins) {
