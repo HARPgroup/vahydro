@@ -16,7 +16,7 @@ destfile <- paste(localpath,filename,sep="\\")
 download.file(paste("http://deq2.bse.vt.edu/d.dh/vahydro_riversegs_export",sep=""), destfile = destfile, method = "libcurl")
 RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 #MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
-# river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
+river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
 
 #LOAD minorbasin.mapgen()
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
@@ -26,13 +26,10 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/min
 ######################################################################################################
 
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "PS",
+minorbasin.mapgen(minorbasin = "JL",
                   metric = "l30_Qout",
                   runid_a = "runid_11",
                   runid_b = "runid_13")
-
-
-
 
 #----------- RUN MAPS IN BULK --------------------------
 
@@ -43,24 +40,15 @@ minorbasin.mapgen(minorbasin = "PS",
 # runid_b <- c("runid_13","runid_14","runid_15","runid_16","runid_18","runid_17","runid_19","runid_20")
 
 
-
-
-
-minorbasin <- c("NR", "YP", "TU", "RL", "OR", "EL", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
-metric <- c("l90_Qout")
-runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
-runid_b <- c("runid_13")
-
-
-#TIDAL SEGS 
-minorbasin <- c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')
+#PROVEN TO RUN
+minorbasin <- c("JL", "JA", "NR")
 metric <- c("l30_Qout")
 runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
 runid_b <- c("runid_13")
 
 
-minorbasin <- c('ES')
-metric <- c("l90_Qout")
+minorbasin <- c("NR", "YP", "TU", "RL", "OR", "EL", "ES", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS")
+metric <- c("l30_Qout")
 runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
 runid_b <- c("runid_13")
 

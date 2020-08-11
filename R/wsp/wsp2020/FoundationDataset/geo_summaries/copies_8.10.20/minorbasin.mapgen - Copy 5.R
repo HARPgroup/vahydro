@@ -263,7 +263,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
   
   
   RSeg_data <- sqldf(RSeg_data)
-  #print(length(RSeg_data[,1]))
+  length(RSeg_data[,1])
 
   # NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
   RSeg_data <- RSeg_data[,-which(colnames(RSeg_data)=="hydrocode" )[2]]
@@ -273,20 +273,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
                   FROM RSeg_data
                   WHERE geom != ''")  
   RSeg_data <- sqldf(RSeg_valid_geoms)
-  #print(length(RSeg_data[,1]))
-  
-  #PL_hcodes <<- RSeg_data[,1:5]
-  
-  
-  # # REMOVE ANY "_0000" TIDAL SEGMENTS - THEY WILL APPEAD AR GAPS ON THE MAP
-  # RSeg_non_tidal <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE hydrocode NOT LIKE '%_0000'")
-  # RSeg_data <- sqldf(RSeg_non_tidal)
-  # print(length(RSeg_data[,1]))
-
-  
-  
+  length(RSeg_data[,1])
   
   # #use this to save rseg data
   # rsegdata <- sqldf("SELECT hydroid,name,hydrocode,featureid,runid_11,runid_12,runid_13,runid_14,runid_15,runid_16,runid_17,runid_18,runid_19,runid_20,pct_chg
@@ -349,15 +336,12 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
   } else {
     image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
   }
-  
-  base_legend <- draw_image(image_path,height = .26, x = -.4, y = .6)
-  
-  # #select the legend position based on how much marginal space each minorbasin has around it
-  # if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL','MN')) {
-  #   base_legend <- draw_image(image_path,height = .26, x = -.355, y = .05)
-  # } else  {
-  #   base_legend <- draw_image(image_path,height = .26, x = -.355, y = .6 )
-  # }  
+  #select the legend position based on how much marginal space each minorbasin has around it
+  if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL','MN')) {
+    base_legend <- draw_image(image_path,height = .26, x = -.355, y = .05)
+  } else  {
+    base_legend <- draw_image(image_path,height = .26, x = -.355, y = .6 )
+  }  
   ######################################################################################################
   #colnames(RSeg_data)
   group_0_plus <- paste("SELECT *
@@ -458,51 +442,26 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
   
   #---------------------------------------------------------------
   
-  # #create a geom_sf for the tidal segments that are plotted a default color
-  # if (
-  #   any(nrow(group_0_plus) == 0,nrow(group_neg5_0) == 0,nrow(group_neg10_neg5) == 0,nrow(group_neg20_neg10) == 0,nrow(group_negInf_neg20) == 0) == TRUE) {
-  #   group_tidal <- st_as_sf(RSeg_data, wkt = 'geom')
-  #   geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
-  #   color_values <- rbind(color_values,"gray40")
-  #   label_values <- rbind(label_values,"Tidal Segment")
-  # 
-  # }  else  {
-  # 
-  #   if(exists(x = 'group_tidal')){rm(group_tidal)}
-  #   geom_tidal <- geom_blank()
-  # 
-  # }
-  
-  #print(RSeg_data$hydrocode)
-  # DATAFRAME OF ANY "_0000" TIDAL SEGMENTS
-  RSeg_tidal <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE hydrocode LIKE '%_0000'")
-  RSeg_tidal <- sqldf(RSeg_tidal)
-
-  if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
-
-    group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
-    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
-    
-    
-    group_tidal <- st_as_sf(RSeg_tidal, wkt = 'geom')
+  #create a geom_sf for the tidal segments that are plotted a default color
+  if (
+    any(nrow(group_0_plus) == 0,nrow(group_neg5_0) == 0,nrow(group_neg10_neg5) == 0,nrow(group_neg20_neg10) == 0,nrow(group_negInf_neg20) == 0) == TRUE) {
+    group_tidal <- st_as_sf(RSeg_data, wkt = 'geom')
     geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
     color_values <- rbind(color_values,"gray40")
     label_values <- rbind(label_values,"Tidal Segment")
 
-  } else  {
-
-      if(exists(x = 'group_tidal')){rm(group_tidal)}
-      geom_tidal_base <- geom_blank()
-      geom_tidal <- geom_blank()
-
-  }
+  }  else  {
+    
+    if(exists(x = 'group_tidal')){rm(group_tidal)}
+    geom_tidal <- geom_blank()
+    
+  } 
   
-
+  #print(geom_tidal)
+  
   ####################################################################
   source_current <- base_map +
-    geom_tidal_base +
+    geom_tidal +
     geom1 +
     geom2 +
     geom3 +
@@ -514,14 +473,12 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
     
     guides(fill = guide_legend(reverse=TRUE))
   
-  #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
-  # *note, if the following if statement was removed and geom_tidal layer still 
-  #     added on top, the resulting maps will be 100% identical to the vahydro mapserv maps
-  #     i.e. minor basins such as TU will have _0000 rsegs greyed out (but thats yucky)
-  if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    source_current <- source_current + geom_tidal
-  }
-
+  # print(geom5)
+  # 
+  # 
+  #  ES.MB.df <<- MB.df
+  # length(ES.MB.df$geom)
+   
   map <- ggdraw(source_current +
   #map <- ggdraw(base_map +
                   #geom_tidal +

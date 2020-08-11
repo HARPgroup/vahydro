@@ -26,6 +26,15 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/min
 ######################################################################################################
 
 #----------- RUN SINGLE MAP --------------------------
+# PS_sql <- paste('SELECT *
+#                         FROM "MinorBasins.csv"
+#                         WHERE code = "PS"'
+#                        ,sep="")
+# PS_layer <- sqldf(PS_sql)
+# #write.csv(PS_layer,paste(export_path,"/tables_maps/Xfigures/PS_layer.csv",sep=""), row.names = FALSE)
+# 
+# MinorBasins.csv <- read.table(file = paste(export_path,"/tables_maps/Xfigures/PS_layer.csv",sep=""), sep = ',', header = TRUE)
+
 minorbasin.mapgen(minorbasin = "PS",
                   metric = "l30_Qout",
                   runid_a = "runid_11",
@@ -43,24 +52,15 @@ minorbasin.mapgen(minorbasin = "PS",
 # runid_b <- c("runid_13","runid_14","runid_15","runid_16","runid_18","runid_17","runid_19","runid_20")
 
 
-
+#PROVEN TO RUN
+# minorbasin <- c("JL", "JA", "NR")
+# metric <- c("l30_Qout")
+# runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
+# runid_b <- c("runid_13")
 
 
 minorbasin <- c("NR", "YP", "TU", "RL", "OR", "EL", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
-metric <- c("l90_Qout")
-runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
-runid_b <- c("runid_13")
-
-
-#TIDAL SEGS 
-minorbasin <- c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')
 metric <- c("l30_Qout")
-runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
-runid_b <- c("runid_13")
-
-
-minorbasin <- c('ES')
-metric <- c("l90_Qout")
 runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
 runid_b <- c("runid_13")
 

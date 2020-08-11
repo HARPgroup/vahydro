@@ -56,47 +56,13 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
   ######################################################################################################
   ######################################################################################################
   # DETERMINE MAP EXTENT FROM MINOR BASIN CENTROID
-
-  if (minorbasin %in% c('TU')) {
+  if (minorbasin %in% c('TU','OR','MN','JL')) {
     
-    mb.row <- paste('SELECT * FROM "MinorBasins.csv" WHERE code == "',minorbasin,'"',sep="")
+    mb.row <- paste('SELECT *
+              FROM "MinorBasins.csv" 
+              WHERE code == "',minorbasin,'"',sep="")
     mb.row <- sqldf(mb.row)
-    mb.centroid <- wkt_centroid(mb.row$geom)
     
-    xmin <- mb.centroid$lng - 1.7
-    xmax <- mb.centroid$lng + 1.1
-    ymin <- mb.centroid$lat - 1.4
-    ymax <- mb.centroid$lat + 1.4
-    
-    extent <- data.frame(x = c(xmin, xmax),y = c(ymin, ymax))
-    
-  } else if (minorbasin %in% c('MN','OR')) { 
-    mb.row <- paste('SELECT * FROM "MinorBasins.csv" WHERE code == "',minorbasin,'"',sep="")
-    mb.row <- sqldf(mb.row)
-    mb.centroid <- wkt_centroid(mb.row$geom)
-    
-    xmin <- mb.centroid$lng - 1.5
-    xmax <- mb.centroid$lng + 1.7
-    ymin <- mb.centroid$lat - 1.6
-    ymax <- mb.centroid$lat + 1.6
-    
-    extent <- data.frame(x = c(xmin, xmax),y = c(ymin, ymax))
-  
-  } else if (minorbasin %in% c('JL')) { 
-    mb.row <- paste('SELECT * FROM "MinorBasins.csv" WHERE code == "',minorbasin,'"',sep="")
-    mb.row <- sqldf(mb.row)
-    mb.centroid <- wkt_centroid(mb.row$geom)
-    
-    xmin <- mb.centroid$lng - 1.15
-    xmax <- mb.centroid$lng + 1.25
-    ymin <- mb.centroid$lat - 1.2
-    ymax <- mb.centroid$lat + 1.2
-    
-    extent <- data.frame(x = c(xmin, xmax),y = c(ymin, ymax))   
-    
-  } else if (minorbasin %in% c('PU')) { 
-    mb.row <- paste('SELECT * FROM "MinorBasins.csv" WHERE code == "',minorbasin,'"',sep="")
-    mb.row <- sqldf(mb.row)
     mb.centroid <- wkt_centroid(mb.row$geom)
     
     xmin <- mb.centroid$lng - 1.4
@@ -104,33 +70,20 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
     ymin <- mb.centroid$lat - 1.4
     ymax <- mb.centroid$lat + 1.4
     
-    extent <- data.frame(x = c(xmin, xmax),y = c(ymin, ymax))   
+    # # #alternative way to make extent of minor basin
+    # mb_bb <- wkt_bounding(mb.row$geom)
+    # x_length <- mb_bb$max_x - mb_bb$min_x
+    # y_length <- mb_bb$max_y - mb_bb$min_y
+    # 
+    # xmin <- mb_bb$min_x - .1
+    # xmax <- mb_bb$max_x + .1
+    # ymin <- mb_bb$min_y - .4
+    # ymax <- mb_bb$max_y + .4
+    # plot(extent)
+    # plot(MBProjected, add = T)
     
-  } else if (minorbasin %in% c('EL','ES')) { 
-    mb.row <- paste('SELECT * FROM "MinorBasins.csv" WHERE code == "',minorbasin,'"',sep="")
-    mb.row <- sqldf(mb.row)
-    mb.centroid <- wkt_centroid(mb.row$geom)
-    
-    xmin <- mb.centroid$lng - 1.2
-    xmax <- mb.centroid$lng + 1.2
-    ymin <- mb.centroid$lat - 1.35
-    ymax <- mb.centroid$lat + 1.05
-    
-    extent <- data.frame(x = c(xmin, xmax),y = c(ymin, ymax))   
-    
-  } else if (minorbasin %in% c('PS')) { 
-    mb.row <- paste('SELECT * FROM "MinorBasins.csv" WHERE code == "',minorbasin,'"',sep="")
-    mb.row <- sqldf(mb.row)
-    mb.centroid <- wkt_centroid(mb.row$geom)
-    
-    xmin <- mb.centroid$lng - 0.9
-    xmax <- mb.centroid$lng + 1.1
-    ymin <- mb.centroid$lat - 1
-    ymax <- mb.centroid$lat + 1
-    
-    extent <- data.frame(x = c(xmin, xmax),y = c(ymin, ymax))   
-    
-    
+    extent <- data.frame(x = c(xmin, xmax),
+                         y = c(ymin, ymax))
   } else {
     
     mb.row <- paste('SELECT *
@@ -147,9 +100,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
     
     extent <- data.frame(x = c(xmin, xmax),
                          y = c(ymin, ymax))
-
   }
-
   ######################################################################################################
   
   #bounding box
@@ -159,7 +110,6 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
   bbPoints <- fortify(bbProjected, region = "id")
   bbDF <- merge(bbPoints, bbProjected@data, by = "id")
   
-
   ######################################################################################################
   ### PROCESS STATES LAYER  ############################################################################
   ######################################################################################################
@@ -213,15 +163,15 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
                      ,sep="")
   st_data <- sqldf(MB_df_sql)
   
+  
   st_data$id <- as.character(row_number(st_data$code))
   MB.list <- list()
-  
   
   for (z in 1:length(st_data$code)) {
     # print(paste("z = ",z,sep=''))
     # print(st_data$code[z])
     MB_geom <- readWKT(st_data$geom[z])
-    # print(MB_geom)
+    #print(MB_geom)
     MB_geom_clip <- gIntersection(bb, MB_geom)
     MBProjected <- SpatialPolygonsDataFrame(MB_geom_clip, data.frame('id'), match.ID = TRUE)
     MBProjected@data$id <- as.character(z)
@@ -263,30 +213,20 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
   
   
   RSeg_data <- sqldf(RSeg_data)
-  #print(length(RSeg_data[,1]))
-
+  length(RSeg_data[,1])
+  
   # NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
   RSeg_data <- RSeg_data[,-which(colnames(RSeg_data)=="hydrocode" )[2]]
+  
+  
+  
   
   # REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
   RSeg_valid_geoms <- paste("SELECT *
                   FROM RSeg_data
                   WHERE geom != ''")  
   RSeg_data <- sqldf(RSeg_valid_geoms)
-  #print(length(RSeg_data[,1]))
-  
-  #PL_hcodes <<- RSeg_data[,1:5]
-  
-  
-  # # REMOVE ANY "_0000" TIDAL SEGMENTS - THEY WILL APPEAD AR GAPS ON THE MAP
-  # RSeg_non_tidal <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE hydrocode NOT LIKE '%_0000'")
-  # RSeg_data <- sqldf(RSeg_non_tidal)
-  # print(length(RSeg_data[,1]))
-
-  
-  
+  length(RSeg_data[,1])
   
   # #use this to save rseg data
   # rsegdata <- sqldf("SELECT hydroid,name,hydrocode,featureid,runid_11,runid_12,runid_13,runid_14,runid_15,runid_16,runid_17,runid_18,runid_19,runid_20,pct_chg
@@ -342,22 +282,19 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
                       panel.border = element_blank())
   
   #select correct image path for the right legend (regular or with tidal segment)
-  if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
+  if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN')) {
     
     image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
     
   } else {
     image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
   }
-  
-  base_legend <- draw_image(image_path,height = .26, x = -.4, y = .6)
-  
-  # #select the legend position based on how much marginal space each minorbasin has around it
-  # if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL','MN')) {
-  #   base_legend <- draw_image(image_path,height = .26, x = -.355, y = .05)
-  # } else  {
-  #   base_legend <- draw_image(image_path,height = .26, x = -.355, y = .6 )
-  # }  
+  #select the legend position based on how much marginal space each minorbasin has around it
+  if (minorbasin %in% c('RL','YM','YP','JB','YL','OR','PL','MN')) {
+    base_legend <- draw_image(image_path,height = .26, x = -.355, y = .05)
+  } else  {
+    base_legend <- draw_image(image_path,height = .26, x = -.355, y = .6 )
+  }  
   ######################################################################################################
   #colnames(RSeg_data)
   group_0_plus <- paste("SELECT *
@@ -458,51 +395,22 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
   
   #---------------------------------------------------------------
   
-  # #create a geom_sf for the tidal segments that are plotted a default color
-  # if (
-  #   any(nrow(group_0_plus) == 0,nrow(group_neg5_0) == 0,nrow(group_neg10_neg5) == 0,nrow(group_neg20_neg10) == 0,nrow(group_negInf_neg20) == 0) == TRUE) {
-  #   group_tidal <- st_as_sf(RSeg_data, wkt = 'geom')
-  #   geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
-  #   color_values <- rbind(color_values,"gray40")
-  #   label_values <- rbind(label_values,"Tidal Segment")
-  # 
-  # }  else  {
-  # 
-  #   if(exists(x = 'group_tidal')){rm(group_tidal)}
-  #   geom_tidal <- geom_blank()
-  # 
-  # }
-  
-  #print(RSeg_data$hydrocode)
-  # DATAFRAME OF ANY "_0000" TIDAL SEGMENTS
-  RSeg_tidal <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE hydrocode LIKE '%_0000'")
-  RSeg_tidal <- sqldf(RSeg_tidal)
-
-  if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
-
-    group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
-    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
-    
-    
-    group_tidal <- st_as_sf(RSeg_tidal, wkt = 'geom')
+  #create a geom_sf for the tidal segments that are plotted a default color
+  if (
+    any(nrow(group_0_plus) == 0,nrow(group_neg5_0) == 0,nrow(group_neg10_neg5) == 0,nrow(group_neg20_neg10) == 0,nrow(group_negInf_neg20) == 0) == TRUE) {
+    group_tidal <- st_as_sf(RSeg_data, wkt = 'geom')
     geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
     color_values <- rbind(color_values,"gray40")
     label_values <- rbind(label_values,"Tidal Segment")
-
-  } else  {
-
-      if(exists(x = 'group_tidal')){rm(group_tidal)}
-      geom_tidal_base <- geom_blank()
-      geom_tidal <- geom_blank()
-
-  }
-  
-
+  }  else  {
+    
+    if(exists(x = 'group_tidal')){rm(group_tidal)}
+    geom_tidal <- geom_blank()
+    
+  } 
   ####################################################################
   source_current <- base_map +
-    geom_tidal_base +
+    geom_tidal +
     geom1 +
     geom2 +
     geom3 +
@@ -514,31 +422,16 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,mp_points = FALS
     
     guides(fill = guide_legend(reverse=TRUE))
   
-  #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
-  # *note, if the following if statement was removed and geom_tidal layer still 
-  #     added on top, the resulting maps will be 100% identical to the vahydro mapserv maps
-  #     i.e. minor basins such as TU will have _0000 rsegs greyed out (but thats yucky)
-  if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    source_current <- source_current + geom_tidal
-  }
-
   map <- ggdraw(source_current +
-  #map <- ggdraw(base_map +
-                  #geom_tidal +
                   geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
                   ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
                   labs(subtitle = mb_name$name) +
                   #xlab('Longitude (deg W)') + ylab('Latitude (deg N)') +
                   # base_river +
                   north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-                  
-                  # ADD BORDER ####################################################################
-                  geom_polygon(data = bbDF, color="black", fill = NA,lwd=0.5)+
-                  
                   base_scale +
                   base_theme) +
     base_legend
-  
   
   export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
