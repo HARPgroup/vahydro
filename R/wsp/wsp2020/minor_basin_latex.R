@@ -379,13 +379,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #---------BAR GRAPH Demand by System & Source Type (NO POWER detected) -------------------------------
    system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
    system_source[is.na(system_source)] <- 0
-   h <- sqldf("SELECT *,
-            (select round(pct_change,2) 
-            FROM system_source
-            WHERE variable LIKE '%2040%'
-            AND system_type = a.system_type
-            AND source_type = a.source_type
-            AND variable = a.variable) as pct_change2
+   h <- sqldf("SELECT *
             FROM system_source as a
             WHERE source_type IN ('Groundwater','Surface Water')
             ")
@@ -398,7 +392,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       facet_grid(~ source_type) +
       scale_fill_discrete(labels = c("2020","2030","2040")) +
       scale_y_continuous(name = "MGD") +
-      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 2, na.rm = T)
+      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 1, na.rm = T)
    
    ggsave(plot = v3, path = paste(folder,"tables_maps/Xfigures/", sep=""),filename = paste(mb_code,"_demand_graph.png",sep=""))
    
