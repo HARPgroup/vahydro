@@ -5,6 +5,9 @@ library("sjmisc")
 #library("beepr") #play beep sound when done running
 library("assertive.base")
 library("tictoc")
+library("dplyr")
+library("tidyr")
+library("ggplot2")
 #--INITIALIZE GLOBAL VARIABLES------------------------
 
 #totals function which quickly applies sum to each numeric column (skips non-numeric)
@@ -40,8 +43,8 @@ mp_all <- data_raw
 #       WHERE MinorBasin_Name IS NULL")
 # write.csv(null_minorbasin, paste(folder,"tables_maps/all_minor_basins/NA_minorbasin_mp.csv", sep=""))
 
-######### SUMMARY TABLE #############################
-summary_table_func <- function(minorbasin = "NR", file_extension = ".html"){
+######### TABLE GENERATION FUNCTION #############################
+TABLE_GEN_func <- function(minorbasin = "BS", file_extension = ".html"){
 
    
    #-------- html or latex -----
@@ -355,9 +358,53 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
+   #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
+   system_source <- sqldf(paste('SELECT 
+                     source_type,system_type,',
+                                aggregate_select,'
+                     FROM mb_mps
+                     WHERE facility_ftype NOT LIKE "%power"
+                     GROUP BY wsp_ftype, MP_bundle
+                     ORDER BY source_type,system_type', sep=""))
+   
+   system_source <- append_totals(system_source)
+   
+   # OUTPUT TABLE IN KABLE FORMAT
+   kable(system_source,  booktabs = T,
+         caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         label = paste("demand_source_type_yes_power_",mb_code,sep=""),
+         col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
+      kable_styling(latex_options = latexoptions) %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_demand_no_power_table",file_ext,sep=""))
+   #---------BAR GRAPH Demand by System & Source Type (NO POWER detected) -------------------------------
+   system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
+   system_source[is.na(system_source)] <- 0
+   h <- sqldf("SELECT *,
+            (select round(pct_change,2) 
+            FROM system_source
+            WHERE variable LIKE '%2040%'
+            AND system_type = a.system_type
+            AND source_type = a.source_type
+            AND variable = a.variable) as pct_change2
+            FROM system_source as a
+            WHERE source_type IN ('Groundwater','Surface Water')
+            ")
+  
+   v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable)) + 
+      geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
+      xlab(label = element_blank())  +
+      labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
+      facet_grid(~ source_type) +
+      scale_fill_discrete(labels = c("2020","2030","2040")) +
+      scale_y_continuous(name = "MGD") +
+      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 2, na.rm = T)
+   
+   ggsave(plot = v3, path = paste(folder,"tables_maps/Xfigures/", sep=""),filename = paste(mb_code,"_demand_graph.png",sep=""))
+   
 } else {
 
-   #when 'power' IS detected in facility ftype column, then generate 2 separate summary tables for yes/no power
+   ### when 'power' IS detected in facility ftype column, then generate 2 separate summary tables for yes/no power
    
    #YES power (including power generation)
    sql_A <- sqldf(paste('SELECT " " AS source_type, system_type, ',
@@ -662,56 +709,27 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
-}
-   
-}
-
-### RUN TABLE GENERATION FUNCTION ########################
-summary_table_func(minorbasin = 'PL', file_extension = '.html')
-
-# call summary table function in for loop to iterate through basins
-basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
-ext <- c(".html",".tex")
-
-tic()
-for (b in basins) {
-   tic(paste(b,"Minor Basin"))
-   print(paste("Begin",b,"Table Generation"))
-   
-   for (e in ext) {
-      print(paste("Begin",e,"Table Generation"))
-      summary_table_func(b,e) 
-      print(paste(e,"Tables Complete"))
-   }
-  
-   print(paste(b,"Minor Basin Tables Complete"))
-   toc()
-}
-toc()
-
-
-
-######### GRAPH - Demand by System & Source Type###########################################
-system_source <- sqldf(paste('SELECT 
+   #-------------- Table - Demand by System & Source Type (YES POWER detected) ---------------------
+   system_source <- sqldf(paste('SELECT 
                      source_type,system_type,',
-                            aggregate_select,'
+                                aggregate_select,'
                      FROM mb_mps
                      GROUP BY wsp_ftype, MP_bundle
                      ORDER BY source_type,system_type', sep=""))
-
-system_source <- append_totals(system_source)
-
-# OUTPUT TABLE IN KABLE FORMAT
-kable(system_source,  booktabs = T,
-      caption = paste("Withdrawal Demand by System and Source Type (including Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-      label = paste("demand_source_type_yes_power_",mb_code,sep=""),
-      col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
-   kable_styling(latex_options = latexoptions) %>%
-   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_system_source_",mb_code,"_kable",file_ext,sep=""))
-#---------BAR GRAPH V3 - with percent change line and label-------------------------------
-system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
-system_source[system_source == 0] <- NA
-h <- sqldf("SELECT *,
+   
+   system_source <- append_totals(system_source)
+   
+   # OUTPUT TABLE IN KABLE FORMAT
+   kable(system_source,  booktabs = T,
+         caption = paste("Withdrawal Demand by System and Source Type (including Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         label = paste("demand_source_type_yes_power_",mb_code,sep=""),
+         col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
+      kable_styling(latex_options = latexoptions) %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_system_source_yes_power_table",file_ext,sep=""))
+   #---------BAR GRAPH Demand by System & Source Type (YES POWER detected) -------------------------------
+   system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
+   system_source[system_source == 0] <- NA
+   h <- sqldf("SELECT *,
             ( select CASE
             WHEN pct_change IS NOT NULL
             THEN round(pct_change,1) || '%'
@@ -724,19 +742,48 @@ h <- sqldf("SELECT *,
             AND variable = a.variable) as pct_change2
             FROM system_source as a
             ")
-h$pct_change2 <-if_else(h$pct_change2 == 1, "0%",h$pct_change2)
-
-v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable, label = pct_change2)) + 
-   geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
-   xlab(label = element_blank())  +
-   labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by System", fill = "Demand: ") +
-   facet_grid(~ source_type) +
-   scale_fill_discrete(labels = c("2020","2030","2040")) +
-   scale_y_continuous(name = "MGD") +
-   geom_text(show.legend = F, check_overlap = F, nudge_y = 2, na.rm = T)
+   h$pct_change2 <-if_else(h$pct_change2 == 1, "0%",h$pct_change2)
    
-ggsave(plot = v3, path = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/", sep=""),filename = paste("demand_system_source_",mb_code,"_graph.png",sep=""))
+   v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable, label = pct_change2)) + 
+      geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
+      xlab(label = element_blank())  +
+      labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by System", fill = "Demand: ") +
+      facet_grid(~ source_type) +
+      scale_fill_discrete(labels = c("2020","2030","2040")) +
+      scale_y_continuous(name = "MGD") +
+      geom_text(show.legend = F, check_overlap = F, nudge_y = 2, na.rm = T)
+   
+   ggsave(plot = v3, path = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/", sep=""),filename = paste("demand_system_source_",mb_code,"_graph.png",sep=""))
+}
+   
+}
+
+### RUN TABLE GENERATION FUNCTION ########################
+TABLE_GEN_func(minorbasin = 'BS', file_extension = '.html')
+
+# call summary table function in for loop to iterate through basins
+basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
+ext <- c(".html",".tex")
+
+tic()
+for (b in basins) {
+   tic(paste(b,"Minor Basin"))
+   print(paste("Begin",b,"Table Generation"))
+   
+   for (e in ext) {
+      print(paste("Begin",e,"Table Generation"))
+      TABLE_GEN_func(b,e) 
+      print(paste(e,"Tables Complete"))
+   }
+  
+   print(paste(b,"Minor Basin Tables Complete"))
+   toc()
+}
+toc()
+
+
+
 
  ######## by_locality###########################################
 
@@ -825,67 +872,24 @@ ggsave(plot = v3, path = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/"
  
 ######### system_source_specific_facility ----------------------------------------------
  
- system_source_specific_facility <- sqldf(paste('SELECT a.system_type, a.source_type,  count(MP_hydroid) as "count_with_county_estimates",
-            (SELECT count(MP_hydroid)
-             FROM mb_mps
-             WHERE facility_ftype NOT LIKE "wsp%"
-             AND facility_ftype NOT LIKE "%power"
-             AND wsp_ftype = a.wsp_ftype
-             AND MP_bundle = a.MP_bundle) AS "specific_count",',
-                       aggregate_select,'
-                     FROM mb_mps a
-       WHERE facility_ftype NOT LIKE "%power"
-       GROUP BY a.wsp_ftype, a.MP_bundle', sep=""))
-
-system_source_specific_facility <- append_totals(system_source_specific_facility)
-
-#Add footnotes to table
-if (file_ext == '.tex') {
-   #latex column superscripts (using latex options) 
-   names(system_source_specific_facility)[4] <- paste0("Total Source Count",footnote_marker_number(1))
-   names(system_source_specific_facility)[5] <- paste0("Specific Source Count",footnote_marker_number(2))
-} else {
-   #html column superscripts (using html options)
-   names(system_source_specific_facility)[4] <- "Total Source Count<sup>[1]<sup>"
-   names(system_source_specific_facility)[5] <- "Specific Source Count<sup>[2]<sup>"
-}
-# OUTPUT TABLE IN KABLE FORMAT
-kable(system_source_specific_facility,  booktabs = T, escape = F,
-      caption = paste("Withdrawal Demand by System and Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-      label = paste("demand_system_source_specific_count",mb_code,sep=""),
-      col.names = c("System Type",
-                    "Source Type",
-                    names(system_source_specific_facility)[4],
-                    names(system_source_specific_facility)[5],
-                    kable_col_names[3:6])) %>%
-   kable_styling(latex_options = latexoptions) %>%
-   footnote(
-      general = "Each locality has a single diffuse demand estimate for each system and source combination",
-      number = c("includes diffuse demand estimates; ", "shows only demand amounts from specific facilities (no diffuse demand estimates) "),
-      number_title = "Count Note: ",
-      footnote_as_chunk = T) %>%
-   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_system_source_with_count_",mb_code,"_kable",file_ext,sep=""))
-
-######### Top 5 Users by Source Type ##########################################
-
-
+######### Top 5 Users by Source Type
 #---------PS power point presentation table---------------------------------
-#PS power point presentation table
-top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
-
-# OUTPUT TABLE IN KABLE FORMAT
-kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
-      caption = "",
-      label = paste("top_5_",mb_code,sep=""),
-      col.names = c("Organization Name",
-                    "System Type",
-                    kable_col_names[3:6],
-                    "% of Total Groundwater",
-                    "Locality")) %>%
-   kable_styling(latex_options = latexoptions)%>%
-   column_spec(1, width = "10em") %>%
-   pack_rows("Groundwater", 1, 6) %>%
-   pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
-   #horizontal solid line depending on html or latex output
-   row_spec(7, bold=T, hline_after = F) %>%
-   cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/PPT_Top_5_",mb_code,"_kable",file_ext,sep=""))
+# #PS power point presentation table
+# top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
+# 
+# # OUTPUT TABLE IN KABLE FORMAT
+# kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
+#       caption = "",
+#       label = paste("top_5_",mb_code,sep=""),
+#       col.names = c("Organization Name",
+#                     "System Type",
+#                     kable_col_names[3:6],
+#                     "% of Total Groundwater",
+#                     "Locality")) %>%
+#    kable_styling(latex_options = latexoptions)%>%
+#    column_spec(1, width = "10em") %>%
+#    pack_rows("Groundwater", 1, 6) %>%
+#    pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
+#    #horizontal solid line depending on html or latex output
+#    row_spec(7, bold=T, hline_after = F) %>%
+#    cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/PPT_Top_5_",mb_code,"_kable",file_ext,sep=""))
