@@ -13,7 +13,14 @@ library(magick) #plot static legend
 library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
-minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
+minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
+  
+  #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
+  #good divs for consumptive_use_frac
+  div1 <- 0.0
+  div2 <- 0.10
+  div3 <- 0.20
+  div4 <- 0.50
   
   # SELECT MINOR BASIN NAME
   mb_name <-sqldf(paste('SELECT name
@@ -163,18 +170,11 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   ### PROCESS RSegs
   ######################################################################################################
   # JOIN DATA BY RIVER SEGMENT TO RIVER SEGMENT GEOMETRY LAYER
-  RSeg_data <- paste('SELECT *,
-                  case
-                  when b.',runid_a,' = 0
-                  then 0
-                  when b.',runid_b,' IS NULL
-                  then NULL
-                  else round(((b.',runid_b,' - b.',runid_a,') / b.',runid_a,') * 100,2)
-                  end AS pct_chg
+  RSeg_data <- paste('SELECT *
                   FROM "RSeg.csv" AS a
                   LEFT OUTER JOIN RSeg_summary AS b
                   ON (a.hydrocode = b.hydrocode)
-                  WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '')  
+                  WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '')
   
   
   RSeg_data <- sqldf(RSeg_data)
@@ -208,21 +208,22 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
                             metric == "l90_Qout" ~ "90 Day Low Flow",
                             metric == "7q10" ~ "7Q10",
                             metric == "l30_cc_Qout" ~ "30 Day Low Flow",
-                            metric == "l90_cc_Qout" ~ "90 Day Low Flow",)
+                            metric == "l90_cc_Qout" ~ "90 Day Low Flow",
+                            metric == "wd_cumulative_mgd" ~ "Cumulative Upstream Demand (mgd)",
+                            metric == "consumptive_use_frac" ~ "Overall Percent of Flow Change")
+                            # metric == "consumptive_use_frac" ~ "Percent Consumptive Use")
   
   # SELECT PLOT TITLE BASED ON CHOSE SCENARIOS
-  scenario_a_title <- case_when(runid_a == "runid_11" ~ "2020",
-                                runid_a == "runid_12" ~ "2030",
-                                runid_a == "runid_13" ~ "2040")
-  scenario_b_title <- case_when(runid_b == "runid_12" ~ "2030",
-                                runid_b == "runid_13" ~ "2040",
-                                runid_b == "runid_14" ~ "Med Climate Change",
-                                runid_b == "runid_15" ~ "Dry Climate Change",
-                                runid_b == "runid_16" ~ "Wet Climate Change",
-                                runid_b == "runid_17" ~ "Dry Climate Change",
-                                runid_b == "runid_18" ~ "Exempt Users",
-                                runid_b == "runid_19" ~ "Med Climate Change",
-                                runid_b == "runid_20" ~ "Wet Climate Change")
+  scenario_title <- case_when(runid_a == "runid_11" ~ "2020",
+                              runid_a == "runid_12" ~ "2030",
+                              runid_a == "runid_13" ~ "2040",
+                              runid_a == "runid_14" ~ "Med Climate Change",
+                              runid_a == "runid_15" ~ "Dry Climate Change",
+                              runid_a == "runid_16" ~ "Wet Climate Change",
+                              runid_a == "runid_17" ~ "Dry Climate Change",
+                              runid_a == "runid_18" ~ "Exempt Users",
+                              runid_a == "runid_19" ~ "Med Climate Change",
+                              runid_a == "runid_20" ~ "Wet Climate Change")
   
   ######################################################################################################
   ### GENERATE MAPS  ###################################################################################
@@ -252,6 +253,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
                                    y = extent$y[1]+(extent$y[1])*0.001
                                  ))
   
+  # COMMENT OUT THE 2 "legend." LINES BELOW IF USING A DYNAMIC LEGEND
   base_theme <- theme(legend.justification=c(0,1), 
                       legend.position="none",
                       axis.title.x=element_blank(),
@@ -267,9 +269,9 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_tidal_segment.PNG',sep='')
   } else {
-    image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE.PNG',sep='')
   }
   
   base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6)
@@ -283,7 +285,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   ######################################################################################################
   group_0_plus <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE pct_chg >= 0")  
+                  WHERE ",runid_a," <= ",div1)  
   group_0_plus <- sqldf(group_0_plus)
   group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
   
@@ -296,7 +298,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
     
     color_values <- "darkolivegreen3"
     
-    label_values <- ">= 0%"
+    label_values <- paste(" <= ",div1,sep="")
     
   } else  {
     
@@ -306,7 +308,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   #-----------------------------------------------------------------------------------------------------
   group_neg5_0 <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE pct_chg < 0 AND pct_chg >= -5")  
+                  WHERE ",runid_a," > ",div1," AND ",runid_a," <= ",div2)  
   group_neg5_0 <- sqldf(group_neg5_0)
   group_neg5_0 <- st_as_sf(group_neg5_0, wkt = 'geom')
   
@@ -314,7 +316,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
     
     geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE)
     color_values <- rbind(color_values,"cornflowerblue")
-    label_values <- rbind(label_values,"-5% to 0%")
+    label_values <- rbind(label_values,paste(div1," - ",div2,sep=""))
     
   } else  {
     
@@ -324,7 +326,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   #-----------------------------------------------------------------------------------------------------
   group_neg10_neg5 <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE pct_chg < -5 AND pct_chg >= -10")  
+                  WHERE ",runid_a," > ",div2," AND ",runid_a," <= ",div3)  
   group_neg10_neg5 <- sqldf(group_neg10_neg5)
   group_neg10_neg5 <- st_as_sf(group_neg10_neg5, wkt = 'geom')
   
@@ -332,7 +334,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
     
     geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)
     color_values <- rbind(color_values,"khaki2")
-    label_values <- rbind(label_values,"-10% to -5%")
+    label_values <- rbind(label_values,paste(div2," - ",div3,sep=""))
     
   } else  {
     
@@ -343,7 +345,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   #-----------------------------------------------------------------------------------------------------
   group_neg20_neg10 <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE pct_chg < -10 AND pct_chg >= -20")  
+                  WHERE ",runid_a," > ",div3," AND ",runid_a," <= ",div4)  
   group_neg20_neg10 <- sqldf(group_neg20_neg10)
   group_neg20_neg10 <- st_as_sf(group_neg20_neg10, wkt = 'geom')
   
@@ -351,25 +353,29 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
     
     geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)
     color_values <- rbind(color_values,"plum3")
-    label_values <- rbind(label_values,"-20% to -10%")
+    #label_values <- rbind(label_values,"-20% to -10%")
+    label_values <- rbind(label_values,paste(div3," - ",div4,sep=""))
     
   } else  {
     
     geom4 <- geom_blank()
     
   }
+  
+  
   #-----------------------------------------------------------------------------------------------------
   group_negInf_neg20 <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE pct_chg <= -20")  
+                  WHERE ",runid_a," > ",div4)  
   group_negInf_neg20 <- sqldf(group_negInf_neg20)
   group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
   
-  if (nrow(group_negInf_neg20) >0) {
+  if (nrow(group_negInf_neg20) > 0) {
     
     geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)
     color_values <- rbind(color_values,"coral3")
-    label_values <- rbind(label_values,"More than -20%")
+    #label_values <- rbind(label_values,paste(metric," >= ",div4,sep=""))
+    label_values <- rbind(label_values,paste(" > ",div4,sep=""))
     
   } else  {
     
@@ -403,6 +409,11 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
 
   }
   
+  
+  
+  
+  
+  
 
   ####################################################################
   source_current <- base_map +
@@ -429,9 +440,10 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
 
   map <- ggdraw(source_current +
                   geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-                  ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+                  # ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+                  ggtitle(paste(metric_title," (",scenario_title,")",sep = '')) +
+                  
                   labs(subtitle = mb_name$name) +
-                  # north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                   
                   #ADD STATE BORDER LAYER ON TOP
                   geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
@@ -445,13 +457,18 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
                   geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
                               size = 2)+
     
+                  #CAN BE USED FOR PLACEMENT OF DYNAMIC LEGEND 
+                  #theme(legend.position=c(-.13,0.945)) +
+                  # draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 1, height = 1, x = extent$x[1]+0.56, y = extent$y[1])+ 
+                  
+                  
                   north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                   base_scale +
                   base_theme) +
-                  base_legend +
+                  base_legend +# COMMENT OUT IF USING DYNAMIC LEGEND
                   deqlogo 
 
-  export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
+  export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_",metric,"_map.png",sep = "")
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
   
   ggsave(plot = map, file = export_file, width=6.5, height=5)
