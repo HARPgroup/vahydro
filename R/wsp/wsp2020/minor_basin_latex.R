@@ -8,6 +8,7 @@ library("tictoc")
 library("dplyr")
 library("tidyr")
 library("ggplot2")
+library("cowplot")
 #--INITIALIZE GLOBAL VARIABLES------------------------
 
 #totals function which quickly applies sum to each numeric column (skips non-numeric)
@@ -41,7 +42,7 @@ mp_all <- data_raw
 # null_minorbasin <- sqldf("SELECT *
 #       FROM mp_all
 #       WHERE MinorBasin_Name IS NULL")
-# write.csv(null_minorbasin, paste(folder,"tables_maps/all_minor_basins/NA_minorbasin_mp.csv", sep=""))
+# write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
 TABLE_GEN_func <- function(minorbasin = "BS", file_extension = ".html"){
@@ -72,7 +73,7 @@ TABLE_GEN_func <- function(minorbasin = "BS", file_extension = ".html"){
 round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
 round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
 round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
-round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.25), 2) AS pct_change'
+round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.25))*100, 2) AS pct_change'
    
    #    if (minorbasin == "all") {
    #    #--------All Minor Basins including power -----------------------------------------
@@ -89,7 +90,7 @@ round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.
    #          label = "mb_totals_yes_power",
    #          col.names = c("Minor Basin",kable_col_names[3:6])) %>%
    #       kable_styling(latex_options = latexoptions) %>%
-   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_yes_power_table",file_ext,sep=""))
+   #       cat(., file = paste(folder,"tables_maps/Xtables/mb_totals_yes_power_table",file_ext,sep=""))
    #    
    #    
    #    
@@ -105,7 +106,7 @@ round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.
    #          label = "mb_totals_system_yes_power",
    #          col.names = c("Minor Basin",kable_col_names[2:6])) %>%
    #       kable_styling(latex_options = latexoptions) %>%
-   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_system_yes_power_table",file_ext,sep=""))
+   #       cat(., file = paste(folder,"tables_maps/Xtables/mb_totals_system_yes_power_table",file_ext,sep=""))
    #    
    #    mb_totals_source_yes_power <- sqldf(paste('SELECT 
    #                   MinorBasin_Name, source_type,',
@@ -119,7 +120,7 @@ round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.
    #          label = "mb_totals_source_yes_power",
    #          col.names = c("Minor Basin","Source Type",kable_col_names[3:6])) %>%
    #       kable_styling(latex_options = latexoptions) %>%
-   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_source_yes_power_table",file_ext,sep=""))
+   #       cat(., file = paste(folder,"tables_maps/Xtables/mb_totals_source_yes_power_table",file_ext,sep=""))
    #    
    #    #--------All Minor Basins excluding power ----------------------------------------
    #    #All Minor Basins in a single table for comparison (excluding power generation)
@@ -136,7 +137,7 @@ round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.
    #          label = "mb_totals_no_power",
    #          col.names = c("Minor Basin",kable_col_names[3:6])) %>%
    #       kable_styling(latex_options = latexoptions) %>%
-   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_no_power_table",file_ext,sep=""))
+   #       cat(., file = paste(folder,"tables_maps/Xtables/mb_totals_no_power_table",file_ext,sep=""))
    #    
    #    mb_totals_system_no_power <- sqldf(paste('SELECT  
    #                   MinorBasin_Name,system_type,',
@@ -151,7 +152,7 @@ round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.
    #          label = "mb_totals_system_no_power",
    #          col.names = c("Minor Basin",kable_col_names[2:6])) %>%
    #       kable_styling(latex_options = latexoptions) %>%
-   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_system_no_power_table",file_ext,sep=""))
+   #       cat(., file = paste(folder,"tables_maps/Xtables/mb_totals_system_no_power_table",file_ext,sep=""))
    #    
    #    mb_totals_source_no_power <- sqldf(paste('SELECT 
    #                   MinorBasin_Name, source_type,',
@@ -166,7 +167,7 @@ round((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.
    #          label = "mb_totals_source_no_power",
    #          col.names = c("Minor Basin","Source Type",kable_col_names[3:6])) %>%
    #       kable_styling(latex_options = latexoptions) %>%
-   #       cat(., file = paste(folder,"tables_maps/all_minor_basins/mb_totals_source_no_power_table",file_ext,sep=""))
+   #       cat(., file = paste(folder,"tables_maps/Xtables/mb_totals_source_no_power_table",file_ext,sep=""))
    #    
    # } else if (sjmisc::str_contains(unique(mp_all$MinorBasin_Code),minorbasin) == F) {
    #    #print message if a wrong minor basin is typed in
@@ -369,13 +370,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    system_source <- append_totals(system_source)
    
-   # OUTPUT TABLE IN KABLE FORMAT
-   kable(system_source,  booktabs = T,
-         caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-         label = paste("demand_source_type_yes_power_",mb_code,sep=""),
-         col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
-      kable_styling(latex_options = latexoptions) %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_demand_no_power_table",file_ext,sep=""))
+   # # OUTPUT TABLE IN KABLE FORMAT
+   # kable(system_source,  booktabs = T,
+   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+   #       label = paste("demand_source_type_yes_power_",mb_code,sep=""),
+   #       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
+   #    kable_styling(latex_options = latexoptions) %>%
+   #    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_demand_no_power_table",file_ext,sep=""))
+   
    #---------BAR GRAPH Demand by System & Source Type (NO POWER detected) -------------------------------
    system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
    system_source[is.na(system_source)] <- 0
@@ -384,17 +386,67 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
             WHERE source_type IN ('Groundwater','Surface Water')
             ")
   
-   v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable)) + 
+   # v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable)) + 
+   #    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+   #    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
+   #    xlab(label = element_blank())  +
+   #    labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
+   #    facet_grid(~ source_type) +
+   #    scale_fill_discrete(labels = c("2020","2030","2040")) +
+   #    scale_y_continuous(name = "MGD") +
+   #    geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 1, na.rm = T)
+   # 
+   # ggsave(plot = v3, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_graph.png",sep=""))
+   
+   #make 2 separate plots so that scale won't be an issue; then plot together with cowplot::plot_grid()
+   
+   #SURFACE WATER GRAPH
+   swplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Surface Water"'), aes(x = system_type, y = value, fill = variable)) + 
       geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
       xlab(label = element_blank())  +
-      labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
-      facet_grid(~ source_type) +
+      labs(title = "Surface Water", fill = "Demand: ") +
       scale_fill_discrete(labels = c("2020","2030","2040")) +
       scale_y_continuous(name = "MGD") +
-      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 1, na.rm = T)
+      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Surface Water"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
+   #ggsave(width = 7.2,height = 6,units = "in",plot = swplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_sw_demand_graph.png",sep=""))
    
-   ggsave(plot = v3, path = paste(folder,"tables_maps/Xfigures/", sep=""),filename = paste(mb_code,"_demand_graph.png",sep=""))
+   #GROUNDWATER GRAPH
+   gwplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Groundwater"'), aes(x = system_type, y = value, fill = variable)) + 
+      geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
+      xlab(label = element_blank())  +
+      labs(title = "Groundwater", fill = "Demand: ") +
+      scale_fill_discrete(labels = c("2020","2030","2040")) +
+      scale_y_continuous(name = "MGD") +
+      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Groundwater"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
+   #ggsave(width = 7.2,height = 6,units = "in",plot = gwplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_gw_demand_graph.png",sep=""))
+   
+   #COMBINE PLOTS
+   plot_row <- plot_grid(swplot, gwplot)
+   
+   # now add the title
+   title <- ggdraw() + 
+      draw_label(
+         paste(mb_name$MinorBasin_Name," - Water Withdrawal Demand",sep=""),
+         fontface = 'bold',
+         x = 0,
+         hjust = 0) +
+      theme(
+         # add margin on the left of the drawing canvas,
+         # so title is aligned with left edge of first plot
+         plot.margin = margin(0, 0, 0, 7))
+   
+   demand_graph <- plot_grid(
+      title, plot_row,
+      ncol = 1,
+      # rel_heights values control vertical title margins
+      rel_heights = c(0.1, 1)
+   )
+   ggsave(width = 7.2,height = 6,units = "in",plot = demand_graph, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_no_power_graph.png",sep=""))
+   
+   
+
    
 } else {
 
@@ -703,7 +755,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
-   #-------------- Table - Demand by System & Source Type (YES POWER detected) ---------------------
+   #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
    system_source <- sqldf(paste('SELECT 
                      source_type,system_type,',
                                 aggregate_select,'
@@ -713,52 +765,181 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    system_source <- append_totals(system_source)
    
-   # OUTPUT TABLE IN KABLE FORMAT
-   kable(system_source,  booktabs = T,
-         caption = paste("Withdrawal Demand by System and Source Type (including Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-         label = paste("demand_source_type_yes_power_",mb_code,sep=""),
-         col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
-      kable_styling(latex_options = latexoptions) %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_system_source_yes_power_table",file_ext,sep=""))
+   # # OUTPUT TABLE IN KABLE FORMAT
+   # kable(system_source,  booktabs = T,
+   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+   #       label = paste("demand_source_type_yes_power_",mb_code,sep=""),
+   #       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
+   #    kable_styling(latex_options = latexoptions) %>%
+   #    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_demand_no_power_table",file_ext,sep=""))
+   
    #---------BAR GRAPH Demand by System & Source Type (YES POWER detected) -------------------------------
    system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
-   system_source[system_source == 0] <- NA
-   h <- sqldf("SELECT *,
-            ( select CASE
-            WHEN pct_change IS NOT NULL
-            THEN round(pct_change,1) || '%'
-            ELSE pct_change IS NULL
-            END
-            FROM system_source
-            WHERE variable LIKE '%2040%'
-            AND system_type = a.system_type
-            AND source_type = a.source_type
-            AND variable = a.variable) as pct_change2
+   system_source[is.na(system_source)] <- 0
+   h <- sqldf("SELECT *
             FROM system_source as a
+            WHERE source_type IN ('Groundwater','Surface Water')
             ")
-   h$pct_change2 <-if_else(h$pct_change2 == 1, "0%",h$pct_change2)
    
-   v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable, label = pct_change2)) + 
+   # v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable)) +
+   #    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+   #    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
+   #    xlab(label = element_blank())  +
+   #    labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
+   #    facet_grid(~ source_type) +
+   #    scale_fill_discrete(labels = c("2020","2030","2040")) +
+   #    scale_y_continuous(name = "MGD") +
+   #    geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 1, na.rm = T)
+   # 
+   # ggsave(plot = v3, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_yes_power_graph2.png",sep=""))
+   
+   #make 2 separate plots so that scale won't be an issue; then plot together with cowplot::plot_grid()
+   
+   #SURFACE WATER GRAPH
+   swplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Surface Water"'), aes(x = system_type, y = value, fill = variable)) + 
       geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
       xlab(label = element_blank())  +
-      labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by System", fill = "Demand: ") +
-      facet_grid(~ source_type) +
+      labs(title = "Surface Water", fill = "Demand: ") +
       scale_fill_discrete(labels = c("2020","2030","2040")) +
       scale_y_continuous(name = "MGD") +
-      geom_text(show.legend = F, check_overlap = F, nudge_y = 2, na.rm = T)
+      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Surface Water"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
+   #ggsave(width = 7.2,height = 6,units = "in",plot = swplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_sw_demand_graph.png",sep=""))
    
-   ggsave(plot = v3, path = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/", sep=""),filename = paste("demand_system_source_",mb_code,"_graph.png",sep=""))
+   #GROUNDWATER GRAPH
+   gwplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Groundwater"'), aes(x = system_type, y = value, fill = variable)) + 
+      geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
+      xlab(label = element_blank())  +
+      labs(title = "Groundwater", fill = "Demand: ") +
+      scale_fill_discrete(labels = c("2020","2030","2040")) +
+      scale_y_continuous(name = "MGD") +
+      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Groundwater"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
+   #ggsave(width = 7.2,height = 6,units = "in",plot = gwplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_gw_demand_graph.png",sep=""))
+   
+   #COMBINE PLOTS
+   plot_row <- plot_grid(swplot, gwplot)
+   
+   # now add the title
+   title <- ggdraw() + 
+      draw_label(
+         paste(mb_name$MinorBasin_Name," - Water Withdrawal Demand (including Power Generation)",sep=""),
+         fontface = 'bold',
+         x = 0,
+         hjust = 0) +
+      theme(
+         # add margin on the left of the drawing canvas,
+         # so title is aligned with left edge of first plot
+         plot.margin = margin(0, 0, 0, 7))
+   
+   demand_graph <- plot_grid(
+      title, plot_row,
+      ncol = 1,
+      # rel_heights values control vertical title margins
+      rel_heights = c(0.1, 1)
+   )
+   ggsave(width = 7.2,height = 6,units = "in",plot = demand_graph, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_yes_power_graph.png",sep=""))
+   
+   
+   
+   #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
+   system_source <- sqldf(paste('SELECT 
+                     source_type,system_type,',
+                                aggregate_select,'
+                     FROM mb_mps
+                     WHERE facility_ftype NOT LIKE "%power"
+                     GROUP BY wsp_ftype, MP_bundle
+                     ORDER BY source_type,system_type', sep=""))
+   
+   system_source <- append_totals(system_source)
+   
+   # # OUTPUT TABLE IN KABLE FORMAT
+   # kable(system_source,  booktabs = T,
+   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+   #       label = paste("demand_source_type_yes_power_",mb_code,sep=""),
+   #       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
+   #    kable_styling(latex_options = latexoptions) %>%
+   #    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_demand_no_power_table",file_ext,sep=""))
+   
+   #---------BAR GRAPH Demand by System & Source Type (NO POWER detected) -------------------------------
+   system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
+   system_source[is.na(system_source)] <- 0
+   h <- sqldf("SELECT *
+            FROM system_source as a
+            WHERE source_type IN ('Groundwater','Surface Water')
+            ")
+   
+   # v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable)) +
+   #    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+   #    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
+   #    xlab(label = element_blank())  +
+   #    labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
+   #    facet_grid(~ source_type) +
+   #    scale_fill_discrete(labels = c("2020","2030","2040")) +
+   #    scale_y_continuous(name = "MGD") +
+   #    geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 1, na.rm = T)
+   # 
+   # ggsave(plot = v3, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_no_power_graph2.png",sep=""))
+   
+   #make 2 separate plots so that scale won't be an issue; then plot together with cowplot::plot_grid()
+   
+   #SURFACE WATER GRAPH
+   swplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Surface Water"'), aes(x = system_type, y = value, fill = variable)) + 
+      geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
+      xlab(label = element_blank())  +
+      labs(title = "Surface Water", fill = "Demand: ") +
+      scale_fill_discrete(labels = c("2020","2030","2040")) +
+      scale_y_continuous(name = "MGD") +
+      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Surface Water"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
+   #ggsave(width = 7.2,height = 6,units = "in",plot = swplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_sw_demand_graph.png",sep=""))
+   
+   #GROUNDWATER GRAPH
+   gwplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Groundwater"'), aes(x = system_type, y = value, fill = variable)) + 
+      geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
+      xlab(label = element_blank())  +
+      labs(title = "Groundwater", fill = "Demand: ") +
+      scale_fill_discrete(labels = c("2020","2030","2040")) +
+      scale_y_continuous(name = "MGD") +
+      geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Groundwater"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
+   #ggsave(width = 7.2,height = 6,units = "in",plot = gwplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_gw_demand_graph.png",sep=""))
+   
+   #COMBINE PLOTS
+   plot_row <- plot_grid(swplot, gwplot)
+   
+   # now add the title
+   title <- ggdraw() + 
+      draw_label(
+         paste(mb_name$MinorBasin_Name," - Water Withdrawal Demand (excluding Power Generation)",sep=""),
+         fontface = 'bold',
+         x = 0,
+         hjust = 0) +
+      theme(
+         # add margin on the left of the drawing canvas,
+         # so title is aligned with left edge of first plot
+         plot.margin = margin(0, 0, 0, 7))
+   
+   demand_graph <- plot_grid(
+      title, plot_row,
+      ncol = 1,
+      # rel_heights values control vertical title margins
+      rel_heights = c(0.1, 1)
+   )
+   ggsave(width = 7.2,height = 6,units = "in",plot = demand_graph, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_no_power_graph.png",sep=""))
+   
+   
 }
    
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'BS', file_extension = '.html')
+TABLE_GEN_func(minorbasin = 'PL', file_extension = '.html')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 ext <- c(".html",".tex")
+ext <- c(".tex")
 
 tic()
 for (b in basins) {
