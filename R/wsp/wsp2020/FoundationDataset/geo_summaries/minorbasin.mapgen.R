@@ -148,16 +148,48 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   
    }
 
+  
   ######################################################################################################
-  ### PROCESS Rivers
-  # #####################################################################################################
-  #summary(river_shp)
-  #plot(river_shp)
-  # proj4string(bbProjected) <- CRS("+proj=longlat +datum=WGS84")
-  # bbProjected <- spTransform(bbProjected, CRS("+proj=longlat +datum=WGS84"))
-  # river_shpProjected <- spTransform(river_shp, CRS("+proj=longlat +datum=WGS84"))
-  # river_clip <- gIntersection(bbProjected,river_shpProjected)
-  # river.df <- sp::SpatialLinesDataFrame(river_clip, data.frame('id'), match.ID = TRUE)
+  ### PROCESS MajorRivers.csv LAYER  ###################################################################
+  ######################################################################################################
+  rivs_layer <- MajorRivers.csv
+  
+  # rivs_layer_sql <- paste('SELECT *
+  #             FROM rivs_layer
+  #             WHERE GNIS_NAME = "New River" OR GNIS_NAME = "South Fork New River"'
+  #                         ,sep="")
+  # rivs_layer <- sqldf(rivs_layer_sql)
+
+  #------------------------------------------------------------
+  
+  rivs_layer$id <- rivs_layer$feature
+  rivs.list <- list()
+  
+  #r <- 2
+  for (r in 1:length(rivs_layer$feature)) {
+    riv_geom <- readWKT(rivs_layer$geom[r])
+   # riv_geom_clip <- gIntersection(MB_geom, riv_geom)
+    riv_geom_clip <- riv_geom
+    
+    if (is.null(riv_geom_clip) == TRUE) {
+      # print("OUT OF MINOR BASIN EXTENT - SKIPPING") 
+      next
+    }
+    
+    rivProjected <- SpatialLinesDataFrame(riv_geom_clip, data.frame('id'), match.ID = TRUE)
+    rivProjected@data$id <-  as.character(rivs_layer[r,]$id)
+    rivs.list[[r]] <- rivProjected
+  }
+  
+  length(rivs.list)
+  #REMOVE THOSE rivs_layer THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
+  rivs.list <- rivs.list[which(!sapply(rivs.list, is.null))]
+  length(rivs.list)
+  
+  rivs <- do.call('rbind', rivs.list)
+  rivs@data <- merge(rivs@data, rivs_layer, by = 'id')
+  rivs.df <- rivs
+  #print(class(rivs.df))
 
   ######################################################################################################
   ### PROCESS RSegs
@@ -265,11 +297,14 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
                       panel.background = element_blank(),
                       panel.border = element_blank())
   
+   #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
+   color_scale <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
+   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
+     image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
   } else {
-    image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
+     image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
   }
   
   base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6)
@@ -294,7 +329,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
     
     geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE)
     
-    color_values <- "darkolivegreen3"
+    color_values <- color_scale[1]
     
     label_values <- ">= 0%"
     
@@ -313,7 +348,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   if (nrow(group_neg5_0) >0) {
     
     geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE)
-    color_values <- rbind(color_values,"cornflowerblue")
+    color_values <- rbind(color_values,color_scale[2])
     label_values <- rbind(label_values,"-5% to 0%")
     
   } else  {
@@ -331,7 +366,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   if (nrow(group_neg10_neg5) >0) {
     
     geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)
-    color_values <- rbind(color_values,"khaki2")
+    color_values <- rbind(color_values,color_scale[3])
     label_values <- rbind(label_values,"-10% to -5%")
     
   } else  {
@@ -350,7 +385,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   if (nrow(group_neg20_neg10) >0) {
     
     geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)
-    color_values <- rbind(color_values,"plum3")
+    color_values <- rbind(color_values,color_scale[4])
     label_values <- rbind(label_values,"-20% to -10%")
     
   } else  {
@@ -368,7 +403,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   if (nrow(group_negInf_neg20) >0) {
     
     geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)
-    color_values <- rbind(color_values,"coral3")
+    color_values <- rbind(color_values,color_scale[5])
     label_values <- rbind(label_values,"More than -20%")
     
   } else  {
@@ -387,12 +422,12 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
 
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
-    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
+    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = color_scale[6]), inherit.aes = FALSE)
     
     
     group_tidal <- st_as_sf(RSeg_tidal, wkt = 'geom')
-    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = 'gray04'), inherit.aes = FALSE)
-    color_values <- rbind(color_values,"gray40")
+    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = color_scale[6]), inherit.aes = FALSE)
+    color_values <- rbind(color_values,color_scale[6])
     label_values <- rbind(label_values,"Tidal Segment")
 
   } else  {
@@ -435,6 +470,10 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
                   
                   #ADD STATE BORDER LAYER ON TOP
                   geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                  
+                  #ADD RIVERS LAYER ON TOP
+                  geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+               
                   
                   # ADD BORDER ####################################################################
                   geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+

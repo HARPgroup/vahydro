@@ -19,8 +19,7 @@ filename <- paste("vahydro_riversegs_export.csv",sep="")
 destfile <- paste(localpath,filename,sep="\\")
 download.file(paste(site,"vahydro_riversegs_export",sep=""), destfile = destfile, method = "libcurl")
 RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-#MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
-# river_shp <- readOGR(paste(hydro_tools_location,'/GIS_LAYERS/MajorRivers',sep = ''), "MajorRivers")
+MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
 
 #DOWNLOAD FIPS LAYER DIRECT FROM VAHYDRO
 fips_filename <- paste("vahydro_usafips_export.csv",sep="")
@@ -41,7 +40,7 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "BS",
+minorbasin.mapgen(minorbasin = "NR",
                   metric = "7q10",
                   runid_a = "runid_11",
                   runid_b = "runid_13")
