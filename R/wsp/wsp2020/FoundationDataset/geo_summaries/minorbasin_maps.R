@@ -27,21 +27,20 @@ fips_destfile <- paste(localpath,fips_filename,sep="\\")
 download.file(paste(site,"usafips_centroid_export",sep=""), destfile = fips_destfile, method = "libcurl")
 fips.csv <- read.csv(file=paste(localpath , fips_filename,sep="\\"), header=TRUE, sep=",")
 
+#LOAD RAW mp.all FILE
+mp.all <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
+
 #LOAD MAPPING FUNCTIONS
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.extent.R",sep = '/'))
 
 ######################################################################################################
-### USER INPUTS  #####################################################################################
-######################################################################################################
-
-######################################################################################################
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "NR",
-                  metric = "7q10",
+minorbasin.mapgen.MPs(minorbasin = "PS",
+                  metric = "l30_Qout",
                   runid_a = "runid_11",
                   runid_b = "runid_13")
 
@@ -78,7 +77,6 @@ beep(3)
 ######################################################################################################
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
-#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 #----------- RUN SINGLE MAP --------------------------
 minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "NR",
                                   metric = "consumptive_use_frac",
@@ -104,6 +102,45 @@ for (mb in minorbasin) {
     for (rb in runid_a) {
       print(paste("......PROCESSING runid_a: ",rb,sep=""))
       minorbasin.mapgen.SINGLE.SCENARIO(mb,met,rb) 
+    } #CLOSE runid FOR LOOP 
+  } #CLOSE metric FOR LOOP 
+  it <- it + 1
+} #CLOSE minorbasin FOR LOOP  
+toc()
+beep(3)
+#------------------------------------------------------------------
+
+######################################################################################################
+### WITHDRAWAL POINTS OVERLAY  #######################################################################
+######################################################################################################
+#----------- RUN SINGLE MAP --------------------------
+minorbasin.mapgen(minorbasin = "PS",
+                  metric = "l30_Qout",
+                  runid_a = "runid_11",
+                  runid_b = "runid_13",
+                  wd_points = "ON", #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+                  rsegs = "OFF"     #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+)
+
+#----------- RUN MAPS IN BULK --------------------------
+#ALL 21 MINOR BASINS - (21 figs)
+minorbasin <- c("NR", "YP", "EL", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+metric <- "l30_Qout"
+runid_a <- "runid_11"
+runid_b <- "runid_13"
+runid_a <- "runid_11"
+wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+rsegs <- "OFF"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+
+tic("Total")
+it <- 1 #INITIALIZE ITERATION FOR PRINTING IN LOOP
+for (mb in minorbasin) {
+  print(paste("PROCESSING MINOR BASIN ",it," OF ",length(minorbasin),": ",mb,sep=""))
+  for (met in metric) {
+    print(paste("...PROCESSING METRIC: ",met,sep=""))
+    for (rb in runid_b) {
+      print(paste("......PROCESSING runid_b: ",rb,sep=""))
+      minorbasin.mapgen(mb,met,runid_a,rb,wd_points,rsegs) 
     } #CLOSE runid FOR LOOP 
   } #CLOSE metric FOR LOOP 
   it <- it + 1

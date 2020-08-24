@@ -13,7 +13,7 @@ library(magick) #plot static legend
 library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
-minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
+minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON"){
   
   # SELECT MINOR BASIN NAME
   mb_name <-sqldf(paste('SELECT name
@@ -24,7 +24,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   # RETRIEVE RIVERSEG MODEL METRIC SUMMARY DATA
   RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
   
-
+  
   ######################################################################################################
   # DETERMINE MAP EXTENT FROM MINOR BASIN CENTROID
   extent <- mb.extent(minorbasin,MinorBasins.csv)
@@ -102,7 +102,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   ######################################################################################################
   ### PROCESS FIPS LAYER  #############################################################################
   ######################################################################################################
-
+  
   # #PADDING TO ENSURE FIPS NAMES DONT GO BEYOND PLOT WINDOW
   # fips_extent <- data.frame(x = c(extent$x[1]+0.25, extent$x[2]-0.25),
   #                           y = c(extent$y[1]+0.25, extent$y[2]-0.25))
@@ -111,13 +111,13 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   fips_layer <- fips.csv
   fips_layer$id <- fips_layer$fips_hydroid
   fips.list <- list()
-
+  
   for (f in 1:length(fips_layer$fips_hydroid)) {
     fips_geom <- readWKT(fips_layer$fips_centroid[f])
     fips_geom_clip <- gIntersection(MB_geom, fips_geom) #SHOW ONLY FIPS NAMES WITHIN MINOR BASIN
-   
+    
     if (is.null(fips_geom_clip) == TRUE) {
-        # print("FIPS OUT OF MINOR BASIN EXTENT - SKIPPING") 
+      # print("FIPS OUT OF MINOR BASIN EXTENT - SKIPPING") 
       next
     }
     
@@ -132,22 +132,22 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   length(fips.list)
   
   if (length(fips.list) != 0) {
-  #  print("NO FIPS GEOMS WITHIN MINOR BASIN EXTENT - SKIPPING")
+    #  print("NO FIPS GEOMS WITHIN MINOR BASIN EXTENT - SKIPPING")
     fips <- do.call('rbind', fips.list)
     fips@data <- merge(fips@data, fips_layer, by = 'id')
     fips@data <- fips@data[,-c(2:3)]
     fips.df <- data.frame(fips)
   } else {
     print("NO FIPS GEOMS WITHIN MINOR BASIN EXTENT")
-  
+    
     fips.df <- data.frame(id=c(1,2),
                           fips_latitude =c(1,2), 
                           fips_longitude =c(1,2),
                           fips_name = c(1,2),
                           stringsAsFactors=FALSE) 
+    
+  }
   
-   }
-
   
   ######################################################################################################
   ### PROCESS MajorRivers.csv LAYER  ###################################################################
@@ -159,7 +159,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   #             WHERE GNIS_NAME = "New River" OR GNIS_NAME = "South Fork New River"'
   #                         ,sep="")
   # rivs_layer <- sqldf(rivs_layer_sql)
-
+  
   #------------------------------------------------------------
   
   rivs_layer$id <- rivs_layer$feature
@@ -168,7 +168,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   #r <- 2
   for (r in 1:length(rivs_layer$feature)) {
     riv_geom <- readWKT(rivs_layer$geom[r])
-   # riv_geom_clip <- gIntersection(MB_geom, riv_geom)
+    # riv_geom_clip <- gIntersection(MB_geom, riv_geom)
     riv_geom_clip <- riv_geom
     
     if (is.null(riv_geom_clip) == TRUE) {
@@ -190,7 +190,48 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   rivs@data <- merge(rivs@data, rivs_layer, by = 'id')
   rivs.df <- rivs
   #print(class(rivs.df))
+  
+  
+  ######################################################################################################
+  ### PROCESS mp.all LAYER  ############################################################################
+  ######################################################################################################
+  mp_layer  <- mp.all 
+  
+  #REMOVE HYDROPOWER
+  mp_layer_nohydro <- paste("SELECT *
+                  FROM mp_layer
+                  WHERE facility_ftype != 'hydropower'")
+  mp_layer <- sqldf(mp_layer_nohydro)
+  
+  mp_layer_sql <- paste('SELECT *, round(mp_2020_mgy/365.25,3) AS MGD_2020,
+                                   round(mp_2030_mgy/365.25,3) AS MGD_2030,
+                                   round(mp_2040_mgy/365.25,3) AS MGD_2040,
+                                   final_exempt_propvalue_mgd AS ExemptMGD
+              FROM mp_layer 
+              WHERE MinorBasin_Code = "',minorbasin,'"'
+                        ,sep="")
+  mp_layer <- sqldf(mp_layer_sql)
+  
+  well_layer_sql <- paste('SELECT *
+              FROM mp_layer 
+              WHERE MP_bundle = "well"'
+                          ,sep="")
+  well_layer <- sqldf(well_layer_sql)
+  # well.max <- max(well_layer$mp_2040_mgy)
+  # well.min <- min(well_layer$mp_2040_mgy)
+  # well.range <- paste("Well WD: ",well.min/365.25," to ",round(well.max/365.25,3)," mgd",sep="")
+  
+  intake_layer_sql <- paste('SELECT *
+              FROM mp_layer 
+              WHERE MP_bundle = "intake"
+              ORDER BY mp_2040_mgy ASC'
+                            ,sep="")
+  intake_layer <- sqldf(intake_layer_sql)
+  # intake.max <- max(intake_layer$mp_2040_mgy)
+  # intake.min <- min(intake_layer$mp_2040_mgy)
+  # intake.range <- paste("Intake WD Range: ",intake.min/365.25," to ",round(intake.max/365.25,3)," mgd",sep="")
 
+  
   ######################################################################################################
   ### PROCESS RSegs
   ######################################################################################################
@@ -211,7 +252,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   
   RSeg_data <- sqldf(RSeg_data)
   #print(length(RSeg_data[,1]))
-
+  
   # NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
   RSeg_data <- RSeg_data[,-which(colnames(RSeg_data)=="hydrocode" )[2]]
   
@@ -225,13 +266,13 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   #PL_hcodes <<- RSeg_data[,1:5]
   
   
-  # USE THIS TO REMOVE ANY "_0000" TIDAL SEGMENTS - THEY WILL APPEAD AR GAPS ON THE MAP
+  # USE THIS TO REMOVE ANY "_0000" TIDAL SEGMENTS - THEY WILL APPEAD AS GAPS ON THE MAP
   # RSeg_non_tidal <- paste("SELECT *
   #                 FROM RSeg_data
   #                 WHERE hydrocode NOT LIKE '%_0000'")
   # RSeg_data <- sqldf(RSeg_non_tidal)
   # print(length(RSeg_data[,1]))
-
+  
   ######################################################################################################
   ### PLOTTING TITLES  #################################################################################
   ######################################################################################################
@@ -259,9 +300,9 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   ######################################################################################################
   ### GENERATE MAPS  ###################################################################################
   ######################################################################################################
- 
+  
   print(paste("RETRIEVING BASEMAP:",sep=""))
-
+  
   tile_layer <- get_map(
     location = c(left = extent$x[1],
                  bottom = extent$y[1],
@@ -273,16 +314,16 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   base_layer <- ggmap(tile_layer)
   
   base_map <- base_layer + 
-              #geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
-              geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)
+    #geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+    geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)
   
   base_scale <-  ggsn::scalebar(data = bbDF, location = 'bottomleft', dist = 25, dist_unit = 'mi', 
                                 transform = TRUE, model = 'WGS84',st.bottom=FALSE, 
                                 st.size = 3, st.dist = 0.03,
-                                 anchor = c(
-                                   x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])-0.45,
-                                   y = extent$y[1]+(extent$y[1])*0.001
-                                 ))
+                                anchor = c(
+                                  x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])-0.45,
+                                  y = extent$y[1]+(extent$y[1])*0.001
+                                ))
   
   base_theme <- theme(legend.justification=c(0,1), 
                       legend.position="none",
@@ -297,14 +338,14 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
                       panel.background = element_blank(),
                       panel.border = element_blank())
   
-   #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
-   color_scale <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
-   
+  #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
+  color_scale <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
+  
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-     image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
   } else {
-     image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
   }
   
   base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6)
@@ -314,7 +355,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   #logo lop left placement inside map extent
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.235, y = 0.33)
   
-
+  
   ######################################################################################################
   group_0_plus <- paste("SELECT *
                   FROM RSeg_data
@@ -327,7 +368,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   
   if (nrow(group_0_plus) >0) {
     
-    geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE)
+    geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE, show.legend = FALSE)
     
     color_values <- color_scale[1]
     
@@ -347,7 +388,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   
   if (nrow(group_neg5_0) >0) {
     
-    geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE)
+    geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[2])
     label_values <- rbind(label_values,"-5% to 0%")
     
@@ -365,7 +406,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   
   if (nrow(group_neg10_neg5) >0) {
     
-    geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)
+    geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[3])
     label_values <- rbind(label_values,"-10% to -5%")
     
@@ -384,7 +425,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   
   if (nrow(group_neg20_neg10) >0) {
     
-    geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)
+    geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[4])
     label_values <- rbind(label_values,"-20% to -10%")
     
@@ -402,7 +443,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   
   if (nrow(group_negInf_neg20) >0) {
     
-    geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)
+    geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[5])
     label_values <- rbind(label_values,"More than -20%")
     
@@ -418,27 +459,27 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
                   FROM RSeg_data
                   WHERE hydrocode LIKE '%_0000'")
   RSeg_tidal <- sqldf(RSeg_tidal)
-
+  
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
-
+    
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
-    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = color_scale[6]), inherit.aes = FALSE)
+    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = color_scale[6]), inherit.aes = FALSE, show.legend = FALSE)
     
     
     group_tidal <- st_as_sf(RSeg_tidal, wkt = 'geom')
-    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = color_scale[6]), inherit.aes = FALSE)
+    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = color_scale[6]), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[6])
     label_values <- rbind(label_values,"Tidal Segment")
-
+    
   } else  {
-
-      if(exists(x = 'group_tidal')){rm(group_tidal)}
-      geom_tidal_base <- geom_blank()
-      geom_tidal <- geom_blank()
-
+    
+    if(exists(x = 'group_tidal')){rm(group_tidal)}
+    geom_tidal_base <- geom_blank()
+    geom_tidal <- geom_blank()
+    
   }
   
-
+  
   ####################################################################
   source_current <- base_map +
     geom_tidal_base +
@@ -452,7 +493,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
                       labels = label_values)+
     guides(fill = guide_legend(reverse=TRUE))
   
-
+  
   
   #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
   # *note, if the following if statement was removed and geom_tidal layer still 
@@ -461,39 +502,122 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b){
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
     source_current <- source_current + geom_tidal
   }
-
-  map <- ggdraw(source_current +
-                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-                  ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
-                  labs(subtitle = mb_name$name) +
-                  # north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-                  
-                  #ADD STATE BORDER LAYER ON TOP
-                  geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
-                  
-                  #ADD RIVERS LAYER ON TOP
-                  geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-               
-                  
-                  # ADD BORDER ####################################################################
-                  geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-
-                  geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
-                              size =1, shape = 20, fill = "black")+
-
-                  geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-                              size = 2)+
-    
-                  north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-                  base_scale +
-                  base_theme) +
-                  base_legend +
-                  deqlogo 
-
+  
+  #EXPORT FILE NAME FOR MAP PNG
   export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
+  
+  if (wd_points == "OFF") {
+     print("PLOTTING - WITHDRAWAL POINTS OFF") 
+    
+      map <- ggdraw(source_current +
+                      geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
+                      ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+                      labs(subtitle = mb_name$name) +
+                      #ADD STATE BORDER LAYER ON TOP
+                      geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                      #ADD RIVERS LAYER ON TOP
+                      geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+                      #ADD BORDER 
+                      geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                      #ADD FIPS POINTS
+                      geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                                 size =1, shape = 20, fill = "black")+
+                      #ADD FIPS LABELS
+                      geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                      size = 2)+
+                      #ADD NORTH BAR
+                      north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+                      base_scale +
+                      base_theme) +
+              base_legend +
+              deqlogo 
+  
+  } else if (wd_points == "ON") {
+    print("PLOTTING - WITHDRAWAL POINTS ON") 
+    
+    base_theme <- theme(legend.position=c(1.15, .4),
+                        axis.title.x=element_blank(),
+                        axis.text.x=element_blank(),
+                        axis.ticks.x=element_blank(),
+                        axis.title.y=element_blank(),
+                        axis.text.y=element_blank(),
+                        axis.ticks.y=element_blank(),
+                        panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(),
+                        panel.border = element_blank())
+    
+    SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
+    SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.43, y = .6)
+    
+    if (rsegs == "ON") {
+          map <- ggdraw(source_current +
+                          geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
+                          ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+                          labs(subtitle = mb_name$name) +
+                          #ADD STATE BORDER LAYER ON TOP
+                          geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                          #ADD RIVERS LAYER ON TOP
+                          geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+                          #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude #MGD_2040, ExemptMGD
+                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040, alpha = MGD_2040), colour="black", fill ="purple4", pch = 24) +
+                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040), colour="black", pch = 2) +
+                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040, alpha = MGD_2040), colour="black", fill ="purple4", pch = 22) +
+                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040), colour="black", pch = 0) +
+                          #ADD BORDER 
+                          geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                          #ADD FIPS POINTS
+                          geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                                     size =1, shape = 20, fill = "black")+
+                          #ADD FIPS LABELS
+                          geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                          size = 2)+
+                          #ADD NORTH BAR
+                          north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+                          base_scale +
+                          base_theme) +
+            base_legend +
+            SourceTypeLegend + 
+            deqlogo
+    } else if (rsegs == "OFF") {
+      print("PLOTTING - RIVERSEGS TURNED OFF") 
+          #EXPORT FILE NAME FOR MAP PNG
+          export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_2040_map.png",sep = "")
+      
+          map <- ggdraw(source_current +
+                          geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
+                          ggtitle("Well & Intake Source Locations - 2040 Demand") +
+                          labs(subtitle = mb_name$name) +
+                          #ADD GREY MB BACKGROUND
+                          geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray55",lwd=0.7) +
+                          #ADD STATE BORDER LAYER ON TOP
+                          geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                          #ADD RIVERS LAYER ON TOP
+                          geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+                          #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude #MGD_2040, ExemptMGD
+                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040, alpha = MGD_2040), colour="black", fill ="purple4", pch = 24) +
+                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040), colour="black", pch = 2) +
+                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040, alpha = MGD_2040), colour="black", fill ="purple4", pch = 22) +
+                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040), colour="black", pch = 0) +
+                          #ADD BORDER 
+                          geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                          #ADD FIPS POINTS
+                          geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                                     size =1, shape = 20, fill = "black")+
+                          #ADD FIPS LABELS
+                          geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                          size = 2)+
+                          #ADD NORTH BAR
+                          north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+                          base_scale +
+                          base_theme) +
+            SourceTypeLegend + 
+            deqlogo
+    } #CLOSE rsegs IF STATEMENT
+    
+  } #CLOSE WITHDRAWAL POINTS IF STATEMENT
+    
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
-  
   ggsave(plot = map, file = export_file, width=6.5, height=5)
-  
   
 }
