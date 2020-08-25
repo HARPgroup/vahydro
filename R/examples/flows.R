@@ -7,10 +7,8 @@ site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d
 #----------------------------------------------
 # Load Libraries
 basepath='/var/www/R';
-source(paste(basepath,'config.local.private',sep='/'));
-source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
-source(paste(hydro_tools,"VAHydro-1.0/fn_vahydro-1.0.R", sep = "/"));  
-source(paste(hydro_tools,"LowFlow/fn_iha.R", sep = "/"));  
+source('/var/www/R/config.R');
+
 #retrieve rest token - DISABLED
 #fxn_locations <-  '/usr/local/home/git/r-dh-ecohydro/ELFGEN';
 #source(paste(fxn_locations,"elf_rest_token.R", sep = "/"));   
