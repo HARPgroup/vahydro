@@ -308,7 +308,8 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
     image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE.PNG',sep='')
   }
   
-  base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6)
+  #base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6) #ORIGINAL LEGEND PLACEMENT AND SIZE
+  base_legend <- draw_image(image_path,height = .285, x = -.425, y = .6)
   
   #logo bottom left placement outside map extent
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.42, y = -.42)
