@@ -197,18 +197,28 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   ######################################################################################################
   mp_layer  <- mp.all 
   
-  #REMOVE HYDROPOWER
-  mp_layer_nohydro <- paste("SELECT *
-                  FROM mp_layer
-                  WHERE facility_ftype != 'hydropower'")
-  mp_layer <- sqldf(mp_layer_nohydro)
+  # #REMOVE POWER
+  # mp_layer_nohydro <- paste("SELECT *
+  #                 FROM mp_layer
+  #                 WHERE facility_ftype NOT LIKE '%power%'")
+  #                 #WHERE facility_ftype != 'hydropower'")
+  # mp_layer <- sqldf(mp_layer_nohydro)
   
-  mp_layer_sql <- paste('SELECT *, round(mp_2020_mgy/365.25,3) AS MGD_2020,
-                                   round(mp_2030_mgy/365.25,3) AS MGD_2030,
-                                   round(mp_2040_mgy/365.25,3) AS MGD_2040,
-                                   final_exempt_propvalue_mgd AS ExemptMGD
-              FROM mp_layer 
-              WHERE MinorBasin_Code = "',minorbasin,'"'
+  mp_layer$mp_exempt_mgy <- mp_layer$final_exempt_propvalue_mgd*365.25
+  demand_query_param <-case_when(runid_b == "runid_12" ~ "mp_2030_mgy",
+                                 runid_b == "runid_13" ~ "mp_2040_mgy",
+                                 runid_b == "runid_14" ~ "mp_2020_mgy",
+                                 runid_b == "runid_15" ~ "mp_2020_mgy",
+                                 runid_b == "runid_16" ~ "mp_2020_mgy",
+                                 runid_b == "runid_17" ~ "mp_2040_mgy",
+                                 runid_b == "runid_18" ~ "mp_exempt_mgy",
+                                 runid_b == "runid_19" ~ "mp_2040_mgy",
+                                 runid_b == "runid_20" ~ "mp_2040_mgy")
+  
+  #mp_layer_sql <- paste('SELECT *, round(',demand_query_param,'/365.25,3) AS demand_metric
+  mp_layer_sql <- paste('SELECT *, ',demand_query_param,'/365.25 AS demand_metric
+                         FROM mp_layer 
+                         WHERE MinorBasin_Code = "',minorbasin,'"'
                         ,sep="")
   mp_layer <- sqldf(mp_layer_sql)
   
@@ -296,6 +306,15 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                                 runid_b == "runid_18" ~ "Exempt Users",
                                 runid_b == "runid_19" ~ "Med Climate Change",
                                 runid_b == "runid_20" ~ "Wet Climate Change")
+  legend_b_title <-   case_when(runid_b == "runid_12" ~ "2030",
+                                runid_b == "runid_13" ~ "2040",
+                                runid_b == "runid_14" ~ "2020",
+                                runid_b == "runid_15" ~ "2020",
+                                runid_b == "runid_16" ~ "2020",
+                                runid_b == "runid_17" ~ "2040",
+                                runid_b == "runid_18" ~ "Exempt",
+                                runid_b == "runid_19" ~ "2040",
+                                runid_b == "runid_20" ~ "2040")
   
   ######################################################################################################
   ### GENERATE MAPS  ###################################################################################
@@ -348,7 +367,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
   }
   
-  base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6)
+  #base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6) #ORIGINAL LEGEND PLACEMENT AND SIZE
+  base_legend <- draw_image(image_path,height = .285, x = -.425, y = .6)
   
   #logo bottom left placement outside map extent
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.42, y = -.42)
@@ -357,6 +377,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   
   ######################################################################################################
+  rseg_border <- 'black'
+  
   group_0_plus <- paste("SELECT *
                   FROM RSeg_data
                   WHERE pct_chg >= 0")  
@@ -368,7 +390,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   if (nrow(group_0_plus) >0) {
     
-    geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE, show.legend = FALSE)
+    geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     
     color_values <- color_scale[1]
     
@@ -388,7 +410,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   if (nrow(group_neg5_0) >0) {
     
-    geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE, show.legend = FALSE)
+    geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[2])
     label_values <- rbind(label_values,"-5% to 0%")
     
@@ -406,7 +428,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   if (nrow(group_neg10_neg5) >0) {
     
-    geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE, show.legend = FALSE)
+    geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[3])
     label_values <- rbind(label_values,"-10% to -5%")
     
@@ -425,7 +447,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   if (nrow(group_neg20_neg10) >0) {
     
-    geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE, show.legend = FALSE)
+    geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[4])
     label_values <- rbind(label_values,"-20% to -10%")
     
@@ -443,7 +465,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   if (nrow(group_negInf_neg20) >0) {
     
-    geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE, show.legend = FALSE)
+    geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[5])
     label_values <- rbind(label_values,"More than -20%")
     
@@ -463,11 +485,11 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
     
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
-    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = color_scale[6]), inherit.aes = FALSE, show.legend = FALSE)
+    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = color_scale[6],colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     
     
     group_tidal <- st_as_sf(RSeg_tidal, wkt = 'geom')
-    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = color_scale[6]), inherit.aes = FALSE, show.legend = FALSE)
+    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = color_scale[6],colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[6])
     label_values <- rbind(label_values,"Tidal Segment")
     
@@ -491,6 +513,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     scale_fill_manual(values=color_values,
                       name = "Legend",
                       labels = label_values)+
+    scale_colour_manual(values=rseg_border)+
     guides(fill = guide_legend(reverse=TRUE))
   
   
@@ -535,7 +558,11 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   } else if (wd_points == "ON") {
     print("PLOTTING - WITHDRAWAL POINTS ON") 
     
-    base_theme <- theme(legend.position=c(1.15, .4),
+    base_theme <- theme(#legend.title = element_text(size = 7.5), #WORKS FOR ALL BUT EXEMPT
+                        legend.title = element_text(size = 7.4),
+                        #legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
+                        legend.position=c(-0.135, .4), #USE TO PLACE LEGEND TO THE LEFT OF MAP
+                        
                         axis.title.x=element_blank(),
                         axis.text.x=element_blank(),
                         axis.ticks.x=element_blank(),
@@ -551,6 +578,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.43, y = .6)
     
     if (rsegs == "ON") {
+
           map <- ggdraw(source_current +
                           geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
                           ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
@@ -559,11 +587,16 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                           geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
                           #ADD RIVERS LAYER ON TOP
                           geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-                          #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude #MGD_2040, ExemptMGD
-                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040, alpha = MGD_2040), colour="black", fill ="purple4", pch = 24) +
-                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040), colour="black", pch = 2) +
-                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040, alpha = MGD_2040), colour="black", fill ="purple4", pch = 22) +
-                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040), colour="black", pch = 0) +
+                          #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
+                          # geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
+                          # geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 2) +
+                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 22) +
+                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 0) +
+                          
+                          labs(size = paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep=""),
+                               alpha= paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep="")
+                               )+
+                          
                           #ADD BORDER 
                           geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
                           #ADD FIPS POINTS
@@ -577,16 +610,16 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                           base_scale +
                           base_theme) +
             base_legend +
-            SourceTypeLegend + 
+            #SourceTypeLegend + 
             deqlogo
     } else if (rsegs == "OFF") {
       print("PLOTTING - RIVERSEGS TURNED OFF") 
           #EXPORT FILE NAME FOR MAP PNG
-          export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_2040_map.png",sep = "")
+          export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
       
           map <- ggdraw(source_current +
                           geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-                          ggtitle("Well & Intake Source Locations - 2040 Demand") +
+                          ggtitle(paste("Well & Intake Source Locations - ",legend_b_title," Demand",sep="")) +
                           labs(subtitle = mb_name$name) +
                           #ADD GREY MB BACKGROUND
                           geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray55",lwd=0.7) +
@@ -594,11 +627,16 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                           geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
                           #ADD RIVERS LAYER ON TOP
                           geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-                          #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude #MGD_2040, ExemptMGD
-                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040, alpha = MGD_2040), colour="black", fill ="purple4", pch = 24) +
-                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040), colour="black", pch = 2) +
-                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040, alpha = MGD_2040), colour="black", fill ="purple4", pch = 22) +
-                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = MGD_2040), colour="black", pch = 0) +
+                          #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
+                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
+                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 2) +
+                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 22) +
+                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 0) +
+                          
+                          labs(size = paste(legend_b_title," Demand (mgd)",sep=""),
+                               alpha= paste(legend_b_title," Demand (mgd)",sep="")
+                          )+
+                          
                           #ADD BORDER 
                           geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
                           #ADD FIPS POINTS
@@ -610,7 +648,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                           #ADD NORTH BAR
                           north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                           base_scale +
-                          base_theme) +
+                          base_theme+
+                          theme(legend.position=c(1.137, .4))) +
             SourceTypeLegend + 
             deqlogo
     } #CLOSE rsegs IF STATEMENT
