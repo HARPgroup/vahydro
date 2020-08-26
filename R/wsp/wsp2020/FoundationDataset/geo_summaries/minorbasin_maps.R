@@ -39,7 +39,7 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen.MPs(minorbasin = "PS",
+minorbasin.mapgen(minorbasin = "PS",
                   metric = "l30_Qout",
                   runid_a = "runid_11",
                   runid_b = "runid_13")
