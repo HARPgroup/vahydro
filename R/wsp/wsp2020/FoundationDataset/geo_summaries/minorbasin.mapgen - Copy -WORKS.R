@@ -148,7 +148,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     
   }
   
-  #print(fips.df)
+  print(fips.df)
   ######################################################################################################
   ### PROCESS MajorRivers.csv LAYER  ###################################################################
   ######################################################################################################
@@ -204,7 +204,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   rivs.df <- rivs
   #print(class(rivs.df))
   
-  #print(riv.centroid.df)
+  print(riv.centroid.df)
   ######################################################################################################
   ### PROCESS mp.all LAYER  ############################################################################
   ######################################################################################################
@@ -555,13 +555,6 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                     geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
                     #ADD BORDER 
                     geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-                    
-                    #ADD RIVER POINTS
-                    #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
-                    #ADD RIVER LABELS
-                    geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
-                    #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-                    
                     #ADD FIPS POINTS
                     geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
                                size =1, shape = 20, fill = "black")+
@@ -607,25 +600,6 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
                       #ADD RIVERS LAYER ON TOP
                       geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-
-                      #ADD BORDER 
-                      geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-                      
-                      #ADD RIVER POINTS
-                      #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
-                      #ADD RIVER LABELS
-                      geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
-                      #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-                      
-                      #ADD FIPS POINTS
-                      geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
-                                 size =1, shape = 20, fill = "black")+
-                      #ADD FIPS LABELS
-                       geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-                                        size = 2)+
-                      #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-                      
-                      
                       #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
                       # geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
                       # geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 2) +
@@ -636,6 +610,22 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                            alpha= paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep="")
                       )+
                       
+                      #ADD BORDER 
+                      geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                      
+                      
+                      #ADD RIVER POINTS
+                      geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
+                      #ADD RIVER LABELS
+                      geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2)+
+                      
+                      
+                      #ADD FIPS POINTS
+                      geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                                 size =1, shape = 20, fill = "black")+
+                      #ADD FIPS LABELS
+                      geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                      size = 2)+
                       #ADD NORTH BAR
                       north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                       base_scale +
@@ -658,24 +648,6 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
                       #ADD RIVERS LAYER ON TOP
                       geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-                      
-                      #ADD BORDER 
-                      geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-                      
-                      #ADD RIVER POINTS
-                      #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
-                      #ADD RIVER LABELS
-                      geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
-                      #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-                      
-                      #ADD FIPS POINTS
-                      geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
-                                 size =1, shape = 20, fill = "black")+
-                      #ADD FIPS LABELS
-                      geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-                                      size = 2)+
-                      #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-                      
                       #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
                       geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
                       geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 2) +
@@ -685,7 +657,15 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       labs(size = paste(legend_b_title," Demand (mgd)",sep=""),
                            alpha= paste(legend_b_title," Demand (mgd)",sep="")
                       )+
-
+                      
+                      #ADD BORDER 
+                      geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                      #ADD FIPS POINTS
+                      geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                                 size =1, shape = 20, fill = "black")+
+                      #ADD FIPS LABELS
+                      geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                      size = 2)+
                       #ADD NORTH BAR
                       north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                       base_scale +
