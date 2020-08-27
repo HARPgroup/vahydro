@@ -148,7 +148,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     
   }
   
-  
+  #print(fips.df)
   ######################################################################################################
   ### PROCESS MajorRivers.csv LAYER  ###################################################################
   ######################################################################################################
@@ -161,6 +161,12 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   # rivs_layer <- sqldf(rivs_layer_sql)
   
   #------------------------------------------------------------
+  riv.centroid.df <-  data.frame(feature=rivs_layer$feature,
+                                 GNIS_NAME=rivs_layer$GNIS_NAME,
+                                 centroid_longitude="",
+                                 centroid_latitude="",
+                                 stringsAsFactors=FALSE) 
+  
   
   rivs_layer$id <- rivs_layer$feature
   rivs.list <- list()
@@ -168,6 +174,13 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   #r <- 2
   for (r in 1:length(rivs_layer$feature)) {
     riv_geom <- readWKT(rivs_layer$geom[r])
+    
+    
+    riv_geom_centroid <- gCentroid(riv_geom,byid=TRUE)
+    riv.centroid.df$centroid_longitude[r] <- riv_geom_centroid$x
+    riv.centroid.df$centroid_latitude[r] <- riv_geom_centroid$y  
+    
+    
     # riv_geom_clip <- gIntersection(MB_geom, riv_geom)
     riv_geom_clip <- riv_geom
     
@@ -191,7 +204,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   rivs.df <- rivs
   #print(class(rivs.df))
   
-  
+  #print(riv.centroid.df)
   ######################################################################################################
   ### PROCESS mp.all LAYER  ############################################################################
   ######################################################################################################
@@ -240,7 +253,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   # intake.max <- max(intake_layer$mp_2040_mgy)
   # intake.min <- min(intake_layer$mp_2040_mgy)
   # intake.range <- paste("Intake WD Range: ",intake.min/365.25," to ",round(intake.max/365.25,3)," mgd",sep="")
-
+  
   
   ######################################################################################################
   ### PROCESS RSegs
@@ -530,8 +543,62 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
   
   if (wd_points == "OFF") {
-     print("PLOTTING - WITHDRAWAL POINTS OFF") 
+    print("PLOTTING - WITHDRAWAL POINTS OFF") 
     
+    map <- ggdraw(source_current +
+                    geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
+                    ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+                    labs(subtitle = mb_name$name) +
+                    #ADD STATE BORDER LAYER ON TOP
+                    geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                    #ADD RIVERS LAYER ON TOP
+                    geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+                    #ADD BORDER 
+                    geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                    
+                    #ADD RIVER POINTS
+                    #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
+                    #ADD RIVER LABELS
+                    geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
+                    #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                    
+                    #ADD FIPS POINTS
+                    geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                               size =1, shape = 20, fill = "black")+
+                    #ADD FIPS LABELS
+                    geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                    size = 2)+
+                    #ADD NORTH BAR
+                    north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+                    base_scale +
+                    base_theme) +
+      base_legend +
+      deqlogo 
+    
+  } else if (wd_points == "ON") {
+    print("PLOTTING - WITHDRAWAL POINTS ON") 
+    
+    base_theme <- theme(#legend.title = element_text(size = 7.5), #WORKS FOR ALL BUT EXEMPT
+      legend.title = element_text(size = 7.4),
+      #legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
+      legend.position=c(-0.135, .4), #USE TO PLACE LEGEND TO THE LEFT OF MAP
+      
+      axis.title.x=element_blank(),
+      axis.text.x=element_blank(),
+      axis.ticks.x=element_blank(),
+      axis.title.y=element_blank(),
+      axis.text.y=element_blank(),
+      axis.ticks.y=element_blank(),
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      panel.background = element_blank(),
+      panel.border = element_blank())
+    
+    SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
+    SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.43, y = .6)
+    
+    if (rsegs == "ON") {
+      
       map <- ggdraw(source_current +
                       geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
                       ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
@@ -540,122 +607,96 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
                       #ADD RIVERS LAYER ON TOP
                       geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+
                       #ADD BORDER 
                       geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                      
+                      #ADD RIVER POINTS
+                      #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
+                      #ADD RIVER LABELS
+                      geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
+                      #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                      
+                      #ADD FIPS POINTS
+                      geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                                 size =1, shape = 20, fill = "black")+
+                      #ADD FIPS LABELS
+                       geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                        size = 2)+
+                      #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                      
+                      
+                      #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
+                      # geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
+                      # geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 2) +
+                      geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 22) +
+                      geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 0) +
+                      
+                      labs(size = paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep=""),
+                           alpha= paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep="")
+                      )+
+                      
+                      #ADD NORTH BAR
+                      north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+                      base_scale +
+                      base_theme) +
+        base_legend +
+        #SourceTypeLegend + 
+        deqlogo
+    } else if (rsegs == "OFF") {
+      print("PLOTTING - RIVERSEGS TURNED OFF") 
+      #EXPORT FILE NAME FOR MAP PNG
+      export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
+      
+      map <- ggdraw(source_current +
+                      geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
+                      ggtitle(paste("Well & Intake Source Locations - ",legend_b_title," Demand",sep="")) +
+                      labs(subtitle = mb_name$name) +
+                      #ADD GREY MB BACKGROUND
+                      geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray55",lwd=0.7) +
+                      #ADD STATE BORDER LAYER ON TOP
+                      geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                      #ADD RIVERS LAYER ON TOP
+                      geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+                      
+                      #ADD BORDER 
+                      geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                      
+                      #ADD RIVER POINTS
+                      #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
+                      #ADD RIVER LABELS
+                      geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
+                      #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                      
                       #ADD FIPS POINTS
                       geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
                                  size =1, shape = 20, fill = "black")+
                       #ADD FIPS LABELS
                       geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
                                       size = 2)+
+                      #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                      
+                      #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
+                      geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
+                      geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 2) +
+                      geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 22) +
+                      geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 0) +
+                      
+                      labs(size = paste(legend_b_title," Demand (mgd)",sep=""),
+                           alpha= paste(legend_b_title," Demand (mgd)",sep="")
+                      )+
+
                       #ADD NORTH BAR
                       north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                       base_scale +
-                      base_theme) +
-              base_legend +
-              deqlogo 
-  
-  } else if (wd_points == "ON") {
-    print("PLOTTING - WITHDRAWAL POINTS ON") 
-    
-    base_theme <- theme(#legend.title = element_text(size = 7.5), #WORKS FOR ALL BUT EXEMPT
-                        legend.title = element_text(size = 7.4),
-                        #legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
-                        legend.position=c(-0.135, .4), #USE TO PLACE LEGEND TO THE LEFT OF MAP
-                        
-                        axis.title.x=element_blank(),
-                        axis.text.x=element_blank(),
-                        axis.ticks.x=element_blank(),
-                        axis.title.y=element_blank(),
-                        axis.text.y=element_blank(),
-                        axis.ticks.y=element_blank(),
-                        panel.grid.major = element_blank(), 
-                        panel.grid.minor = element_blank(),
-                        panel.background = element_blank(),
-                        panel.border = element_blank())
-    
-    SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
-    SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.43, y = .6)
-    
-    if (rsegs == "ON") {
-
-          map <- ggdraw(source_current +
-                          geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-                          ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
-                          labs(subtitle = mb_name$name) +
-                          #ADD STATE BORDER LAYER ON TOP
-                          geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
-                          #ADD RIVERS LAYER ON TOP
-                          geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-                          #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
-                          # geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
-                          # geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 2) +
-                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 22) +
-                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 0) +
-                          
-                          labs(size = paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep=""),
-                               alpha= paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep="")
-                               )+
-                          
-                          #ADD BORDER 
-                          geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-                          #ADD FIPS POINTS
-                          geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
-                                     size =1, shape = 20, fill = "black")+
-                          #ADD FIPS LABELS
-                          geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-                                          size = 2)+
-                          #ADD NORTH BAR
-                          north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-                          base_scale +
-                          base_theme) +
-            base_legend +
-            #SourceTypeLegend + 
-            deqlogo
-    } else if (rsegs == "OFF") {
-      print("PLOTTING - RIVERSEGS TURNED OFF") 
-          #EXPORT FILE NAME FOR MAP PNG
-          export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
-      
-          map <- ggdraw(source_current +
-                          geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-                          ggtitle(paste("Well & Intake Source Locations - ",legend_b_title," Demand",sep="")) +
-                          labs(subtitle = mb_name$name) +
-                          #ADD GREY MB BACKGROUND
-                          geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray55",lwd=0.7) +
-                          #ADD STATE BORDER LAYER ON TOP
-                          geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
-                          #ADD RIVERS LAYER ON TOP
-                          geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-                          #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
-                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
-                          geom_point(data = well_layer,   aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 2) +
-                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 22) +
-                          geom_point(data = intake_layer, aes(x = corrected_longitude, y = corrected_latitude, size = demand_metric), colour="black", pch = 0) +
-                          
-                          labs(size = paste(legend_b_title," Demand (mgd)",sep=""),
-                               alpha= paste(legend_b_title," Demand (mgd)",sep="")
-                          )+
-                          
-                          #ADD BORDER 
-                          geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-                          #ADD FIPS POINTS
-                          geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
-                                     size =1, shape = 20, fill = "black")+
-                          #ADD FIPS LABELS
-                          geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-                                          size = 2)+
-                          #ADD NORTH BAR
-                          north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-                          base_scale +
-                          base_theme+
-                          theme(legend.position=c(1.137, .4))) +
-            SourceTypeLegend + 
-            deqlogo
+                      base_theme+
+                      theme(legend.position=c(1.137, .4))) +
+        SourceTypeLegend + 
+        deqlogo
     } #CLOSE rsegs IF STATEMENT
     
   } #CLOSE WITHDRAWAL POINTS IF STATEMENT
-    
+  
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
   ggsave(plot = map, file = export_file, width=6.5, height=5)
   

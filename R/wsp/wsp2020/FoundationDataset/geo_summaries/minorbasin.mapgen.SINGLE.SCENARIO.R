@@ -167,6 +167,12 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
   # rivs_layer <- sqldf(rivs_layer_sql)
   
   #------------------------------------------------------------
+  riv.centroid.df <-  data.frame(feature=rivs_layer$feature,
+                                 GNIS_NAME=rivs_layer$GNIS_NAME,
+                                 centroid_longitude="",
+                                 centroid_latitude="",
+                                 stringsAsFactors=FALSE) 
+  
   
   rivs_layer$id <- rivs_layer$feature
   rivs.list <- list()
@@ -174,6 +180,13 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
   #r <- 2
   for (r in 1:length(rivs_layer$feature)) {
     riv_geom <- readWKT(rivs_layer$geom[r])
+    
+    
+    riv_geom_centroid <- gCentroid(riv_geom,byid=TRUE)
+    riv.centroid.df$centroid_longitude[r] <- riv_geom_centroid$x
+    riv.centroid.df$centroid_latitude[r] <- riv_geom_centroid$y  
+    
+    
     # riv_geom_clip <- gIntersection(MB_geom, riv_geom)
     riv_geom_clip <- riv_geom
     
@@ -196,6 +209,8 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
   rivs@data <- merge(rivs@data, rivs_layer, by = 'id')
   rivs.df <- rivs
   #print(class(rivs.df))
+  
+  #print(riv.centroid.df)
 
   ######################################################################################################
   ### PROCESS RSegs
@@ -489,6 +504,13 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
                   # ADD BORDER ####################################################################
                   geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
 
+                  #ADD RIVER POINTS
+                  #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
+                  #ADD RIVER LABELS
+                  geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
+                  #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                  
+                  
                   geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
                               size =1, shape = 20, fill = "black")+
 
