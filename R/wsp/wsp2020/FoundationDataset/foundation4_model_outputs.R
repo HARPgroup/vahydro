@@ -34,7 +34,7 @@ vahydro_foundation4_export <- function (
     if (is.null(alldata) ) {
       alldata = sqldf(
         paste(
-          "select a.pid, a.propname, a.hydrocode, a.featureid, a.attribute_value as ",
+          "select a.pid, a.propname, a.hydrocode, a.featureid, a.riverseg, a.attribute_value as ",
           runid, 
           "from rawdata as a "
         )
