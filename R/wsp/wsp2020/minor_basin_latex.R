@@ -45,7 +45,7 @@ mp_all <- data_raw
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "BS", file_extension = ".html"){
+TABLE_GEN_func <- function(minorbasin = "BS", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -340,6 +340,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            "pct_total_use" = '% of Total Groundwater')
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+   top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
 
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
@@ -356,7 +357,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       pack_rows("Surface Water", 1, 6) %>%
       #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
       #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
+      row_spec(6, extra_latex_after = "\\hline") %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
    #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
@@ -630,7 +632,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            "pct_total_use" = '% of Total Groundwater')
    
    top_5 <- rbind(top_5_sw, gw_header, top_5_gw)
-
+   top_5$facility_name <- str_to_title(top_5$facility_name)
+   
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
@@ -647,7 +650,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       pack_rows("Surface Water", 1, 6) %>%
       #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
       #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
+      row_spec(6, extra_latex_after = "\\hline") %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_yes_power_table",file_ext,sep=""))
    
    #-------------- TOP 5 USERS EXCLUDING POWER GENERATION (NO POWER) ---------------------
@@ -736,6 +740,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            "pct_total_use" = '% of Total Groundwater')
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+   top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
    
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
@@ -752,7 +757,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       pack_rows("Surface Water", 1, 6) %>%
       #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
       #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
+      row_spec(6, extra_latex_after = "\\hline") %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
    #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
