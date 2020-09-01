@@ -261,6 +261,17 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   # well.max <- max(well_layer$mp_2040_mgy)
   # well.min <- min(well_layer$mp_2040_mgy)
   # well.range <- paste("Well WD: ",well.min/365.25," to ",round(well.max/365.25,3)," mgd",sep="")
+
+  well_bin_1 <-   sqldf('SELECT * FROM well_layer WHERE bin = 1')
+  well_bin_2 <-   sqldf('SELECT * FROM well_layer WHERE bin = 2')
+  well_bin_3 <-   sqldf('SELECT * FROM well_layer WHERE bin = 3')
+  well_bin_4 <-   sqldf('SELECT * FROM well_layer WHERE bin = 4')
+  well_bin_5 <-   sqldf('SELECT * FROM well_layer WHERE bin = 5')
+  well_bin_6 <-   sqldf('SELECT * FROM well_layer WHERE bin = 6')
+  well_bin_7 <-   sqldf('SELECT * FROM well_layer WHERE bin = 7')
+  well_bin_8 <-   sqldf('SELECT * FROM well_layer WHERE bin = 8')
+  well_bin_9 <-   sqldf('SELECT * FROM well_layer WHERE bin = 9')
+  well_bin_10 <-  sqldf('SELECT * FROM well_layer WHERE bin = 10')
   
   intake_layer_sql <- paste('SELECT *
               FROM mp_layer 
@@ -414,7 +425,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   }
   
   #base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6) #ORIGINAL LEGEND PLACEMENT AND SIZE
-  base_legend <- draw_image(image_path,height = .285, x = -.425, y = .6)
+  #base_legend <- draw_image(image_path,height = .285, x = -.425, y = .6) #NEW LEGEND PLACEMENT
+  base_legend <- draw_image(image_path,height = .282, x = 0.421, y = .6)
   
   #logo bottom left placement outside map extent
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.42, y = -.42)
@@ -630,17 +642,30 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
     SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.43, y = .6)
     
-    if (legend_b_title == "2030") {
-      bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030.PNG',sep='')
-    } else if  (legend_b_title == "2040") {
-      bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040.PNG',sep='')
-    } else if  (legend_b_title == "Exempt") { 
-      bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt.PNG',sep='')
-    }
-    bubble_legend <- draw_image(bubble_legend,height = .72, x = 0.42, y = 0.05)
-    
-    
     if (rsegs == "ON") {
+      
+      # ORIG LEGEND SETUP
+      # if (legend_b_title == "2030") {
+      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030.PNG',sep='')
+      # } else if  (legend_b_title == "2040") {
+      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040.PNG',sep='')
+      # } else if  (legend_b_title == "Exempt") { 
+      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt.PNG',sep='')
+      # }
+      # bubble_legend <- draw_image(bubble_legend,height = .72, x = 0.42, y = 0.05) #USE TO PLACE LEGEND TO THE RIGHT OF MAP
+      #bubble_legend <- draw_image(bubble_legend,height = .72, x = -0.42, y = -0.06) #USE TO PLACE LEGEND TO THE LEFT OF MAP
+      
+      # NEW LEGEND SETUP
+      if (legend_b_title == "2030") {
+        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_short.PNG',sep='')
+      } else if  (legend_b_title == "2040") {
+        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_short.PNG',sep='')
+      } else if  (legend_b_title == "Exempt") {
+        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_short.PNG',sep='')
+      }
+      
+      bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.42, y = 0.04) 
+      
       
       map <- ggdraw(source_current +
                       geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
@@ -668,31 +693,20 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                                         size = 2)+
                       #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
                       
-                      
                       #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
-                      # geom_point(data = well_layer,   aes(x = Longitude, y = Latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
-                      # geom_point(data = well_layer,   aes(x = Longitude, y = Latitude, size = demand_metric), colour="black", pch = 2) +
-                      ###geom_point(data = intake_layer, aes(x = Longitude, y = Latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 22) +
-                      ###geom_point(data = intake_layer, aes(x = Longitude, y = Latitude, size = demand_metric), colour="black", pch = 0) +
-                      ######geom_point(data = intake_layer, aes(x = Longitude, y = Latitude, size = bin, alpha = bin), colour="black", fill ="purple4", pch = 22) +
-                      ######geom_point(data = intake_layer, aes(x = Longitude, y = Latitude, size = bin), colour="black", pch = 0) +
-                      
-                    #---------------------------------------------------------------
-                    geom_point(data = intake_bin_1, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 1, alpha = 0.3) +
-                    geom_point(data = intake_bin_2, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.4) +
-                    geom_point(data = intake_bin_3, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 3, alpha = 0.5) +
-                    geom_point(data = intake_bin_4, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 4, alpha = 0.6) +
-                    geom_point(data = intake_bin_5, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 5, alpha = 0.7) +
-                    geom_point(data = intake_bin_6, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 6, alpha = 0.8) +
-                    geom_point(data = intake_bin_7, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 7, alpha = 0.9) +
-                    geom_point(data = intake_bin_8, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 8, alpha = 0.95) +
-                    geom_point(data = intake_bin_9, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 9, alpha = 0.975) +
-                    geom_point(data = intake_bin_10, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 10, alpha = 1.0) +
-                      
-                    #---------------------------------------------------------------
-                    
-                      
-                      
+                      #---------------------------------------------------------------
+                      geom_point(data = intake_bin_1, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 1, alpha = 0.3) +
+                      geom_point(data = intake_bin_2, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.4) +
+                      geom_point(data = intake_bin_3, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 3, alpha = 0.5) +
+                      geom_point(data = intake_bin_4, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 4, alpha = 0.6) +
+                      geom_point(data = intake_bin_5, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 5, alpha = 0.7) +
+                      geom_point(data = intake_bin_6, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 6, alpha = 0.8) +
+                      geom_point(data = intake_bin_7, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 7, alpha = 0.9) +
+                      geom_point(data = intake_bin_8, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 8, alpha = 0.95) +
+                      geom_point(data = intake_bin_9, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 9, alpha = 0.975) +
+                      geom_point(data = intake_bin_10, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 10, alpha = 1.0) +
+                      #---------------------------------------------------------------
+            
                       # labs(size = paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep=""),
                       #      alpha= paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep="")
                       # )+
@@ -708,11 +722,24 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     } else if (rsegs == "OFF") {
       print("PLOTTING - RIVERSEGS TURNED OFF") 
       #EXPORT FILE NAME FOR MAP PNG
-      export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
+      # export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
+      export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawal_Locations_map.png",sep = "")
+      
+      if (legend_b_title == "2030") {
+        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_plain.PNG',sep='')
+      } else if  (legend_b_title == "2040") {
+        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_plain.PNG',sep='')
+      } else if  (legend_b_title == "Exempt") { 
+        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_plain.PNG',sep='')
+      }
+      
+      bubble_legend <- draw_image(bubble_legend,height = .72, x = 0.42, y = 0.05) #USE TO PLACE LEGEND TO THE RIGHT OF MAP
+      
       
       map <- ggdraw(source_current +
                       geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-                      ggtitle(paste("Well & Intake Source Locations - ",legend_b_title," Demand",sep="")) +
+                      # ggtitle(paste("Well & Intake Source Locations - ",legend_b_title," Demand",sep="")) +
+                      ggtitle(paste("Well & Intake Source Locations",sep="")) +
                       labs(subtitle = mb_name$name) +
                       #ADD GREY MB BACKGROUND
                       geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray55",lwd=0.7) +
@@ -738,36 +765,19 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                                       size = 2)+
                       #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
                       
-                      # #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
-                      # geom_point(data = well_layer,   aes(x = Longitude, y = Latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 24) +
-                      # geom_point(data = well_layer,   aes(x = Longitude, y = Latitude, size = demand_metric), colour="black", pch = 2) +
-                      # geom_point(data = intake_layer, aes(x = Longitude, y = Latitude, size = demand_metric, alpha = demand_metric), colour="black", fill ="purple4", pch = 22) +
-                      # geom_point(data = intake_layer, aes(x = Longitude, y = Latitude, size = demand_metric), colour="black", pch = 0) +
-                      # 
-                      # labs(size = paste(legend_b_title," Demand (mgd)",sep=""),
-                      #      alpha= paste(legend_b_title," Demand (mgd)",sep="")
-                      # )+
+                     #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
+                      #---------------------------------------------------------------
+                      geom_point(data = well_layer, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 2, alpha = 0.8) +
+                      geom_point(data = intake_layer, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.8) +
+                      #---------------------------------------------------------------
                     
-                    #---------------------------------------------------------------
-                      geom_point(data = intake_bin_1, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size =1, alpha = 0.3) +
-                      geom_point(data = intake_bin_2, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.4) +
-                      geom_point(data = intake_bin_3, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 3, alpha = 0.5) +
-                      geom_point(data = intake_bin_4, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 4, alpha = 0.6) +
-                      geom_point(data = intake_bin_5, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 5, alpha = 0.7) +
-                      geom_point(data = intake_bin_6, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 6, alpha = 0.8) +
-                      geom_point(data = intake_bin_7, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 7, alpha = 0.9) +
-                      geom_point(data = intake_bin_8, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 8, alpha = 0.95) +
-                      geom_point(data = intake_bin_9, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 9, alpha = 0.975) +
-                      geom_point(data = intake_bin_10, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 10, alpha = 1.0) +
-                      # 
-                      # #---------------------------------------------------------------
-
                       #ADD NORTH BAR
                       north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                       base_scale +
                       base_theme+
                       theme(legend.position=c(1.137, .4))) +
         SourceTypeLegend + 
+        #bubble_legend +
         deqlogo
     } #CLOSE rsegs IF STATEMENT
     
