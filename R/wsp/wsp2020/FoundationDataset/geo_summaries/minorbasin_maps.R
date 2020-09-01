@@ -20,6 +20,8 @@ destfile <- paste(localpath,filename,sep="\\")
 download.file(paste(site,"vahydro_riversegs_export",sep=""), destfile = destfile, method = "libcurl")
 RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
 MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
+#MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/rivnames/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
+
 
 #DOWNLOAD FIPS LAYER DIRECT FROM VAHYDRO
 fips_filename <- paste("vahydro_usafips_export.csv",sep="")
@@ -39,12 +41,12 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "PS",
+minorbasin.mapgen(minorbasin = "PL",
                   metric = "l30_Qout",
                   runid_a = "runid_11",
-                  runid_b = "runid_13",
+                  runid_b = "runid_18",
                   wd_points <- "ON",
-                  rsegs <- "ON")
+                  rsegs <- "OFF")
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS (189 figs)
@@ -84,9 +86,9 @@ beep(3)
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
-                                  metric = "consumptive_use_frac",
-                                  runid_a = c("runid_11"))
+# minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
+#                                   metric = "consumptive_use_frac",
+#                                   runid_a = c("runid_11"))
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - SINGLE SCENARIO (84 figs)
@@ -142,11 +144,11 @@ minorbasin.mapgen(minorbasin = "PS",
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - (21 figs)
 minorbasin <- c("NR", "YP", "EL", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
-metric <- "7q10"
+metric <- "l30_Qout"
 runid_a <- "runid_11"
 runid_b <- "runid_18"
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
-rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+rsegs <- "OFF"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
 
 
 # minorbasin <- c("NR")
