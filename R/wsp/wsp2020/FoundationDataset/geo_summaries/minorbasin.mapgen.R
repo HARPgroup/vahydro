@@ -421,7 +421,17 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       panel.border = element_blank())
   
   #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
+  #color_scale_new <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
+  
+  #color_scale <- c("white","navajowhite","#ccac7c","sandybrown","#ad6c51","gray55")
+  #color_scale <- c("white","navajowhite","#cca37c","sandybrown","#ad6c51","gray55")
+  #color_scale <- c("white","navajowhite","#deb48c","sandybrown","#ad6c51","gray55")
+  #color_scale <- c("white","#ffeeba","#f5cd93","sandybrown","#ad6c51","gray55")
+  
   color_scale <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
+  color_scale <- c("white","navajowhite","lightgoldenrod","sandybrown","#ad6c51","gray55") #close
+  color_scale <- c("white","navajowhite","lightgoldenrod","#d98f50","#ad6c51","gray55") # closer
+  color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55") # closest?
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
