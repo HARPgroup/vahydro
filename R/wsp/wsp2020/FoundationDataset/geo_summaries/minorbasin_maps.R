@@ -4,7 +4,8 @@ library(beepr) #play beep sound when done running
 ###################################################################################################### 
 # LOAD FILES
 ######################################################################################################
-site <- "https://deq1.bse.vt.edu/d.dh/"
+#site <- "https://deq1.bse.vt.edu/d.dh/"
+site <- "http://deq2.bse.vt.edu/d.dh/"
   
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
