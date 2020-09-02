@@ -41,10 +41,17 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "PL",
+minorbasin.mapgen(minorbasin = "NR",
+                  metric = "l90_Qout",
+                  runid_a = "runid_11",
+                  runid_b = "runid_18",
+                  wd_points <- "OFF",
+                  rsegs <- "ON")
+
+minorbasin.mapgen(minorbasin = "JU",
                   metric = "l90_cc_Qout",
                   runid_a = "runid_11",
-                  runid_b = "runid_19",
+                  runid_b = "runid_17",
                   wd_points <- "OFF",
                   rsegs <- "ON")
 
@@ -148,7 +155,7 @@ metric <- "l30_Qout"
 runid_a <- "runid_11"
 runid_b <- "runid_13"
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
-rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+rsegs <- "OFF"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
 
 
 # minorbasin <- c("NR")
