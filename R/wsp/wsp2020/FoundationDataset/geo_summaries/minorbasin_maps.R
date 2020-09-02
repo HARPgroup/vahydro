@@ -4,6 +4,7 @@ library(beepr) #play beep sound when done running
 ###################################################################################################### 
 # LOAD FILES
 ######################################################################################################
+#site <- "https://deq1.bse.vt.edu/d.dh/"
 site <- "http://deq2.bse.vt.edu/d.dh/"
   
 basepath <- "/var/www/R/"
@@ -45,7 +46,7 @@ minorbasin.mapgen(minorbasin = "NR",
                   metric = "l90_Qout",
                   runid_a = "runid_11",
                   runid_b = "runid_18",
-                  wd_points <- "OFF",
+                  wd_points <- "ON",
                   rsegs <- "ON")
 
 minorbasin.mapgen(minorbasin = "JU",
@@ -92,10 +93,11 @@ beep(3)
 ######################################################################################################
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 #----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
-#                                   metric = "consumptive_use_frac",
-#                                   runid_a = c("runid_11"))
+minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
+                                  metric = "consumptive_use_frac",
+                                  runid_a = c("runid_11"))
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - SINGLE SCENARIO (84 figs)

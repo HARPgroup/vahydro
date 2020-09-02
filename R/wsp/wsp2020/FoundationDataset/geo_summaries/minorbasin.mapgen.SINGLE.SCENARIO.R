@@ -302,6 +302,11 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
   # COMMENT OUT THE 2 "legend." LINES BELOW IF USING A DYNAMIC LEGEND
   base_theme <- theme(legend.justification=c(0,1), 
                       legend.position="none",
+                      
+                      plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
+                      plot.title = element_text(size=12),
+                      plot.subtitle = element_text(size=10),
+                      
                       axis.title.x=element_blank(),
                       axis.text.x=element_blank(),
                       axis.ticks.x=element_blank(),
@@ -314,7 +319,7 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
                       panel.border = element_blank())
   
   #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
-  color_scale <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
+  color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55")
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
@@ -323,13 +328,9 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
     image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE.PNG',sep='')
   }
   
-  #base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6) #ORIGINAL LEGEND PLACEMENT AND SIZE
-  base_legend <- draw_image(image_path,height = .285, x = -.425, y = .6)
+  base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6)
   
-  #logo bottom left placement outside map extent
-  # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.42, y = -.42)
-  #logo lop left placement inside map extent
-  deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.235, y = 0.33)
+  deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32)
   
 
   ######################################################################################################
@@ -531,7 +532,7 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a){
   export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_",metric,"_map.png",sep = "")
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
   
-  ggsave(plot = map, file = export_file, width=6.5, height=5)
+  ggsave(plot = map, file = export_file, width=5.5, height=5)
   
   
 }

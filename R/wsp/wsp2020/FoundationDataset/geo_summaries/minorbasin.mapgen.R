@@ -422,16 +422,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
   #color_scale_new <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
-  
-  #color_scale <- c("white","navajowhite","#ccac7c","sandybrown","#ad6c51","gray55")
-  #color_scale <- c("white","navajowhite","#cca37c","sandybrown","#ad6c51","gray55")
-  #color_scale <- c("white","navajowhite","#deb48c","sandybrown","#ad6c51","gray55")
-  #color_scale <- c("white","#ffeeba","#f5cd93","sandybrown","#ad6c51","gray55")
-  
-  color_scale <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
-  color_scale <- c("white","navajowhite","lightgoldenrod","sandybrown","#ad6c51","gray55") #close
-  color_scale <- c("white","navajowhite","lightgoldenrod","#d98f50","#ad6c51","gray55") # closer
-  color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55") # closest?
+  color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55")
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
@@ -440,15 +431,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
   }
   
-  #base_legend <- draw_image(image_path,height = .26, x = -.41, y = .6) #ORIGINAL LEGEND PLACEMENT AND SIZE
-  #base_legend <- draw_image(image_path,height = .285, x = -.425, y = .6) #NEW LEGEND PLACEMENT
-  #base_legend <- draw_image(image_path,height = .282, x = 0.421, y = .6)
-  base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6) #NEW 9.1.20
-  
-  #logo bottom left placement outside map extent
-  # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.42, y = -.42)
-  #logo lop left placement inside map extent
-  #deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.235, y = 0.33)
+  base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6)
   
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32)
   ######################################################################################################
@@ -640,13 +623,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   } else if (wd_points == "ON") {
     print("PLOTTING - WITHDRAWAL POINTS ON") 
     
-    base_theme <- theme(#legend.title = element_text(size = 7.5), #WORKS FOR ALL BUT EXEMPT
-      #legend.title = element_text(size = 7.4),
-      legend.title = element_text(size = 7.4),
+    base_theme <- theme(legend.title = element_text(size = 7.4),
       legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
-      #legend.position=c(-0.135, .4), #USE TO PLACE LEGEND TO THE LEFT OF MAP
-      #plot.margin = unit(c(1,0.25,0.25,-3), "cm"), #top, right, bottom, left #CLOSE
-      
       plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
       plot.title = element_text(size=12),
       plot.subtitle = element_text(size=10),
@@ -662,24 +640,9 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
       panel.background = element_blank(),
       panel.border = element_blank())
     
-    SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
-    #SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.43, y = .6)
-    SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.39, y = .6)
-    
     if (rsegs == "ON") {
-      
-      # ORIG LEGEND SETUP
-      # if (legend_b_title == "2030") {
-      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030.PNG',sep='')
-      # } else if  (legend_b_title == "2040") {
-      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040.PNG',sep='')
-      # } else if  (legend_b_title == "Exempt") { 
-      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt.PNG',sep='')
-      # }
-      # bubble_legend <- draw_image(bubble_legend,height = .72, x = 0.42, y = 0.05) #USE TO PLACE LEGEND TO THE RIGHT OF MAP
-      #bubble_legend <- draw_image(bubble_legend,height = .72, x = -0.42, y = -0.06) #USE TO PLACE LEGEND TO THE LEFT OF MAP
-      
-      # NEW LEGEND SETUP
+
+      # LEGEND SETUP
       if (legend_b_title == "2030") {
         bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_short.PNG',sep='')
       } else if  (legend_b_title == "2040") {
@@ -688,7 +651,6 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
         bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_short.PNG',sep='')
       }
       
-      #bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.42, y = 0.04) 
       bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.395, y = 0.04) 
       
       map <- ggdraw(source_current +
@@ -730,17 +692,12 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       geom_point(data = intake_bin_9, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 9, alpha = 0.975) +
                       geom_point(data = intake_bin_10, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 10, alpha = 1.0) +
                       #---------------------------------------------------------------
-            
-                      # labs(size = paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep=""),
-                      #      alpha= paste("Surface Water Intake\n",legend_b_title," Demand (mgd)",sep="")
-                      # )+
                       
                       #ADD NORTH BAR
                       north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                       base_scale +
                       base_theme) +
         base_legend +
-        #SourceTypeLegend + 
         bubble_legend +
         deqlogo
     } else if (rsegs == "OFF") {
@@ -749,15 +706,18 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
       # export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
       export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawal_Locations_map.png",sep = "")
       
-      if (legend_b_title == "2030") {
-        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_plain.PNG',sep='')
-      } else if  (legend_b_title == "2040") {
-        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_plain.PNG',sep='')
-      } else if  (legend_b_title == "Exempt") { 
-        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_plain.PNG',sep='')
-      }
+      SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
+      SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.39, y = .6)
       
-      bubble_legend <- draw_image(bubble_legend,height = .72, x = 0.42, y = 0.05) #USE TO PLACE LEGEND TO THE RIGHT OF MAP
+      # if (legend_b_title == "2030") {
+      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_plain.PNG',sep='')
+      # } else if  (legend_b_title == "2040") {
+      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_plain.PNG',sep='')
+      # } else if  (legend_b_title == "Exempt") { 
+      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_plain.PNG',sep='')
+      # }
+      # 
+      # bubble_legend <- draw_image(bubble_legend,height = .72, x = 0.42, y = 0.05) #USE TO PLACE LEGEND TO THE RIGHT OF MAP
       
       
       map <- ggdraw(source_current +
@@ -801,15 +761,12 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       base_theme+
                       theme(legend.position=c(1.137, .4))) +
         SourceTypeLegend + 
-        #bubble_legend +
         deqlogo
     } #CLOSE rsegs IF STATEMENT
     
   } #CLOSE WITHDRAWAL POINTS IF STATEMENT
   
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
-  #ggsave(plot = map, file = export_file, width=6.5, height=5)
-  #ggsave(plot = map, file = export_file, width=5.5, height=5)
   ggsave(plot = map, file = export_file, width=5.5, height=5)
   
 }
