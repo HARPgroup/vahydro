@@ -235,6 +235,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                          aggregate_select,'
                      FROM mb_mps',sep=""))
    table_1 <- rbind(A,B,sql_C,sql_D)
+   table_1[is.na(table_1)] <- 0
+   
 #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type",sep=""),
@@ -243,7 +245,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        "System Type",
                        kable_col_names[3:6])) %>%
       kable_styling(latex_options = "scale_down") %>%
-      column_spec(2, width = "12em") %>%
+      column_spec(1, width = "5em") %>%
+      column_spec(2, width = "10em") %>%
+      column_spec(3, width = "4em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "4em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
       pack_rows("Total (GW + SW)", 11, 14, hline_before = T, hline_after = F,extra_latex_after = ) %>%
@@ -329,7 +336,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("facility_name" = '',
+   gw_header <- data.frame("facility_name" = 'Groundwater',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
@@ -340,20 +347,28 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
    top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
-
+   top_5_no[is.na(top_5_no)] <- 0
+   
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-         label = paste("top_5_no_power",mb_code,sep=""),
+         label = paste("top_5_no_power_",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
                        "Locality",
                        kable_col_names[3:6],
                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "10em") %>%
+      column_spec(1, width = "9em") %>%
+      column_spec(2, width = "3em") %>%
+      column_spec(3, width = "3em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "4em") %>%
+      column_spec(7, width = "4em") %>%
+      column_spec(8, width = "7em") %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
+      #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
       row_spec(6, extra_latex_after = "\\hline") %>%
@@ -477,6 +492,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                          aggregate_select,'
                      FROM mb_mps',sep=""))
    table_1 <- rbind(AA,BB,sql_C,sql_D)
+   table_1[is.na(table_1)] <- 0
+   
 #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
@@ -524,6 +541,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                      FROM mb_mps
                      WHERE facility_ftype NOT LIKE "%power"',sep=""))
    table_1 <- rbind(A,B,sql_C,sql_D)
+   table_1[is.na(table_1)] <- 0
+   
    #KABLE   
    kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
@@ -619,7 +638,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #need to select the BB for the YES power (including)
    top_5_gw$pct_total_use <- round((top_5_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("facility_name" = '',
+   gw_header <- data.frame("facility_name" = 'Groundwater',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
@@ -630,6 +649,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5 <- rbind(top_5_sw, gw_header, top_5_gw)
    top_5$facility_name <- str_to_title(top_5$facility_name)
+   top_5[is.na(top_5)] <- 0
    
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
@@ -644,7 +664,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       column_spec(1, width = "3em") %>%
       column_spec(2, width = "10em") %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
+      #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
       row_spec(6, extra_latex_after = "\\hline") %>%
@@ -725,7 +745,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("facility_name" = '',
+   gw_header <- data.frame("facility_name" = 'Groundwater',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
@@ -736,6 +756,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
    top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
+   top_5_no[is.na(top_5_no)] <- 0
    
    # OUTPUT TABLE IN KABLE FORMAT
    kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
@@ -749,7 +770,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       kable_styling(latex_options = latexoptions) %>%
       column_spec(1, width = "10em") %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
+      #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
       row_spec(6, extra_latex_after = "\\hline") %>%
