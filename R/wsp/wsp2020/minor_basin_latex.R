@@ -1047,57 +1047,7 @@ toc()
                      "Locality",kable_col_names[3:6])) %>%
     kable_styling(latex_options = latexoptions) %>%
     cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_locality_",mb_code,"_kable",file_ext,sep=""))
-#---------PS Powerpoint presentation cleanup #######################################
-# ###PS Powerpoint presentation cleanup
-#  if (mb_code$MinorBasin_Code == 'PS') {
-#     hanover_mps <- sqldf("SELECT *
-#                            FROM mb_mps
-#                            WHERE fips_name like '%hanover'")
-#     hanover_mps$fips_code <- '51171'
-#     hanover_mps$fips_name <- 'Shenandoah'
-#     no_hanover <- sqldf("SELECT *
-#                            FROM mb_mps
-#                            WHERE fips_name not like '%hanover'")
-#     ps_mb_mps <- sqldf("SELECT *
-#                      from hanover_mps 
-#                     UNION  Select * from no_hanover
-#                     ")
-#     by_county_source_sql <- paste('SELECT 
-#                      fips_code,
-#                      fips_name,
-#                      source_type,
-#                      ',aggregate_select,'
-#                      FROM ps_mb_mps
-#                      GROUP BY fips_code, MP_bundle
-#                      ORDER BY fips_code, MP_bundle DESC', sep="")
-#     by_county_source <- sqldf(by_county_source_sql)
-#  } else {
-#   by_county_source_sql <- paste('SELECT 
-#                      fips_code,
-#                      fips_name,
-#                      source_type,
-#                      ',aggregate_select,'
-#                      FROM mb_mps
-#                      GROUP BY fips_code, MP_bundle
-#                      ORDER BY fips_code, MP_bundle DESC', sep="")
-#  by_county_source <- sqldf(by_county_source_sql)   
-#     
-#  }
-# 
-#  write.csv(by_county_source, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/county_source_type_demand_",mb_code$MinorBasin_Code,".csv", sep=""))
-#  
-#  kable(by_county_source[1:7],  booktabs = T,
-#        caption = paste("GW vs. SW Withdrawal Demand by Locality in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-#        label = paste("demand_locality_by_source",mb_code$MinorBasin_Code,sep=""),
-#        col.names = c("Fips Code",
-#                      "Locality",
-#                      "Source Type",kable_col_names[3:6])) %>%
-#     kable_styling(latex_options = latexoptions) %>%
-#     #column_spec(1, width = "5em") %>%
-#     #column_spec(2, width = "5em") %>%
-#     #column_spec(3, width = "5em") %>%
-#     #column_spec(4, width = "4em") %>%
-#     cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_locality_by_source_",mb_code$MinorBasin_Code,"_kable",file_ext,sep=""))
+
 ######### system_specific_facility######################################################
 #basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
 #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
@@ -1114,26 +1064,3 @@ toc()
        WHERE facility_ftype NOT LIKE "%power"
        GROUP BY a.wsp_ftype', sep=""))
  
-######### system_source_specific_facility ----------------------------------------------
- 
-######### Top 5 Users by Source Type
-#---------PS power point presentation table---------------------------------
-# #PS power point presentation table
-# top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
-# 
-# # OUTPUT TABLE IN KABLE FORMAT
-# kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
-#       caption = "",
-#       label = paste("top_5_",mb_code,sep=""),
-#       col.names = c("Organization Name",
-#                     "System Type",
-#                     kable_col_names[3:6],
-#                     "% of Total Groundwater",
-#                     "Locality")) %>%
-#    kable_styling(latex_options = latexoptions)%>%
-#    column_spec(1, width = "10em") %>%
-#    pack_rows("Groundwater", 1, 6) %>%
-#    pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
-#    #horizontal solid line depending on html or latex output
-#    row_spec(7, bold=T, hline_after = F) %>%
-#    cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/PPT_Top_5_",mb_code,"_kable",file_ext,sep=""))
