@@ -366,7 +366,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5_no[is.na(top_5_no)] <- 0
    
    # OUTPUT TABLE IN KABLE FORMAT
-   kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+   table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
          label = paste("top_5_no_power_",mb_code,sep=""),
          col.names = c("Facility Name",
@@ -387,7 +387,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
-      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(6, extra_latex_after = "\\hline")
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table5_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[ht!]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
    #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
@@ -702,7 +709,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5[is.na(top_5)] <- 0
    
    # OUTPUT TABLE IN KABLE FORMAT
-   kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+   table5_tex <- kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
          label = paste("top_5_yes_power",mb_code,sep=""),
          col.names = c("Facility Name",
@@ -723,7 +730,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
-      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(6, extra_latex_after = "\\hline")
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table5_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[ht!]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_yes_power_table",file_ext,sep=""))
    
    #-------------- TOP 5 USERS EXCLUDING POWER GENERATION (NO POWER) ---------------------
@@ -815,7 +829,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5_no[is.na(top_5_no)] <- 0
    
    # OUTPUT TABLE IN KABLE FORMAT
-   kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+   table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
          label = paste("top_5_no_power",mb_code,sep=""),
          col.names = c("Facility Name",
@@ -836,7 +850,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
       #horizontal solid line depending on html or latex output
       row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
-      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(6, extra_latex_after = "\\hline")
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table5_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[ht!]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
    #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
