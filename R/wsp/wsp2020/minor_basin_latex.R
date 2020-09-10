@@ -45,7 +45,7 @@ mp_all <- data_raw
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "BS", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "RL", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -211,50 +211,6 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
 # when no power is detected in facility ftype column, then title of Summary table will not specify (including/excluding power generation) 
 if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
-   # sql_A <- sqldf(paste('SELECT " " AS source_type, system_type, ',
-   #                      aggregate_select,'
-   #                   FROM mb_mps
-   #                   WHERE MP_bundle = "intake"
-   #                   GROUP BY system_type
-   #                   ORDER BY system_type',sep=""))
-   # sql_A[nrow(sql_A) + 1,] <- list(" ","Small Self-Supplied User",0.00,0.00,0.00,0.00)
-   # A <- append_totals(sql_A,"Total SW")
-   # sql_B <- sqldf(paste('SELECT " " AS source_type, system_type, ',
-   #                      aggregate_select,'
-   #                   FROM mb_mps
-   #                   WHERE MP_bundle = "well"
-   #                   GROUP BY system_type
-   #                   ORDER BY system_type',sep=""))
-   # B <- append_totals(sql_B,"Total GW")
-   # sql_C <- sqldf(paste('SELECT " " AS source_type, system_type, ',
-   #                      aggregate_select,'
-   #                   FROM mb_mps
-   #                   GROUP BY system_type
-   #                   ORDER BY system_type',sep=""))
-   # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS source_type, "" AS system_type, ',
-   #                       aggregate_select,'
-   #                   FROM mb_mps',sep=""))
-   # table_1 <- rbind(A,B,sql_C,sql_D)
-   # table_1[is.na(table_1)] <- 0
-   # 
-   # #KABLE   
-   # kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
-   #       caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
-   #       label = paste("summary_no_power_",mb_code,sep=""),
-   #       col.names = c("",
-   #                     "System Type",
-   #                     kable_col_names[3:6])) %>%
-   #    kable_styling(latex_options = "scale_down") %>%
-   #    column_spec(2, width = "12em") %>%
-   #    pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
-   #    pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
-   #    pack_rows("Total (GW + SW)", 11, 14, hline_before = T, hline_after = F,extra_latex_after = ) %>%
-   #    #horizontal solid line depending on html or latex output
-   #    row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-   #    row_spec(15, bold=T) %>%
-   #    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
-   
-   
    sql_A <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
                      FROM mb_mps
@@ -264,7 +220,6 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    sql_A[nrow(sql_A) + 1,] <- list("Small Self-Supplied User",0.00,0.00,0.00,0.00)
    A <- append_totals(sql_A,"Total SW")
    
-   
    sql_B <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
                      FROM mb_mps
@@ -272,7 +227,6 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
    B <- append_totals(sql_B,"Total GW")
-   
    
    sql_C <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
@@ -286,7 +240,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table_1 <- rbind(A,B,sql_C,sql_D)
    table_1[is.na(table_1)] <- 0
 #KABLE   
-   kable(table_1,align = c('l','l','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','l','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c(
@@ -305,8 +259,19 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
       row_spec(5, bold=T) %>%
       row_spec(10, bold=T) %>%
-      row_spec(15, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
+      row_spec(15, bold=T) 
+      
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table1_tex <- gsub(pattern = "{table}[t]", 
+                    repl    = "{table}[ht!]", 
+                    x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\midrule", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex %>%
+   cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
+   
    
    #-------------- TOP 5 USERS (NO POWER detected) ---------------------
 #SURFACE WATER
@@ -517,61 +482,79 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    ### when 'power' IS detected in facility ftype column, then generate 2 separate summary tables for yes/no power
    
    #YES power (including power generation)
-   sql_A <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   sql_A <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
                      FROM mb_mps
                      WHERE MP_bundle = "intake"
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
-   sql_A[nrow(sql_A) + 1,] <- list(" ","Small Self-Supplied User",0.00,0.00,0.00,0.00)
+   sql_A[nrow(sql_A) + 1,] <- list("Small Self-Supplied User",0.00,0.00,0.00,0.00)
    AA <- append_totals(sql_A,"Total SW")
-   sql_B <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_B <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
                      FROM mb_mps
                      WHERE MP_bundle = "well"
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
    BB <- append_totals(sql_B,"Total GW")
-   sql_C <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_C <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
                      FROM mb_mps
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
-   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS source_type, "" AS system_type, ',
+   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
                          aggregate_select,'
                      FROM mb_mps',sep=""))
    table_1 <- rbind(AA,BB,sql_C,sql_D)
    table_1[is.na(table_1)] <- 0
    
 #KABLE   
-   kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
          label = paste("summary_yes_power_",mb_code,sep=""),
-         col.names = c("",
-                       "System Type",
+         col.names = c("System Type",
                        kable_col_names[3:6])) %>%
-      kable_styling(latex_options = "scale_down") %>%
-      column_spec(2, width = "12em") %>%
+      kable_styling(latex_options = "scale_down")  %>%
+      column_spec(1, width = "12em") %>%
+      column_spec(2, width = "4em") %>%
+      column_spec(3, width = "4em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
       pack_rows("Total (GW + SW)", 11, 14, hline_before = T, hline_after = F,extra_latex_after = ) %>%
       #horizontal solid line depending on html or latex output
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) %>%
+      row_spec(5, bold=T) %>%
+      row_spec(10, bold=T) %>%
+      row_spec(15, bold=T) 
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table1_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[ht!]", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\midrule", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
    
    #------------------------------------------------------------------------
    #NO power (excluding power generation)
-   sql_A <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   sql_A <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
                      FROM mb_mps
                      WHERE MP_bundle = "intake"
                      AND facility_ftype NOT LIKE "%power"
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
-   sql_A[nrow(sql_A) + 1,] <- list(" ","Small Self-Supplied User",0.00,0.00,0.00,0.00)
+   sql_A[nrow(sql_A) + 1,] <- list("Small Self-Supplied User",0.00,0.00,0.00,0.00)
    A <- append_totals(sql_A,"Total SW")
-   sql_B <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_B <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
                      FROM mb_mps
                      WHERE MP_bundle = "well"
@@ -579,13 +562,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
    B <- append_totals(sql_B,"Total GW")
-   sql_C <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_C <- sqldf(paste('SELECT system_type, ',
                         aggregate_select,'
                      FROM mb_mps
                      WHERE facility_ftype NOT LIKE "%power"
                      GROUP BY system_type
                      ORDER BY system_type',sep=""))
-   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS source_type, "" AS system_type, ',
+   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
                          aggregate_select,'
                      FROM mb_mps
                      WHERE facility_ftype NOT LIKE "%power"',sep=""))
@@ -593,20 +577,35 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table_1[is.na(table_1)] <- 0
    
    #KABLE   
-   kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
-         col.names = c("",
-                       "System Type",
+         col.names = c("System Type",
                        kable_col_names[3:6])) %>%
       kable_styling(latex_options = "scale_down") %>%
-      column_spec(2, width = "12em") %>%
+      column_spec(1, width = "12em") %>%
+      column_spec(2, width = "4em") %>%
+      column_spec(3, width = "4em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
       pack_rows("Total (GW + SW)", 11, 14, hline_before = T, hline_after = F,extra_latex_after = ) %>%
       #horizontal solid line depending on html or latex output
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) %>%
+      row_spec(5, bold=T) %>%
+      row_spec(10, bold=T) %>%
+      row_spec(15, bold=T) 
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table1_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[ht!]", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\midrule", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
    
    ######## TOP 5 USERS Table ###############################################################
