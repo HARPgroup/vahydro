@@ -37,6 +37,8 @@ source(paste(basepath,"config.local.private",sep = '/'))
 data_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 mp_all <- data_raw
 
+unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
+
 #--------select MPs with no minor basin---------------------------------------
 # ## select MPs with no minor basin
 # null_minorbasin <- sqldf("SELECT *
@@ -1062,6 +1064,122 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       pack_rows("Total (GW + SW)", 9, 13, hline_before = T, hline_after = F ) %>%
       row_spec(13, bold=T) %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_source_count",file_ext,sep=""))
+   
+   #---- UNMET DEMAND TABLE -------------------------------------------------------------------------------
+   
+   unmet30 <- sqldf('SELECT pid,
+                           featureid, 
+                           propname, 
+                           round(runid_11,2) AS runid_11, 
+                           round(runid_12,2) AS runid_12, 
+                           round(runid_13,2) AS runid_13, 
+                           round(runid_15,2) AS runid_15, 
+                           round(runid_18,2) AS runid_18,
+                           riverseg,
+                           substr(riverseg,1,2) AS mb_code
+                 from unmet30_raw
+                 WHERE hydrocode NOT LIKE "wsp_%"
+                 AND riverseg NOT LIKE "%_0000%"
+                 ORDER BY mb_code DESC, runid_18 DESC')
+   
+   
+   #filter the 5 runids
+   a_unmet30 <- sqldf('SELECT featureid, 
+                           propname, 
+                           runid_11, 
+                           runid_12, 
+                           runid_13, 
+                           runid_15, 
+                           runid_18, 
+                           mb_code
+                 FROM unmet30')
+   
+   write.csv(a_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\a_unmet30.csv", row.names = F)
+   
+   # #filter >.5 mgd
+   # b_unmet30 <- sqldf('SELECT featureid, 
+   #                            propname, 
+   #                            runid_11, 
+   #                            runid_12, 
+   #                            runid_13, 
+   #                            runid_15, 
+   #                            runid_18, 
+   #                            mb_code
+   #                  FROM unmet30
+   #                    WHERE runid_11 > 0.5
+   #                    OR runid_12 > 0.5
+   #                    OR runid_13 > 0.5
+   #                    OR runid_15 > 0.5
+   #                    OR runid_18 > 0.5')
+   # 
+   # write.csv(b_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\b_unmet30.csv", row.names = F)
+   # 
+   # #filter >1 mgd
+   # c_unmet30 <- sqldf('SELECT featureid, 
+   #                            propname, 
+   #                            runid_11, 
+   #                            runid_12, 
+   #                            runid_13, 
+   #                            runid_15, 
+   #                            runid_18, 
+   #                            mb_code
+   #                  FROM unmet30
+   #                    WHERE runid_11 > 1
+   #                    OR runid_12 > 1
+   #                    OR runid_13 > 1
+   #                    OR runid_15 > 1
+   #                    OR runid_18 > 1')
+   # 
+   # write.csv(c_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\c_unmet30.csv", row.names = F)
+   # 
+   # # No Minor Basin
+   # 
+   # null_unmet30 <- sqldf('SELECT pid,
+   #                            featureid, 
+   #                            propname, 
+   #                            runid_11, 
+   #                            runid_12, 
+   #                            runid_13, 
+   #                            runid_15, 
+   #                            runid_18, 
+   #                            mb_code
+   #                  FROM unmet30
+   #       WHERE riverseg LIKE ""
+   #       ORDER BY runid_18 DESC')
+   # 
+   # write.csv(null_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\null_unmet30.csv", row.names = F)
+   
+   #------------------------------------------------------------------------------------------------------------
+   
+   unmet_table <- sqldf(paste('SELECT *
+                             FROM a_unmet30
+                             WHERE mb_code = "',b,'"', sep = ''))
+   unmet_table$propname <- str_to_title(gsub(x = unmet_table$propname, pattern = ":.*$", replacement = ""))
+   unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   
+   # OUTPUT TABLE IN KABLE FORMAT
+   kable(unmet_table[2:7],align = c('l','l','l','l','l','l','c'),  booktabs = T,
+         caption = paste("Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         label = paste("unmet30_",mb_code,sep=""),
+         col.names = c("Facility",
+                       "2020 Demand",
+                       "2030 Demand",
+                       "2040 Demand",
+                       "Dry Climate",
+                       "Exempt User")) %>%
+      #kable_styling(latex_options = latexoptions) %>%
+      column_spec(1, width = "7em") %>%
+      column_spec(2, width = "4em") %>%
+      column_spec(3, width = "4em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "3em") %>%
+      #footnote(symbol = "This table shows demand values greater than 1.0 MGD.") %>%
+      #footnote(c("Footnote Symbol 1; Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin", "Footnote Symbol 2")) %>%
+      footnote(symbol = "Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin") %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_unmet30_table",file_ext,sep=""))
+   
+   
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
