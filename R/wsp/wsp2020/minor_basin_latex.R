@@ -362,7 +362,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            "pct_total_use" = '% of Total Groundwater')
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+   
    top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+   
    top_5_no[is.na(top_5_no)] <- 0
    
    # OUTPUT TABLE IN KABLE FORMAT
@@ -705,7 +710,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            "pct_total_use" = '% of Total Groundwater')
    
    top_5 <- rbind(top_5_sw, gw_header, top_5_gw)
+   
    top_5$facility_name <- str_to_title(top_5$facility_name)
+   top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+   top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+   
    top_5[is.na(top_5)] <- 0
    
    # OUTPUT TABLE IN KABLE FORMAT
@@ -719,8 +729,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
       column_spec(1, width = "9em") %>%
-      column_spec(2, width = "3em") %>%
-      column_spec(3, width = "3em") %>%
+      column_spec(2, width = "4em") %>%
+      column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
       column_spec(5, width = "4em") %>%
       column_spec(6, width = "4em") %>%
@@ -825,7 +835,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            "pct_total_use" = '% of Total Groundwater')
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+   
    top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+   
    top_5_no[is.na(top_5_no)] <- 0
    
    # OUTPUT TABLE IN KABLE FORMAT
