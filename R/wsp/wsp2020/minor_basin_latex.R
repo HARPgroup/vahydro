@@ -249,7 +249,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        "System Type",
                        kable_col_names[3:6])) %>%
       kable_styling(latex_options = "scale_down") %>%
-      column_spec(1, width = "10em") %>%
+      column_spec(1, width = "12em") %>%
       column_spec(2, width = "4em") %>%
       column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
@@ -711,8 +711,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        kable_col_names[3:6],
                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "3em") %>%
-      column_spec(2, width = "10em") %>%
+      column_spec(1, width = "9em") %>%
+      column_spec(2, width = "3em") %>%
+      column_spec(3, width = "3em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "4em") %>%
+      column_spec(7, width = "4em") %>%
+      column_spec(8, width = "7em") %>%
       pack_rows("Surface Water", 1, 6) %>%
       #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
       #horizontal solid line depending on html or latex output
@@ -818,7 +824,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        kable_col_names[3:6],
                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "10em") %>%
+      column_spec(1, width = "9em") %>%
+      column_spec(2, width = "3em") %>%
+      column_spec(3, width = "3em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "4em") %>%
+      column_spec(7, width = "4em") %>%
+      column_spec(8, width = "7em") %>%
       pack_rows("Surface Water", 1, 6) %>%
       #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
       #horizontal solid line depending on html or latex output
@@ -1153,7 +1166,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    unmet_table <- sqldf(paste('SELECT *
                              FROM a_unmet30
-                             WHERE mb_code = "',b,'"', sep = ''))
+                             WHERE mb_code = "',mb_code,'"', sep = ''))
    unmet_table$propname <- str_to_title(gsub(x = unmet_table$propname, pattern = ":.*$", replacement = ""))
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
    
@@ -1183,7 +1196,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'RL', file_extension = '.html')
+TABLE_GEN_func(minorbasin = 'PL', file_extension = 'tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
