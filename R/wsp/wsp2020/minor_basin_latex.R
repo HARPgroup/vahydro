@@ -1254,7 +1254,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
    
    # OUTPUT TABLE IN KABLE FORMAT
-   kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T,
+   unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T, longtable =T,
          caption = paste("Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
          label = paste("unmet30_",mb_code,sep=""),
          col.names = c("Facility",
@@ -1264,15 +1264,31 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        "Dry Climate",
                        "Exempt User")) %>%
       #kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "7em") %>%
-      column_spec(2, width = "4em") %>%
-      column_spec(3, width = "4em") %>%
-      column_spec(4, width = "4em") %>%
+      row_spec(0, bold = T) %>%
+      column_spec(1, width = "10em") %>%
+      column_spec(2, width = "5em") %>%
+      column_spec(3, width = "5em") %>%
+      column_spec(4, width = "5em") %>%
       column_spec(5, width = "4em") %>%
       column_spec(6, width = "3em") %>%
       #footnote(symbol = "This table shows demand values greater than 1.0 MGD.") %>%
       #footnote(c("Footnote Symbol 1; Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin", "Footnote Symbol 2")) %>%
-      footnote(symbol = "Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin") %>%
+      footnote(symbol = "Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin")
+   
+   unmet_tex <- gsub(pattern = "{table}[t]", 
+                     repl    = "{table}[H]", 
+                     x       = unmet_tex, fixed = T )
+   unmet_tex <- gsub(pattern = "\\toprule
+\\textbf{Facility} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{Dry Climate} & \\textbf{Exempt User}\\\\
+\\midrule", 
+                     repl    = "\\toprule
+\\textbf{Facility} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{Dry Climate} & \\textbf{Exempt User}\\\\
+\\endfirsthead
+\\multicolumn{3}{l}{\\textbf{ \\tablename\\ \\ref{tab:unmet30_PS} -- continued from previous page}}
+\\endhead
+\\midrule", 
+                     x       = unmet_tex, fixed = T )
+      unmet_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_unmet30_table",file_ext,sep=""))
    
    
