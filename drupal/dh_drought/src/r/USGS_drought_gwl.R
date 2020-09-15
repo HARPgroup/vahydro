@@ -16,17 +16,12 @@ library(lubridate) #required for year()
 #library(doBy) #required for summaryBy()
 library(sqldf)
 
-#SERVER:
-source("/var/www/R/config.local.private"); 
-#LOCAL:
-#source("C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/config.local.private");
-
-#print(paste("vahydro_directory = ", vahydro_directory,sep=""))
-print(paste("hydro_tools = ",hydro_tools,sep=""))
+basepath <- "/var/www/R/"
+source(paste(basepath,"config.local.private",sep = '/'))
 
 # load libraries
 source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
-source(paste(hydro_tools,"auth.private", sep = "/"));#load rest username and password, contained in auth.private file
+source(paste(basepath,"auth.private",sep = '/'))
 token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
 site <- base_url
 
@@ -36,7 +31,7 @@ URL <- paste(site,"drought-wells-export", sep = "/");
 well_list <- read.table(URL,header = TRUE, sep = ",")
 hydrocodes <- well_list$hydrocode
 
-#j <-1
+#j <-6
 #j <-17
 
 #Begin loop to run through each USGS gage 
@@ -209,10 +204,16 @@ for (j in 1:length(hydrocodes)) {
          tsvalue = gwl_7day_ft,
          tstime = as.numeric(as.POSIXct(Sys.Date()-6,origin = "1970-01-01", tz = "GMT")),
          tsendtime = as.numeric(as.POSIXct(Sys.Date(),origin = "1970-01-01", tz = "GMT")),
-         tscode = NULL
+         tscode = NULL,
+         limit = 100
        );
       
+
+       
       post_ts <- postTimeseries(tsbody, base_url)
+       
+       # #FOR TESTING ONLY:
+       # source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
       get_ts <- getTimeseries(inputs = tsbody, base_url = base_url) 
       tid <- get_ts$tid
       
