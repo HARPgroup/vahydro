@@ -14,14 +14,12 @@ require(zoo)
 library(httr)
 library(stringr)
 
-#SERVER:
-source("/var/www/R/config.local.private"); 
-#LOCAL:
-#source("C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/hydro-tools/config.local.private");
+basepath <- "/var/www/R/"
+source(paste(basepath,"config.local.private",sep = '/'))
 
 # load libraries
 source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
-source(paste(hydro_tools,"auth.private", sep = "/"));#load rest username and password, contained in auth.private file
+source(paste(basepath,"auth.private",sep = '/'))
 token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
 site <- base_url
 
@@ -39,7 +37,7 @@ USGS_GAGES <- gagelist$USGS_GAGES
 
 #j<-10
 #j<-9
-#j<-8
+#j<-2
 
 #Begin loop to run through each USGS gage 
 for (j in 1:length(USGS_GAGES)) {
@@ -183,7 +181,7 @@ proplist <- list(
   drought_status_stream = FALSE
 );
 
-#i<-1
+#i<-2
 #Begin Loop to REST properties one at a time 
 for (i in 1:length(propvars)) {
   
