@@ -47,7 +47,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "PS", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "RL", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -1252,7 +1252,10 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                              WHERE mb_code = "',mb_code,'"', sep = ''))
    unmet_table$propname <- str_to_title(gsub(x = unmet_table$propname, pattern = ":.*$", replacement = ""))
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
-   
+   if (nrow(unmet_table) == 0) {
+      unmet_table[1,2] <- "No Facilities Detected" 
+      #unmet_table[1,2] <- "\\multicolumn{6}{c}{\\textbf{No facilities detected to have unmet demand}}\\\\"
+   }
    # OUTPUT TABLE IN KABLE FORMAT
    unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T, longtable =T,
          caption = paste("Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
@@ -1295,10 +1298,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'PS', file_extension = 'tex')
+TABLE_GEN_func(minorbasin = 'RL', file_extension = 'tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
+basins <- c('RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
+
 ext <- c(".html",".tex")
 ext <- c(".tex")
 
