@@ -64,7 +64,7 @@ for (j in 1:length(hydrocodes)) {
   data$median <- ((data$max + data$min) / 2)
   # data$periodic <- as.numeric(as.character(data[,9])) #CREATE COLUMN OF PERIODIC MEASUREMENTS
   
-  #THIS WELL ONLY RECORDS MAX DAILY VALUES
+  #THIS WELL ONLY RECORDS SINGLE DAILY VALUES
   if (siteNumber == "381110076550501"){data$median <- data$max}
   
   data$year <- year(data[,"datetime"])
