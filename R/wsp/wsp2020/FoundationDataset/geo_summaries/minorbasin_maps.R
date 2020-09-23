@@ -108,7 +108,7 @@ runid_a <- c("runid_11","runid_12","runid_13","runid_18")
 #NORTHERN BASINS ONLY (FOR CC SCENARIO) (15 figs)
 minorbasin <- c("YP", "EL", "RL", "PU", "RU", "YM", "JA", "PM", "YL", "PL", "JU", "JB", "JL","PS","ES")
 metric <- "consumptive_use_frac"
-runid_a <- "runid_17"
+runid_a <- c("runid_17","runid_19","runid_20")
 
 tic("Total")
 it <- 1 #INITIALIZE ITERATION FOR PRINTING IN LOOP

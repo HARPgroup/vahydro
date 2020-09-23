@@ -1,3 +1,4 @@
+#----------------------------------------------------------------------------------------------------------
 rm(list = ls())  #clear variables
 library(dataRetrieval) #https://cran.r-project.org/web/packages/dataRetrieval/dataRetrieval.pdf
 library(lubridate) #required for year()
@@ -23,32 +24,31 @@ well_list <- read.table(URL,header = TRUE, sep = ",")
 hydrocodes <- well_list$hydrocode
 well_names <- well_list$Feature.Name
 
-
-#==================================================================
-#INITIATE LIST OF ALL WELLS DATA
+#INITIATE LIST OF WELL DATA
 annual_summary_list <- list()
 
 #j <-1
-#BEGIN LOOP THROUGH EACH USGS GAGE
+#Begin loop to run through each USGS gage 
 for (j in 1:length(hydrocodes)) {
   print(paste("PROCESSING WELL: ",j," OF ",length(hydrocodes),sep=''))
-  siteNumber = unlist(strsplit(toString(hydrocodes[j]), split='_', fixed=TRUE))[2]
-  well_code <- substr(well_names[j], 22, nchar(well_names[j])) 
-  print(paste("USGS siteNumber: ", siteNumber, sep=''))
+  siteNumber <- hydrocodes[j]
+  siteNumber <- toString(siteNumber)
+  siteNumber = unlist(strsplit(siteNumber, split='_', fixed=TRUE))[2]
+  well_name <- well_names[j]
+  well_code <- substr(well_name, 22, nchar(well_name)) 
+  print(paste("USGS siteNumber: ", siteNumber, sep='')); 
   
   welldata <- whatNWISdata(siteNumber = siteNumber)
   #Parameter code '72019' = Depth to water level, feet below land surface (ft) https://help.waterdata.usgs.gov/code/parameter_cd_nm_query?parm_nm_cd=%25level%25&fmt=html
-  #Data type 'dv' = Daily Values
-  #RETRIEVE DATE WELL BEGAN RECORDING DAILY DEPTH TO WATER LEVEL 
-  gwl_param <-          paste("SELECT begin_date
-                              FROM welldata
-                              WHERE parm_cd == 72019 AND data_type_cd == 'dv'
-                              ORDER BY begin_date ASC
-                              LIMIT 1",sep="")
-  begin_date <- sqldf(gwl_param)$begin_date
+  gwl_row <- which(welldata$parm_cd == 72019)
+  gwl_rows <- welldata[gwl_row,]
+  dv_rows <- which(gwl_rows$data_type_cd == "dv") #retreive date well began recording dv "daily values"
+  dv_rows <- gwl_rows[dv_rows,]
+  dv_rows <- gwl_rows[order(dv_rows$begin_date , decreasing = TRUE ),]
+  begin_date_row <- dv_rows[length(dv_rows$begin_date),]
+  begin_date <- begin_date_row$begin_date
   print(paste("Historic Record begining ",begin_date,sep=""))
   
-  #RETREIEVE DATA FROM NWIS
   url <- paste("https://waterdata.usgs.gov/nwis/dv?cb_72019=on&format=rdb_meas&site_no=",siteNumber,"&referred_module=sw&period=&begin_date=",begin_date,"&end_date=",sep="")
   print(paste("Retrieving Data from NWIS using:",url))
   data <- read.table(url,header = TRUE, sep = "\t")
@@ -56,49 +56,42 @@ for (j in 1:length(hydrocodes)) {
   #REMOVE USGS HEADER
   data <-data[-1,]
   
-  #IDENTIFY COLUMN NAMES FOR "Depth to water level" STATISTIC
-  max_colname <- colnames(data)[which(grepl('_72019_00001$', colnames(data)))] #COLUMN NAME ENDING WITH _72019_00001 - USGS CODE FOR "Depth to water level, feet below land surface (Maximum)"
-  min_colname <- colnames(data)[which(grepl('_72019_00002$', colnames(data)))] #COLUMN NAME ENDING WITH _72019_00001 - USGS CODE FOR "Depth to water level, feet below land surface (Minimum)"
-
-  #ADD COLUMNS FOR max, min, median
-  if (length(min_colname) == 0) {
-        #SOME WELLS ONLY RECORD DAILY MAX VALUES
-          data_cols <-  paste("SELECT *,
-                              ",max_colname," AS max,
-                              '' AS min,
-                              ",max_colname," AS median
-                              FROM data ",sep="")
-  } else {
-          data_cols <-  paste("SELECT *,
-                              ",max_colname," AS max,
-                              ",min_colname," AS min,
-                              CASE WHEN ",max_colname," > 0 AND ",min_colname," > 0 THEN (",max_colname,"+",min_colname,")/2
-                		          ELSE ",max_colname,"
-                              END AS median
-                              FROM data",sep="")
-  }
-  data <- suppressWarnings(sqldf(data_cols))
+  #ISOLATE COLUMNS FOR max, min, median
+  data$max <- as.numeric(as.character(data[,5])) #COPY MAX (Depth to water level) COLUMN AND FORCE 'NA's WHERE THERE IS MISSING DATA
+  data$min <- as.numeric(as.character(data[,7])) 
+  data$median <- ((data$max + data$min) / 2)
+    #THIS WELL ONLY RECORDS SINGLE DAILY VALUES
+    if (siteNumber == "381110076550501"){data$median <- data$max}
   data$year <- year(data[,"datetime"])
-
-  #EXCLUDE EMPTY MEDIANS (DAYS WHEN DATA WAS NOT RECORDED)
-  #THIS IS NEEDED PRIOR TO CALCULATING ANNUAL median_depth, min_depth, max_depth STATISTICS
-  data_rm_blanks <-     paste("SELECT *
-                              FROM data
-                              WHERE max != ''",sep="")
-  data <- sqldf(data_rm_blanks)
   
-  #CREATE DATAFRAME WITH annual median, min, max (CAST TO NUMERIC DATA TYPE, DECIMAL)
-  annual_summaries <-   paste("SELECT year,
-                              CAST(min(median) AS DEC) AS 'min_depth_ft',
-                              CAST(max(median) AS DEC) AS 'max_depth_ft',
-                              CAST(median(median) AS DEC) AS 'median_depth_ft'
+  colnames(data)[5]
+  
+  #------------------------------------------------------------
+  #TEST SQL TO ISOLATE COLUMNS FOR max, min, median
+  #------------------------------------------------------------
+  annual_summaries <-   paste("SELECT *,
+                                
                               FROM data 
                               GROUP BY year",sep="")
   annual_summaries <- sqldf(annual_summaries)
+  #------------------------------------------------------------
+  #------------------------------------------------------------
   
+  
+  #==================================================================
+  #==================================================================
+  #CREATE DATAFRAME WITH annual median, min, max
+  annual_summaries <-   paste("SELECT year,
+                              median(median) AS 'median_depth',
+                              min(median) AS 'min_depth',
+                              max(median) AS 'max_depth'
+                              FROM data 
+                              GROUP BY year",sep="")
+  annual_summaries <- sqldf(annual_summaries)
+
   #ADD COLUMN one_yr_diff
   one_yr_diff_sql <-    paste("SELECT *,
-                              median_depth_ft - LAG(median_depth_ft)
+                              median_depth - LAG(median_depth)
                             	OVER (ORDER BY year) AS one_yr_diff
     	                        FROM annual_summaries
                               ORDER BY year",sep="")
@@ -129,14 +122,15 @@ for (j in 1:length(hydrocodes)) {
           		                END AS 'five_yr_avg_diff_rating'
           		                FROM annual_summaries",sep="")
   annual_summaries <- sqldf(rating_sql)
-
+  #==================================================================
+  #==================================================================
   #REMOVE ROWS WITH ALL NAs (years brefore continuous record was avaialble)
   NA_sql <-             paste("SELECT *
           		                FROM annual_summaries
-                              WHERE median_depth_ft != 'NA'",sep="")
+                              WHERE median_depth != 'NA'",sep="")
   annual_summaries <- sqldf(NA_sql)
 
-  #REMOVE ROW FOR CURRENT YEAR (not used for the annual strategic planning measure)
+  #REMOVE ROW FOR CURRENT YEAR
   current.year <- as.character(as.numeric(format(Sys.Date(), "%Y")))
   current_yr_sql <-     paste("SELECT *
   		                        FROM annual_summaries
@@ -150,7 +144,7 @@ for (j in 1:length(hydrocodes)) {
   annual_summary_list[[well_code]] <- annual_summaries
     
   # #################################################################################################
-  # # REST (TO BE REVISED)
+  # # REST
   # #################################################################################################
   # tscode <- annual_summaries[length(annual_summaries[,1]),]$rating_five_yr_avg_diff
   # hydrocode <- hydrocodes[j]

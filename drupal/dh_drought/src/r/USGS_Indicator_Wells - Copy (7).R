@@ -89,16 +89,16 @@ for (j in 1:length(hydrocodes)) {
   
   #CREATE DATAFRAME WITH annual median, min, max (CAST TO NUMERIC DATA TYPE, DECIMAL)
   annual_summaries <-   paste("SELECT year,
-                              CAST(min(median) AS DEC) AS 'min_depth_ft',
-                              CAST(max(median) AS DEC) AS 'max_depth_ft',
-                              CAST(median(median) AS DEC) AS 'median_depth_ft'
+                              CAST(min(median) AS DEC) AS 'min_depth',
+                              CAST(max(median) AS DEC) AS 'max_depth',
+                              CAST(median(median) AS DEC) AS 'median_depth'
                               FROM data 
                               GROUP BY year",sep="")
   annual_summaries <- sqldf(annual_summaries)
   
   #ADD COLUMN one_yr_diff
   one_yr_diff_sql <-    paste("SELECT *,
-                              median_depth_ft - LAG(median_depth_ft)
+                              median_depth - LAG(median_depth)
                             	OVER (ORDER BY year) AS one_yr_diff
     	                        FROM annual_summaries
                               ORDER BY year",sep="")
@@ -133,7 +133,7 @@ for (j in 1:length(hydrocodes)) {
   #REMOVE ROWS WITH ALL NAs (years brefore continuous record was avaialble)
   NA_sql <-             paste("SELECT *
           		                FROM annual_summaries
-                              WHERE median_depth_ft != 'NA'",sep="")
+                              WHERE median_depth != 'NA'",sep="")
   annual_summaries <- sqldf(NA_sql)
 
   #REMOVE ROW FOR CURRENT YEAR (not used for the annual strategic planning measure)
