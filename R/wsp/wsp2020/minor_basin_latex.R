@@ -9,6 +9,7 @@ library("dplyr")
 library("tidyr")
 library("ggplot2")
 library("cowplot")
+library("stringr")
 #--INITIALIZE GLOBAL VARIABLES------------------------
 
 #totals function which quickly applies sum to each numeric column (skips non-numeric)
@@ -47,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "RL", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "OD", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -1169,7 +1170,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            round(runid_11,2) AS runid_11, 
                            round(runid_12,2) AS runid_12, 
                            round(runid_13,2) AS runid_13, 
-                           round(runid_15,2) AS runid_15, 
+                           round(runid_17,2) AS runid_17, 
                            round(runid_18,2) AS runid_18,
                            riverseg,
                            substr(riverseg,1,2) AS mb_code
@@ -1177,7 +1178,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                  WHERE hydrocode NOT LIKE "wsp_%"
                  AND riverseg NOT LIKE "%_0000%"
                  ORDER BY mb_code DESC, runid_18 DESC')
-   unmet30$runid_15[is.na(unmet30$runid_15)] <- "-"
+   unmet30$runid_17[is.na(unmet30$runid_17)] <- "-"
    
    #filter the 5 runids
    a_unmet30 <- sqldf('SELECT featureid, 
@@ -1185,7 +1186,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            runid_11, 
                            runid_12, 
                            runid_13, 
-                           runid_15, 
+                           runid_17, 
                            runid_18, 
                            mb_code
                  FROM unmet30')
@@ -1198,14 +1199,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #                            runid_11, 
    #                            runid_12, 
    #                            runid_13, 
-   #                            runid_15, 
+   #                            runid_17, 
    #                            runid_18, 
    #                            mb_code
    #                  FROM unmet30
    #                    WHERE runid_11 > 0.5
    #                    OR runid_12 > 0.5
    #                    OR runid_13 > 0.5
-   #                    OR runid_15 > 0.5
+   #                    OR runid_17 > 0.5
    #                    OR runid_18 > 0.5')
    # 
    # write.csv(b_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\b_unmet30.csv", row.names = F)
@@ -1216,14 +1217,14 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #                            runid_11, 
    #                            runid_12, 
    #                            runid_13, 
-   #                            runid_15, 
+   #                            runid_17, 
    #                            runid_18, 
    #                            mb_code
    #                  FROM unmet30
    #                    WHERE runid_11 > 1
    #                    OR runid_12 > 1
    #                    OR runid_13 > 1
-   #                    OR runid_15 > 1
+   #                    OR runid_17 > 1
    #                    OR runid_18 > 1')
    # 
    # write.csv(c_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\c_unmet30.csv", row.names = F)
@@ -1236,7 +1237,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #                            runid_11, 
    #                            runid_12, 
    #                            runid_13, 
-   #                            runid_15, 
+   #                            runid_17, 
    #                            runid_18, 
    #                            mb_code
    #                  FROM unmet30
@@ -1298,11 +1299,10 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'RL', file_extension = 'tex')
+TABLE_GEN_func(minorbasin = 'OD', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
-basins <- c('RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 
 ext <- c(".html",".tex")
 ext <- c(".tex")
