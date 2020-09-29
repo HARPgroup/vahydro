@@ -97,18 +97,27 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/min
 #----------- RUN SINGLE MAP --------------------------
 minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
                                   metric = "consumptive_use_frac",
-                                  runid_a = c("runid_11"))
+                                  runid_a = c("runid_11"),
+                                  wd_points = "ON")
+
+minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "NR",
+                                  metric = "consumptive_use_frac",
+                                  runid_a = c("runid_11"),
+                                  wd_points = "OFF")
+
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - SINGLE SCENARIO (84 figs)
 minorbasin <- c("NR", "YP", "EL", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- "consumptive_use_frac"
 runid_a <- c("runid_11","runid_12","runid_13","runid_18")
+wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 
-#NORTHERN BASINS ONLY (FOR CC SCENARIO) (15 figs)
+#NORTHERN BASINS ONLY (FOR CC SCENARIO) (45 figs)
 minorbasin <- c("YP", "EL", "RL", "PU", "RU", "YM", "JA", "PM", "YL", "PL", "JU", "JB", "JL","PS","ES")
 metric <- "consumptive_use_frac"
 runid_a <- c("runid_17","runid_19","runid_20")
+wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 
 tic("Total")
 it <- 1 #INITIALIZE ITERATION FOR PRINTING IN LOOP
@@ -118,7 +127,7 @@ for (mb in minorbasin) {
     print(paste("...PROCESSING METRIC: ",met,sep=""))
     for (rb in runid_a) {
       print(paste("......PROCESSING runid_a: ",rb,sep=""))
-      minorbasin.mapgen.SINGLE.SCENARIO(mb,met,rb) 
+      minorbasin.mapgen.SINGLE.SCENARIO(mb,met,rb,wd_points) 
     } #CLOSE runid FOR LOOP 
   } #CLOSE metric FOR LOOP 
   it <- it + 1
@@ -128,7 +137,7 @@ beep(3)
 #------------------------------------------------------------------
 
 ######################################################################################################
-### WITHDRAWAL POINTS OVERLAY  #######################################################################
+### Well & Intake Location Maps ######################################################################
 ######################################################################################################
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
 
