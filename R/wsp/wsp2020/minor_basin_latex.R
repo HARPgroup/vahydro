@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "OD", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "PS", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -267,7 +267,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #                       aggregate_select,'
    #                   FROM mb_mps a',sep=""))
    
-   table_1 <- rbind(A,B,sql_C,sql_D)
+   table_1 <- rbind(A,B,sql_D)
    table_1[is.na(table_1)] <- 0
 #KABLE   
    table1_tex <- kable(table_1,align = c('l','c','c','c','c'),  booktabs = T,
@@ -275,6 +275,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
          label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c(
                        "System Type",
+                       "Source Count",
                        kable_col_names[3:6])) %>%
       kable_styling(font_size = 10) %>%
       column_spec(1, width = "11em") %>%
@@ -282,6 +283,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       column_spec(3, width = "6em") %>%
       column_spec(4, width = "6em") %>%
       column_spec(5, width = "6em") %>%
+      column_spec(6, width = "6em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
       pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
@@ -309,8 +311,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table1_tex <- gsub(pattern = "\\hspace{1em}T", 
                       repl    = "T", 
                       x       = table1_tex, fixed = T )
-   table1_tex <- gsub(pattern = "\textbf{System Type}", 
-                      repl    = "\vspace{0.3em}\textbf{System Type}", 
+   table1_tex <- gsub(pattern = "\\textbf{System Type}", 
+                      repl    = "\\vspace{0.3em}\\textbf{System Type}", 
                       x       = table1_tex, fixed = T )
    table1_tex %>%
    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
@@ -406,6 +408,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
    
@@ -423,22 +426,33 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       kable_styling(latex_options = latexoptions) %>%
       column_spec(1, width = "9em") %>%
       column_spec(2, width = "3em") %>%
-      column_spec(3, width = "3em") %>%
+      column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
       column_spec(5, width = "4em") %>%
       column_spec(6, width = "4em") %>%
       column_spec(7, width = "4em") %>%
       column_spec(8, width = "7em") %>%
+      row_spec(0, bold=T, font_size = 9) %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
-      #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
-      row_spec(6, extra_latex_after = "\\hline")
-   
+      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+      
    #CUSTOM LATEX CHANGES
    #insert hold position header
    table5_tex <- gsub(pattern = "{table}[t]", 
                       repl    = "{table}[H]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hspace{1em}", 
+                      repl    = "", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Locality}", 
                       x       = table5_tex, fixed = T )
    table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
@@ -604,8 +618,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table1_tex <- gsub(pattern = "\\hspace{1em}T", 
                       repl    = "T", 
                       x       = table1_tex, fixed = T )
-   table1_tex <- gsub(pattern = "\textbf{System Type}", 
-                      repl    = "\vspace{0.3em}\textbf{System Type}", 
+   table1_tex <- gsub(pattern = "\\textbf{System Type}", 
+                      repl    = "\\vspace{0.3em}\\textbf{System Type}", 
                       x       = table1_tex, fixed = T )
    table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
@@ -683,8 +697,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table1_tex <- gsub(pattern = "\\hspace{1em}T", 
                       repl    = "T", 
                       x       = table1_tex, fixed = T )
-   table1_tex <- gsub(pattern = "\textbf{System Type}", 
-                      repl    = "\vspace{0.3em}\textbf{System Type}", 
+   table1_tex <- gsub(pattern = "\\textbf{System Type}", 
+                      repl    = "\\vspace{0.3em}\\textbf{System Type}", 
                       x       = table1_tex, fixed = T )
    table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
@@ -780,6 +794,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5$facility_name <- str_to_title(top_5$facility_name)
    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
    
@@ -796,23 +811,34 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
       column_spec(1, width = "9em") %>%
-      column_spec(2, width = "4em") %>%
+      column_spec(2, width = "3em") %>%
       column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
       column_spec(5, width = "4em") %>%
       column_spec(6, width = "4em") %>%
       column_spec(7, width = "4em") %>%
       column_spec(8, width = "7em") %>%
+      row_spec(0, bold=T, font_size = 9) %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
-      #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
-      row_spec(6, extra_latex_after = "\\hline")
+      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
    
    #CUSTOM LATEX CHANGES
    #insert hold position header
    table5_tex <- gsub(pattern = "{table}[t]", 
                       repl    = "{table}[H]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hspace{1em}", 
+                      repl    = "", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Locality}", 
                       x       = table5_tex, fixed = T )
    table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_yes_power_table",file_ext,sep=""))
@@ -905,6 +931,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
    
@@ -922,22 +949,33 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       kable_styling(latex_options = latexoptions) %>%
       column_spec(1, width = "9em") %>%
       column_spec(2, width = "3em") %>%
-      column_spec(3, width = "3em") %>%
+      column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
       column_spec(5, width = "4em") %>%
       column_spec(6, width = "4em") %>%
       column_spec(7, width = "4em") %>%
       column_spec(8, width = "7em") %>%
+      row_spec(0, bold=T, font_size = 9) %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Groundwater", 7, 13, label_row_css = "border-top: 1px solid", hline_after = F,hline_before = F) %>%
-      #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
-      row_spec(6, extra_latex_after = "\\hline")
+      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
    
    #CUSTOM LATEX CHANGES
    #insert hold position header
    table5_tex <- gsub(pattern = "{table}[t]", 
                       repl    = "{table}[H]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hspace{1em}", 
+                      repl    = "", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Locality}", 
                       x       = table5_tex, fixed = T )
    table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
