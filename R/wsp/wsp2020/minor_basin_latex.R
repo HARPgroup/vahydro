@@ -1189,7 +1189,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            runid_17, 
                            runid_18, 
                            mb_code
-                 FROM unmet30')
+                 FROM unmet30
+                      WHERE (runid_11 > 0
+                       OR runid_12 > 0.0099
+                       OR runid_13 > 0.0099
+                       OR runid_17 > 0.0099
+                       OR runid_18 > 0.0099)')
    
    #write.csv(a_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\a_unmet30.csv", row.names = F)
    
@@ -1251,7 +1256,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    unmet_table <- sqldf(paste('SELECT *
                              FROM a_unmet30
                              WHERE mb_code = "',mb_code,'"', sep = ''))
+   
    unmet_table$propname <- str_to_title(gsub(x = unmet_table$propname, pattern = ":.*$", replacement = ""))
+   
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
    if (nrow(unmet_table) == 0) {
       unmet_table[1,2] <- "No Facilities Detected" 
@@ -1259,7 +1266,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    }
    # OUTPUT TABLE IN KABLE FORMAT
    unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T, longtable =T,
-         caption = paste("Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         caption = paste("Change in Highest 30 Day Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
          label = paste("unmet30_",mb_code,sep=""),
          col.names = c("Facility",
                        "2020 Demand",
@@ -1267,7 +1274,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        "2040 Demand",
                        "Dry Climate",
                        "Exempt User")) %>%
-      #kable_styling(latex_options = latexoptions) %>%
+      kable_styling(latex_options = "striped") %>%
       row_spec(0, bold = T) %>%
       column_spec(1, width = "10em") %>%
       column_spec(2, width = "5em") %>%
