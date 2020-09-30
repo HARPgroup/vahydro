@@ -222,32 +222,51 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
 # when no power is detected in facility ftype column, then title of Summary table will not specify (including/excluding power generation) 
 if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
-   sql_A <- sqldf(paste('SELECT system_type, ',
+   sql_A <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "intake"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "intake"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0.00,0.00,0.00,0.00)
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "intake"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
    A <- append_totals(sql_A,"Total SW")
    
-   sql_B <- sqldf(paste('SELECT system_type, ',
+   sql_B <- sqldf(paste('SELECT a.system_type,
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "well"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "well"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "well"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
    B <- append_totals(sql_B,"Total GW")
    
-   sql_C <- sqldf(paste('SELECT system_type, ',
+   sql_C <- sqldf(paste('SELECT a.system_type, (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
+                     FROM mb_mps a
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
    
-   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
-                         aggregate_select,'
-                     FROM mb_mps',sep=""))
+   sql_D <- append_totals(sql_C,"Minor Basin Total")
+   
+   # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
+   #                       aggregate_select,'
+   #                   FROM mb_mps a',sep=""))
+   
    table_1 <- rbind(A,B,sql_C,sql_D)
    table_1[is.na(table_1)] <- 0
 #KABLE   
@@ -1260,6 +1279,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    unmet_table$propname <- str_to_title(gsub(x = unmet_table$propname, pattern = ":.*$", replacement = ""))
    
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+   
    if (nrow(unmet_table) == 0) {
       unmet_table[1,2] <- "No Facilities Detected" 
       #unmet_table[1,2] <- "\\multicolumn{6}{c}{\\textbf{No facilities detected to have unmet demand}}\\\\"
@@ -1276,7 +1297,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        "Exempt User")) %>%
       kable_styling(latex_options = "striped") %>%
       row_spec(0, bold = T) %>%
-      column_spec(1, width = "10em") %>%
+      column_spec(1, width = "14em") %>%
       column_spec(2, width = "5em") %>%
       column_spec(3, width = "5em") %>%
       column_spec(4, width = "5em") %>%
