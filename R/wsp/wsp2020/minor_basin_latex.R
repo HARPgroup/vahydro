@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "PS", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "PL", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -626,36 +626,52 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    #------------------------------------------------------------------------
    #NO power (excluding power generation)
-   sql_A <- sqldf(paste('SELECT system_type, ',
+   sql_A <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "intake"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "intake"
-                     AND facility_ftype NOT LIKE "%power"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0.00,0.00,0.00,0.00)
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "intake"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
    A <- append_totals(sql_A,"Total SW")
    
-   sql_B <- sqldf(paste('SELECT system_type, ',
+   sql_B <- sqldf(paste('SELECT a.system_type,
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "well"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "well"
-                     AND facility_ftype NOT LIKE "%power"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "well"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
    B <- append_totals(sql_B,"Total GW")
    
-   sql_C <- sqldf(paste('SELECT system_type, ',
+   sql_C <- sqldf(paste('SELECT a.system_type, (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE facility_ftype NOT LIKE "%power"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
-                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE facility_ftype NOT LIKE "%power"',sep=""))
-   table_1 <- rbind(A,B,sql_C,sql_D)
+                     FROM mb_mps a
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   
+   sql_D <- append_totals(sql_C,"Minor Basin Total")
+   
+   # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
+   #                       aggregate_select,'
+   #                   FROM mb_mps a',sep=""))
+   
+   table_1 <- rbind(A,B,sql_D)
    table_1[is.na(table_1)] <- 0
    
    #KABLE   
@@ -663,6 +679,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c("System Type",
+                       "Source Count",
                        kable_col_names[3:6]))%>%
       kable_styling(font_size = 10) %>%
       column_spec(1, width = "11em") %>%
