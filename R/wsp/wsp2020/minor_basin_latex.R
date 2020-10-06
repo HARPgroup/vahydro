@@ -270,7 +270,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table_1 <- rbind(A,B,sql_D)
    table_1[is.na(table_1)] <- 0
 #KABLE   
-   table1_tex <- kable(table_1,align = c('l','c','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c(
@@ -551,39 +551,59 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    ### when 'power' IS detected in facility ftype column, then generate 2 separate summary tables for yes/no power
    
    #YES power (including power generation)
-   sql_A <- sqldf(paste('SELECT system_type, ',
+   sql_A <- sqldf(paste('SELECT a.system_type,
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND MP_bundle = "intake"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "intake"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0.00,0.00,0.00,0.00)
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "intake"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
    AA <- append_totals(sql_A,"Total SW")
    
-   sql_B <- sqldf(paste('SELECT system_type, ',
+   sql_B <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND MP_bundle = "well"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "well"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "well"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
    BB <- append_totals(sql_B,"Total GW")
    
-   sql_C <- sqldf(paste('SELECT system_type, ',
+   sql_C <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
                         aggregate_select,'
-                     FROM mb_mps
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
-                         aggregate_select,'
-                     FROM mb_mps',sep=""))
-   table_1 <- rbind(AA,BB,sql_C,sql_D)
+                     FROM mb_mps a
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   
+   
+   sql_D <- append_totals(sql_C,"Minor Basin Total")
+   
+   # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
+   #                       aggregate_select,'
+   #                   FROM mb_mps a',sep=""))
+   
+   table_1 <- rbind(AA,BB,sql_D)
    table_1[is.na(table_1)] <- 0
    
 #KABLE   
-   table1_tex <- kable(table_1,align = c('l','c','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
          label = paste("summary_yes_power_",mb_code,sep=""),
          col.names = c("System Type",
+                       "Source Count",
                        kable_col_names[3:6]))%>%
       kable_styling(font_size = 10) %>%
       column_spec(1, width = "11em") %>%
@@ -591,6 +611,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       column_spec(3, width = "6em") %>%
       column_spec(4, width = "6em") %>%
       column_spec(5, width = "6em") %>%
+      column_spec(6, width = "6em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
       pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
@@ -675,7 +696,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table_1[is.na(table_1)] <- 0
    
    #KABLE   
-   table1_tex <- kable(table_1,align = c('l','c','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c("System Type",
@@ -687,6 +708,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       column_spec(3, width = "6em") %>%
       column_spec(4, width = "6em") %>%
       column_spec(5, width = "6em") %>%
+      column_spec(6, width = "6em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
       pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
