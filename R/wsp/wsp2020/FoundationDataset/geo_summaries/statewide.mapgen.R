@@ -498,7 +498,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   
   if (nrow(group_0_plus) >0) {
     
-    geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE, show.legend = FALSE)
     
     color_values <- color_scale[1]
     
@@ -518,7 +518,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   
   if (nrow(group_neg5_0) >0) {
     
-    geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[2])
     label_values <- rbind(label_values,"-5% to 0%")
     
@@ -536,7 +536,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   
   if (nrow(group_neg10_neg5) >0) {
     
-    geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[3])
     label_values <- rbind(label_values,"-10% to -5%")
     
@@ -555,7 +555,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   
   if (nrow(group_neg20_neg10) >0) {
     
-    geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[4])
     label_values <- rbind(label_values,"-20% to -10%")
     
@@ -573,7 +573,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   
   if (nrow(group_negInf_neg20) >0) {
     
-    geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[5])
     label_values <- rbind(label_values,"More than -20%")
     
