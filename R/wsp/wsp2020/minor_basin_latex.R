@@ -9,6 +9,7 @@ library("dplyr")
 library("tidyr")
 library("ggplot2")
 library("cowplot")
+library("stringr")
 #--INITIALIZE GLOBAL VARIABLES------------------------
 
 #totals function which quickly applies sum to each numeric column (skips non-numeric)
@@ -37,6 +38,8 @@ source(paste(basepath,"config.local.private",sep = '/'))
 data_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 mp_all <- data_raw
 
+unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
+
 #--------select MPs with no minor basin---------------------------------------
 # ## select MPs with no minor basin
 # null_minorbasin <- sqldf("SELECT *
@@ -45,7 +48,7 @@ mp_all <- data_raw
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "BS", file_extension = ".html"){
+TABLE_GEN_func <- function(minorbasin = "PL", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -191,7 +194,15 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                       facility_name, 
                       facility_ftype,
                       wsp_ftype,
-                      system_type,
+                      CASE
+                     WHEN system_type LIKE "Large Self-Supplied User"
+                     THEN "Large SSU"
+                     WHEN system_type LIKE "Small Self-Supplied User"
+                     THEN "Small SSU"
+                     WHEN system_type LIKE "Municipal"
+                     THEN "CWS"
+                     ELSE system_type
+                     END AS system_type,
                       mp_2020_mgy,
                       mp_2030_mgy,
                       mp_2040_mgy, 
@@ -211,46 +222,101 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
 # when no power is detected in facility ftype column, then title of Summary table will not specify (including/excluding power generation) 
 if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
-   sql_A <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   sql_A <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "intake"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "intake"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_A[nrow(sql_A) + 1,] <- list(" ","Small Self-Supplied User",0.00,0.00,0.00,0.00)
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "intake"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
    A <- append_totals(sql_A,"Total SW")
-   sql_B <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_B <- sqldf(paste('SELECT a.system_type,
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "well"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "well"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "well"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
    B <- append_totals(sql_B,"Total GW")
-   sql_C <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_C <- sqldf(paste('SELECT a.system_type, (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS source_type, "" AS system_type, ',
-                         aggregate_select,'
-                     FROM mb_mps',sep=""))
-   table_1 <- rbind(A,B,sql_C,sql_D)
+                     FROM mb_mps a
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   
+   sql_D <- append_totals(sql_C,"Minor Basin Total")
+   
+   # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
+   #                       aggregate_select,'
+   #                   FROM mb_mps a',sep=""))
+   
+   table_1 <- rbind(A,B,sql_D)
+   table_1[is.na(table_1)] <- 0
 #KABLE   
-   kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
-         col.names = c("",
+         col.names = c(
                        "System Type",
+                       "Source Count",
                        kable_col_names[3:6])) %>%
-      kable_styling(latex_options = "scale_down") %>%
-      column_spec(2, width = "12em") %>%
+      kable_styling(font_size = 10) %>%
+      column_spec(1, width = "11em") %>%
+      column_spec(2, width = "6em") %>%
+      column_spec(3, width = "6em") %>%
+      column_spec(4, width = "6em") %>%
+      column_spec(5, width = "6em") %>%
+      column_spec(6, width = "6em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
-      pack_rows("Total (GW + SW)", 11, 14, hline_before = T, hline_after = F,extra_latex_after = ) %>%
-      #horizontal solid line depending on html or latex output
+      pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
+      #Header row is row 0
+      row_spec(0, bold=T, font_size = 11) %>%
+      row_spec(5, bold=T, extra_latex_after = ) %>%
+      row_spec(10, bold=T) %>%
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
+      row_spec(15, bold=T) 
+      
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table1_tex <- gsub(pattern = "{table}[t]", 
+                    repl    = "{table}[H]", 
+                    x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\midrule", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\hline \\addlinespace[0.4em]", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\vphantom{1}", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\hspace{1em}T", 
+                      repl    = "T", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\textbf{System Type}", 
+                      repl    = "\\vspace{0.3em}\\textbf{System Type}", 
+                      x       = table1_tex, fixed = T )
+   table1_tex %>%
+   cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
+   
    
    #-------------- TOP 5 USERS (NO POWER detected) ---------------------
 #SURFACE WATER
@@ -276,15 +342,15 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
-#APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
-   index <- list()
-   
-   for (i in 1:nrow(top_5_sw_no)) {
-      
-      index <- rbind(index, LETTERS[i])
-      #print(index)
-   }
-   top_5_sw_no <- cbind(index, top_5_sw_no)
+# #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+#    index <- list()
+#    
+#    for (i in 1:nrow(top_5_sw_no)) {
+#       
+#       index <- rbind(index, LETTERS[i])
+#       #print(index)
+#    }
+#    top_5_sw_no <- cbind(index, top_5_sw_no)
    
 #APPEND TOTALS to TOP 5 Surface Water Users table   
    
@@ -314,23 +380,22 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
-#APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
-   index <- list()
-   
-   for (i in 1:nrow(top_5_gw_no)) {
-      
-      index <- rbind(index, LETTERS[i])
-      #print(index)
-   }
-   top_5_gw_no <- cbind(index, top_5_gw_no)
+# #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+#    index <- list()
+#    
+#    for (i in 1:nrow(top_5_gw_no)) {
+#       
+#       index <- rbind(index, LETTERS[i])
+#       #print(index)
+#    }
+#    top_5_gw_no <- cbind(index, top_5_gw_no)
    
 #APPEND TOTALS to TOP 5 Surface Water Users table   
    top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
    
    top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("index" = 'Groundwater',
-                           "facility_name" = '',
+   gw_header <- data.frame("facility_name" = 'Groundwater',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
@@ -340,23 +405,56 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            "pct_total_use" = '% of Total Groundwater')
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+   
+   top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+   
+   top_5_no[is.na(top_5_no)] <- 0
 
    # OUTPUT TABLE IN KABLE FORMAT
-   kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+   table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-         label = paste("top_5_no_power",mb_code,sep=""),
-         col.names = c("Map Index",
-                       "Facility Name",
+         label = paste("top_5_no_power_",mb_code,sep=""),
+         col.names = c("Facility Name",
                        "System Type",
                        "Locality",
                        kable_col_names[3:6],
                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "10em") %>%
+      column_spec(1, width = "9em") %>%
+      column_spec(2, width = "3em") %>%
+      column_spec(3, width = "4em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "4em") %>%
+      column_spec(7, width = "4em") %>%
+      column_spec(8, width = "7em") %>%
+      row_spec(0, bold=T, font_size = 9) %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
-      #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+      
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table5_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[H]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hspace{1em}", 
+                      repl    = "", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Locality}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
    #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
@@ -453,92 +551,195 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    ### when 'power' IS detected in facility ftype column, then generate 2 separate summary tables for yes/no power
    
    #YES power (including power generation)
-   sql_A <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   sql_A <- sqldf(paste('SELECT a.system_type,
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND MP_bundle = "intake"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "intake"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_A[nrow(sql_A) + 1,] <- list(" ","Small Self-Supplied User",0.00,0.00,0.00,0.00)
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "intake"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
    AA <- append_totals(sql_A,"Total SW")
-   sql_B <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_B <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND MP_bundle = "well"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "well"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "well"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
    BB <- append_totals(sql_B,"Total GW")
-   sql_C <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_C <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
                         aggregate_select,'
-                     FROM mb_mps
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS source_type, "" AS system_type, ',
-                         aggregate_select,'
-                     FROM mb_mps',sep=""))
-   table_1 <- rbind(AA,BB,sql_C,sql_D)
+                     FROM mb_mps a
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   
+   
+   sql_D <- append_totals(sql_C,"Minor Basin Total")
+   
+   # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
+   #                       aggregate_select,'
+   #                   FROM mb_mps a',sep=""))
+   
+   table_1 <- rbind(AA,BB,sql_D)
+   table_1[is.na(table_1)] <- 0
+   
 #KABLE   
-   kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
          label = paste("summary_yes_power_",mb_code,sep=""),
-         col.names = c("",
-                       "System Type",
-                       kable_col_names[3:6])) %>%
-      kable_styling(latex_options = "scale_down") %>%
-      column_spec(2, width = "12em") %>%
+         col.names = c("System Type",
+                       "Source Count",
+                       kable_col_names[3:6]))%>%
+      kable_styling(font_size = 10) %>%
+      column_spec(1, width = "11em") %>%
+      column_spec(2, width = "6em") %>%
+      column_spec(3, width = "6em") %>%
+      column_spec(4, width = "6em") %>%
+      column_spec(5, width = "6em") %>%
+      column_spec(6, width = "6em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
-      pack_rows("Total (GW + SW)", 11, 14, hline_before = T, hline_after = F,extra_latex_after = ) %>%
-      #horizontal solid line depending on html or latex output
+      pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
+      #Header row is row 0
+      row_spec(0, bold=T, font_size = 11) %>%
+      row_spec(5, bold=T, extra_latex_after = ) %>%
+      row_spec(10, bold=T) %>%
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) %>%
+      row_spec(15, bold=T) 
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table1_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[H]", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\midrule", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\hline \\addlinespace[0.4em]", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\vphantom{1}", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\hspace{1em}T", 
+                      repl    = "T", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\textbf{System Type}", 
+                      repl    = "\\vspace{0.3em}\\textbf{System Type}", 
+                      x       = table1_tex, fixed = T )
+   table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
    
    #------------------------------------------------------------------------
    #NO power (excluding power generation)
-   sql_A <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   sql_A <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "intake"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "intake"
-                     AND facility_ftype NOT LIKE "%power"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_A[nrow(sql_A) + 1,] <- list(" ","Small Self-Supplied User",0.00,0.00,0.00,0.00)
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "intake"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
    A <- append_totals(sql_A,"Total SW")
-   sql_B <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_B <- sqldf(paste('SELECT a.system_type,
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "well"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE MP_bundle = "well"
-                     AND facility_ftype NOT LIKE "%power"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "well"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
    B <- append_totals(sql_B,"Total GW")
-   sql_C <- sqldf(paste('SELECT " " AS source_type, system_type, ',
+   
+   sql_C <- sqldf(paste('SELECT a.system_type, (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE facility_ftype NOT LIKE "%power"
-                     GROUP BY system_type
-                     ORDER BY system_type',sep=""))
-   sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS source_type, "" AS system_type, ',
-                         aggregate_select,'
-                     FROM mb_mps
-                     WHERE facility_ftype NOT LIKE "%power"',sep=""))
-   table_1 <- rbind(A,B,sql_C,sql_D)
+                     FROM mb_mps a
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+   
+   sql_D <- append_totals(sql_C,"Minor Basin Total")
+   
+   # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
+   #                       aggregate_select,'
+   #                   FROM mb_mps a',sep=""))
+   
+   table_1 <- rbind(A,B,sql_D)
+   table_1[is.na(table_1)] <- 0
+   
    #KABLE   
-   kable(table_1,align = c('l','l','c','c','c','c'),  booktabs = T,
+   table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
          caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
-         col.names = c("",
-                       "System Type",
-                       kable_col_names[3:6])) %>%
-      kable_styling(latex_options = "scale_down") %>%
-      column_spec(2, width = "12em") %>%
+         col.names = c("System Type",
+                       "Source Count",
+                       kable_col_names[3:6]))%>%
+      kable_styling(font_size = 10) %>%
+      column_spec(1, width = "11em") %>%
+      column_spec(2, width = "6em") %>%
+      column_spec(3, width = "6em") %>%
+      column_spec(4, width = "6em") %>%
+      column_spec(5, width = "6em") %>%
+      column_spec(6, width = "6em") %>%
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
-      pack_rows("Total (GW + SW)", 11, 14, hline_before = T, hline_after = F,extra_latex_after = ) %>%
-      #horizontal solid line depending on html or latex output
+      pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
+      #Header row is row 0
+      row_spec(0, bold=T, font_size = 11) %>%
+      row_spec(5, bold=T, extra_latex_after = ) %>%
+      row_spec(10, bold=T) %>%
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) %>%
+      row_spec(15, bold=T) 
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table1_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[H]", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\midrule", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\hline \\addlinespace[0.4em]", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\vphantom{1}", 
+                      repl    = "", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\hspace{1em}T", 
+                      repl    = "T", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\textbf{System Type}", 
+                      repl    = "\\vspace{0.3em}\\textbf{System Type}", 
+                      x       = table1_tex, fixed = T )
+   table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
    
    ######## TOP 5 USERS Table ###############################################################
@@ -566,15 +767,15 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
-   #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
-   index <- list()
-   
-   for (i in 1:nrow(top_5_sw)) {
-      
-      index <- rbind(index, LETTERS[i])
-      #print(index)
-   }
-   top_5_sw <- cbind(index, top_5_sw)
+   # #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+   # index <- list()
+   # 
+   # for (i in 1:nrow(top_5_sw)) {
+   #    
+   #    index <- rbind(index, LETTERS[i])
+   #    #print(index)
+   # }
+   # top_5_sw <- cbind(index, top_5_sw)
    
    #APPEND TOTALS to TOP 5 Surface Water Users table 
    top_5_sw <- append_totals(top_5_sw, "Total SW")
@@ -603,15 +804,15 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
-   #APPEND LETTERED INDEX TO TOP 5 Groundwater Users table   
-   index <- list()
-   
-   for (i in 1:nrow(top_5_gw)) {
-      
-      index <- rbind(index, LETTERS[i])
-      #print(index)
-   }
-   top_5_gw <- cbind(index, top_5_gw)
+   # #APPEND LETTERED INDEX TO TOP 5 Groundwater Users table   
+   # index <- list()
+   # 
+   # for (i in 1:nrow(top_5_gw)) {
+   #    
+   #    index <- rbind(index, LETTERS[i])
+   #    #print(index)
+   # }
+   # top_5_gw <- cbind(index, top_5_gw)
    
    #APPEND TOTALS to TOP 5 Groundwater Users table 
    top_5_gw <- append_totals(top_5_gw, "Total GW")
@@ -619,8 +820,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #need to select the BB for the YES power (including)
    top_5_gw$pct_total_use <- round((top_5_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("index" = 'Groundwater',
-                           "facility_name" = '',
+   gw_header <- data.frame("facility_name" = 'Groundwater',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
@@ -630,24 +830,56 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            "pct_total_use" = '% of Total Groundwater')
    
    top_5 <- rbind(top_5_sw, gw_header, top_5_gw)
-
+   
+   top_5$facility_name <- str_to_title(top_5$facility_name)
+   top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+   top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+   top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+   
+   top_5[is.na(top_5)] <- 0
+   
    # OUTPUT TABLE IN KABLE FORMAT
-   kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+   table5_tex <- kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
          label = paste("top_5_yes_power",mb_code,sep=""),
-         col.names = c("Map Index",
-                       "Facility Name",
+         col.names = c("Facility Name",
                        "System Type",
                        "Locality",
                        kable_col_names[3:6],
                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "3em") %>%
-      column_spec(2, width = "10em") %>%
+      column_spec(1, width = "9em") %>%
+      column_spec(2, width = "3em") %>%
+      column_spec(3, width = "4em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "4em") %>%
+      column_spec(7, width = "4em") %>%
+      column_spec(8, width = "7em") %>%
+      row_spec(0, bold=T, font_size = 9) %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
-      #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table5_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[H]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hspace{1em}", 
+                      repl    = "", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Locality}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_yes_power_table",file_ext,sep=""))
    
    #-------------- TOP 5 USERS EXCLUDING POWER GENERATION (NO POWER) ---------------------
@@ -673,15 +905,15 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
-   #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
-   index <- list()
-   
-   for (i in 1:nrow(top_5_sw_no)) {
-      
-      index <- rbind(index, LETTERS[i])
-      #print(index)
-   }
-   top_5_sw_no <- cbind(index, top_5_sw_no)
+   # #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+   # index <- list()
+   # 
+   # for (i in 1:nrow(top_5_sw_no)) {
+   #    
+   #    index <- rbind(index, LETTERS[i])
+   #    #print(index)
+   # }
+   # top_5_sw_no <- cbind(index, top_5_sw_no)
    
    #APPEND TOTALS to TOP 5 Groundwater Users table 
    top_5_sw_no <- append_totals(top_5_sw_no, "Total SW")
@@ -710,23 +942,22 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                   ORDER BY MGD_2040 DESC
                   limit 5')
    
-   #APPEND LETTERED INDEX TO TOP 5 Groundwater Users table   
-   index <- list()
-   
-   for (i in 1:nrow(top_5_gw_no)) {
-      
-      index <- rbind(index, LETTERS[i])
-      #print(index)
-   }
-   top_5_gw_no <- cbind(index, top_5_gw_no)
+   # #APPEND LETTERED INDEX TO TOP 5 Groundwater Users table   
+   # index <- list()
+   # 
+   # for (i in 1:nrow(top_5_gw_no)) {
+   #    
+   #    index <- rbind(index, LETTERS[i])
+   #    #print(index)
+   # }
+   # top_5_gw_no <- cbind(index, top_5_gw_no)
    
    #APPEND TOTALS to TOP 5 Groundwater Users table 
    top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
    
    top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
    
-   gw_header <- data.frame("index" = 'Groundwater',
-                           "facility_name" = '',
+   gw_header <- data.frame("facility_name" = 'Groundwater',
                            "system_type" = '',
                            "fips_name" = '',
                            "MGD_2020" = '',
@@ -737,22 +968,55 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
    
+   top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+   
+   top_5_no[is.na(top_5_no)] <- 0
+   
    # OUTPUT TABLE IN KABLE FORMAT
-   kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+   table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
          label = paste("top_5_no_power",mb_code,sep=""),
-         col.names = c("Map Index",
-                       "Facility Name",
+         col.names = c("Facility Name",
                        "System Type",
                        "Locality",
                        kable_col_names[3:6],
                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "10em") %>%
+      column_spec(1, width = "9em") %>%
+      column_spec(2, width = "3em") %>%
+      column_spec(3, width = "4em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "4em") %>%
+      column_spec(7, width = "4em") %>%
+      column_spec(8, width = "7em") %>%
+      row_spec(0, bold=T, font_size = 9) %>%
       pack_rows("Surface Water", 1, 6) %>%
-      #pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
-      #horizontal solid line depending on html or latex output
-      row_spec(7, bold=T, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      row_spec(6, extra_latex_after = "\\hline") %>%
+      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+   
+   #CUSTOM LATEX CHANGES
+   #insert hold position header
+   table5_tex <- gsub(pattern = "{table}[t]", 
+                      repl    = "{table}[H]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hspace{1em}", 
+                      repl    = "", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\hline", 
+                      repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+                      repl    = "\\vspace{0.3em}\\textbf{Locality}", 
+                      x       = table5_tex, fixed = T )
+   table5_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
    
    #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
@@ -930,14 +1194,221 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    
 }
+ ### SOURCE COUNT TABLE
+   ######### system_specific_facility######################################################
+   #basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
+   #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
+   #specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
+   
+   system_specific_facility <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
+            (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
+                                           aggregate_select,'
+                     FROM mb_mps a
+       WHERE facility_ftype NOT LIKE "%power"
+       GROUP BY a.wsp_ftype
+       ORDER BY a.system_type', sep=""))
+   
+   system_specific_facility_sw <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
+            (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "intake"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
+                                              aggregate_select,'
+                     FROM mb_mps a
+       WHERE facility_ftype NOT LIKE "%power"
+         AND MP_bundle = "intake"
+       GROUP BY a.wsp_ftype
+       ORDER BY a.system_type', sep=""))
+   system_specific_facility_sw[nrow(system_specific_facility_sw) + 1,] <- list("Small SSU",0,0)
+   system_specific_facility_gw <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
+            (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "well"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
+                                              aggregate_select,'
+                     FROM mb_mps a
+       WHERE facility_ftype NOT LIKE "%power"
+         AND MP_bundle = "well"
+       GROUP BY a.wsp_ftype
+       ORDER BY a.system_type', sep=""))
+   
+   count_total <- data.frame("system_type" = 'Total',
+                             "count_with_county_estimates" = colSums(system_specific_facility[2]),
+                             "specific_count" = colSums(system_specific_facility[3]),row.names = NULL ) 
+   count_table <- rbind(system_specific_facility_sw[1:3],system_specific_facility_gw[1:3],system_specific_facility[1:3], count_total)
+   
+   # OUTPUT TABLE IN KABLE FORMAT
+   kable(count_table, align = c('l','c','c'),  booktabs = T,
+         caption = paste("Source Count in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         label = paste("source_count_",mb_code,sep=""),
+         col.names = c("System Type",
+                       "Count with County Estimates","Specific Count")) %>%
+      kable_styling(latex_options = latexoptions)  %>%
+      pack_rows("Surface Water", 1, 4, hline_before = T, hline_after = F) %>%
+      pack_rows("Groundwater", 5, 8, hline_before = T, hline_after = F) %>%
+      pack_rows("Total (GW + SW)", 9, 13, hline_before = T, hline_after = F ) %>%
+      row_spec(13, bold=T) %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_source_count",file_ext,sep=""))
+   
+   #---- UNMET DEMAND TABLE -------------------------------------------------------------------------------
+   
+   unmet30 <- sqldf('SELECT pid,
+                           featureid, 
+                           propname, 
+                           round(runid_11,2) AS runid_11, 
+                           round(runid_12,2) AS runid_12, 
+                           round(runid_13,2) AS runid_13, 
+                           round(runid_17,2) AS runid_17, 
+                           round(runid_18,2) AS runid_18,
+                           riverseg,
+                           substr(riverseg,1,2) AS mb_code
+                 from unmet30_raw
+                 WHERE hydrocode NOT LIKE "wsp_%"
+                 AND riverseg NOT LIKE "%_0000%"
+                 ORDER BY mb_code DESC, runid_18 DESC')
+   unmet30$runid_17[is.na(unmet30$runid_17)] <- "-"
+   
+   #filter the 5 runids
+   a_unmet30 <- sqldf('SELECT featureid, 
+                           propname, 
+                           runid_11, 
+                           runid_12, 
+                           runid_13, 
+                           runid_17, 
+                           runid_18, 
+                           mb_code
+                 FROM unmet30
+                      WHERE (runid_11 > 0
+                       OR runid_12 > 0.0099
+                       OR runid_13 > 0.0099
+                       OR runid_17 > 0.0099
+                       OR runid_18 > 0.0099)')
+   
+   #write.csv(a_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\a_unmet30.csv", row.names = F)
+   
+   # #filter >.5 mgd
+   # b_unmet30 <- sqldf('SELECT featureid, 
+   #                            propname, 
+   #                            runid_11, 
+   #                            runid_12, 
+   #                            runid_13, 
+   #                            runid_17, 
+   #                            runid_18, 
+   #                            mb_code
+   #                  FROM unmet30
+   #                    WHERE runid_11 > 0.5
+   #                    OR runid_12 > 0.5
+   #                    OR runid_13 > 0.5
+   #                    OR runid_17 > 0.5
+   #                    OR runid_18 > 0.5')
+   # 
+   # write.csv(b_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\b_unmet30.csv", row.names = F)
+   # 
+   # #filter >1 mgd
+   # c_unmet30 <- sqldf('SELECT featureid, 
+   #                            propname, 
+   #                            runid_11, 
+   #                            runid_12, 
+   #                            runid_13, 
+   #                            runid_17, 
+   #                            runid_18, 
+   #                            mb_code
+   #                  FROM unmet30
+   #                    WHERE runid_11 > 1
+   #                    OR runid_12 > 1
+   #                    OR runid_13 > 1
+   #                    OR runid_17 > 1
+   #                    OR runid_18 > 1')
+   # 
+   # write.csv(c_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\c_unmet30.csv", row.names = F)
+   # 
+   # # No Minor Basin
+   # 
+   # null_unmet30 <- sqldf('SELECT pid,
+   #                            featureid, 
+   #                            propname, 
+   #                            runid_11, 
+   #                            runid_12, 
+   #                            runid_13, 
+   #                            runid_17, 
+   #                            runid_18, 
+   #                            mb_code
+   #                  FROM unmet30
+   #       WHERE riverseg LIKE ""
+   #       ORDER BY runid_18 DESC')
+   # 
+   # write.csv(null_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\null_unmet30.csv", row.names = F)
+   
+   #------------------------------------------------------------------------------------------------------------
+   
+   unmet_table <- sqldf(paste('SELECT *
+                             FROM a_unmet30
+                             WHERE mb_code = "',mb_code,'"', sep = ''))
+   
+   unmet_table$propname <- str_to_title(gsub(x = unmet_table$propname, pattern = ":.*$", replacement = ""))
+   
+   unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
+   unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+   
+   if (nrow(unmet_table) == 0) {
+      unmet_table[1,2] <- "No Facilities Detected" 
+      #unmet_table[1,2] <- "\\multicolumn{6}{c}{\\textbf{No facilities detected to have unmet demand}}\\\\"
+   }
+   # OUTPUT TABLE IN KABLE FORMAT
+   unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T, longtable =T,
+         caption = paste("Change in Highest 30 Day Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         label = paste("unmet30_",mb_code,sep=""),
+         col.names = c("Facility",
+                       "2020 Demand",
+                       "2030 Demand",
+                       "2040 Demand",
+                       "Dry Climate",
+                       "Exempt User")) %>%
+      kable_styling(latex_options = "striped") %>%
+      row_spec(0, bold = T) %>%
+      column_spec(1, width = "14em") %>%
+      column_spec(2, width = "5em") %>%
+      column_spec(3, width = "5em") %>%
+      column_spec(4, width = "5em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "3em") %>%
+      #footnote(symbol = "This table shows demand values greater than 1.0 MGD.") %>%
+      #footnote(c("Footnote Symbol 1; Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin", "Footnote Symbol 2")) %>%
+      footnote(symbol = "Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin")
+   
+   unmet_tex <- gsub(pattern = "{table}[t]", 
+                     repl    = "{table}[H]", 
+                     x       = unmet_tex, fixed = T )
+   unmet_tex <- gsub(pattern = "\\toprule
+\\textbf{Facility} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{Dry Climate} & \\textbf{Exempt User}\\\\
+\\midrule", 
+                     repl    = "\\toprule
+\\textbf{Facility} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{Dry Climate} & \\textbf{Exempt User}\\\\
+\\endfirsthead
+\\multicolumn{3}{l}{\\textbf{ \\tablename\\ \\ref{tab:unmet30_PS} -- continued from previous page}}
+\\endhead
+\\midrule", 
+                     x       = unmet_tex, fixed = T )
+      unmet_tex %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_unmet30_table",file_ext,sep=""))
+   
    
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'PL', file_extension = '.html')
+TABLE_GEN_func(minorbasin = 'OD', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
+
 ext <- c(".html",".tex")
 ext <- c(".tex")
 
@@ -978,93 +1449,4 @@ toc()
                      "Locality",kable_col_names[3:6])) %>%
     kable_styling(latex_options = latexoptions) %>%
     cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_locality_",mb_code,"_kable",file_ext,sep=""))
-#---------PS Powerpoint presentation cleanup #######################################
-# ###PS Powerpoint presentation cleanup
-#  if (mb_code$MinorBasin_Code == 'PS') {
-#     hanover_mps <- sqldf("SELECT *
-#                            FROM mb_mps
-#                            WHERE fips_name like '%hanover'")
-#     hanover_mps$fips_code <- '51171'
-#     hanover_mps$fips_name <- 'Shenandoah'
-#     no_hanover <- sqldf("SELECT *
-#                            FROM mb_mps
-#                            WHERE fips_name not like '%hanover'")
-#     ps_mb_mps <- sqldf("SELECT *
-#                      from hanover_mps 
-#                     UNION  Select * from no_hanover
-#                     ")
-#     by_county_source_sql <- paste('SELECT 
-#                      fips_code,
-#                      fips_name,
-#                      source_type,
-#                      ',aggregate_select,'
-#                      FROM ps_mb_mps
-#                      GROUP BY fips_code, MP_bundle
-#                      ORDER BY fips_code, MP_bundle DESC', sep="")
-#     by_county_source <- sqldf(by_county_source_sql)
-#  } else {
-#   by_county_source_sql <- paste('SELECT 
-#                      fips_code,
-#                      fips_name,
-#                      source_type,
-#                      ',aggregate_select,'
-#                      FROM mb_mps
-#                      GROUP BY fips_code, MP_bundle
-#                      ORDER BY fips_code, MP_bundle DESC', sep="")
-#  by_county_source <- sqldf(by_county_source_sql)   
-#     
-#  }
-# 
-#  write.csv(by_county_source, paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/county_source_type_demand_",mb_code$MinorBasin_Code,".csv", sep=""))
-#  
-#  kable(by_county_source[1:7],  booktabs = T,
-#        caption = paste("GW vs. SW Withdrawal Demand by Locality in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-#        label = paste("demand_locality_by_source",mb_code$MinorBasin_Code,sep=""),
-#        col.names = c("Fips Code",
-#                      "Locality",
-#                      "Source Type",kable_col_names[3:6])) %>%
-#     kable_styling(latex_options = latexoptions) %>%
-#     #column_spec(1, width = "5em") %>%
-#     #column_spec(2, width = "5em") %>%
-#     #column_spec(3, width = "5em") %>%
-#     #column_spec(4, width = "4em") %>%
-#     cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_locality_by_source_",mb_code$MinorBasin_Code,"_kable",file_ext,sep=""))
-######### system_specific_facility######################################################
-#basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
-#count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
-#specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
- 
- system_specific_facility <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
-            (SELECT count(MP_hydroid)
-             FROM mb_mps
-             WHERE facility_ftype NOT LIKE "wsp%"
-             AND facility_ftype NOT LIKE "%power"
-             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
-                       aggregate_select,'
-                     FROM mb_mps a
-       WHERE facility_ftype NOT LIKE "%power"
-       GROUP BY a.wsp_ftype', sep=""))
- 
-######### system_source_specific_facility ----------------------------------------------
- 
-######### Top 5 Users by Source Type
-#---------PS power point presentation table---------------------------------
-# #PS power point presentation table
-# top_5[1] <- c('Merck & Co Elkton Plant','Rockingham Co. Three Springs','Augusta Co. Service Authority','The Lycra Company','Town of Dayton','','','City of Winchester','City of Staunton WTP','City of Harrisonburg WTP','Frederick County Sanitation','Town of Front Royal WTP','')
-# 
-# # OUTPUT TABLE IN KABLE FORMAT
-# kable(top_5,align = c('l','l','c','c','c','c','c','l'),  booktabs = T,
-#       caption = "",
-#       label = paste("top_5_",mb_code,sep=""),
-#       col.names = c("Organization Name",
-#                     "System Type",
-#                     kable_col_names[3:6],
-#                     "% of Total Groundwater",
-#                     "Locality")) %>%
-#    kable_styling(latex_options = latexoptions)%>%
-#    column_spec(1, width = "10em") %>%
-#    pack_rows("Groundwater", 1, 6) %>%
-#    pack_rows("Surface Water", 7, 13, label_row_css = "border-top: 1px solid", latex_gap_space = "2em", hline_after = F,hline_before = T) %>%
-#    #horizontal solid line depending on html or latex output
-#    row_spec(7, bold=T, hline_after = F) %>%
-#    cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/PPT_Top_5_",mb_code,"_kable",file_ext,sep=""))
+
