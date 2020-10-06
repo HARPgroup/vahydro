@@ -199,7 +199,7 @@ UNACd = median(unloss$unac_frac, na.rm= TRUE)
 UNACq = quantile(unloss$unac_frac, na.rm= TRUE)
 #       0%      25%      50%      75%     100% 
 # 0.000000 0.090275 0.135200 0.265750 0.658800
-UNACm = mean(unloss$unac_frac, na.rm= TRUE)
+UNACm = mean(unloss$unac_frac, na.rm=TRUE)
 UNACt = sum(as.numeric(unloss$unacc)) / sum(unloss$total_use,na.rm = TRUE)
 
 various <- c(
@@ -209,7 +209,7 @@ various <- c(
 #  "UNACd" = UNACd,
 #  "UNACm" = 0.19,
 #  "UNACt" = UNACt,
-  "WBR+UNAC" = round(WBRm + UNACt,2)
+  "WBR+UNAC" = round(WBRm + UNACd,2)
 )
 xx <- barplot(
   various, 
@@ -217,7 +217,7 @@ xx <- barplot(
   ylim = c(0,0.4),
   main="Compare Lit., Total Volume, WBR, WBR + Losses"
 )
-rect(3.8, round(WBRm + UNACt,2), 4.8, round(WBRm + UNACm,2),
+rect(3.8, round(WBRm + UNACd,2), 4.8, round(WBRm + UNACd,2),
      col=NULL, border=par("fg"), lty=NULL, lwd=par("lwd"), xpd=FALSE)
 text(x = xx, y = various, label = various[1:4], pos = 3, cex = 0.8, col = "red")
 text(x = xx[4,], y = round(WBRm + UNACm,2), label = round(WBRm + UNACm,2), pos = 3, cex = 0.8, col = "red")

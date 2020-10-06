@@ -218,7 +218,7 @@ class dHDroughtStatusPrecip extends dHDroughtStatusBase{
       return;
     }
     //dpm($entity);
-    if ( ($entity->propcode == '-1') or ($entity->propcode == '') or empty($entity->propcode) ) {
+    if ( !($entity->propcode === '0') and (($entity->propcode == '-1') or ($entity->propcode == '') or empty($entity->propcode)) ) {
       $level = 0;
       $days = (dh_handletimestamp($entity->enddate) - dh_handletimestamp($entity->startdate) ) / 86400.0;
       $bounds = array();
