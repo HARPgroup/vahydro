@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "PL", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "JL", file_extension = ".html"){
 
    
    #-------- html or latex -----
@@ -657,6 +657,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                         aggregate_select,'
                      FROM mb_mps a
                      WHERE a.MP_bundle = "intake"
+                     AND facility_ftype NOT LIKE "%power"
                      GROUP BY a.system_type
                      ORDER BY a.system_type',sep=""))
    sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
@@ -672,6 +673,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                         aggregate_select,'
                      FROM mb_mps a
                      WHERE a.MP_bundle = "well"
+                     AND facility_ftype NOT LIKE "%power"
                      GROUP BY a.system_type
                      ORDER BY a.system_type',sep=""))
    B <- append_totals(sql_B,"Total GW")
@@ -683,6 +685,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
              AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
                      FROM mb_mps a
+                     WHERE facility_ftype NOT LIKE "%power"
                      GROUP BY a.system_type
                      ORDER BY a.system_type',sep=""))
    
@@ -1404,7 +1407,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'OD', file_extension = '.tex')
+TABLE_GEN_func(minorbasin = 'JL', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')

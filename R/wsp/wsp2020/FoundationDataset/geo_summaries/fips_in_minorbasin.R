@@ -199,29 +199,55 @@ FIPS_in_basins <- function(minorbasin){
   fips.df$mb_code <- minorbasin
   
   fips.df <- sqldf('SELECT fips_name, fips_code, fips_centroid, mb_name, mb_code
-                   FROM "fips.df"')
-  return(fips.df)
+                   FROM "fips.df"
+                   WHERE fips_code LIKE "51%"')
   
+  #return(fips.df)
   
+  # OUTPUT TABLE IN KABLE FORMAT
+  localities_tex <- kable(fips.df[1],  booktabs = T,format = "latex",
+        caption = paste0("Localities in ", mb_name$name, " Basin"),
+        label = paste0(minorbasin,"_localities"),
+        col.names = "Localities") %>%
+    kable_styling(latex_options = "striped") 
   
+  end_wraptext <- if (nrow(fips.df) > 10) {
+    nrow(fips.df) - 5
+  } else { nrow(fips.df) + 3}
+  
+  #print(end_wraptext)
+  #CUSTOM LATEX CHANGES
+  #change to wraptable environment
+  localities_tex <- gsub(pattern = "\\begin{table}[t]",
+                     repl    = paste0("\\begin{wraptable}[",end_wraptext,"]{r}{5cm}"),
+                     x       = localities_tex, fixed = T )
+  localities_tex <- gsub(pattern = "\\end{table}",
+                         repl    = "\\end{wraptable}",
+                         x       = localities_tex, fixed = T )
+  localities_tex <- gsub(pattern = "\\addlinespace",
+                         repl    = "",
+                         x       = localities_tex, fixed = T )
+  localities_tex %>%
+    cat(., file = paste(folder,"tables_maps/Xtables/",minorbasin,"_localities_table.tex",sep=""))
+
+  localities_tex
 }
 ################ RUN FIPS IN BASINS FUNCTION ##################################################
 # SINGLE BASIN
-NR_fips <- FIPS_in_basins(minorbasin = "NR")
+NR_fips <- FIPS_in_basins(minorbasin = "BS")
 
 # ALL BASINS
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 
 all_basins <- list()
-tic()
+
 for (b in basins) {
   
   basin_b <- FIPS_in_basins(minorbasin = b)
   
-  all_basins <- rbind(all_basins,basin_b)
+  #all_basins <- rbind(all_basins,basin_b)
   
 }
-toc()
 
-write.csv(all_basins, file = "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\tables_maps\\Xtables\\VA_fips_in_minorbasins.csv" , row.names = F)
+#write.csv(all_basins, file = "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\tables_maps\\Xtables\\VA_fips_in_minorbasins.csv" , row.names = F)
 

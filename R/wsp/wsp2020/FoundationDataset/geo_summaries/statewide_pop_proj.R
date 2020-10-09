@@ -35,17 +35,16 @@ localpath <- tempdir()
 # destfile <- paste(localpath,filename,sep="\\")
 # download.file(paste(site,"vahydro_riversegs_export",sep=""), destfile = destfile, method = "libcurl")
 # RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-# MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
-#MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/rivnames/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
+ MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
 
 
-#DOWNLOAD FIPS LAYER DIRECT FROM VAHYDRO
-fips_filename <- paste("vahydro_usafips_export.csv",sep="")
-fips_destfile <- paste(localpath,fips_filename,sep="\\")
-download.file(paste(site,"usafips_centroid_export",sep=""), destfile = fips_destfile, method = "libcurl")
-fips.csv <- read.csv(file=paste(localpath , fips_filename,sep="\\"), header=TRUE, sep=",")
+# #DOWNLOAD FIPS LAYER DIRECT FROM VAHYDRO
+# fips_filename <- paste("vahydro_usafips_export.csv",sep="")
+# fips_destfile <- paste(localpath,fips_filename,sep="\\")
+# download.file(paste(site,"usafips_centroid_export",sep=""), destfile = fips_destfile, method = "libcurl")
+# fips.csv <- read.csv(file=paste(localpath , fips_filename,sep="\\"), header=TRUE, sep=",")
 
-#DOWNLOAD FIPS LAYER DIRECT FROM VAHYDRO
+#DOWNLOAD FIPS GEOM LAYER DIRECT FROM VAHYDRO
 fips_filename <- paste("vahydro_usafips_export.csv",sep="")
 fips_destfile <- paste(localpath,fips_filename,sep="\\")
 download.file(paste(site,"usafips_geom_export",sep=""), destfile = fips_destfile, method = "libcurl")
@@ -167,53 +166,53 @@ statewide.mapgen.POP.PROJ <- function(){
   ### PROCESS FIPS CENTROID LAYER  #####################################################################
   ######################################################################################################
   
-  # #PADDING TO ENSURE FIPS NAMES DONT GO BEYOND PLOT WINDOW
-  # fips_extent <- data.frame(x = c(extent$x[1]+0.25, extent$x[2]-0.25),
-  #                           y = c(extent$y[1]+0.25, extent$y[2]-0.25))
-  # fips_bb=readWKT(paste0("POLYGON((",fips_extent$x[1]," ",fips_extent$y[1],",",fips_extent$x[2]," ",fips_extent$y[1],",",fips_extent$x[2]," ",fips_extent$y[2],",",fips_extent$x[1]," ",fips_extent$y[2],",",fips_extent$x[1]," ",fips_extent$y[1],"))",sep=""))
-  
-  fips_layer <- fips.csv
-  fips_layer$id <- fips_layer$fips_hydroid
-  fips.list <- list()
-  
-  for (f in 1:length(fips_layer$fips_hydroid)) {
-    fips_geom <- readWKT(fips_layer$fips_centroid[f])
-    fips_geom_clip <- gIntersection(MB_geom, fips_geom) #SHOW ONLY FIPS NAMES WITHIN MINOR BASIN
-    
-    if (is.null(fips_geom_clip) == TRUE) {
-      # print("FIPS OUT OF MINOR BASIN EXTENT - SKIPPING") 
-      next
-    }
-    
-    fipsProjected <- SpatialPointsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
-    fipsProjected@data$id <- as.character(fips_layer[f,]$id)
-    fips.list[[f]] <- fipsProjected
-  }
-  
-  length(fips.list)
-  #REMOVE THOSE FIPS THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
-  fips.list <- fips.list[which(!sapply(fips.list, is.null))]
-  length(fips.list)
-  
-  if (length(fips.list) != 0) {
-    #  print("NO FIPS GEOMS WITHIN MINOR BASIN EXTENT - SKIPPING")
-    fips <- do.call('rbind', fips.list)
-    fips@data <- merge(fips@data, fips_layer, by = 'id')
-    fips@data <- fips@data[,-c(2:3)]
-    fips_centroid.df <- data.frame(fips)
-  } else {
-    print("NO FIPS GEOMS WITHIN MINOR BASIN EXTENT")
-    
-    fips_centroid.df <- data.frame(id=c(1,2),
-                          fips_latitude =c(1,2), 
-                          fips_longitude =c(1,2),
-                          fips_name = c(1,2),
-                          stringsAsFactors=FALSE) 
-    
-  }
-  
-  #print(fips_centroid.df)
-  
+  # # #PADDING TO ENSURE FIPS NAMES DONT GO BEYOND PLOT WINDOW
+  # # fips_extent <- data.frame(x = c(extent$x[1]+0.25, extent$x[2]-0.25),
+  # #                           y = c(extent$y[1]+0.25, extent$y[2]-0.25))
+  # # fips_bb=readWKT(paste0("POLYGON((",fips_extent$x[1]," ",fips_extent$y[1],",",fips_extent$x[2]," ",fips_extent$y[1],",",fips_extent$x[2]," ",fips_extent$y[2],",",fips_extent$x[1]," ",fips_extent$y[2],",",fips_extent$x[1]," ",fips_extent$y[1],"))",sep=""))
+  # 
+  # fips_layer <- fips.csv
+  # fips_layer$id <- fips_layer$fips_hydroid
+  # fips.list <- list()
+  # 
+  # for (f in 1:length(fips_layer$fips_hydroid)) {
+  #   fips_geom <- readWKT(fips_layer$fips_centroid[f])
+  #   fips_geom_clip <- gIntersection(MB_geom, fips_geom) #SHOW ONLY FIPS NAMES WITHIN MINOR BASIN
+  #   
+  #   if (is.null(fips_geom_clip) == TRUE) {
+  #     # print("FIPS OUT OF MINOR BASIN EXTENT - SKIPPING") 
+  #     next
+  #   }
+  #   
+  #   fipsProjected <- SpatialPointsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
+  #   fipsProjected@data$id <- as.character(fips_layer[f,]$id)
+  #   fips.list[[f]] <- fipsProjected
+  # }
+  # 
+  # length(fips.list)
+  # #REMOVE THOSE FIPS THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
+  # fips.list <- fips.list[which(!sapply(fips.list, is.null))]
+  # length(fips.list)
+  # 
+  # if (length(fips.list) != 0) {
+  #   #  print("NO FIPS GEOMS WITHIN MINOR BASIN EXTENT - SKIPPING")
+  #   fips <- do.call('rbind', fips.list)
+  #   fips@data <- merge(fips@data, fips_layer, by = 'id')
+  #   fips@data <- fips@data[,-c(2:3)]
+  #   fips_centroid.df <- data.frame(fips)
+  # } else {
+  #   print("NO FIPS GEOMS WITHIN MINOR BASIN EXTENT")
+  #   
+  #   fips_centroid.df <- data.frame(id=c(1,2),
+  #                         fips_latitude =c(1,2), 
+  #                         fips_longitude =c(1,2),
+  #                         fips_name = c(1,2),
+  #                         stringsAsFactors=FALSE) 
+  #   
+  # }
+  # 
+  # #print(fips_centroid.df)
+  # 
   
   ######################################################################################################
   ### PROCESS FIPS GEOM LAYER  #####################################################################
@@ -221,7 +220,10 @@ statewide.mapgen.POP.PROJ <- function(){
   
   
   fips_layer <- fips_geom.csv
-
+  fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
+  
+  
+  
   #fips_layer$id <- fips_layer$fips_hydroid
   fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
   fips.list <- list()
@@ -240,8 +242,12 @@ statewide.mapgen.POP.PROJ <- function(){
   fips.df <- fortify(fips, region = 'id')
   fips_geom.df <- merge(fips.df, fips@data, by = 'id')
   
+  
+  
+  fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
+  #str(fips_sf)
   # plot(state, add = F)
-  # plot(fips, add = T, lwd = 2)
+   # plot(fips, add = T, lwd = 2)
   # print(fips_geom.df)
   
   ######################################################################################################
@@ -298,7 +304,7 @@ statewide.mapgen.POP.PROJ <- function(){
   rivs@data <- merge(rivs@data, rivs_layer, by = 'id')
   rivs.df <- rivs
   #print(class(rivs.df))
-  
+  #plot(rivs, add = T, col = 'blue')
   #print(riv.centroid.df)
   ######################################################################################################
   ### PROCESS mp.all LAYER  ############################################################################
@@ -551,13 +557,13 @@ statewide.mapgen.POP.PROJ <- function(){
   # }
   #image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment_padding.PNG',sep='')
   
-  image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_tidal_segment_padding.PNG',sep='')
+  #image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_tidal_segment_padding.PNG',sep='')
   
   # base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6) #RIGHT TOP LEGEND
-  base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
+  #base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
   
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
-  deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
+  #deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
   ######################################################################################################
   # rseg_border <- 'black'
   # 
@@ -704,7 +710,7 @@ statewide.mapgen.POP.PROJ <- function(){
   
   
   ####################################################################
-  source_current <- base_map +
+  source_current <- base_map 
     # geom_tidal_base +
     # geom1 +
     # geom2 +
@@ -735,17 +741,20 @@ statewide.mapgen.POP.PROJ <- function(){
   
   #metric first makes it easier to page through comparisons
   # export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.png",sep = "")
-  export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",runid_a,"_",metric,"_map.png",sep = "")
+  export_file <- paste0(export_path, "tables_maps/Xfigures/VA_pop_proj_map.png",sep = "")
   # if (wd_points == "OFF") {
   #   print("PLOTTING - WITHDRAWAL POINTS OFF") 
   
-  map <- ggdraw(source_current +
-                  #RSeg_southern_b_geom +
-                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.8) +
-                  #ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
-                  #ggtitle(paste(metric_title," (",scenario_title,")",sep = '')) +
+  map <- source_current +
                   
-                  #labs(subtitle = mb_name$name) +
+                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "snow",alpha = .5,lwd=0.8) +
+                  
+                  geom_sf(data = fips_sf, aes(fill = pct_change), color="snow", lwd = .7, inherit.aes = FALSE)+
+                  
+                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.8) +
+                  
+                  ggtitle("Virginia Population Projection") +
+                  labs(subtitle = "2020 to 2040 Percent Change") +
                   
                   #ADD STATE BORDER LAYER ON TOP
                   geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
@@ -767,18 +776,16 @@ statewide.mapgen.POP.PROJ <- function(){
                   # geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
                   #            size =1, shape = 20, fill = "black")+
                   # #ADD FIPS LABELS
-                # geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-                #                 size = 2)+
-                
+                 #geom_text_repel(data = fips_geom.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name), size = 2)+
                 #ADD WHITE VA STATE BORDER ON TOP
-                geom_sf(data = va_state_sf, aes(geometry = geom), fill = NA, color="black", lwd = 1.2, inherit.aes = FALSE)+
+                #geom_sf(data = va_state_sf, fill = NA, color="white", lwd = 1.2, inherit.aes = FALSE)+
                   
                   #ADD NORTH BAR
                   north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                   base_scale +
-                  base_theme) +
-    base_legend +
-    deqlogo 
+                  base_theme
+  
+  map
   
   # } else if (wd_points == "ON") {
   #   print("PLOTTING - WITHDRAWAL POINTS ON") 
@@ -929,4 +936,7 @@ statewide.mapgen.POP.PROJ <- function(){
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
   # ggsave(plot = map, file = export_file, width=5.5, height=5)
   ggsave(plot = map, file = export_file, width=6.5, height=5)
-}
+
+  
+  
+  }
