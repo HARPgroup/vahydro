@@ -263,10 +263,10 @@ statewide.mapgen.POP.PROJ <- function(){
   
   
   #fips_layer$id <- fips_layer$fips_hydroid
-  fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
+  fips_layer$id <- as.character(row_number(fips_layer$fips_code))
   fips.list <- list()
   
-  for (f in 1:length(fips_layer$fips_hydroid)) {
+  for (f in 1:length(fips_layer$fips_code)) {
     fips_geom <- readWKT(fips_layer$fips_geom[f])
     fips_geom_clip <- gIntersection(bb, fips_geom)
     fipsProjected <- SpatialPolygonsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
@@ -280,13 +280,13 @@ statewide.mapgen.POP.PROJ <- function(){
   fips.df <- fortify(fips, region = 'id')
   fips_geom.df <- merge(fips.df, fips@data, by = 'id')
   
-  # plot(state, add = F)
-  # plot(fips, add = T, lwd = 2)
-  # print(fips_geom.df)
-  
   fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
   
-  #change from continous variable to discrete - explicit quantile breaks 
+  plot(state, add = F)
+  plot(fips, add = T, lwd = 1)
+  plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
+   #################################
+  #change from continous variable to discrete - explicit fixed breaks 
   breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
                  fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
   #breaks_qt
@@ -294,8 +294,66 @@ statewide.mapgen.POP.PROJ <- function(){
   fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
   
   ggplot(fips_pop_sf) + 
-    geom_sf(aes(fill=pops_pct_change_cat)) +
-    scale_fill_brewer(palette = "OrRd", direction = -1) 
+    geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+    scale_fill_brewer(palette = "PuOr")
+  
+    plot(fips_pop_sf$pct_change)
+    plot(fips_pop_sf["pct_change"])
+    
+    
+    loud_fips_sf <- filter(fips_sf, fips_name == "Loudoun")
+    ggplot(fips_pop_sf) + 
+      geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+      scale_fill_brewer(palette = "PuOr") +
+    geom_sf(data = loud_fips_sf,aes(geometry = geometry), fill = "black", inherit.aes = F) +
+      geom_sf_text(data = loud_fips_sf,aes(label = fips_name), color = 'blue', inherit.aes = F)
+    
+    
+    
+    
+    
+    ##################################
+    #fips_layer check to see if it has correct geometry for loudoun
+    ##################################
+    fips_layer <- fips_geom.csv
+    fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
+    fips_layer <- fips_layer[fips_layer$fips_name %in% c('Virginia Beach','Bath','Loudoun'),]
+    
+    
+    fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
+    fips.list <- list()
+    
+    for (f in 1:length(fips_layer$fips_hydroid)) {
+      fips_geom <- readWKT(fips_layer$fips_geom[f])
+      fips_geom_clip <- gIntersection(bb, fips_geom)
+      fipsProjected <- SpatialPolygonsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
+      fipsProjected@data$id <- as.character(f)
+      fips.list[[f]] <- fipsProjected
+    }
+    
+    fips <- do.call('rbind', fips.list)
+    fips@data <- merge(fips@data, fips_layer, by = 'id')
+    fips@data <- fips@data[,-c(2:3)]
+    fips.df <- fortify(fips, region = 'id')
+    fips_geom.df <- merge(fips.df, fips@data, by = 'id')
+    
+    fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
+    plot(state, add = F)
+    plot(fips, add = T, lwd = 1)
+    plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
+    # print(fips_geom.df)
+    breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
+                                fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
+    #breaks_qt
+    
+    fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks))
+    
+    loud_fips_sf <- filter(fips_sf, fips_name == "Loudoun")
+    ggplot(fips_pop_sf) +
+      geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+      scale_fill_brewer(palette = "PuOr") +
+      geom_sf(data = loud_fips_sf,aes(geometry = geometry), fill = "black", inherit.aes = F) +
+      geom_sf_text(data = loud_fips_sf,aes(label = fips_name), color = 'blue', inherit.aes = F)
   ######################################################################################################
   ### PROCESS MajorRivers.csv LAYER  ###################################################################
   ######################################################################################################
