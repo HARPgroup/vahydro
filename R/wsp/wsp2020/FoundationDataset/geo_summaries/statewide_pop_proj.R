@@ -16,6 +16,7 @@ library(cowplot) #plot static legend
 library(magick) #plot static legend
 library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
+library(classInt) #used to explicitly determine the breaks
 
 ###################################################################################################### 
 ###################################################################################################### 
@@ -279,14 +280,22 @@ statewide.mapgen.POP.PROJ <- function(){
   fips.df <- fortify(fips, region = 'id')
   fips_geom.df <- merge(fips.df, fips@data, by = 'id')
   
-  
-  
-  fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
-  #str(fips_sf)
   # plot(state, add = F)
-   # plot(fips, add = T, lwd = 2)
+  # plot(fips, add = T, lwd = 2)
   # print(fips_geom.df)
   
+  fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
+  
+  #change from continous variable to discrete - explicit quantile breaks 
+  breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
+                 fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
+  #breaks_qt
+  
+  fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
+  
+  ggplot(fips_pop_sf) + 
+    geom_sf(aes(fill=pops_pct_change_cat)) +
+    scale_fill_brewer(palette = "OrRd", direction = -1) 
   ######################################################################################################
   ### PROCESS MajorRivers.csv LAYER  ###################################################################
   ######################################################################################################
