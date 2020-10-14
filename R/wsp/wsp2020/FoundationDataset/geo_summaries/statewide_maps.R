@@ -40,6 +40,7 @@ fips.csv <- read.csv(file=paste(localpath , fips_filename,sep="\\"), header=TRUE
 
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.OVERVIEW.R",sep = '/'))
 
 ######################################################################################################
 ### SCENARIO COMPARISONS #############################################################################
@@ -117,3 +118,16 @@ print(paste("PROCESSING VA",sep=""))
 toc()
 beep(3)
 # #------------------------------------------------------------------
+
+
+# ######################################################################################################
+# ### STATEWIDE Minor Basin OVERVIEW ###################################################################
+# ######################################################################################################
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.OVERVIEW.R",sep = '/'))
+#----------- RUN SINGLE MAP --------------------------
+ statewide.mapgen.OVERVIEW(plot_title = "Minor Basin Units")
+
+
+
+
+
