@@ -23,7 +23,9 @@ library(ggmap) #used for get_stamenmap, get_map
 ###################################################################################################### 
 ###################################################################################################### 
 #---- POPULATION PROJECTION TABLE -------------------------------------------------------------------------------
-vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProjections_Total_2020-2040_final.csv")
+#vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProjections_Total_2020-2040_final.csv")
+vapop <- read.csv("C:/Users/maf95834/Documents/wsp2020/VAPopProjections_Total_2020-2040_final.csv")
+
 vapop <- sqldf('SELECT FIPS, Geography_Name, round(x2020,0), round(x2030,0), round(x2040,0), round(((X2040 - X2020) / X2020)*100, 2) AS pct_change
                FROM vapop')
 vapop$Geography_Name <- str_to_title(vapop$Geography_Name)
@@ -58,6 +60,7 @@ site <- "http://deq2.bse.vt.edu/d.dh/"
 
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
+folder <- "C:\\Users\\maf95834\\Documents\\wsp2020\\"
 
 #DOWNLOAD STATES AND MINOR BASIN LAYERS DIRECT FROM GITHUB
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
@@ -775,7 +778,9 @@ statewide.mapgen.POP.PROJ <- function(){
   
   #metric first makes it easier to page through comparisons
   # export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.png",sep = "")
-  export_file <- paste0(export_path, "tables_maps/Xfigures/VA_pop_proj_map.png",sep = "")
+  #export_file <- paste0(export_path, "tables_maps/Xfigures/VA_pop_proj_map.png",sep = "")
+  export_file <- "C:/Users/maf95834/Documents/wsp2020/tables_maps/VA_pop_proj_map.png"
+  
   # if (wd_points == "OFF") {
   #   print("PLOTTING - WITHDRAWAL POINTS OFF") 
   
