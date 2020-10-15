@@ -18,7 +18,7 @@ library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 library(classInt) #used to explicitly determine the breaks
 library(stringr)
-library(maps)
+#library(maps)
 #########################################################################################
 #LOAD FILES
 ######################################################################################################
@@ -27,7 +27,11 @@ site <- "http://deq2.bse.vt.edu/d.dh/"
 
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
-folder <- "C:\\Users\\maf95834\\Documents\\wsp2020\\"
+#folder <- "C:\\Users\\maf95834\\Documents\\wsp2020\\"
+
+folder <- "C:/Users/jklei/Desktop/GitHub/plots/tables_maps/Xfigures/"
+vapop_folder <- "C:/Users/jklei/Desktop/GitHub/U/OWS/foundation_datasets/wsp/wsp2020/"
+
 
 #DOWNLOAD STATES AND MINOR BASIN LAYERS DIRECT FROM GITHUB
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
@@ -65,7 +69,7 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 
 #---- POPULATION PROJECTION TABLE -------------------------------------------------------------------------------
 #vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProjections_Total_2020-2040_final.csv")
-vapop <- read.csv(paste0(folder, "VAPopProjections_Total_2020-2040_final.csv"))
+vapop <- read.csv(paste0(vapop_folder, "VAPopProjections_Total_2020-2040_final.csv"))
 
 vapop <- sqldf('SELECT FIPS, Geography_Name, round(x2020,0), round(x2030,0), round(x2040,0), round(((X2040 - X2020) / X2020)*100, 2) AS pct_change
                FROM vapop')
@@ -265,13 +269,29 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   
   ###################################################################################
   ###################################################################################
-  fips_layer <- fips_geom.csv
-  fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
+  # fips_layer <- fips_geom.csv
+  # fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
+  # fips_layer[1,]
+  # fips_geom.csv[1,]
   
+  # colnames(fips_geom.csv)
+  # colnames(vapop)
+  # 
+  # length(fips_geom.csv[,1])
+  # length(vapop[,1])
+  
+  fips_data <- paste('SELECT *
+                  FROM "fips_geom.csv" AS a
+                  LEFT OUTER JOIN vapop AS b
+                  ON (a.fips_code = b.FIPS)
+                  ',sep = '')
+  fips_layer <- sqldf(fips_data)
+  #print(length(fips_data[,1]))
   
   fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
   fips.list <- list()
   
+  #f <-1
   for (f in 1:length(fips_layer$fips_hydroid)) {
     #print(f)
     fips_geom <- readWKT(fips_layer$fips_geom[f])
@@ -290,93 +310,102 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
   
   #THIS SHOW THAT FIPS AT LINE 284 HAS THE WRONG GEOMETRY - GEOMETRY GETS OUT OF ORDER DURING THE LINE 275 FOR LOOP 
-  plot(state, add = F)
-  plot(fips, add = T, lwd = 1)
-  plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
-  
+  # plot(state, add = F)
+  # plot(fips, add = T, lwd = 1)
+   # plot(fips_sf)
+  # plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
+  # 
    #################################
-  #change from continous variable to discrete - explicit fixed breaks 
-  breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
-                 fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
-  #breaks_qt
+  # #change from continous variable to discrete - explicit fixed breaks 
+   breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
+                   fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
+  # #breaks_qt
+  # 
+    fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
   
-  fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
-  
-  #PLOT ALL PCT CHANGE PROJECTIONS
-  ggplot(fips_pop_sf) + 
-    geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
-    scale_fill_brewer(palette = "PuOr")
-  
-  #CAN CLEARLY SEE LOUDOUN IS IN SMYTH'S LOCATION (BRIGHT YELLOW; HIGHEST PROJECTION CHANGE = 55%)
-    plot(fips_pop_sf$pct_change)
-    plot(fips_pop_sf["pct_change"])
+  # #PLOT ALL PCT CHANGE PROJECTIONS
+  # ggplot(fips_pop_sf) + 
+  #   geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+  #   scale_fill_brewer(palette = "PuOr")
+  # 
+  # #CAN CLEARLY SEE LOUDOUN IS IN SMYTH'S LOCATION (BRIGHT YELLOW; HIGHEST PROJECTION CHANGE = 55%)
+  #   plot(fips_pop_sf$pct_change)
+  #   plot(fips_pop_sf["pct_change"])
     
     
-    #SPECIFICALLY PLOT JUST LOUDOUN TO SEE WHERE IT IS
+    # #SPECIFICALLY PLOT JUST LOUDOUN TO SEE WHERE IT IS
     loud_fips_sf <- filter(fips_sf, fips_name == "Loudoun")
-    ggplot(fips_pop_sf) + 
-      geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
-      scale_fill_brewer(palette = "PuOr") +
-    geom_sf(data = loud_fips_sf,aes(geometry = geometry), fill = "black", inherit.aes = F) +
-      geom_sf_text(data = loud_fips_sf,aes(label = fips_name), color = 'blue', inherit.aes = F)
+    
+    
+    map.test <- ggplot(fips_pop_sf) +
+      
+         geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+         scale_fill_brewer(palette = "PuOr") +
+    
+    geom_label_repel(data = loud_fips_sf, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))
+    
+    ggsave(plot = map.test, file =  paste0(folder, "VA_pop_proj_map_TEST.png"), width=6.5, height=5)                  
+ 
+     # geom_sf(data = loud_fips_sf,aes(geometry = fips_centroid), fill = "black", inherit.aes = F) +
+     #  geom_sf_text(data = loud_fips_sf,aes(geometry = fips_centroid,label = fips_name), color = 'blue', inherit.aes = F)
+
+
     
     
     
-    
-    
-    ##################################
-    #SUBSET OUT JUST 3 COUNTIES
-    ##################################
-    fips_layer <- fips_geom.csv
-    fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
-    fips_layer <- fips_layer[fips_layer$fips_name %in% c('Virginia Beach','Bath','Loudoun'),]
-    #fips_layer <- fips_layer[1:10,]
-    
-    
-    fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
-    fips.list <- list()
-    
-    for (f in 1:length(fips_layer$fips_hydroid)) {
-      fips_geom <- readWKT(fips_layer$fips_geom[f])
-      fips_geom_clip <- gIntersection(bb, fips_geom)
-      if (is.null(fips_geom_clip) == TRUE) {
-        # print("FIPS OUT OF BOUNDING BOX EXTENT - SKIPPING") 
-        next
-      }
-      fipsProjected <- SpatialPolygonsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
-      fipsProjected@data$id <- as.character(fips_layer[f,]$id)
-      fips.list[[f]] <- fipsProjected
-    }
-    
-    length(fips.list)
-    #REMOVE THOSE FIPS THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
-    fips.list <- fips.list[which(!sapply(fips.list, is.null))]
-    length(fips.list)
-    fips <- do.call('rbind', fips.list)
-    fips@data <- merge(fips@data, fips_layer, by = 'id')
-    fips@data <- fips@data[,-c(2:3)]
-    fips.df <- fortify(fips, region = 'id')
-    fips_geom.df <- merge(fips.df, fips@data, by = 'id')
-    
-    fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
-    
-    #JUST SUBSETTING OUT 3 COUNTIES - ALL 3 ARE IN THEIR CORRECT LOCATION
-    plot(state, add = F)
-    plot(fips, add = T, lwd = 1)
-    plot(fips[fips$fips_name == 'Bath',], add = T, lwd = 4)
-    # print(fips_geom.df)
-    breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
-                                fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
-    #breaks_qt
-    
-    fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks))
-    
-    loud_fips_sf <- filter(fips_sf, fips_name == "Loudoun")
-    ggplot(fips_pop_sf) +
-      geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
-      scale_fill_brewer(palette = "PuOr") +
-      geom_sf(data = loud_fips_sf,aes(geometry = geometry), fill = "black", inherit.aes = F) +
-      geom_sf_text(data = loud_fips_sf,aes(label = fips_name), color = 'blue', inherit.aes = F)
+    # ##################################
+    # #SUBSET OUT JUST 3 COUNTIES
+    # ##################################
+    # fips_layer <- fips_geom.csv
+    # fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
+    # fips_layer <- fips_layer[fips_layer$fips_name %in% c('Virginia Beach','Bath','Loudoun'),]
+    # #fips_layer <- fips_layer[1:10,]
+    # 
+    # 
+    # fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
+    # fips.list <- list()
+    # 
+    # for (f in 1:length(fips_layer$fips_hydroid)) {
+    #   fips_geom <- readWKT(fips_layer$fips_geom[f])
+    #   fips_geom_clip <- gIntersection(bb, fips_geom)
+    #   if (is.null(fips_geom_clip) == TRUE) {
+    #     # print("FIPS OUT OF BOUNDING BOX EXTENT - SKIPPING") 
+    #     next
+    #   }
+    #   fipsProjected <- SpatialPolygonsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
+    #   fipsProjected@data$id <- as.character(fips_layer[f,]$id)
+    #   fips.list[[f]] <- fipsProjected
+    # }
+    # 
+    # length(fips.list)
+    # #REMOVE THOSE FIPS THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
+    # fips.list <- fips.list[which(!sapply(fips.list, is.null))]
+    # length(fips.list)
+    # fips <- do.call('rbind', fips.list)
+    # fips@data <- merge(fips@data, fips_layer, by = 'id')
+    # fips@data <- fips@data[,-c(2:3)]
+    # fips.df <- fortify(fips, region = 'id')
+    # fips_geom.df <- merge(fips.df, fips@data, by = 'id')
+    # 
+    # fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
+    # 
+    # #JUST SUBSETTING OUT 3 COUNTIES - ALL 3 ARE IN THEIR CORRECT LOCATION
+    # plot(state, add = F)
+    # plot(fips, add = T, lwd = 1)
+    # plot(fips[fips$fips_name == 'Bath',], add = T, lwd = 4)
+    # # print(fips_geom.df)
+    # breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
+    #                             fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
+    # #breaks_qt
+    # 
+    # fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks))
+    # 
+    # loud_fips_sf <- filter(fips_sf, fips_name == "Loudoun")
+    # ggplot(fips_pop_sf) +
+    #   geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+    #   scale_fill_brewer(palette = "PuOr") +
+    #   geom_sf(data = loud_fips_sf,aes(geometry = geometry), fill = "black", inherit.aes = F) +
+    #   geom_sf_text(data = loud_fips_sf,aes(label = fips_name), color = 'blue', inherit.aes = F)
   ######################################################################################################
   ### PROCESS MajorRivers.csv LAYER  ###################################################################
   ######################################################################################################
@@ -869,7 +898,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   #metric first makes it easier to page through comparisons
   # export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.png",sep = "")
   #export_file <- paste0(export_path, "tables_maps/Xfigures/VA_pop_proj_map.png",sep = "")
-  export_file <- paste0(folder, "/tables_maps/VA_pop_proj_map.png")
+  export_file <- paste0(folder, "VA_pop_proj_map.png")
   
   # if (wd_points == "OFF") {
   #   print("PLOTTING - WITHDRAWAL POINTS OFF") 
@@ -879,7 +908,8 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
                   geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "snow",alpha = .5,lwd=0.8) +
                   
                   geom_sf(data = fips_sf, aes(fill = pct_change), color="snow", lwd = .7, inherit.aes = FALSE)+
-                  
+                 geom_label_repel(data = fips_sf, aes(x = fips_longitude, y = fips_latitude, group = 1, label = pct_change),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+ 
                   geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.8) +
                   
                   ggtitle("Virginia Population Projection") +
