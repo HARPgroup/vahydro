@@ -17,43 +17,9 @@ library(magick) #plot static legend
 library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 library(classInt) #used to explicitly determine the breaks
-
-###################################################################################################### 
-###################################################################################################### 
-#TABLE
-###################################################################################################### 
-###################################################################################################### 
-#---- POPULATION PROJECTION TABLE -------------------------------------------------------------------------------
-#vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProjections_Total_2020-2040_final.csv")
-vapop <- read.csv("C:/Users/maf95834/Documents/wsp2020/VAPopProjections_Total_2020-2040_final.csv")
-
-vapop <- sqldf('SELECT FIPS, Geography_Name, round(x2020,0), round(x2030,0), round(x2040,0), round(((X2040 - X2020) / X2020)*100, 2) AS pct_change
-               FROM vapop')
-vapop$Geography_Name <- str_to_title(vapop$Geography_Name)
-
-vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", replacement = "")
-
-# # OUTPUT TABLE IN KABLE FORMAT
-# kable(vapop[2:6], align = c('l','c','c','c','c'),format.args = list(big.mark = ","),  booktabs = T, longtable =T,
-#       caption = "Virginia Population Projection",
-#       label = "VA_pop_proj",
-#       col.names = c("Locality",
-#                     "2020",
-#                     "2030",
-#                     "2040",
-#                     "20 Year Percent Change")) %>%
-#   kable_styling(latex_options = c("striped")) %>%
-#   column_spec(1, width = "10em") %>%
-#   cat(., file = paste(folder,"tables_maps/Xtables/VA_pop_proj_table.tex",sep=""))
-
-
-
-###################################################################################################### 
-###################################################################################################### 
-#MAP
-###################################################################################################### 
-###################################################################################################### 
-
+library(stringr)
+library(maps)
+#########################################################################################
 #LOAD FILES
 ######################################################################################################
 #site <- "https://deq1.bse.vt.edu/d.dh/"
@@ -96,11 +62,36 @@ mp.all <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.extent.R",sep = '/'))
 
+
+#---- POPULATION PROJECTION TABLE -------------------------------------------------------------------------------
+#vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProjections_Total_2020-2040_final.csv")
+vapop <- read.csv(paste0(folder, "VAPopProjections_Total_2020-2040_final.csv"))
+
+vapop <- sqldf('SELECT FIPS, Geography_Name, round(x2020,0), round(x2030,0), round(x2040,0), round(((X2040 - X2020) / X2020)*100, 2) AS pct_change
+               FROM vapop')
+vapop$Geography_Name <- str_to_title(vapop$Geography_Name)
+
+vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", replacement = "")
+
+# # OUTPUT TABLE IN KABLE FORMAT
+# kable(vapop[2:6], align = c('l','c','c','c','c'),format.args = list(big.mark = ","),  booktabs = T, longtable =T,
+#       caption = "Virginia Population Projection",
+#       label = "VA_pop_proj",
+#       col.names = c("Locality",
+#                     "2020",
+#                     "2030",
+#                     "2040",
+#                     "20 Year Percent Change")) %>%
+#   kable_styling(latex_options = c("striped")) %>%
+#   column_spec(1, width = "10em") %>%
+#   cat(., file = paste(folder,"tables_maps/Xtables/VA_pop_proj_table.tex",sep=""))
+
+
 ############################################################################################
-# FUNCTION #################################################################################
+# MAP #################################################################################
 ############################################################################################
 
-statewide.mapgen.POP.PROJ <- function(){
+#statewide.mapgen.POP.PROJ <- function(){
   
   # #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
   # #good divs for consumptive_use_frac
@@ -256,17 +247,33 @@ statewide.mapgen.POP.PROJ <- function(){
   ### PROCESS FIPS GEOM LAYER  #####################################################################
   ######################################################################################################
   
+  # #ANOTHER ATTEMPT
+  # data(county.fips)
+  # county.fips[county.fips$fips == 51760,]
+  # counties <- st_as_sf(map("county", plot = FALSE, fill = TRUE))
+  # counties <- subset(counties, grepl("^virginia", counties$ID))
+  # #fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
+  # counties <- subset(counties, grepl("richmond", counties$ID))
+  # 
+  # 
+  # ggplot(state) + 
+  #   geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+  #   #ADD BORDER 
+  #   geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+  #   geom_sf(data = counties, fill = NA, color = gray(.5))
+  #   
   
+  ###################################################################################
+  ###################################################################################
   fips_layer <- fips_geom.csv
   fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
   
   
-  
-  #fips_layer$id <- fips_layer$fips_hydroid
-  fips_layer$id <- as.character(row_number(fips_layer$fips_code))
+  fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
   fips.list <- list()
   
-  for (f in 1:length(fips_layer$fips_code)) {
+  for (f in 1:length(fips_layer$fips_hydroid)) {
+    #print(f)
     fips_geom <- readWKT(fips_layer$fips_geom[f])
     fips_geom_clip <- gIntersection(bb, fips_geom)
     fipsProjected <- SpatialPolygonsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
@@ -282,9 +289,11 @@ statewide.mapgen.POP.PROJ <- function(){
   
   fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
   
+  #THIS SHOW THAT FIPS AT LINE 284 HAS THE WRONG GEOMETRY - GEOMETRY GETS OUT OF ORDER DURING THE LINE 275 FOR LOOP 
   plot(state, add = F)
   plot(fips, add = T, lwd = 1)
   plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
+  
    #################################
   #change from continous variable to discrete - explicit fixed breaks 
   breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
@@ -293,14 +302,17 @@ statewide.mapgen.POP.PROJ <- function(){
   
   fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
   
+  #PLOT ALL PCT CHANGE PROJECTIONS
   ggplot(fips_pop_sf) + 
     geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
     scale_fill_brewer(palette = "PuOr")
   
+  #CAN CLEARLY SEE LOUDOUN IS IN SMYTH'S LOCATION (BRIGHT YELLOW; HIGHEST PROJECTION CHANGE = 55%)
     plot(fips_pop_sf$pct_change)
     plot(fips_pop_sf["pct_change"])
     
     
+    #SPECIFICALLY PLOT JUST LOUDOUN TO SEE WHERE IT IS
     loud_fips_sf <- filter(fips_sf, fips_name == "Loudoun")
     ggplot(fips_pop_sf) + 
       geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
@@ -313,11 +325,12 @@ statewide.mapgen.POP.PROJ <- function(){
     
     
     ##################################
-    #fips_layer check to see if it has correct geometry for loudoun
+    #SUBSET OUT JUST 3 COUNTIES
     ##################################
     fips_layer <- fips_geom.csv
     fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
     fips_layer <- fips_layer[fips_layer$fips_name %in% c('Virginia Beach','Bath','Loudoun'),]
+    #fips_layer <- fips_layer[1:10,]
     
     
     fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
@@ -326,11 +339,19 @@ statewide.mapgen.POP.PROJ <- function(){
     for (f in 1:length(fips_layer$fips_hydroid)) {
       fips_geom <- readWKT(fips_layer$fips_geom[f])
       fips_geom_clip <- gIntersection(bb, fips_geom)
+      if (is.null(fips_geom_clip) == TRUE) {
+        # print("FIPS OUT OF BOUNDING BOX EXTENT - SKIPPING") 
+        next
+      }
       fipsProjected <- SpatialPolygonsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
-      fipsProjected@data$id <- as.character(f)
+      fipsProjected@data$id <- as.character(fips_layer[f,]$id)
       fips.list[[f]] <- fipsProjected
     }
     
+    length(fips.list)
+    #REMOVE THOSE FIPS THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
+    fips.list <- fips.list[which(!sapply(fips.list, is.null))]
+    length(fips.list)
     fips <- do.call('rbind', fips.list)
     fips@data <- merge(fips@data, fips_layer, by = 'id')
     fips@data <- fips@data[,-c(2:3)]
@@ -338,9 +359,11 @@ statewide.mapgen.POP.PROJ <- function(){
     fips_geom.df <- merge(fips.df, fips@data, by = 'id')
     
     fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
+    
+    #JUST SUBSETTING OUT 3 COUNTIES - ALL 3 ARE IN THEIR CORRECT LOCATION
     plot(state, add = F)
     plot(fips, add = T, lwd = 1)
-    plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
+    plot(fips[fips$fips_name == 'Bath',], add = T, lwd = 4)
     # print(fips_geom.df)
     breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
                                 fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
@@ -846,7 +869,7 @@ statewide.mapgen.POP.PROJ <- function(){
   #metric first makes it easier to page through comparisons
   # export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.png",sep = "")
   #export_file <- paste0(export_path, "tables_maps/Xfigures/VA_pop_proj_map.png",sep = "")
-  export_file <- "C:/Users/maf95834/Documents/wsp2020/tables_maps/VA_pop_proj_map.png"
+  export_file <- paste0(folder, "/tables_maps/VA_pop_proj_map.png")
   
   # if (wd_points == "OFF") {
   #   print("PLOTTING - WITHDRAWAL POINTS OFF") 
@@ -1045,4 +1068,4 @@ statewide.mapgen.POP.PROJ <- function(){
 
   
   
-  }
+ # }
