@@ -27,10 +27,7 @@ site <- "http://deq2.bse.vt.edu/d.dh/"
 
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
-#folder <- "C:\\Users\\maf95834\\Documents\\wsp2020\\"
-
-folder <- "C:/Users/jklei/Desktop/GitHub/plots/tables_maps/Xfigures/"
-vapop_folder <- "C:/Users/jklei/Desktop/GitHub/U/OWS/foundation_datasets/wsp/wsp2020/"
+vapop_folder <- "U:/OWS/foundation_datasets/wsp/Population Data/"
 
 
 #DOWNLOAD STATES AND MINOR BASIN LAYERS DIRECT FROM GITHUB
@@ -312,7 +309,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   #THIS SHOW THAT FIPS AT LINE 284 HAS THE WRONG GEOMETRY - GEOMETRY GETS OUT OF ORDER DURING THE LINE 275 FOR LOOP 
   # plot(state, add = F)
   # plot(fips, add = T, lwd = 1)
-   # plot(fips_sf)
+  # plot(fips_sf)
   # plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
   # 
    #################################
@@ -324,7 +321,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
     fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
   
   # #PLOT ALL PCT CHANGE PROJECTIONS
-  # ggplot(fips_pop_sf) + 
+  # ggplot(fips_pop_sf) +
   #   geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
   #   scale_fill_brewer(palette = "PuOr")
   # 
