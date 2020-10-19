@@ -737,7 +737,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   
   #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
   #color_scale_new <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
-  color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55")
+  color_scale <- c("red","navajowhite","blue","#d98f50","#ad6c51","gray55")
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
@@ -907,8 +907,8 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   ####################################################################
   source_current <- base_map +
     # geom_tidal_base +
-    geom1 +
-    geom2 +
+    #geom1 +
+    #geom2 +
     geom3 +
     # geom4 +
     # geom5 +
