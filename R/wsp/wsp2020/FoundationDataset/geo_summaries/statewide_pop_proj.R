@@ -278,9 +278,10 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   # length(vapop[,1])
   
   fips_data <- paste('SELECT *
-                  FROM "fips_geom.csv" AS a
-                  LEFT OUTER JOIN vapop AS b
-                  ON (a.fips_code = b.FIPS)
+                  FROM vapop AS a
+                  LEFT OUTER JOIN "fips_geom.csv" AS b
+                  ON (a.FIPS = b.fips_code)
+                  WHERE a.FIPS != 51000
                   ',sep = '')
   fips_layer <- sqldf(fips_data)
   #print(length(fips_data[,1]))
@@ -321,10 +322,10 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
     fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
   
   # #PLOT ALL PCT CHANGE PROJECTIONS
-  # ggplot(fips_pop_sf) +
-  #   geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
-  #   scale_fill_brewer(palette = "PuOr")
-  # 
+  ggplot(fips_pop_sf) +
+    geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+    scale_fill_brewer(palette = "PuOr")
+
   # #CAN CLEARLY SEE LOUDOUN IS IN SMYTH'S LOCATION (BRIGHT YELLOW; HIGHEST PROJECTION CHANGE = 55%)
   #   plot(fips_pop_sf$pct_change)
   #   plot(fips_pop_sf["pct_change"])
@@ -341,7 +342,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
     
     geom_label_repel(data = loud_fips_sf, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))
     
-    ggsave(plot = map.test, file =  paste0(folder, "VA_pop_proj_map_TEST.png"), width=6.5, height=5)                  
+    ggsave(plot = map.test, file =  paste0(folder, "JM_VA_pop_proj_map_TEST.png"), width=6.5, height=5)                  
  
      # geom_sf(data = loud_fips_sf,aes(geometry = fips_centroid), fill = "black", inherit.aes = F) +
      #  geom_sf_text(data = loud_fips_sf,aes(geometry = fips_centroid,label = fips_name), color = 'blue', inherit.aes = F)
