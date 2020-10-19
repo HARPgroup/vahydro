@@ -95,11 +95,14 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
 #statewide.mapgen.POP.PROJ <- function(){
   
   # #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
-  # #good divs for consumptive_use_frac
-  # div1 <- 0.0
-  # div2 <- 0.10
-  # div3 <- 0.20
-  # div4 <- 0.50
+  #good divs for consumptive_use_frac
+  div1 <- -25
+  div2 <- -10
+  div3 <- 40
+  div4 <- 5
+  div5 <- 10
+  div6 <- 25
+
   # 
   # # SELECT MINOR BASIN NAME
   # # mb_name <-sqldf(paste('SELECT name
@@ -247,35 +250,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   ######################################################################################################
   ### PROCESS FIPS GEOM LAYER  #####################################################################
   ######################################################################################################
-  
-  # #ANOTHER ATTEMPT
-  # data(county.fips)
-  # county.fips[county.fips$fips == 51760,]
-  # counties <- st_as_sf(map("county", plot = FALSE, fill = TRUE))
-  # counties <- subset(counties, grepl("^virginia", counties$ID))
-  # #fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
-  # counties <- subset(counties, grepl("richmond", counties$ID))
-  # 
-  # 
-  # ggplot(state) + 
-  #   geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
-  #   #ADD BORDER 
-  #   geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-  #   geom_sf(data = counties, fill = NA, color = gray(.5))
-  #   
-  
-  ###################################################################################
-  ###################################################################################
-  # fips_layer <- fips_geom.csv
-  # fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
-  # fips_layer[1,]
-  # fips_geom.csv[1,]
-  
-  # colnames(fips_geom.csv)
-  # colnames(vapop)
-  # 
-  # length(fips_geom.csv[,1])
-  # length(vapop[,1])
+  #ATTEMPT NUMBER 154 - 10-19-2020
   
   fips_data <- paste('SELECT *
                   FROM vapop AS a
@@ -298,59 +273,120 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
     fipsProjected@data$id <- as.character(f)
     fips.list[[f]] <- fipsProjected
   }
-
+  
   fips <- do.call('rbind', fips.list)
   fips@data <- merge(fips@data, fips_layer, by = 'id')
   fips@data <- fips@data[,-c(2:3)]
   fips.df <- fortify(fips, region = 'id')
   fips_geom.df <- merge(fips.df, fips@data, by = 'id')
   
-  fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
   
-  #THIS SHOW THAT FIPS AT LINE 284 HAS THE WRONG GEOMETRY - GEOMETRY GETS OUT OF ORDER DURING THE LINE 275 FOR LOOP 
-  # plot(state, add = F)
-  # plot(fips, add = T, lwd = 1)
-  # plot(fips_sf)
-  # plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
-  # 
-   #################################
-  # #change from continous variable to discrete - explicit fixed breaks 
-   breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
-                   fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
-  # #breaks_qt
-  # 
-    fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
+  ############################################################################################################################################################################################################
   
-  # #PLOT ALL PCT CHANGE PROJECTIONS
-  ggplot(fips_pop_sf) +
-    geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
-    scale_fill_brewer(palette = "PuOr")
-
-  # #CAN CLEARLY SEE LOUDOUN IS IN SMYTH'S LOCATION (BRIGHT YELLOW; HIGHEST PROJECTION CHANGE = 55%)
-  #   plot(fips_pop_sf$pct_change)
-  #   plot(fips_pop_sf["pct_change"])
-    
-    
-    # #SPECIFICALLY PLOT JUST LOUDOUN TO SEE WHERE IT IS
-    loud_fips_sf <- filter(fips_sf, fips_name == "Loudoun")
-    
-    
-    map.test <- ggplot(fips_pop_sf) +
-      
-         geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
-         scale_fill_brewer(palette = "PuOr") +
-    
-    geom_label_repel(data = loud_fips_sf, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))
-    
-    ggsave(plot = map.test, file =  paste0(folder, "JM_VA_pop_proj_map_TEST.png"), width=6.5, height=5)                  
- 
-     # geom_sf(data = loud_fips_sf,aes(geometry = fips_centroid), fill = "black", inherit.aes = F) +
-     #  geom_sf_text(data = loud_fips_sf,aes(geometry = fips_centroid,label = fips_name), color = 'blue', inherit.aes = F)
-
-
-    
-    
-    
+  
+  # #ANOTHER ATTEMPT
+  # data(county.fips)
+  # county.fips[county.fips$fips == 51760,]
+  # counties <- st_as_sf(map("county", plot = FALSE, fill = TRUE))
+  # counties <- subset(counties, grepl("^virginia", counties$ID))
+  # #fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
+  # counties <- subset(counties, grepl("richmond", counties$ID))
+  # 
+  # 
+  # ggplot(state) + 
+  #   geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+  #   #ADD BORDER 
+  #   geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+  #   geom_sf(data = counties, fill = NA, color = gray(.5))
+  #   
+  
+  ###################################################################################
+  # ################################################################################### JK's attempt
+  # # fips_layer <- fips_geom.csv
+  # # fips_layer <- merge(fips_layer, vapop, by.x = "fips_code", by.y = "FIPS")
+  # # fips_layer[1,]
+  # # fips_geom.csv[1,]
+  # 
+  # # colnames(fips_geom.csv)
+  # # colnames(vapop)
+  # # 
+  # # length(fips_geom.csv[,1])
+  # # length(vapop[,1])
+  # 
+  # fips_data <- paste('SELECT *
+  #                 FROM vapop AS a
+  #                 LEFT OUTER JOIN "fips_geom.csv" AS b
+  #                 ON (a.FIPS = b.fips_code)
+  #                 WHERE a.FIPS != 51000
+  #                 ',sep = '')
+  # fips_layer <- sqldf(fips_data)
+  # #print(length(fips_data[,1]))
+  # 
+  # fips_layer$id <- as.character(row_number(fips_layer$fips_hydroid))
+  # fips.list <- list()
+  # 
+  # #f <-1
+  # for (f in 1:length(fips_layer$fips_hydroid)) {
+  #   #print(f)
+  #   fips_geom <- readWKT(fips_layer$fips_geom[f])
+  #   fips_geom_clip <- gIntersection(bb, fips_geom)
+  #   fipsProjected <- SpatialPolygonsDataFrame(fips_geom_clip, data.frame('id'), match.ID = TRUE)
+  #   fipsProjected@data$id <- as.character(f)
+  #   fips.list[[f]] <- fipsProjected
+  # }
+  # 
+  # fips <- do.call('rbind', fips.list)
+  # fips@data <- merge(fips@data, fips_layer, by = 'id')
+  # fips@data <- fips@data[,-c(2:3)]
+  # fips.df <- fortify(fips, region = 'id')
+  # fips_geom.df <- merge(fips.df, fips@data, by = 'id')
+  # 
+  # fips_sf <- st_as_sf(fips, wkt = 'fips_geom')
+  # 
+  # #THIS SHOW THAT FIPS AT LINE 284 HAS THE WRONG GEOMETRY - GEOMETRY GETS OUT OF ORDER DURING THE LINE 275 FOR LOOP 
+  # # plot(state, add = F)
+  # # plot(fips, add = T, lwd = 1)
+  # # plot(fips_sf)
+  # # plot(fips[fips$fips_name == 'Loudoun',], add = T, lwd = 4)
+  # # 
+  #  #################################
+  # # #change from continous variable to discrete - explicit fixed breaks 
+  #  breaks_qt <- classIntervals(fips_sf$pct_change, n=7, style="fixed",
+  #                  fixedBreaks=c(-50, -25, -10, 0, 5, 10, 25, 60))
+  # # #breaks_qt
+  # # 
+  #   fips_pop_sf <- mutate(fips_sf, pops_pct_change_cat = cut(pct_change, breaks_qt$brks)) 
+  # 
+  # # #PLOT ALL PCT CHANGE PROJECTIONS
+  # ggplot(fips_pop_sf) +
+  #   geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+  #   scale_fill_brewer(palette = "PuOr")
+  # 
+  # # #CAN CLEARLY SEE LOUDOUN IS IN SMYTH'S LOCATION (BRIGHT YELLOW; HIGHEST PROJECTION CHANGE = 55%)
+  # #   plot(fips_pop_sf$pct_change)
+  # #   plot(fips_pop_sf["pct_change"])
+  #   
+  #   
+  #   # #SPECIFICALLY PLOT JUST LOUDOUN TO SEE WHERE IT IS
+  #   loud_fips_sf <- filter(fips_sf, fips_name == "Loudoun")
+  #   
+  #   
+  #   map.test <- ggplot(fips_pop_sf) +
+  #     
+  #        geom_sf(aes(fill=pops_pct_change_cat, geometry = geometry)) +
+  #        scale_fill_brewer(palette = "PuOr") +
+  #   
+  #   geom_label_repel(data = loud_fips_sf, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))
+  #   
+  #   ggsave(plot = map.test, file =  paste0(folder, "JM_VA_pop_proj_map_TEST.png"), width=6.5, height=5)                  
+  # 
+  #    # geom_sf(data = loud_fips_sf,aes(geometry = fips_centroid), fill = "black", inherit.aes = F) +
+  #    #  geom_sf_text(data = loud_fips_sf,aes(geometry = fips_centroid,label = fips_name), color = 'blue', inherit.aes = F)
+  # 
+  # 
+  #   
+  #   
+  #   
     # ##################################
     # #SUBSET OUT JUST 3 COUNTIES
     # ##################################
@@ -719,67 +755,72 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
   #deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
   ######################################################################################################
-  # rseg_border <- 'black'
-  # 
-  # group_0_plus <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE ",runid_a," <= ",div1)  
-  # group_0_plus <- sqldf(group_0_plus)
-  # group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
-  # 
-  # color_values <- list()
-  # label_values <- list()
-  # 
-  # if (nrow(group_0_plus) >0) {
-  #   
-  #   geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE)
-  #   
-  #   color_values <- color_scale[1]
-  #   
-  #   label_values <- paste(" <= ",div1,sep="")
-  #   
-  # } else  {
-  #   
-  #   geom1 <- geom_blank()
-  #   
-  # }
+  #VA POP PCT CHANGE - BREAK INTO BINS
+  
+  C_border <- 'black'
+
+  group_neg25 <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE pct_change <= ",div1)
+  group_neg25 <- sqldf(group_neg25)
+  group_neg25 <- st_as_sf(group_neg25, wkt = 'fips_geom')
+
+  color_values <- list()
+  label_values <- list()
+
+  if (nrow(group_neg25) >0) {
+
+    geom1 <- geom_sf(data = group_neg25,aes(fill = 'antiquewhite'), inherit.aes = FALSE)
+
+    color_values <- color_scale[1]
+
+    label_values <- paste(" <= ",div1,sep="")
+
+  } else  {
+
+    geom1 <- geom_blank()
+
+  }
   # #-----------------------------------------------------------------------------------------------------
-  # group_neg5_0 <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE ",runid_a," > ",div1," AND ",runid_a," <= ",div2)  
-  # group_neg5_0 <- sqldf(group_neg5_0)
-  # group_neg5_0 <- st_as_sf(group_neg5_0, wkt = 'geom')
-  # 
-  # if (nrow(group_neg5_0) >0) {
-  #   
-  #   geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE)
-  #   color_values <- rbind(color_values,color_scale[2])
-  #   label_values <- rbind(label_values,paste(div1," - ",div2,sep=""))
-  #   
-  # } else  {
-  #   
-  #   geom2 <- geom_blank()
-  #   
-  # }
+  group_neg25_40 <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE pct_change > ",div2," AND pct_change <= ",div3)
+  group_neg25_40 <- sqldf(group_neg25_40)
+  group_neg25_40 <- st_as_sf(group_neg25_40, wkt = 'fips_geom')
+  
+  
+  if (nrow(group_neg25_40) >0) {
+    
+    geom2 <- geom_sf(data = group_neg25_40,aes(fill = 'antiquewhite'), inherit.aes = FALSE)
+    
+      color_values <- rbind(color_values,color_scale[2])
+      label_values <- rbind(label_values,paste(div2," - ",div3,sep=""))
+    
+  } else  {
+    
+    geom2 <- geom_blank()
+    
+  }
   # #-----------------------------------------------------------------------------------------------------
-  # group_neg10_neg5 <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE ",runid_a," > ",div2," AND ",runid_a," <= ",div3)  
-  # group_neg10_neg5 <- sqldf(group_neg10_neg5)
-  # group_neg10_neg5 <- st_as_sf(group_neg10_neg5, wkt = 'geom')
-  # 
-  # if (nrow(group_neg10_neg5) >0) {
-  #   
-  #   geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE)
-  #   color_values <- rbind(color_values,color_scale[3])
-  #   label_values <- rbind(label_values,paste(div2," - ",div3,sep=""))
-  #   
-  # } else  {
-  #   
-  #   geom3 <- geom_blank()
-  #   
-  # }
-  # 
+  group_plus40 <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE pct_change > ",div3)
+  group_plus40 <- sqldf(group_plus40)
+  group_plus40 <- st_as_sf(group_plus40, wkt = 'fips_geom')
+  
+  
+  if (nrow(group_plus40) >0) {
+    
+    geom3 <- geom_sf(data = group_plus40,aes(fill = 'antiquewhite'), inherit.aes = FALSE)
+    
+    color_values <- rbind(color_values,color_scale[3])
+    label_values <- rbind(label_values,paste(" > ",div3,sep=""))
+    
+  } else  {
+    
+    geom3 <- geom_blank()
+    
+  }
   # #-----------------------------------------------------------------------------------------------------
   # group_neg20_neg10 <- paste("SELECT *
   #                 FROM RSeg_data
@@ -864,19 +905,21 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   
   
   ####################################################################
-  source_current <- base_map 
+  source_current <- base_map +
     # geom_tidal_base +
-    # geom1 +
-    # geom2 +
-    # geom3 +
+    geom1 +
+    geom2 +
+    geom3 +
     # geom4 +
     # geom5 +
-    # scale_fill_manual(values=color_values,
-    #                   name = "Legend",
-    #                   labels = label_values)+
-    # scale_colour_manual(values=rseg_border)+
-    # guides(fill = guide_legend(reverse=TRUE))
+    scale_fill_manual(values=color_values,
+                       name = "Legend",
+                       labels = label_values)+
+     scale_colour_manual(values="black")+
+     guides(fill = guide_legend(reverse=TRUE))
   
+  
+     ggsave(plot = source_current, file =  paste0(folder, "JM_VA_pop_proj_map_TEST2.png"), width=6.5, height=5) 
   
   
   #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
