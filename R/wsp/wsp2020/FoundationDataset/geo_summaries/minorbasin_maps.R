@@ -23,12 +23,17 @@ RSeg.csv <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep
 MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
 #MajorRivers.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/rivnames/GIS_LAYERS/MajorRivers.csv', sep = ',', header = TRUE)
 
-
 #DOWNLOAD FIPS LAYER DIRECT FROM VAHYDRO
 fips_filename <- paste("vahydro_usafips_export.csv",sep="")
 fips_destfile <- paste(localpath,fips_filename,sep="\\")
 download.file(paste(site,"usafips_centroid_export",sep=""), destfile = fips_destfile, method = "libcurl")
 fips.csv <- read.csv(file=paste(localpath , fips_filename,sep="\\"), header=TRUE, sep=",")
+
+#DOWNLOAD IFIM LAYER FROM VAHYDRO
+ifim_filename <- paste("ifim_transects.csv",sep="")
+ifim_destfile <- paste(localpath,ifim_filename,sep="\\")
+download.file(paste(site,"ifim_flow_export",sep=""), destfile = ifim_destfile, method = "libcurl")
+ifim.csv <- read.csv(file=paste(localpath , ifim_filename,sep="\\"), header=TRUE, sep=",")
 
 #LOAD RAW mp.all FILE
 mp.all <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
@@ -93,7 +98,7 @@ beep(3)
 ######################################################################################################
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
-source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 #----------- RUN SINGLE MAP --------------------------
 minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
                                   metric = "consumptive_use_frac",
@@ -139,14 +144,14 @@ beep(3)
 ######################################################################################################
 ### Well & Intake Location Maps ######################################################################
 ######################################################################################################
-source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
+#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
 
 #----------- RUN SINGLE MAP --------------------------
 minorbasin.mapgen(minorbasin = "PS",
                   metric = "l30_Qout",
                   runid_a = "runid_11",
                   runid_b = "runid_13",
-                  wd_points = "OFF", #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+                  wd_points = "ON", #TURN WITHDRAWAL POINTS "ON" OR "OFF"
                   rsegs = "OFF"     #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
 )
 
