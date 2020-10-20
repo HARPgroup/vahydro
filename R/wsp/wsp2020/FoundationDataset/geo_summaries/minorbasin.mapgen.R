@@ -205,6 +205,55 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   #print(class(rivs.df))
   
   #print(riv.centroid.df)
+  
+  
+  ######################################################################################################
+  ### PROCESS IFIM LAYER  ##############################################################################
+  ######################################################################################################
+  ifim_layer <- ifim.csv
+  ifim_layer$id <- ifim_layer$hydroid
+  ifim.list <- list()
+  
+  #w <- 4
+  for (w in 1:length(ifim_layer$hydroid)) {
+    
+    ifim_geom <- readWKT(ifim_layer$geom[w])
+    ifim_geom_clip <- gIntersection(MB_geom, ifim_geom) #SHOW ONLY ifim NAMES WITHIN MINOR BASIN
+    
+    if (is.null(ifim_geom_clip) == TRUE) {
+      # print("ifim OUT OF MINOR BASIN EXTENT - SKIPPING") 
+      next
+    }
+    
+    ifimProjected <- SpatialPointsDataFrame(ifim_geom_clip, data.frame('id'), match.ID = TRUE)
+    ifimProjected@data$id <- as.character(ifim_layer[w,]$id)
+    ifim.list[[w]] <- ifimProjected
+  }
+  
+  length(ifim.list)
+  #REMOVE THOSE ifim THAT WERE SKIPPED ABOVE (OUT OF MINOR BASIN EXTENT)
+  ifim.list <- ifim.list[which(!sapply(ifim.list, is.null))]
+
+  if (length(ifim.list) != 0) {
+    #  print("NO ifim GEOMS WITHIN MINOR BASIN EXTENT - SKIPPING")
+    ifim <- do.call('rbind', ifim.list)
+    ifim@data <- merge(ifim@data, ifim_layer, by = 'id')
+    ifim@data <- ifim@data[,-c(2:3)]
+    ifim.df <- data.frame(ifim)
+  } else {
+    print("NO ifim GEOMS WITHIN MINOR BASIN EXTENT")
+    
+    ifim.df <- data.frame(id=c(1,2),
+                          ifim_latitude =c(1,2), 
+                          ifim_longitude =c(1,2),
+                          ifim_name = c(1,2),
+                          x = c(1,2),
+                          y = c(1,2),
+                          stringsAsFactors=FALSE) 
+    
+  }
+  #print(ifim.df)
+  
   ######################################################################################################
   ### PROCESS mp.all LAYER  ############################################################################
   ######################################################################################################
@@ -706,8 +755,15 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
       # export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
       export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawal_Locations_map.png",sep = "")
       
-      SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
-      SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.39, y = .6)
+      if (length(ifim.list) > 0) {
+        print(paste("Minor Basin Contains ",length(ifim.list)," IFIM Sites",sep=""))
+        SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend_IFIM.PNG',sep='')
+        SourceTypeLegend <- draw_image(SourceTypeLegend,height = 0.4, x = 0.39, y = .46)
+      } else {
+        print("Minor Basin Contains ZERO IFIM Sites")
+        SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
+        SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.39, y = .6)
+      }
       
       # if (legend_b_title == "2030") {
       #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_plain.PNG',sep='')
@@ -754,6 +810,9 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       geom_point(data = well_layer, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 2, alpha = 0.8) +
                       geom_point(data = intake_layer, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.8) +
                       #---------------------------------------------------------------
+                    
+                      #ADD IFIM SITE POINTS
+                      geom_point(data = ifim.df, aes(x = x, y = y), colour="black", fill ="orange", pch = 22, size = 2, alpha = 0.8) +
                     
                       #ADD NORTH BAR
                       north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
