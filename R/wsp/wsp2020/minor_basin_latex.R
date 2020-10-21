@@ -38,7 +38,7 @@ source(paste(basepath,"config.local.private",sep = '/'))
 data_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 mp_all <- data_raw
 
-#unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
+unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 
 #--------select MPs with no minor basin---------------------------------------
 # ## select MPs with no minor basin
@@ -417,7 +417,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
          label = paste("top_5_no_power_",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
@@ -845,7 +845,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
          label = paste("top_5_yes_power",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
@@ -982,7 +982,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
          label = paste("top_5_no_power",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
