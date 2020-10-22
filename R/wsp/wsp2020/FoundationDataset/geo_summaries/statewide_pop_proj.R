@@ -770,7 +770,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
 
   if (nrow(group_neg25) >0) {
 
-    geom1 <- geom_sf(data = group_neg25,aes(fill = 'antiquewhite'), inherit.aes = FALSE)
+    geom1 <- geom_sf(data = group_neg25, fill = 'gray30',color = 'gray30', inherit.aes = FALSE)
 
     color_values <- color_scale[1]
 
@@ -791,7 +791,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   
   if (nrow(group_neg25_40) >0) {
     
-    geom2 <- geom_sf(data = group_neg25_40,aes(fill = 'antiquewhite'), inherit.aes = FALSE)
+    geom2 <- geom_sf(data = group_neg25_40,fill = 'green',color = 'gray30', inherit.aes = FALSE)
     
       color_values <- rbind(color_values,color_scale[2])
       label_values <- rbind(label_values,paste(div2," - ",div3,sep=""))
@@ -907,8 +907,8 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   ####################################################################
   source_current <- base_map +
     # geom_tidal_base +
-    #geom1 +
-    #geom2 +
+    geom1 +
+    geom2 +
     geom3 +
     # geom4 +
     # geom5 +
@@ -919,7 +919,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
      guides(fill = guide_legend(reverse=TRUE))
   
   
-     ggsave(plot = source_current, file =  paste0(folder, "JM_VA_pop_proj_map_TEST2.png"), width=6.5, height=5) 
+     ggsave(plot = source_current, file =  paste0(folder, "JM_VA_pop_proj_map_TEST3.png"), width=6.5, height=5) 
   
   
   #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
