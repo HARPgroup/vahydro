@@ -28,7 +28,7 @@ site <- "http://deq2.bse.vt.edu/d.dh/"
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 vapop_folder <- "U:/OWS/foundation_datasets/wsp/Population Data/"
-
+export_file <- paste0(folder, "tables_maps/Xfigures/VA_pop_proj_map.png")
 
 #DOWNLOAD STATES AND MINOR BASIN LAYERS DIRECT FROM GITHUB
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
@@ -103,7 +103,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   div5 <- 10
   div6 <- 25
 
-  color_scale <- c("#ad6c51","#d98f50","#f7d679","darkolivegreen1","darkolivegreen2","darkolivegreen3","darkolivegreen")
+  color_scale <- c("#ad6c51","#d98f50","#f7d679","#E4FFB9","darkolivegreen2","darkolivegreen3","darkolivegreen")
   
   # # SELECT MINOR BASIN NAME
   # # mb_name <-sqldf(paste('SELECT name
@@ -750,10 +750,10 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   #image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_tidal_segment_padding.PNG',sep='')
   
   # base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6) #RIGHT TOP LEGEND
-  #base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
+  base_legend <- draw_image("U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/legend_pop_proj.png",height = .35, x = -.38, y = .515) #LEFT TOP LEGEND
   
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
-  #deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
+  deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
   ######################################################################################################
   #VA POP PCT CHANGE - BREAK INTO BINS
   
@@ -960,7 +960,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
     # guides(fill = guide_legend(reverse=TRUE))
   
   
-     ggsave(plot = source_current, file =  paste0(folder, "JM_VA_pop_proj_map_TEST3.png"), width=6.5, height=5) 
+     #ggsave(plot = source_current, file =  paste0(folder, "JM_VA_pop_proj_map_TEST3.png"), width=6.5, height=5) 
   
   
   #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
@@ -980,25 +980,21 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   #metric first makes it easier to page through comparisons
   # export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.png",sep = "")
   #export_file <- paste0(export_path, "tables_maps/Xfigures/VA_pop_proj_map.png",sep = "")
-  export_file <- paste0(folder, "VA_pop_proj_map.png")
   
   # if (wd_points == "OFF") {
   #   print("PLOTTING - WITHDRAWAL POINTS OFF") 
   
-  map <- source_current +
-                  
-                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "snow",alpha = .5,lwd=0.8) +
-                  
-                  geom_sf(data = fips_sf, aes(fill = pct_change), color="snow", lwd = .7, inherit.aes = FALSE)+
-                 geom_label_repel(data = fips_sf, aes(x = fips_longitude, y = fips_latitude, group = 1, label = pct_change),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+  map <- ggdraw(source_current +
+            
+                 #geom_label_repel(data = fips_sf, aes(x = fips_longitude, y = fips_latitude, group = 1, label = pct_change),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
  
-                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.8) +
+                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.6) +
                   
-                  ggtitle("Virginia Population Projection") +
+                  ggtitle("Virginia Population Trend") +
                   labs(subtitle = "2020 to 2040 Percent Change") +
                   
                   #ADD STATE BORDER LAYER ON TOP
-                  geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                  geom_path(data = state.df,aes(x = long, y = lat, group = group), color="black",lwd=0.8) +
                   #ADD RIVERS LAYER ON TOP
                   geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
                   #ADD BORDER 
@@ -1024,9 +1020,11 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
                   #ADD NORTH BAR
                   north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                   base_scale +
-                  base_theme
+                  base_theme) +
+                  deqlogo +
+                  base_legend
   
-  map
+  #map
   
   # } else if (wd_points == "ON") {
   #   print("PLOTTING - WITHDRAWAL POINTS ON") 
