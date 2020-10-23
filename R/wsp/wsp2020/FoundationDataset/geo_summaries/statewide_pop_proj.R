@@ -98,12 +98,13 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   #good divs for consumptive_use_frac
   div1 <- -25
   div2 <- -10
-  div3 <- 40
+  div3 <- 0
   div4 <- 5
   div5 <- 10
   div6 <- 25
 
-  # 
+  color_scale <- c("#ad6c51","#d98f50","#f7d679","darkolivegreen1","darkolivegreen2","darkolivegreen3","darkolivegreen")
+  
   # # SELECT MINOR BASIN NAME
   # # mb_name <-sqldf(paste('SELECT name
   # #             FROM "MinorBasins.csv" 
@@ -737,7 +738,6 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   
   #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
   #color_scale_new <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
-  color_scale <- c("red","navajowhite","blue","#d98f50","#ad6c51","gray55")
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
@@ -757,7 +757,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   ######################################################################################################
   #VA POP PCT CHANGE - BREAK INTO BINS
   
-  C_border <- 'black'
+  c_border <- 'black'
 
   group_neg25 <- paste("SELECT *
                   FROM 'fips_geom.df'
@@ -770,7 +770,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
 
   if (nrow(group_neg25) >0) {
 
-    geom1 <- geom_sf(data = group_neg25, fill = 'gray30',color = 'gray30', inherit.aes = FALSE)
+    geom1 <- geom_sf(data = group_neg25, fill = color_scale[1],color = c_border, inherit.aes = FALSE)
 
     color_values <- color_scale[1]
 
@@ -782,19 +782,19 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
 
   }
   # #-----------------------------------------------------------------------------------------------------
-  group_neg25_40 <- paste("SELECT *
+  group_neg25_10 <- paste("SELECT *
                   FROM 'fips_geom.df'
-                  WHERE pct_change > ",div2," AND pct_change <= ",div3)
-  group_neg25_40 <- sqldf(group_neg25_40)
-  group_neg25_40 <- st_as_sf(group_neg25_40, wkt = 'fips_geom')
+                  WHERE pct_change > ",div1," AND pct_change <= ",div2)
+  group_neg25_10 <- sqldf(group_neg25_10)
+  group_neg25_10 <- st_as_sf(group_neg25_10, wkt = 'fips_geom')
   
   
-  if (nrow(group_neg25_40) >0) {
+  if (nrow(group_neg25_10) >0) {
     
-    geom2 <- geom_sf(data = group_neg25_40,fill = 'green',color = 'gray30', inherit.aes = FALSE)
+    geom2 <- geom_sf(data = group_neg25_10,fill = color_scale[2],color = c_border, inherit.aes = FALSE)
     
       color_values <- rbind(color_values,color_scale[2])
-      label_values <- rbind(label_values,paste(div2," - ",div3,sep=""))
+      label_values <- rbind(label_values,paste(div1," to ",div2,sep=""))
     
   } else  {
     
@@ -802,19 +802,19 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
     
   }
   # #-----------------------------------------------------------------------------------------------------
-  group_plus40 <- paste("SELECT *
+  group_neg10_0 <- paste("SELECT *
                   FROM 'fips_geom.df'
-                  WHERE pct_change > ",div3)
-  group_plus40 <- sqldf(group_plus40)
-  group_plus40 <- st_as_sf(group_plus40, wkt = 'fips_geom')
+                  WHERE pct_change > ",div2," AND pct_change <= ",div3)
+  group_neg10_0 <- sqldf(group_neg10_0)
+  group_neg10_0 <- st_as_sf(group_neg10_0, wkt = 'fips_geom')
   
   
-  if (nrow(group_plus40) >0) {
+  if (nrow(group_neg10_0) >0) {
     
-    geom3 <- geom_sf(data = group_plus40,aes(fill = 'antiquewhite'), inherit.aes = FALSE)
+    geom3 <- geom_sf(data = group_neg10_0, fill = color_scale[3],color = c_border, inherit.aes = FALSE)
     
     color_values <- rbind(color_values,color_scale[3])
-    label_values <- rbind(label_values,paste(" > ",div3,sep=""))
+    label_values <- rbind(label_values,paste(div2," to ",div3,sep=""))
     
   } else  {
     
@@ -822,46 +822,85 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
     
   }
   # #-----------------------------------------------------------------------------------------------------
-  # group_neg20_neg10 <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE ",runid_a," > ",div3," AND ",runid_a," <= ",div4)  
-  # group_neg20_neg10 <- sqldf(group_neg20_neg10)
-  # group_neg20_neg10 <- st_as_sf(group_neg20_neg10, wkt = 'geom')
-  # 
-  # if (nrow(group_neg20_neg10) >0) {
-  #   
-  #   geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE)
-  #   color_values <- rbind(color_values,color_scale[4])
-  #   #label_values <- rbind(label_values,"-20% to -10%")
-  #   label_values <- rbind(label_values,paste(div3," - ",div4,sep=""))
-  #   
-  # } else  {
-  #   
-  #   geom4 <- geom_blank()
-  #   
-  # }
-  # 
-  # 
+  group_0_5 <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE pct_change > ",div3," AND pct_change <= ",div4)
+  group_0_5 <- sqldf(group_0_5)
+  group_0_5 <- st_as_sf(group_0_5, wkt = 'fips_geom')
+  
+  
+  if (nrow(group_0_5) >0) {
+    
+    geom4 <- geom_sf(data = group_0_5, fill = color_scale[4],color = c_border, inherit.aes = FALSE)
+    
+    color_values <- rbind(color_values,color_scale[4])
+    label_values <- rbind(label_values,paste(div3," to ",div4,sep=""))
+    
+  } else  {
+    
+    geom4 <- geom_blank()
+    
+  }
   # #-----------------------------------------------------------------------------------------------------
-  # group_negInf_neg20 <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE ",runid_a," > ",div4)  
-  # group_negInf_neg20 <- sqldf(group_negInf_neg20)
-  # group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
-  # 
-  # if (nrow(group_negInf_neg20) > 0) {
-  #   
-  #   geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE)
-  #   color_values <- rbind(color_values,color_scale[5])
-  #   #label_values <- rbind(label_values,paste(metric," >= ",div4,sep=""))
-  #   label_values <- rbind(label_values,paste(" > ",div4,sep=""))
-  #   
-  # } else  {
-  #   
-  #   geom5 <- geom_blank()
-  #   
-  # }
-  # 
+  group_5_10 <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE pct_change > ",div4," AND pct_change <= ",div5)
+  group_5_10 <- sqldf(group_5_10)
+  group_5_10 <- st_as_sf(group_5_10, wkt = 'fips_geom')
+  
+  
+  if (nrow(group_5_10) >0) {
+    
+    geom5 <- geom_sf(data = group_5_10, fill = color_scale[5],color = c_border, inherit.aes = FALSE)
+    
+    color_values <- rbind(color_values,color_scale[5])
+    label_values <- rbind(label_values,paste(div4," to ",div5,sep=""))
+    
+  } else  {
+    
+    geom5 <- geom_blank()
+    
+  }
+  # #-----------------------------------------------------------------------------------------------------
+  group_10_25 <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE pct_change > ",div5," AND pct_change <= ",div6)
+  group_10_25 <- sqldf(group_10_25)
+  group_10_25 <- st_as_sf(group_10_25, wkt = 'fips_geom')
+  
+  
+  if (nrow(group_10_25) >0) {
+    
+    geom6 <- geom_sf(data = group_10_25, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
+    
+    color_values <- rbind(color_values,color_scale[5])
+    label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
+    
+  } else  {
+    
+    geom6 <- geom_blank()
+    
+  }
+  # #-----------------------------------------------------------------------------------------------------
+  group_plus25 <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE pct_change >= ",div6)
+  group_plus25 <- sqldf(group_plus25)
+  group_plus25 <- st_as_sf(group_plus25, wkt = 'fips_geom')
+  
+  
+  if (nrow(group_plus25) >0) {
+    
+    geom7 <- geom_sf(data = group_plus25, fill = color_scale[7],color = c_border, inherit.aes = FALSE)
+    
+    color_values <- rbind(color_values,color_scale[6])
+    label_values <- rbind(label_values,paste(" >= ",div5,sep=""))
+    
+  } else  {
+    
+    geom7 <- geom_blank()
+    
+  }
   # #---------------------------------------------------------------
   # # DATAFRAME OF ANY "_0000" TIDAL SEGMENTS
   # # RSeg_tidal <- paste("SELECT *
@@ -910,13 +949,15 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
     geom1 +
     geom2 +
     geom3 +
-    # geom4 +
-    # geom5 +
-    scale_fill_manual(values=color_values,
-                       name = "Legend",
-                       labels = label_values)+
-     scale_colour_manual(values="black")+
-     guides(fill = guide_legend(reverse=TRUE))
+    geom4 +
+    geom5 +
+    geom6 +
+    geom7 
+    # scale_fill_manual(values=color_values,
+    #                    name = "Legend",
+    #                    labels = label_values)+
+    # scale_colour_manual(values="black")+
+    # guides(fill = guide_legend(reverse=TRUE))
   
   
      ggsave(plot = source_current, file =  paste0(folder, "JM_VA_pop_proj_map_TEST3.png"), width=6.5, height=5) 
