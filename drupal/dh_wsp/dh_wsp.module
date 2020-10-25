@@ -579,26 +579,6 @@ function tablefield_parse_assoc($data) {
   return array($imported_tablefield, $row_count, $max_col_count);
 }
 
-function dh_tablefield_parse_array($data) {
-  // Return tablefield formatted table with values from an array.
-  //  this assumes the array is akin to a csv, with the first row containing column headers
-  $max_col_count = 0;
-  $row_count = 0;
-  $imported_tablefield = array();
-  foreach ($data as $row_id => $row) {
-    $col_count = count($row);
-    if ($col_count > 0) {
-      foreach ($row as $col_id => $col) {
-        $imported_tablefield['row_' . $row_count]['col_' . $col_id] = $col;
-      }
-      $max_col_count = $col_count > $max_col_count ? $col_count : $max_col_count;
-      $row_count++;
-    }
-  }
-  return array($imported_tablefield, $row_count, $max_col_count);
-}
-
-
   
 function dh_tablefield_array_to_field(&$entity, $csvtable, $fieldname) {
   // requires a table to be set in non-associative format (essentially a csv)
