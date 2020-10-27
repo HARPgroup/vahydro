@@ -3,40 +3,12 @@ library(kableExtra)
 library(sjmisc)
 options(scipen = 999999999)
 
-
 CU_frac <- read.csv(paste(folder,"metrics_watershed_consumptive_use_frac.csv",sep=""))
-
 
 metrics_wshed_focus.gen <- function(metric){
   
 # RETRIEVE RIVERSEG MODEL METRIC SUMMARY DATA
 RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
-######################################################################################################
-### PROCESS RSegs
-######################################################################################################
-# RSeg_data <- paste('SELECT *,
-#                   case
-#                   when b.',runid_a,' = 0
-#                   then 0
-#                   when b.',runid_b,' IS NULL
-#                   then NULL
-#                   else round(((b.',runid_b,' - b.',runid_a,') / b.',runid_a,') * 100,2)
-#                   end AS pct_chg
-#                   FROM RSeg_summary AS b
-#                   ORDER BY abs(pct_chg) DESC
-#                   LIMIT 20',sep = '')  
-# 
-# RSeg_data <- paste('SELECT *,
-#                   case
-#                   when b.runid_11 = 0
-#                   then 0
-#                   when b.runid_13 IS NULL
-#                   then NULL
-#                   else round(((b.runid_13 - b.runid_11) / b.runid_11) * 100,2)
-#                   end AS pct_chg_11_13
-#                   FROM RSeg_summary AS b
-#                   ORDER BY abs(pct_chg_11_13) DESC
-#                   LIMIT 20',sep = '')  
 
 RSeg_data <- paste('SELECT a.*,
                   case
@@ -137,13 +109,10 @@ if (str_contains(metric, "cc_Qout") == T) {
 write.csv(RSeg_data, paste(folder,"tables_maps/metrics_focus/metrics_watershed_",metric,"_focus.csv",sep=""), row.names = F)
 }
 
-#----------- RUN MAPS IN BULK --------------------------
-
-metric <- "l30_Qout"
+#----------- RUN FILES --------------------------
 metric <- c("l30_Qout","l90_Qout","7q10","l30_cc_Qout", "l90_cc_Qout")
 
 for (met in metric) {
     print(paste("...PROCESSING METRIC: ",met,sep=""))
       metrics_wshed_focus.gen(met) 
   }
-
