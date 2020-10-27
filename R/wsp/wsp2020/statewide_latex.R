@@ -248,9 +248,9 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      ORDER BY a.system_type',sep=""))
     
     
-    sql_D <- append_totals(sql_C,"Minor Basin Total")
+    sql_D <- append_totals(sql_C,"Statewide Total")
     
-    # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
+    # sql_D <-  sqldf(paste('SELECT "Statewide Total" AS system_type, ',
     #                       aggregate_select,'
     #                   FROM mb_mps a',sep=""))
     
@@ -259,7 +259,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     #KABLE   
     table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
-                        caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
+                        caption = paste("Summary of ",mb_name[1]," Water Demand by Source Type and System Type (including Power Generation)",sep=""),
                         label = paste("summary_yes_power_",mb_code,sep=""),
                         col.names = c("System Type",
                                       "Source Count",
@@ -348,9 +348,9 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      GROUP BY a.system_type
                      ORDER BY a.system_type',sep=""))
     
-    sql_D <- append_totals(sql_C,"Minor Basin Total")
+    sql_D <- append_totals(sql_C,"Statewide Total")
     
-    # sql_D <-  sqldf(paste('SELECT "Minor Basin Total" AS system_type, ',
+    # sql_D <-  sqldf(paste('SELECT "Statewide Total" AS system_type, ',
     #                       aggregate_select,'
     #                   FROM mb_mps a',sep=""))
     
@@ -359,7 +359,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     #KABLE   
     table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
-                        caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
+                        caption = paste("Summary of ",mb_name[1]," Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
                         label = paste("summary_no_power_",mb_code,sep=""),
                         col.names = c("System Type",
                                       "Source Count",
@@ -503,7 +503,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     # OUTPUT TABLE IN KABLE FORMAT
     table5_tex <- kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-                        caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
+                        caption = paste("Top 5 Users in 2040 by Source Type in ",mb_name[1]," (including Power Generation)",sep=""),
                         label = paste("top_5_yes_power",mb_code,sep=""),
                         col.names = c("Facility Name",
                                       "System Type",
@@ -640,7 +640,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     # OUTPUT TABLE IN KABLE FORMAT
     table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-                        caption = paste("Top 5 Users in 2040 by Source Type in the",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
+                        caption = paste("Top 5 Users in 2040 by Source Type in ",mb_name[1]," (excluding Power Generation)",sep=""),
                         label = paste("top_5_no_power",mb_code,sep=""),
                         col.names = c("Facility Name",
                                       "System Type",
@@ -928,27 +928,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
 ### RUN TABLE GENERATION FUNCTION ########################
 TABLE_GEN_func(state_abbrev = 'VA', file_extension = '.html')
 
-# call summary table function in for loop to iterate through basins
-basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 
-ext <- c(".html",".tex")
-ext <- c(".tex")
 
-tic()
-for (b in basins) {
-  tic(paste(b,"Minor Basin"))
-  print(paste("Begin",b,"Table Generation"))
-  
-  for (e in ext) {
-    print(paste("Begin",e,"Table Generation"))
-    TABLE_GEN_func(b,e) 
-    print(paste(e,"Tables Complete"))
-  }
-  
-  print(paste(b,"Minor Basin Tables Complete"))
-  toc()
-}
-toc()
 
 
 
@@ -965,7 +946,7 @@ by_locality <- sqldf(paste('SELECT
 
 # OUTPUT TABLE IN KABLE FORMAT
 kable(by_locality[1:6],  booktabs = T,
-      caption = paste("Withdrawal Demand by Locality in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+      caption = paste("Withdrawal Demand by Locality in ",mb_name$MinorBasin_Name,sep=""),
       label = paste("demand_locality_",mb_code,sep=""),
       col.names = c("Fips Code",
                     "Locality",kable_col_names[3:6])) %>%
