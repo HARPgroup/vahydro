@@ -33,7 +33,7 @@ append_totals <- function(table_x, row_name = "Total"){
 #----LOAD DATA-------------------------------
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
-#folder <- "C:/Users/maf95834/Documents/vpn_connection_down_folder/" #JM use when vpn can't connect to common drive
+#folder <- "C:\\Users\\maf95834\\Documents\\wsp2020\\" #JM use when vpn can't connect to common drive
 
 data_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 mp_all <- data_raw
@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "PL", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "JL", file_extension = ".html"){
 
    
    #-------- html or latex -----
@@ -188,6 +188,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
               ',sep=""))
    #Select measuring points within minor basin of interest, Restrict output to columns of interest
    mb_mps <- sqldf(paste('SELECT  MP_hydroid,
+                      mp_name,
                       MP_bundle,
                       source_type,
                       Facility_hydroid, 
@@ -416,7 +417,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
          label = paste("top_5_no_power_",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
@@ -657,6 +658,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                         aggregate_select,'
                      FROM mb_mps a
                      WHERE a.MP_bundle = "intake"
+                     AND facility_ftype NOT LIKE "%power"
                      GROUP BY a.system_type
                      ORDER BY a.system_type',sep=""))
    sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
@@ -672,6 +674,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                         aggregate_select,'
                      FROM mb_mps a
                      WHERE a.MP_bundle = "well"
+                     AND facility_ftype NOT LIKE "%power"
                      GROUP BY a.system_type
                      ORDER BY a.system_type',sep=""))
    B <- append_totals(sql_B,"Total GW")
@@ -683,6 +686,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
              AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
                         aggregate_select,'
                      FROM mb_mps a
+                     WHERE facility_ftype NOT LIKE "%power"
                      GROUP BY a.system_type
                      ORDER BY a.system_type',sep=""))
    
@@ -841,7 +845,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
          label = paste("top_5_yes_power",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
@@ -978,7 +982,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users by Source Type in ",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
          label = paste("top_5_no_power",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
@@ -1194,79 +1198,79 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    
 }
- ### SOURCE COUNT TABLE
-   ######### system_specific_facility######################################################
-   #basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
-   #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
-   #specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
+ # ### SOURCE COUNT TABLE
+ #   ######### system_specific_facility######################################################
+ #   #basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
+ #   #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
+ #   #specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
+ #   
+ #   system_specific_facility <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
+ #            (SELECT count(MP_hydroid)
+ #             FROM mb_mps
+ #             WHERE facility_ftype NOT LIKE "wsp%"
+ #             AND facility_ftype NOT LIKE "%power"
+ #             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
+ #                                           aggregate_select,'
+ #                     FROM mb_mps a
+ #       WHERE facility_ftype NOT LIKE "%power"
+ #       GROUP BY a.wsp_ftype
+ #       ORDER BY a.system_type', sep=""))
+ #   
+ #   system_specific_facility_sw <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
+ #            (SELECT count(MP_hydroid)
+ #             FROM mb_mps
+ #             WHERE facility_ftype NOT LIKE "wsp%"
+ #             AND facility_ftype NOT LIKE "%power"
+ #             AND MP_bundle = "intake"
+ #             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
+ #                                              aggregate_select,'
+ #                     FROM mb_mps a
+ #       WHERE facility_ftype NOT LIKE "%power"
+ #         AND MP_bundle = "intake"
+ #       GROUP BY a.wsp_ftype
+ #       ORDER BY a.system_type', sep=""))
+ #   system_specific_facility_sw[nrow(system_specific_facility_sw) + 1,] <- list("Small SSU",0,0)
+ #   system_specific_facility_gw <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
+ #            (SELECT count(MP_hydroid)
+ #             FROM mb_mps
+ #             WHERE facility_ftype NOT LIKE "wsp%"
+ #             AND facility_ftype NOT LIKE "%power"
+ #             AND MP_bundle = "well"
+ #             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
+ #                                              aggregate_select,'
+ #                     FROM mb_mps a
+ #       WHERE facility_ftype NOT LIKE "%power"
+ #         AND MP_bundle = "well"
+ #       GROUP BY a.wsp_ftype
+ #       ORDER BY a.system_type', sep=""))
+ #   
+ #   count_total <- data.frame("system_type" = 'Total',
+ #                             "count_with_county_estimates" = colSums(system_specific_facility[2]),
+ #                             "specific_count" = colSums(system_specific_facility[3]),row.names = NULL ) 
+ #   count_table <- rbind(system_specific_facility_sw[1:3],system_specific_facility_gw[1:3],system_specific_facility[1:3], count_total)
+ #   
+ #   # OUTPUT TABLE IN KABLE FORMAT
+ #   kable(count_table, align = c('l','c','c'),  booktabs = T,
+ #         caption = paste("Source Count in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+ #         label = paste("source_count_",mb_code,sep=""),
+ #         col.names = c("System Type",
+ #                       "Count with County Estimates","Specific Count")) %>%
+ #      kable_styling(latex_options = latexoptions)  %>%
+ #      pack_rows("Surface Water", 1, 4, hline_before = T, hline_after = F) %>%
+ #      pack_rows("Groundwater", 5, 8, hline_before = T, hline_after = F) %>%
+ #      pack_rows("Total (GW + SW)", 9, 13, hline_before = T, hline_after = F ) %>%
+ #      row_spec(13, bold=T) %>%
+ #      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_source_count",file_ext,sep=""))
    
-   system_specific_facility <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
-            (SELECT count(MP_hydroid)
-             FROM mb_mps
-             WHERE facility_ftype NOT LIKE "wsp%"
-             AND facility_ftype NOT LIKE "%power"
-             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
-                                           aggregate_select,'
-                     FROM mb_mps a
-       WHERE facility_ftype NOT LIKE "%power"
-       GROUP BY a.wsp_ftype
-       ORDER BY a.system_type', sep=""))
-   
-   system_specific_facility_sw <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
-            (SELECT count(MP_hydroid)
-             FROM mb_mps
-             WHERE facility_ftype NOT LIKE "wsp%"
-             AND facility_ftype NOT LIKE "%power"
-             AND MP_bundle = "intake"
-             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
-                                              aggregate_select,'
-                     FROM mb_mps a
-       WHERE facility_ftype NOT LIKE "%power"
-         AND MP_bundle = "intake"
-       GROUP BY a.wsp_ftype
-       ORDER BY a.system_type', sep=""))
-   system_specific_facility_sw[nrow(system_specific_facility_sw) + 1,] <- list("Small SSU",0,0)
-   system_specific_facility_gw <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
-            (SELECT count(MP_hydroid)
-             FROM mb_mps
-             WHERE facility_ftype NOT LIKE "wsp%"
-             AND facility_ftype NOT LIKE "%power"
-             AND MP_bundle = "well"
-             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
-                                              aggregate_select,'
-                     FROM mb_mps a
-       WHERE facility_ftype NOT LIKE "%power"
-         AND MP_bundle = "well"
-       GROUP BY a.wsp_ftype
-       ORDER BY a.system_type', sep=""))
-   
-   count_total <- data.frame("system_type" = 'Total',
-                             "count_with_county_estimates" = colSums(system_specific_facility[2]),
-                             "specific_count" = colSums(system_specific_facility[3]),row.names = NULL ) 
-   count_table <- rbind(system_specific_facility_sw[1:3],system_specific_facility_gw[1:3],system_specific_facility[1:3], count_total)
-   
-   # OUTPUT TABLE IN KABLE FORMAT
-   kable(count_table, align = c('l','c','c'),  booktabs = T,
-         caption = paste("Source Count in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-         label = paste("source_count_",mb_code,sep=""),
-         col.names = c("System Type",
-                       "Count with County Estimates","Specific Count")) %>%
-      kable_styling(latex_options = latexoptions)  %>%
-      pack_rows("Surface Water", 1, 4, hline_before = T, hline_after = F) %>%
-      pack_rows("Groundwater", 5, 8, hline_before = T, hline_after = F) %>%
-      pack_rows("Total (GW + SW)", 9, 13, hline_before = T, hline_after = F ) %>%
-      row_spec(13, bold=T) %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_source_count",file_ext,sep=""))
-   
-   #---- UNMET DEMAND TABLE -------------------------------------------------------------------------------
+   #---- UNMET/CONSTRAINED DEMAND TABLE -------------------------------------------------------------------------------
    
    unmet30 <- sqldf('SELECT pid,
-                           featureid, 
-                           propname, 
-                           round(runid_11,2) AS runid_11, 
-                           round(runid_12,2) AS runid_12, 
-                           round(runid_13,2) AS runid_13, 
-                           round(runid_17,2) AS runid_17, 
+                           featureid,
+                           propname,
+                           round(runid_11,2) AS runid_11,
+                           round(runid_12,2) AS runid_12,
+                           round(runid_13,2) AS runid_13,
+                           round(runid_17,2) AS runid_17,
                            round(runid_18,2) AS runid_18,
                            riverseg,
                            substr(riverseg,1,2) AS mb_code
@@ -1275,15 +1279,15 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                  AND riverseg NOT LIKE "%_0000%"
                  ORDER BY mb_code DESC, runid_18 DESC')
    unmet30$runid_17[is.na(unmet30$runid_17)] <- "-"
-   
+
    #filter the 5 runids
-   a_unmet30 <- sqldf('SELECT featureid, 
-                           propname, 
-                           runid_11, 
-                           runid_12, 
-                           runid_13, 
-                           runid_17, 
-                           runid_18, 
+   a_unmet30 <- sqldf('SELECT featureid,
+                           propname,
+                           runid_11,
+                           runid_12,
+                           runid_13,
+                           runid_17,
+                           runid_18,
                            mb_code
                  FROM unmet30
                       WHERE (runid_11 > 0
@@ -1291,17 +1295,17 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        OR runid_13 > 0.0099
                        OR runid_17 > 0.0099
                        OR runid_18 > 0.0099)')
-   
+
    #write.csv(a_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\a_unmet30.csv", row.names = F)
-   
+
    # #filter >.5 mgd
-   # b_unmet30 <- sqldf('SELECT featureid, 
-   #                            propname, 
-   #                            runid_11, 
-   #                            runid_12, 
-   #                            runid_13, 
-   #                            runid_17, 
-   #                            runid_18, 
+   # b_unmet30 <- sqldf('SELECT featureid,
+   #                            propname,
+   #                            runid_11,
+   #                            runid_12,
+   #                            runid_13,
+   #                            runid_17,
+   #                            runid_18,
    #                            mb_code
    #                  FROM unmet30
    #                    WHERE runid_11 > 0.5
@@ -1309,17 +1313,17 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #                    OR runid_13 > 0.5
    #                    OR runid_17 > 0.5
    #                    OR runid_18 > 0.5')
-   # 
+   #
    # write.csv(b_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\b_unmet30.csv", row.names = F)
-   # 
+   #
    # #filter >1 mgd
-   # c_unmet30 <- sqldf('SELECT featureid, 
-   #                            propname, 
-   #                            runid_11, 
-   #                            runid_12, 
-   #                            runid_13, 
-   #                            runid_17, 
-   #                            runid_18, 
+   # c_unmet30 <- sqldf('SELECT featureid,
+   #                            propname,
+   #                            runid_11,
+   #                            runid_12,
+   #                            runid_13,
+   #                            runid_17,
+   #                            runid_18,
    #                            mb_code
    #                  FROM unmet30
    #                    WHERE runid_11 > 1
@@ -1327,44 +1331,44 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #                    OR runid_13 > 1
    #                    OR runid_17 > 1
    #                    OR runid_18 > 1')
-   # 
+   #
    # write.csv(c_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\c_unmet30.csv", row.names = F)
-   # 
+   #
    # # No Minor Basin
-   # 
+   #
    # null_unmet30 <- sqldf('SELECT pid,
-   #                            featureid, 
-   #                            propname, 
-   #                            runid_11, 
-   #                            runid_12, 
-   #                            runid_13, 
-   #                            runid_17, 
-   #                            runid_18, 
+   #                            featureid,
+   #                            propname,
+   #                            runid_11,
+   #                            runid_12,
+   #                            runid_13,
+   #                            runid_17,
+   #                            runid_18,
    #                            mb_code
    #                  FROM unmet30
    #       WHERE riverseg LIKE ""
    #       ORDER BY runid_18 DESC')
-   # 
+   #
    # write.csv(null_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\null_unmet30.csv", row.names = F)
-   
+
    #------------------------------------------------------------------------------------------------------------
-   
+
    unmet_table <- sqldf(paste('SELECT *
                              FROM a_unmet30
                              WHERE mb_code = "',mb_code,'"', sep = ''))
-   
+
    unmet_table$propname <- str_to_title(gsub(x = unmet_table$propname, pattern = ":.*$", replacement = ""))
-   
+
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
-   
+
    if (nrow(unmet_table) == 0) {
-      unmet_table[1,2] <- "No Facilities Detected" 
+      unmet_table[1,2] <- "No Facilities Detected"
       #unmet_table[1,2] <- "\\multicolumn{6}{c}{\\textbf{No facilities detected to have unmet demand}}\\\\"
    }
    # OUTPUT TABLE IN KABLE FORMAT
    unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T, longtable =T,
-         caption = paste("Change in Highest 30 Day Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         caption = paste("Change in Highest 30 Day Constrained Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
          label = paste("unmet30_",mb_code,sep=""),
          col.names = c("Facility",
                        "2020 Demand",
@@ -1382,29 +1386,31 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       column_spec(6, width = "3em") %>%
       #footnote(symbol = "This table shows demand values greater than 1.0 MGD.") %>%
       #footnote(c("Footnote Symbol 1; Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin", "Footnote Symbol 2")) %>%
-      footnote(symbol = "Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin")
-   
-   unmet_tex <- gsub(pattern = "{table}[t]", 
-                     repl    = "{table}[H]", 
+      footnote(general_title = "Note: ",
+               general = "INSERT explanatory blurb about constrained demand", 
+               symbol = "Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin")
+
+   unmet_tex <- gsub(pattern = "{table}[t]",
+                     repl    = "{table}[H]",
                      x       = unmet_tex, fixed = T )
    unmet_tex <- gsub(pattern = "\\toprule
 \\textbf{Facility} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{Dry Climate} & \\textbf{Exempt User}\\\\
-\\midrule", 
+\\midrule",
                      repl    = "\\toprule
 \\textbf{Facility} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{Dry Climate} & \\textbf{Exempt User}\\\\
 \\endfirsthead
 \\multicolumn{3}{l}{\\textbf{ \\tablename\\ \\ref{tab:unmet30_PS} -- continued from previous page}}
 \\endhead
-\\midrule", 
+\\midrule",
                      x       = unmet_tex, fixed = T )
       unmet_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_unmet30_table",file_ext,sep=""))
-   
+
    
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'OD', file_extension = '.tex')
+TABLE_GEN_func(minorbasin = 'PL', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
