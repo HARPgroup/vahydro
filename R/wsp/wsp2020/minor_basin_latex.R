@@ -1333,7 +1333,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    }
    # OUTPUT TABLE IN KABLE FORMAT
    unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T, longtable =T,
-         caption = paste("Change in Highest 30 Day Constrained Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         caption = paste("Change in Highest 30 Day Potential Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
          label = paste("unmet30_",mb_code,sep=""),
          col.names = c("Facility",
                        "2020 Demand",
