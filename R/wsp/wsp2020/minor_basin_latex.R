@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "RL", file_extension = ".html"){
+TABLE_GEN_func <- function(minorbasin = "RL", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -186,6 +186,25 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                    From mp_all
                    WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
               ',sep=""))
+   mb_name$MinorBasin_Name <- case_when(
+      mb_name$MinorBasin_Name == "James Lower" ~ "Lower James",
+      mb_name$MinorBasin_Name == "James Upper" ~ "Upper James",
+      mb_name$MinorBasin_Name == "Potomac Lower" ~ "Lower Potomac",
+      mb_name$MinorBasin_Name == "Potomac Middle" ~ "Middle Potomac",
+      mb_name$MinorBasin_Name == "Potomac Upper" ~ "Upper Potomac",
+      mb_name$MinorBasin_Name == "Rappahannock Lower" ~ "Lower Rappahannock",
+      mb_name$MinorBasin_Name == "Rappahannock Upper" ~ "Upper Rappahannock",
+      mb_name$MinorBasin_Name == "Tennessee Upper" ~ "Upper Tennessee",
+      mb_name$MinorBasin_Name == "York Lower" ~ "Lower York")
+   
+   
+   
+   
+   
+  
+   
+   
+   
    #Select measuring points within minor basin of interest, Restrict output to columns of interest
    mb_mps <- sqldf(paste('SELECT  MP_hydroid,
                       mp_name,
