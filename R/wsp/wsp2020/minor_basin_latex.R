@@ -429,9 +429,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
    
-   top_5[is.na(top_5)] <- "0.00"
-   top_5[top_5 == 0] <- "0.00"
-   top_5[top_5 == "Agriculture"] <- "AG"
+   top_5_no[is.na(top_5_no)] <- "0.00"
+   top_5_no[top_5_no == 0] <- "0.00"
+   top_5_no[top_5_no == "Agriculture"] <- "AG"
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
@@ -998,9 +998,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
    
-   top_5[is.na(top_5)] <- "0.00"
-   top_5[top_5 == 0] <- "0.00"
-   top_5[top_5 == "Agriculture"] <- "AG"
+   top_5_no[is.na(top_5_no)] <- "0.00"
+   top_5_no[top_5_no == 0] <- "0.00"
+   top_5_no[top_5_no == "Agriculture"] <- "AG"
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
