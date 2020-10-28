@@ -288,7 +288,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table_1[is.na(table_1)] <- 0
 #KABLE   
    table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
-         caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type",sep=""),
+         caption = paste("Summary of ",mb_name," Minor Basin Water Demand by Source Type and System Type",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c(
                        "System Type",
@@ -435,7 +435,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name," Minor Basin",sep=""),
          label = paste("top_5_no_power_",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
@@ -489,7 +489,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # # OUTPUT TABLE IN KABLE FORMAT
    # kable(system_source,  booktabs = T,
-   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
    #       label = paste("demand_source_type_yes_power_",mb_code,sep=""),
    #       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
    #    kable_styling(latex_options = latexoptions) %>%
@@ -507,7 +507,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
    #    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
    #    xlab(label = element_blank())  +
-   #    labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
+   #    labs(title = paste(mb_name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
    #    facet_grid(~ source_type) +
    #    scale_fill_discrete(labels = c("2020","2030","2040")) +
    #    scale_y_continuous(name = "MGD") +
@@ -545,7 +545,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    # now add the title
    title <- ggdraw() + 
       draw_label(
-         paste(mb_name$MinorBasin_Name," - Water Withdrawal Demand",sep=""),
+         paste(mb_name," - Water Withdrawal Demand",sep=""),
          fontface = 'bold',
          x = 0,
          hjust = 0) +
@@ -619,7 +619,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
 #KABLE   
    table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
-         caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
+         caption = paste("Summary of ",mb_name," Minor Basin Water Demand by Source Type and System Type (including Power Generation)",sep=""),
          label = paste("summary_yes_power_",mb_code,sep=""),
          col.names = c("System Type",
                        "Source Count",
@@ -719,7 +719,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    #KABLE   
    table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
-         caption = paste("Summary of ",mb_name$MinorBasin_Name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
+         caption = paste("Summary of ",mb_name," Minor Basin Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
          label = paste("summary_no_power_",mb_code,sep=""),
          col.names = c("System Type",
                        "Source Count",
@@ -865,7 +865,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin (including Power Generation)",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name," Minor Basin (including Power Generation)",sep=""),
          label = paste("top_5_yes_power",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
@@ -1004,7 +1004,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin (excluding Power Generation)",sep=""),
+         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name," Minor Basin (excluding Power Generation)",sep=""),
          label = paste("top_5_no_power",mb_code,sep=""),
          col.names = c("Facility Name",
                        "System Type",
@@ -1057,7 +1057,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # # OUTPUT TABLE IN KABLE FORMAT
    # kable(system_source,  booktabs = T,
-   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
    #       label = paste("demand_source_type_yes_power_",mb_code,sep=""),
    #       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
    #    kable_styling(latex_options = latexoptions) %>%
@@ -1075,7 +1075,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
    #    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
    #    xlab(label = element_blank())  +
-   #    labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
+   #    labs(title = paste(mb_name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
    #    facet_grid(~ source_type) +
    #    scale_fill_discrete(labels = c("2020","2030","2040")) +
    #    scale_y_continuous(name = "MGD") +
@@ -1113,7 +1113,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    # now add the title
    title <- ggdraw() + 
       draw_label(
-         paste(mb_name$MinorBasin_Name," - Water Withdrawal Demand (including Power Generation)",sep=""),
+         paste(mb_name," - Water Withdrawal Demand (including Power Generation)",sep=""),
          fontface = 'bold',
          x = 0,
          hjust = 0) +
@@ -1145,7 +1145,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # # OUTPUT TABLE IN KABLE FORMAT
    # kable(system_source,  booktabs = T,
-   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+   #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name," Minor Basin",sep=""),
    #       label = paste("demand_source_type_yes_power_",mb_code,sep=""),
    #       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
    #    kable_styling(latex_options = latexoptions) %>%
@@ -1163,7 +1163,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
    #    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
    #    xlab(label = element_blank())  +
-   #    labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
+   #    labs(title = paste(mb_name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
    #    facet_grid(~ source_type) +
    #    scale_fill_discrete(labels = c("2020","2030","2040")) +
    #    scale_y_continuous(name = "MGD") +
@@ -1201,7 +1201,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    # now add the title
    title <- ggdraw() + 
       draw_label(
-         paste(mb_name$MinorBasin_Name," - Water Withdrawal Demand (excluding Power Generation)",sep=""),
+         paste(mb_name," - Water Withdrawal Demand (excluding Power Generation)",sep=""),
          fontface = 'bold',
          x = 0,
          hjust = 0) +
@@ -1273,7 +1273,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
  #   
  #   # OUTPUT TABLE IN KABLE FORMAT
  #   kable(count_table, align = c('l','c','c'),  booktabs = T,
- #         caption = paste("Source Count in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+ #         caption = paste("Source Count in ",mb_name," Minor Basin",sep=""),
  #         label = paste("source_count_",mb_code,sep=""),
  #         col.names = c("System Type",
  #                       "Count with County Estimates","Specific Count")) %>%
@@ -1357,7 +1357,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    
    # OUTPUT TABLE IN KABLE FORMAT
    unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T, longtable =T,
-         caption = paste("Change in Highest 30 Day Potential Unmet Demand (MGD) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+         caption = paste("Change in Highest 30 Day Potential Unmet Demand (MGD) in ",mb_name," Minor Basin",sep=""),
          label = paste("unmet30_",mb_code,sep=""),
          col.names = c("Facility",
                        "2020 Demand",
@@ -1438,10 +1438,10 @@ toc()
  
  # OUTPUT TABLE IN KABLE FORMAT
  kable(by_locality[1:6],  booktabs = T,
-       caption = paste("Withdrawal Demand by Locality in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
+       caption = paste("Withdrawal Demand by Locality in ",mb_name," Minor Basin",sep=""),
        label = paste("demand_locality_",mb_code,sep=""),
        col.names = c("Fips Code",
                      "Locality",kable_col_names[3:6])) %>%
     kable_styling(latex_options = latexoptions) %>%
-    cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_locality_",mb_code,"_kable",file_ext,sep=""))
+    cat(., file = paste(folder,"tables_maps/",mb_name,"/demand_locality_",mb_code,"_kable",file_ext,sep=""))
 
