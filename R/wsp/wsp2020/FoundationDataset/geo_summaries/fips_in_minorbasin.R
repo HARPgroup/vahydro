@@ -211,9 +211,11 @@ FIPS_in_basins <- function(minorbasin){
         col.names = "Localities") %>%
     kable_styling(latex_options = "striped") 
   
-  end_wraptext <- if (nrow(fips.df) > 10) {
-    nrow(fips.df) - 5
-  } else { nrow(fips.df) + 3}
+  end_wraptext <- if (nrow(fips.df) < 15) {
+                  nrow(fips.df) + 5
+                  } else if (nrow(fips.df) < 20){ 
+                    nrow(fips.df) + 3  
+                    } else {nrow(fips.df) - 5}
   
   #print(end_wraptext)
   #CUSTOM LATEX CHANGES

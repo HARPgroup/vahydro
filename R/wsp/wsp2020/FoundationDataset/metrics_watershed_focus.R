@@ -75,6 +75,7 @@ RSeg_data <- sqldf(RSeg_data)
 
 if (str_contains(metric, "cc_Qout") == T) {
   RSeg_data <- sqldf("SELECT pid, propname, hydrocode, featureid,
+                      runid_11,
                       runid_17,
                       runid_19,
                       runid_20,
@@ -91,6 +92,7 @@ if (str_contains(metric, "cc_Qout") == T) {
 }
    else {
     RSeg_data <- sqldf("SELECT pid, propname, hydrocode, featureid,
+                      runid_11,
                       runid_12,
                       runid_13,
                       runid_18,
@@ -115,4 +117,4 @@ metric <- c("l30_Qout","l90_Qout","7q10","l30_cc_Qout", "l90_cc_Qout")
 for (met in metric) {
     print(paste("...PROCESSING METRIC: ",met,sep=""))
       metrics_wshed_focus.gen(met) 
-  }
+}
