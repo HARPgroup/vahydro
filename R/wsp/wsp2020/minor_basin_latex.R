@@ -197,14 +197,6 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       mb_name$MinorBasin_Name == "Tennessee Upper" ~ "Upper Tennessee",
       mb_name$MinorBasin_Name == "York Lower" ~ "Lower York")
    
-   
-   
-   
-   
-  
-   
-   
-   
    #Select measuring points within minor basin of interest, Restrict output to columns of interest
    mb_mps <- sqldf(paste('SELECT  MP_hydroid,
                       mp_name,
