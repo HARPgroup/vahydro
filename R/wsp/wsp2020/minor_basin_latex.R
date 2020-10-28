@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "JL", file_extension = ".html"){
+TABLE_GEN_func <- function(minorbasin = "RL", file_extension = ".html"){
 
    
    #-------- html or latex -----
@@ -413,8 +413,10 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
    
-   top_5_no[is.na(top_5_no)] <- 0
-
+   top_5[is.na(top_5)] <- "0.00"
+   top_5[top_5 == 0] <- "0.00"
+   top_5[top_5 == "Agriculture"] <- "AG"
+   
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
@@ -841,7 +843,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
    
-   top_5[is.na(top_5)] <- 0
+   top_5[is.na(top_5)] <- "0.00"
+   top_5[top_5 == 0] <- "0.00"
+   top_5[top_5 == "Agriculture"] <- "AG"
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
@@ -978,7 +982,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
    
-   top_5_no[is.na(top_5_no)] <- 0
+   top_5[is.na(top_5)] <- "0.00"
+   top_5[top_5 == 0] <- "0.00"
+   top_5[top_5 == "Agriculture"] <- "AG"
    
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
