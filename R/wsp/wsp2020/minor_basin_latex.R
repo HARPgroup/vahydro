@@ -1298,42 +1298,6 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 
    #write.csv(a_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\a_unmet30.csv", row.names = F)
 
-   # #filter >.5 mgd
-   # b_unmet30 <- sqldf('SELECT featureid,
-   #                            propname,
-   #                            runid_11,
-   #                            runid_12,
-   #                            runid_13,
-   #                            runid_17,
-   #                            runid_18,
-   #                            mb_code
-   #                  FROM unmet30
-   #                    WHERE runid_11 > 0.5
-   #                    OR runid_12 > 0.5
-   #                    OR runid_13 > 0.5
-   #                    OR runid_17 > 0.5
-   #                    OR runid_18 > 0.5')
-   #
-   # write.csv(b_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\b_unmet30.csv", row.names = F)
-   #
-   # #filter >1 mgd
-   # c_unmet30 <- sqldf('SELECT featureid,
-   #                            propname,
-   #                            runid_11,
-   #                            runid_12,
-   #                            runid_13,
-   #                            runid_17,
-   #                            runid_18,
-   #                            mb_code
-   #                  FROM unmet30
-   #                    WHERE runid_11 > 1
-   #                    OR runid_12 > 1
-   #                    OR runid_13 > 1
-   #                    OR runid_17 > 1
-   #                    OR runid_18 > 1')
-   #
-   # write.csv(c_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\c_unmet30.csv", row.names = F)
-   #
    # # No Minor Basin
    #
    # null_unmet30 <- sqldf('SELECT pid,
@@ -1361,6 +1325,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "wtp", replacement = "WTP", ignore.case = T)
    unmet_table$propname <- gsub(x = unmet_table$propname, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+   unmet_table[unmet_table == 0] <- "0.00"
 
    if (nrow(unmet_table) == 0) {
       unmet_table[1,2] <- "No Facilities Detected"
