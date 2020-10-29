@@ -38,10 +38,8 @@ source(paste(basepath,"config.local.private",sep = '/'))
 data_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 mp_all <- data_raw
 
-unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
-
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(state_abbrev = "VA", file_extension = ".html"){
+TABLE_GEN_func <- function(state_abbrev = "VA", file_extension = ".tex"){
   
   #-------- html or latex -----
   #switch between file types to save in common drive folder; html or latex
@@ -209,6 +207,109 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     stop("This is the Statewide latex script. Please write correct function input == 'VA'")
   }
   #### START SUMMARY TABLE GEN ####
+    #------------------------------------------------------------------------
+    #NO power (excluding power generation)
+    sql_A <- sqldf(paste('SELECT a.system_type, 
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "intake"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
+                         aggregate_select,'
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "intake"
+                     AND facility_ftype NOT LIKE "%power"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+    sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
+    A <- append_totals(sql_A,"Total SW")
+    
+    sql_B <- sqldf(paste('SELECT a.system_type,
+                        (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND MP_bundle = "well"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
+                         aggregate_select,'
+                     FROM mb_mps a
+                     WHERE a.MP_bundle = "well"
+                     AND facility_ftype NOT LIKE "%power"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+    B <- append_totals(sql_B,"Total GW")
+    
+    sql_C <- sqldf(paste('SELECT a.system_type, (SELECT count(MP_hydroid)
+             FROM mb_mps
+             WHERE facility_ftype NOT LIKE "wsp%"
+             AND facility_ftype NOT LIKE "%power"
+             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
+                         aggregate_select,'
+                     FROM mb_mps a
+                     WHERE facility_ftype NOT LIKE "%power"
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+    
+    sql_D <- append_totals(sql_C,"Total")
+    
+    # sql_D <-  sqldf(paste('SELECT "Statewide Total" AS system_type, ',
+    #                       aggregate_select,'
+    #                   FROM mb_mps a',sep=""))
+    
+    table_1 <- rbind(A,B,sql_D)
+    table_1[is.na(table_1)] <- 0
+    
+    
+    table_1_VA <- table_1[15,]
+    #KABLE   
+    table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
+                        caption = paste("Summary of ",mb_name[1]," Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
+                        label = paste("summary_no_power_",mb_code,sep=""),
+                        col.names = c("System Type",
+                                      "Source Count",
+                                      kable_col_names[3:6]))%>%
+      kable_styling(font_size = 10) %>%
+      column_spec(1, width = "11em") %>%
+      column_spec(2, width = "6em") %>%
+      column_spec(3, width = "6em") %>%
+      column_spec(4, width = "6em") %>%
+      column_spec(5, width = "6em") %>%
+      column_spec(6, width = "6em") %>%
+      pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
+      pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
+      pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
+      #Header row is row 0
+      row_spec(0, bold=T, font_size = 11) %>%
+      row_spec(5, bold=T, extra_latex_after = ) %>%
+      row_spec(10, bold=T) %>%
+      row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
+      row_spec(15, bold=T) 
+    
+    #CUSTOM LATEX CHANGES
+    #insert hold position header
+    table1_tex <- gsub(pattern = "{table}[t]", 
+                       repl    = "{table}[H]", 
+                       x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "\\midrule", 
+                       repl    = "", 
+                       x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "\\hline", 
+                       repl    = "\\hline \\addlinespace[0.4em]", 
+                       x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "\\vphantom{1}", 
+                       repl    = "", 
+                       x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "\\hspace{1em}T", 
+                       repl    = "T", 
+                       x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "\\textbf{System Type}", 
+                       repl    = "\\vspace{0.3em}\\textbf{System Type}", 
+                       x       = table1_tex, fixed = T )
+    table1_tex %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
+    
+    ##########################################################################################
     #YES power (including power generation)
     sql_A <- sqldf(paste('SELECT a.system_type,
                         (SELECT count(MP_hydroid)
@@ -248,7 +349,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      ORDER BY a.system_type',sep=""))
     
     
-    sql_D <- append_totals(sql_C,"Statewide Total")
+    sql_D <- append_totals(sql_C,"Total")
     
     # sql_D <-  sqldf(paste('SELECT "Statewide Total" AS system_type, ',
     #                       aggregate_select,'
@@ -304,63 +405,12 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
     
-    #------------------------------------------------------------------------
-    #NO power (excluding power generation)
-    sql_A <- sqldf(paste('SELECT a.system_type, 
-                        (SELECT count(MP_hydroid)
-             FROM mb_mps
-             WHERE facility_ftype NOT LIKE "wsp%"
-             AND facility_ftype NOT LIKE "%power"
-             AND MP_bundle = "intake"
-             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
-                         aggregate_select,'
-                     FROM mb_mps a
-                     WHERE a.MP_bundle = "intake"
-                     AND facility_ftype NOT LIKE "%power"
-                     GROUP BY a.system_type
-                     ORDER BY a.system_type',sep=""))
-    sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
-    A <- append_totals(sql_A,"Total SW")
-    
-    sql_B <- sqldf(paste('SELECT a.system_type,
-                        (SELECT count(MP_hydroid)
-             FROM mb_mps
-             WHERE facility_ftype NOT LIKE "wsp%"
-             AND facility_ftype NOT LIKE "%power"
-             AND MP_bundle = "well"
-             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
-                         aggregate_select,'
-                     FROM mb_mps a
-                     WHERE a.MP_bundle = "well"
-                     AND facility_ftype NOT LIKE "%power"
-                     GROUP BY a.system_type
-                     ORDER BY a.system_type',sep=""))
-    B <- append_totals(sql_B,"Total GW")
-    
-    sql_C <- sqldf(paste('SELECT a.system_type, (SELECT count(MP_hydroid)
-             FROM mb_mps
-             WHERE facility_ftype NOT LIKE "wsp%"
-             AND facility_ftype NOT LIKE "%power"
-             AND wsp_ftype = a.wsp_ftype) AS "specific_count", ',
-                         aggregate_select,'
-                     FROM mb_mps a
-                     WHERE facility_ftype NOT LIKE "%power"
-                     GROUP BY a.system_type
-                     ORDER BY a.system_type',sep=""))
-    
-    sql_D <- append_totals(sql_C,"Statewide Total")
-    
-    # sql_D <-  sqldf(paste('SELECT "Statewide Total" AS system_type, ',
-    #                       aggregate_select,'
-    #                   FROM mb_mps a',sep=""))
-    
-    table_1 <- rbind(A,B,sql_D)
-    table_1[is.na(table_1)] <- 0
-    
+    ##########################################################################################
+    table_1_combo <- rbind(table_1,table_1_VA)
     #KABLE   
-    table1_tex <- kable(table_1,align = c('l','c','c','c','c','c'),  booktabs = T,
-                        caption = paste("Summary of ",mb_name[1]," Water Demand by Source Type and System Type (excluding Power Generation)",sep=""),
-                        label = paste("summary_no_power_",mb_code,sep=""),
+    table1_tex <- kable(table_1_combo,align = c('l','c','c','c','c','c'),  booktabs = T,
+                        caption = paste("Summary of ",mb_name[1]," Water Demand by Source Type and System Type (including Power Generation)",sep=""),
+                        label = paste("summary_",mb_code,sep=""),
                         col.names = c("System Type",
                                       "Source Count",
                                       kable_col_names[3:6]))%>%
@@ -374,12 +424,17 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
       pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
       pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
+      
+      pack_rows("Total Including Power Generation", 15, 15, hline_before = T, hline_after = F) %>%
+      
+      pack_rows("Total Excluding Power Generation", 16, 16, hline_before = T, hline_after = F) %>%
       #Header row is row 0
       row_spec(0, bold=T, font_size = 11) %>%
-      row_spec(5, bold=T, extra_latex_after = ) %>%
+      row_spec(5, bold=T) %>%
       row_spec(10, bold=T) %>%
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) 
+      row_spec(15, bold=T, extra_latex_after = "\\addlinespace[0.4em]") %>%
+      row_spec(16, bold=T)
     
     #CUSTOM LATEX CHANGES
     #insert hold position header
@@ -402,9 +457,11 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                        repl    = "\\vspace{0.3em}\\textbf{System Type}", 
                        x       = table1_tex, fixed = T )
     table1_tex %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_table",file_ext,sep=""))
     
     ######## TOP 5 USERS Table ###############################################################
+    
+    
     #NOTE: these are sums of each source type by facility (aka the #1 groundwater user may have 4 wells that add up to a huge amount, it's not a table showing simply the largest MP withdrawal by source)
     
     #-------------- TOP 5 USERS INCLUDING POWER GENERATION (YES POWER) ---------------------
