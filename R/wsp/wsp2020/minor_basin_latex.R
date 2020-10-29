@@ -191,7 +191,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
    mb_name <- as.character(levels(mb_name$MinorBasin_Name)[mb_name$MinorBasin_Name])
    
    mb_name <- case_when(
-      mb_name == "James Lower" ~ "Lower James",
+      mb_name == "James Bay" ~ "Lower James",
+      mb_name == "James Lower" ~ "Middle James",
       mb_name == "James Upper" ~ "Upper James",
       mb_name == "Potomac Lower" ~ "Lower Potomac",
       mb_name == "Potomac Middle" ~ "Middle Potomac",
