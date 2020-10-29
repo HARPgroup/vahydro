@@ -201,7 +201,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       mb_name == "Rappahannock Upper" ~ "Upper Rappahannock",
       mb_name == "Tennessee Upper" ~ "Upper Tennessee",
       mb_name == "York Lower" ~ "Lower York",
-      mb_name == mb_name ~ mb_name)
+      mb_name == mb_name ~ mb_name) #this last line is the else clause to keep all other names supplied that don't need to be changed
    
    #Select measuring points within minor basin of interest, Restrict output to columns of interest
    mb_mps <- sqldf(paste('SELECT  MP_hydroid,
