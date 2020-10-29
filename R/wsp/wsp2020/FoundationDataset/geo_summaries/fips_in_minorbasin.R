@@ -38,6 +38,11 @@ fips.csv <- read.csv(file=paste(localpath , fips_filename,sep="\\"), header=TRUE
 #LOAD MINOR BASIN EXTENT FUNCTION 
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.extent.R",sep = '/'))
 
+#LOAD VIRGINIA POPULATION PROJECTION FILE
+vapop_folder <- "U:/OWS/foundation_datasets/wsp/Population Data/"
+vapop <- read.csv(paste0(vapop_folder, "VAPopProjections_Total_2020-2040_final.csv"))
+vapop <- sqldf('SELECT FIPS, Geography_Name, round(x2020,0), round(x2030,0), round(x2040,0), round(((X2040 - X2020) / X2020)*100, 2) AS pct_change
+               FROM vapop')
 ###############################################################################################
 #START FUNCTION ###############################################################################
 ###############################################################################################
@@ -198,24 +203,30 @@ FIPS_in_basins <- function(minorbasin){
   
   fips.df$mb_code <- minorbasin
   
-  fips.df <- sqldf('SELECT fips_name, fips_code, fips_centroid, mb_name, mb_code
-                   FROM "fips.df"
-                   WHERE fips_code LIKE "51%"')
   
-  #return(fips.df)
+  
+  fips.df <- sqldf('SELECT a.fips_name, b.pct_change, a.fips_code, a.fips_centroid, a.mb_name, a.mb_code
+                   FROM "fips.df" as a
+                   LEFT OUTER JOIN vapop as b
+                   ON a.fips_code = b.FIPS
+                   WHERE a.fips_code LIKE "51%"')
+  
+  fips.df <- sqldf('SELECT fips_name as "Localities", pct_change as "20 Year % Change"
+                   FROM "fips.df"')
+  #return(fips.df),
+
   
   # OUTPUT TABLE IN KABLE FORMAT
-  localities_tex <- kable(fips.df[1],  booktabs = T,format = "latex",
-        caption = paste0("Localities in ", mb_name$name, " Basin"),
-        label = paste0(minorbasin,"_localities"),
-        col.names = "Localities") %>%
+  localities_tex <- kable(fips.df,  booktabs = T,format = "latex", align = c("l","c"),
+        caption = paste0("Population Trend by Locality in ", mb_name$name, " Basin"),
+        label = paste0(minorbasin,"_localities")) %>%
     kable_styling(latex_options = "striped") 
   
   end_wraptext <- if (nrow(fips.df) < 15) {
-                  nrow(fips.df) + 5
+                  nrow(fips.df) + 10
                   } else if (nrow(fips.df) < 20){ 
-                    nrow(fips.df) + 3  
-                    } else {nrow(fips.df) - 5}
+                    nrow(fips.df) + 4  
+                    } else {nrow(fips.df)}
   
   #print(end_wraptext)
   #CUSTOM LATEX CHANGES
