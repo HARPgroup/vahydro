@@ -212,7 +212,8 @@ FIPS_in_basins <- function(minorbasin){
                    WHERE a.fips_code LIKE "51%"')
   
   fips.df <- sqldf('SELECT fips_name as "Localities", pct_change as "20 Year % Change"
-                   FROM "fips.df"')
+                   FROM "fips.df"
+                   WHERE fips_name != "Bedford City"')
   #return(fips.df),
 
   
@@ -247,7 +248,7 @@ FIPS_in_basins <- function(minorbasin){
 }
 ################ RUN FIPS IN BASINS FUNCTION ##################################################
 # SINGLE BASIN
-NR_fips <- FIPS_in_basins(minorbasin = "BS")
+NR_fips <- FIPS_in_basins(minorbasin = "OR")
 
 # ALL BASINS
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
