@@ -464,7 +464,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_table",file_ext,sep=""))
     
-    ######## TOP 5 USERS Table ###############################################################
+    ######## TOP 10 USERS Table ###############################################################
     
     
     #NOTE: these are sums of each source type by facility (aka the #1 groundwater user may have 4 wells that add up to a huge amount, it's not a table showing simply the largest MP withdrawal by source)
@@ -480,7 +480,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                   AND facility_ftype NOT LIKE "wsp_plan%"
                GROUP BY Facility_hydroid')
     
-    top_5_sw <- sqldf('SELECT facility_name, 
+    top_10_sw <- sqldf('SELECT facility_name, 
                            system_type,
                            fips_name,
                            MGD_2020,
@@ -489,23 +489,23 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                            round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
                   FROM top_sw
                   ORDER BY MGD_2040 DESC
-                  limit 5')
+                  limit 10')
     
-    # #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+    # #APPEND LETTERED INDEX TO TOP 10 Surface Water Users table   
     # index <- list()
     # 
-    # for (i in 1:nrow(top_5_sw)) {
+    # for (i in 1:nrow(top_10_sw)) {
     #    
     #    index <- rbind(index, LETTERS[i])
     #    #print(index)
     # }
-    # top_5_sw <- cbind(index, top_5_sw)
+    # top_10_sw <- cbind(index, top_10_sw)
     
-    #APPEND TOTALS to TOP 5 Surface Water Users table 
-    top_5_sw <- append_totals(top_5_sw, "Total SW")
+    #APPEND TOTALS to TOP 10 Surface Water Users table 
+    top_10_sw <- append_totals(top_10_sw, "Total SW")
     
     #need to select the AA for the YES power (including)
-    top_5_sw$pct_total_use <- round((top_5_sw$MGD_2040 / AA$MGD_2040[5]) * 100,2)
+    top_10_sw$pct_total_use <- round((top_10_sw$MGD_2040 / AA$MGD_2040[10]) * 100,2)
     
     top_gw <- sqldf('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
@@ -517,7 +517,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                   AND facility_ftype NOT LIKE "wsp_plan%"
                GROUP BY Facility_hydroid')
     
-    top_5_gw <- sqldf('SELECT facility_name, 
+    top_10_gw <- sqldf('SELECT facility_name, 
                            system_type,
                            fips_name,
                            MGD_2020,
@@ -526,23 +526,23 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                            round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
                   FROM top_gw
                   ORDER BY MGD_2040 DESC
-                  limit 5')
+                  limit 10')
     
-    # #APPEND LETTERED INDEX TO TOP 5 Groundwater Users table   
+    # #APPEND LETTERED INDEX TO TOP 10 Groundwater Users table   
     # index <- list()
     # 
-    # for (i in 1:nrow(top_5_gw)) {
+    # for (i in 1:nrow(top_10_gw)) {
     #    
     #    index <- rbind(index, LETTERS[i])
     #    #print(index)
     # }
-    # top_5_gw <- cbind(index, top_5_gw)
+    # top_10_gw <- cbind(index, top_10_gw)
     
-    #APPEND TOTALS to TOP 5 Groundwater Users table 
-    top_5_gw <- append_totals(top_5_gw, "Total GW")
+    #APPEND TOTALS to TOP 10 Groundwater Users table 
+    top_10_gw <- append_totals(top_10_gw, "Total GW")
     
     #need to select the BB for the YES power (including)
-    top_5_gw$pct_total_use <- round((top_5_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
+    top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / BB$MGD_2040[10]) * 100,2)
     
     gw_header <- data.frame("facility_name" = 'Groundwater',
                             "system_type" = '',
@@ -553,20 +553,20 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                             "pct_change" = '',
                             "pct_total_use" = '% of Total Groundwater')
     
-    top_5 <- rbind(top_5_sw, gw_header, top_5_gw)
+    top_10 <- rbind(top_10_sw, gw_header, top_10_gw)
     
-    top_5$facility_name <- str_to_title(top_5$facility_name)
-    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
-    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
-    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
-    top_5$facility_name <- gsub(x = top_5$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+    top_10$facility_name <- str_to_title(top_10$facility_name)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
     
-    top_5[is.na(top_5)] <- 0
+    top_10[is.na(top_10)] <- 0
     
     # OUTPUT TABLE IN KABLE FORMAT
-    table5_tex <- kable(top_5,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-                        caption = paste("Top 5 Users in 2040 by Source Type in ",mb_name[1]," (including Power Generation)",sep=""),
-                        label = paste("top_5_yes_power",mb_code,sep=""),
+    table10_tex <- kable(top_10,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+                        caption = paste("Top 10 Users in 2040 by Source Type in ",mb_name[1]," (including Power Generation)",sep=""),
+                        label = paste("top_10_yes_power",mb_code,sep=""),
                         col.names = c("Facility Name",
                                       "System Type",
                                       "Locality",
@@ -577,36 +577,36 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       column_spec(2, width = "3em") %>%
       column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
-      column_spec(5, width = "4em") %>%
+      column_spec(10, width = "4em") %>%
       column_spec(6, width = "4em") %>%
       column_spec(7, width = "4em") %>%
       column_spec(8, width = "7em") %>%
       row_spec(0, bold=T, font_size = 9) %>%
-      pack_rows("Surface Water", 1, 6) %>%
-      row_spec(6, extra_latex_after = "\\hline") %>%
-      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+      pack_rows("Surface Water", 1, 11) %>%
+      row_spec(11, extra_latex_after = "\\hline") %>%
+      row_spec(12, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
     
     #CUSTOM LATEX CHANGES
     #insert hold position header
-    table5_tex <- gsub(pattern = "{table}[t]", 
+    table10_tex <- gsub(pattern = "{table}[t]", 
                        repl    = "{table}[H]", 
-                       x       = table5_tex, fixed = T )
-    table5_tex <- gsub(pattern = "\\hspace{1em}", 
+                       x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\hspace{1em}", 
                        repl    = "", 
-                       x       = table5_tex, fixed = T )
-    table5_tex <- gsub(pattern = "\\hline", 
+                       x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\hline", 
                        repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
-                       x       = table5_tex, fixed = T )
-    table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                       x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\textbf{Facility Name}", 
                        repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
-                       x       = table5_tex, fixed = T )
-    table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+                       x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\textbf{Locality}", 
                        repl    = "\\vspace{0.3em}\\textbf{Locality}", 
-                       x       = table5_tex, fixed = T )
-    table5_tex %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_yes_power_table",file_ext,sep=""))
+                       x       = table10_tex, fixed = T )
+    table10_tex %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_yes_power_table",file_ext,sep=""))
     
-    #-------------- TOP 5 USERS EXCLUDING POWER GENERATION (NO POWER) ---------------------
+    #-------------- TOP 10 USERS EXCLUDING POWER GENERATION (NO POWER) ---------------------
     top_sw_no <- sqldf('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
                         round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
@@ -618,7 +618,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                   AND facility_ftype NOT LIKE "wsp_plan%"
                GROUP BY Facility_hydroid')
     
-    top_5_sw_no <- sqldf('SELECT facility_name, 
+    top_10_sw_no <- sqldf('SELECT facility_name, 
                            system_type,
                            fips_name,
                            MGD_2020,
@@ -627,22 +627,22 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                            round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
                   FROM top_sw_no
                   ORDER BY MGD_2040 DESC
-                  limit 5')
+                  limit 10')
     
-    # #APPEND LETTERED INDEX TO TOP 5 Surface Water Users table   
+    # #APPEND LETTERED INDEX TO TOP 10 Surface Water Users table   
     # index <- list()
     # 
-    # for (i in 1:nrow(top_5_sw_no)) {
+    # for (i in 1:nrow(top_10_sw_no)) {
     #    
     #    index <- rbind(index, LETTERS[i])
     #    #print(index)
     # }
-    # top_5_sw_no <- cbind(index, top_5_sw_no)
+    # top_10_sw_no <- cbind(index, top_10_sw_no)
     
-    #APPEND TOTALS to TOP 5 Groundwater Users table 
-    top_5_sw_no <- append_totals(top_5_sw_no, "Total SW")
+    #APPEND TOTALS to TOP 10 Groundwater Users table 
+    top_10_sw_no <- append_totals(top_10_sw_no, "Total SW")
     
-    top_5_sw_no$pct_total_use <- round((top_5_sw_no$MGD_2040 / A$MGD_2040[5]) * 100,2)
+    top_10_sw_no$pct_total_use <- round((top_10_sw_no$MGD_2040 / A$MGD_2040[10]) * 100,2)
     
     top_gw_no <- sqldf('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
@@ -655,7 +655,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                   AND facility_ftype NOT LIKE "wsp_plan%"
                GROUP BY Facility_hydroid')
     
-    top_5_gw_no <- sqldf('SELECT facility_name, 
+    top_10_gw_no <- sqldf('SELECT facility_name, 
                            system_type,
                            fips_name,
                            MGD_2020,
@@ -664,22 +664,22 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                            round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
                   FROM top_gw_no
                   ORDER BY MGD_2040 DESC
-                  limit 5')
+                  limit 10')
     
-    # #APPEND LETTERED INDEX TO TOP 5 Groundwater Users table   
+    # #APPEND LETTERED INDEX TO TOP 10 Groundwater Users table   
     # index <- list()
     # 
-    # for (i in 1:nrow(top_5_gw_no)) {
+    # for (i in 1:nrow(top_10_gw_no)) {
     #    
     #    index <- rbind(index, LETTERS[i])
     #    #print(index)
     # }
-    # top_5_gw_no <- cbind(index, top_5_gw_no)
+    # top_10_gw_no <- cbind(index, top_10_gw_no)
     
-    #APPEND TOTALS to TOP 5 Groundwater Users table 
-    top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
+    #APPEND TOTALS to TOP 10 Groundwater Users table 
+    top_10_gw_no <- append_totals(top_10_gw_no, "Total GW")
     
-    top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
+    top_10_gw_no$pct_total_use <- round((top_10_gw_no$MGD_2040 / B$MGD_2040[10]) * 100,2)
     
     gw_header <- data.frame("facility_name" = 'Groundwater',
                             "system_type" = '',
@@ -690,20 +690,20 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                             "pct_change" = '',
                             "pct_total_use" = '% of Total Groundwater')
     
-    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+    top_10_no <- rbind(top_10_sw_no, gw_header, top_10_gw_no)
     
-    top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
-    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
-    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
-    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
-    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+    top_10_no$facility_name <- str_to_title(top_10_no$facility_name)
+    top_10_no$facility_name <- gsub(x = top_10_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+    top_10_no$facility_name <- gsub(x = top_10_no$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+    top_10_no$facility_name <- gsub(x = top_10_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+    top_10_no$facility_name <- gsub(x = top_10_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
     
-    top_5_no[is.na(top_5_no)] <- 0
+    top_10_no[is.na(top_10_no)] <- 0
     
     # OUTPUT TABLE IN KABLE FORMAT
-    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-                        caption = paste("Top 5 Users in 2040 by Source Type in ",mb_name[1]," (excluding Power Generation)",sep=""),
-                        label = paste("top_5_no_power",mb_code,sep=""),
+    table10_tex <- kable(top_10_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+                        caption = paste("Top 10 Users in 2040 by Source Type in ",mb_name[1]," (excluding Power Generation)",sep=""),
+                        label = paste("top_10_no_power",mb_code,sep=""),
                         col.names = c("Facility Name",
                                       "System Type",
                                       "Locality",
@@ -714,7 +714,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       column_spec(2, width = "3em") %>%
       column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
-      column_spec(5, width = "4em") %>%
+      column_spec(10, width = "4em") %>%
       column_spec(6, width = "4em") %>%
       column_spec(7, width = "4em") %>%
       column_spec(8, width = "7em") %>%
@@ -725,23 +725,23 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     #CUSTOM LATEX CHANGES
     #insert hold position header
-    table5_tex <- gsub(pattern = "{table}[t]", 
+    table10_tex <- gsub(pattern = "{table}[t]", 
                        repl    = "{table}[H]", 
-                       x       = table5_tex, fixed = T )
-    table5_tex <- gsub(pattern = "\\hspace{1em}", 
+                       x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\hspace{1em}", 
                        repl    = "", 
-                       x       = table5_tex, fixed = T )
-    table5_tex <- gsub(pattern = "\\hline", 
+                       x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\hline", 
                        repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
-                       x       = table5_tex, fixed = T )
-    table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                       x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\textbf{Facility Name}", 
                        repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
-                       x       = table5_tex, fixed = T )
-    table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+                       x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\textbf{Locality}", 
                        repl    = "\\vspace{0.3em}\\textbf{Locality}", 
-                       x       = table5_tex, fixed = T )
-    table5_tex %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
+                       x       = table10_tex, fixed = T )
+    table10_tex %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_no_power_table",file_ext,sep=""))
     
     #-------------- Table - Demand by System & Source Type (YES POWER detected) ---------------------
     # system_source <- sqldf(paste('SELECT 
