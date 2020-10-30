@@ -251,7 +251,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      GROUP BY a.system_type
                      ORDER BY a.system_type',sep=""))
     
-    sql_D <- append_totals(sql_C,"Total")
+    sql_D <- append_totals(sql_C,"Virginia")
     
     # sql_D <-  sqldf(paste('SELECT "Statewide Total" AS system_type, ',
     #                       aggregate_select,'
@@ -349,7 +349,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      ORDER BY a.system_type',sep=""))
     
     
-    sql_D <- append_totals(sql_C,"Total")
+    sql_D <- append_totals(sql_C,"Virginia")
     
     # sql_D <-  sqldf(paste('SELECT "Statewide Total" AS system_type, ',
     #                       aggregate_select,'
@@ -406,10 +406,12 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
     
     ##########################################################################################
+    rownames(table_1) <- c()
+    rownames(table_1_VA) <- c()
     table_1_combo <- rbind(table_1,table_1_VA)
     #KABLE   
     table1_tex <- kable(table_1_combo,align = c('l','c','c','c','c','c'),  booktabs = T,
-                        caption = paste("Summary of ",mb_name[1]," Water Demand by Source Type and System Type (including Power Generation)",sep=""),
+                        caption = paste("Summary of ",mb_name[1]," Water Demand (including Power Generation)",sep=""),
                         label = paste("summary_",mb_code,sep=""),
                         col.names = c("System Type",
                                       "Source Count",
@@ -432,9 +434,9 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       row_spec(0, bold=T, font_size = 11) %>%
       row_spec(5, bold=T) %>%
       row_spec(10, bold=T) %>%
-      row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T, extra_latex_after = "\\addlinespace[0.4em]") %>%
-      row_spec(16, bold=T)
+      row_spec(14, bold=F, hline_after = F, extra_css = "border-bottom: 1px solid")
+      #row_spec(15, bold=T) %>%
+      #row_spec(16, bold=T)
     
     #CUSTOM LATEX CHANGES
     #insert hold position header
@@ -444,8 +446,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table1_tex <- gsub(pattern = "\\midrule", 
                        repl    = "", 
                        x       = table1_tex, fixed = T )
-    table1_tex <- gsub(pattern = "\\hline", 
-                       repl    = "\\hline \\addlinespace[0.4em]", 
+    table1_tex <- gsub(pattern = "\\hline",
+                       repl    = "\\hline \\addlinespace[0.4em]",
                        x       = table1_tex, fixed = T )
     table1_tex <- gsub(pattern = "\\vphantom{1}", 
                        repl    = "", 
@@ -455,6 +457,9 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                        x       = table1_tex, fixed = T )
     table1_tex <- gsub(pattern = "\\textbf{System Type}", 
                        repl    = "\\vspace{0.3em}\\textbf{System Type}", 
+                       x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "Virginia", 
+                       repl    = "\\textbf{Virginia}", 
                        x       = table1_tex, fixed = T )
     table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_table",file_ext,sep=""))
