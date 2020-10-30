@@ -505,7 +505,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     top_10_sw <- append_totals(top_10_sw, "Total SW")
     
     #need to select the AA for the YES power (including)
-    top_10_sw$pct_total_use <- round((top_10_sw$MGD_2040 / AA$MGD_2040[10]) * 100,2)
+    top_10_sw$pct_total_use <- round((top_10_sw$MGD_2040 / AA$MGD_2040[5]) * 100,2)
     
     top_gw <- sqldf('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
@@ -542,7 +542,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     top_10_gw <- append_totals(top_10_gw, "Total GW")
     
     #need to select the BB for the YES power (including)
-    top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / BB$MGD_2040[10]) * 100,2)
+    top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
     
     gw_header <- data.frame("facility_name" = 'Groundwater',
                             "system_type" = '',
@@ -577,7 +577,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       column_spec(2, width = "3em") %>%
       column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
-      column_spec(10, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
       column_spec(6, width = "4em") %>%
       column_spec(7, width = "4em") %>%
       column_spec(8, width = "7em") %>%
@@ -642,7 +642,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     #APPEND TOTALS to TOP 10 Groundwater Users table 
     top_10_sw_no <- append_totals(top_10_sw_no, "Total SW")
     
-    top_10_sw_no$pct_total_use <- round((top_10_sw_no$MGD_2040 / A$MGD_2040[10]) * 100,2)
+    top_10_sw_no$pct_total_use <- round((top_10_sw_no$MGD_2040 / A$MGD_2040[5]) * 100,2)
     
     top_gw_no <- sqldf('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
@@ -679,7 +679,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     #APPEND TOTALS to TOP 10 Groundwater Users table 
     top_10_gw_no <- append_totals(top_10_gw_no, "Total GW")
     
-    top_10_gw_no$pct_total_use <- round((top_10_gw_no$MGD_2040 / B$MGD_2040[10]) * 100,2)
+    top_10_gw_no$pct_total_use <- round((top_10_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
     
     gw_header <- data.frame("facility_name" = 'Groundwater',
                             "system_type" = '',
@@ -709,19 +709,19 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                                       "Locality",
                                       kable_col_names[3:6],
                                       "% of Total Surface Water")) %>%
-      kable_styling(latex_options = latexoptions) %>%
+      kable_styling(latex_options = latexoptions)%>%
       column_spec(1, width = "9em") %>%
       column_spec(2, width = "3em") %>%
       column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
-      column_spec(10, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
       column_spec(6, width = "4em") %>%
       column_spec(7, width = "4em") %>%
       column_spec(8, width = "7em") %>%
       row_spec(0, bold=T, font_size = 9) %>%
-      pack_rows("Surface Water", 1, 6) %>%
-      row_spec(6, extra_latex_after = "\\hline") %>%
-      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+      pack_rows("Surface Water", 1, 11) %>%
+      row_spec(11, extra_latex_after = "\\hline") %>%
+      row_spec(12, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
     
     #CUSTOM LATEX CHANGES
     #insert hold position header
