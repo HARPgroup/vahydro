@@ -98,17 +98,17 @@ beep(3)
 ######################################################################################################
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
-#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
+# minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
+#                                   metric = "consumptive_use_frac",
+#                                   runid_a = c("runid_11"),
+#                                   wd_points = "ON")
+
+minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "JU",
                                   metric = "consumptive_use_frac",
                                   runid_a = c("runid_11"),
                                   wd_points = "ON")
-
-minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "NR",
-                                  metric = "consumptive_use_frac",
-                                  runid_a = c("runid_11"),
-                                  wd_points = "OFF")
 
 
 #----------- RUN MAPS IN BULK --------------------------

@@ -17,15 +17,33 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
   
   #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
   #good divs for consumptive_use_frac
+  # div1 <- 0.0
+  # div2 <- 0.10
+  # div3 <- 0.20
+  # div4 <- 0.50
+  
   div1 <- 0.0
-  div2 <- 0.10
-  div3 <- 0.20
-  div4 <- 0.50
+  div2 <- 0.05
+  div3 <- 0.10
+  div4 <- 0.20
   
   # SELECT MINOR BASIN NAME
-  mb_name <-sqldf(paste('SELECT name
-              FROM "MinorBasins.csv" 
-              WHERE code == "',minorbasin,'"',sep=""))
+  mb_name <-sqldf(paste('SELECT 
+                          CASE
+                            WHEN name == "James Bay" Then "Lower James"
+                            WHEN name == "James Lower" Then "Middle James"
+                            WHEN name == "James Upper" Then "Upper James"
+                            WHEN name == "Potomac Lower" Then "Lower Potomac"
+                            WHEN name == "Potomac Middle" Then "Middle Potomac"
+                            WHEN name == "Potomac Upper" Then "Upper Potomac"
+                            WHEN name == "Rappahannock Lower" Then "Lower Rappahannock"
+                            WHEN name == "Rappahannock Upper" Then "Upper Rappahannock"
+                            WHEN name == "Tennessee Upper" Then "Upper Tennessee"
+                            WHEN name == "York Lower" Then "Lower York"
+                            ELSE name
+                          END AS name
+                        FROM "MinorBasins.csv" 
+                        WHERE code == "',minorbasin,'"',sep=""))
   print(paste("PROCESSING: ",mb_name,sep=""))
   
   # RETRIEVE RIVERSEG MODEL METRIC SUMMARY DATA
@@ -444,10 +462,15 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
   color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55")
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
+  # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
+  #   image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_tidal_segment.PNG',sep='')
+  # } else {
+  #   image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE.PNG',sep='')
+  # }
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_tidal_segment.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0_tidal_segment.PNG',sep='')
   } else {
-    image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0.PNG',sep='')
   }
   
   base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6)
