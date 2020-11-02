@@ -534,6 +534,7 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
     return $options;
   }
   
+ 
   public function formRowEdit(&$form, $entity) {
     //error_log("Form #id = " . $form['#id']);
     //$form['tstime']['#weight'] = 1;
@@ -550,7 +551,7 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
         
     $form['tsvalue']['#coltitle'] = 'Meter Reading';
     $form['tsvalue']['#required'] = FALSE;
-    $form['tsvalue']['#size'] = 24;
+    $form['tsvalue']['#size'] = 16;
     $form['tsvalue']['#ajax'] = array(
       //'callback' => 'dh_wsp_rebuild_dh_wsp_gwp_monthly_form',
       //'wrapper' => 'net_wd-' . $entity->form_element_index,
@@ -642,9 +643,9 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
       '#type' => 'textfield',
       '#attributes' => $atts,
       '#coltitle' => 'Total Withdrawn',
-      '#title' => 'Monthly Withdrawal Amount',
+      '#title' => 'Monthly Total',
       //'#title' =>  "<div id='net_wd-text-" . $entity->form_element_index . "'>" . $value_message . "</div>",
-      '#size' => 24,
+      '#size' => 16,
       //'#disabled' => in_array($entity->tscode, $manual) ? FALSE : TRUE,
       '#default_value' => $quantity->tsvalue,
       '#states' =>  array(
