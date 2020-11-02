@@ -18,10 +18,15 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
   
   #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
   #good divs for consumptive_use_frac
+  # div1 <- 0.0
+  # div2 <- 0.10
+  # div3 <- 0.20
+  # div4 <- 0.50
+  
   div1 <- 0.0
-  div2 <- 0.10
-  div3 <- 0.20
-  div4 <- 0.50
+  div2 <- 0.05
+  div3 <- 0.10
+  div4 <- 0.20
   
   # SELECT MINOR BASIN NAME
   # mb_name <-sqldf(paste('SELECT name
@@ -471,7 +476,7 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
   # }
   #image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment_padding.PNG',sep='')
   
-  image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_tidal_segment_padding.PNG',sep='')
+  image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0_tidal_segment_padding.PNG',sep='')
   
   # base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6) #RIGHT TOP LEGEND
   base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
