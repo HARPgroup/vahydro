@@ -642,9 +642,9 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
       '#type' => 'textfield',
       '#attributes' => $atts,
       '#coltitle' => 'Total Withdrawn',
-      '#title' => 'Monthly Withdrawal Amount',
+      '#title' => 'Monthly Total',
       //'#title' =>  "<div id='net_wd-text-" . $entity->form_element_index . "'>" . $value_message . "</div>",
-      '#size' => 24,
+      '#size' => 16,
       //'#disabled' => in_array($entity->tscode, $manual) ? FALSE : TRUE,
       '#default_value' => $quantity->tsvalue,
       '#states' =>  array(
