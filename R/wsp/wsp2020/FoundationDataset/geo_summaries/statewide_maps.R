@@ -86,7 +86,7 @@ beep(3)
 # ######################################################################################################
 # ### SINGLE SCENARIO ##################################################################################
 # ######################################################################################################
- # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 #----------- RUN SINGLE MAP --------------------------
 # statewide.mapgen.SINGLE.SCENARIO(metric = "consumptive_use_frac",
 #                                  runid_a = "runid_13")
