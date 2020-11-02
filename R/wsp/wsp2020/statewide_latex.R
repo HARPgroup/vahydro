@@ -742,249 +742,151 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                        x       = table10_tex, fixed = T )
     table10_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_no_power_table",file_ext,sep=""))
-    
-    #-------------- Table - Demand by System & Source Type (YES POWER detected) ---------------------
-    # system_source <- sqldf(paste('SELECT 
-    #                  source_type,system_type,',
-    #                              aggregate_select,'
-    #                  FROM mb_mps
-    #                  GROUP BY wsp_ftype, MP_bundle
-    #                  ORDER BY source_type,system_type', sep=""))
-    # 
-    # system_source <- append_totals(system_source)
-    
-    # # OUTPUT TABLE IN KABLE FORMAT
-    # kable(system_source,  booktabs = T,
-    #       caption = paste("Withdrawal Demand by System and Source Type (including Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-    #       label = paste("demand_source_type_yes_power_",mb_code,sep=""),
-    #       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
-    #    kable_styling(latex_options = latexoptions) %>%
-    #    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_demand_no_power_table",file_ext,sep=""))
-    
-    #---------BAR GRAPH Demand by System & Source Type (YES POWER detected) -------------------------------
-    # system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
-    # system_source[is.na(system_source)] <- 0
-    # h <- sqldf("SELECT *
-    #         FROM system_source as a
-    #         WHERE source_type IN ('Groundwater','Surface Water')
-    #         ")
-    # 
-    # # v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable)) +
-    # #    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-    # #    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
-    # #    xlab(label = element_blank())  +
-    # #    labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
-    # #    facet_grid(~ source_type) +
-    # #    scale_fill_discrete(labels = c("2020","2030","2040")) +
-    # #    scale_y_continuous(name = "MGD") +
-    # #    geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 1, na.rm = T)
-    # # 
-    # # ggsave(plot = v3, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_yes_power_graph2.png",sep=""))
-    # 
-    # #make 2 separate plots so that scale won't be an issue; then plot together with cowplot::plot_grid()
-    # 
-    # #SURFACE WATER GRAPH
-    # swplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Surface Water"'), aes(x = system_type, y = value, fill = variable)) + 
-    #   geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-    #   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
-    #   xlab(label = element_blank())  +
-    #   labs(title = "Surface Water", fill = "Demand: ") +
-    #   scale_fill_discrete(labels = c("2020","2030","2040")) +
-    #   scale_y_continuous(name = "MGD") +
-    #   geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Surface Water"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
-    # #ggsave(width = 7.2,height = 6,units = "in",plot = swplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_sw_demand_graph.png",sep=""))
-    # 
-    # #GROUNDWATER GRAPH
-    # gwplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Groundwater"'), aes(x = system_type, y = value, fill = variable)) + 
-    #   geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-    #   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
-    #   xlab(label = element_blank())  +
-    #   labs(title = "Groundwater", fill = "Demand: ") +
-    #   scale_fill_discrete(labels = c("2020","2030","2040")) +
-    #   scale_y_continuous(name = "MGD") +
-    #   geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Groundwater"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
-    # #ggsave(width = 7.2,height = 6,units = "in",plot = gwplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_gw_demand_graph.png",sep=""))
-    # 
-    # #COMBINE PLOTS
-    # plot_row <- plot_grid(swplot, gwplot)
-    # 
-    # # now add the title
-    # title <- ggdraw() + 
-    #   draw_label(
-    #     paste(mb_name$MinorBasin_Name," - Water Withdrawal Demand (including Power Generation)",sep=""),
-    #     fontface = 'bold',
-    #     x = 0,
-    #     hjust = 0) +
-    #   theme(
-    #     # add margin on the left of the drawing canvas,
-    #     # so title is aligned with left edge of first plot
-    #     plot.margin = margin(0, 0, 0, 7))
-    # 
-    # demand_graph <- plot_grid(
-    #   title, plot_row,
-    #   ncol = 1,
-    #   # rel_heights values control vertical title margins
-    #   rel_heights = c(0.1, 1)
-    # )
-    # ggsave(width = 7.2,height = 6,units = "in",plot = demand_graph, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_yes_power_graph.png",sep=""))
+
     
     
-    
-    # #-------------- Table - Demand by System & Source Type (NO POWER detected) ---------------------
-    # system_source <- sqldf(paste('SELECT 
-    #                  source_type,system_type,',
-    #                              aggregate_select,'
-    #                  FROM mb_mps
-    #                  WHERE facility_ftype NOT LIKE "%power"
-    #                  GROUP BY wsp_ftype, MP_bundle
-    #                  ORDER BY source_type,system_type', sep=""))
-    # 
-    # system_source <- append_totals(system_source)
-    # 
-    # # # OUTPUT TABLE IN KABLE FORMAT
-    # # kable(system_source,  booktabs = T,
-    # #       caption = paste("Withdrawal Demand by System and Source Type (excluding Power Generation) in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-    # #       label = paste("demand_source_type_yes_power_",mb_code,sep=""),
-    # #       col.names = c("Source Type","System Type",kable_col_names[3:6])) %>%
-    # #    kable_styling(latex_options = latexoptions) %>%
-    # #    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_demand_no_power_table",file_ext,sep=""))
-    # 
-    # #---------BAR GRAPH Demand by System & Source Type (NO POWER detected) -------------------------------
-    # system_source <- melt(system_source, id=c("system_type","source_type", "pct_change"))
-    # system_source[is.na(system_source)] <- 0
-    # h <- sqldf("SELECT *
-    #         FROM system_source as a
-    #         WHERE source_type IN ('Groundwater','Surface Water')
-    #         ")
-    # 
-    # # v3 <- ggplot(h, aes(x = system_type, y = value, fill = variable)) +
-    # #    geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-    # #    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8), legend.position = "bottom", legend.title = element_text(size = 10)) +
-    # #    xlab(label = element_blank())  +
-    # #    labs(title = paste(mb_name$MinorBasin_Name," Minor Basin",sep=""), subtitle = "Water Withdrawal Demand by Source Type", fill = "Demand: ") +
-    # #    facet_grid(~ source_type) +
-    # #    scale_fill_discrete(labels = c("2020","2030","2040")) +
-    # #    scale_y_continuous(name = "MGD") +
-    # #    geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = 1, na.rm = T)
-    # # 
-    # # ggsave(plot = v3, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_no_power_graph2.png",sep=""))
-    # 
-    # #make 2 separate plots so that scale won't be an issue; then plot together with cowplot::plot_grid()
-    # 
-    # #SURFACE WATER GRAPH
-    # swplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Surface Water"'), aes(x = system_type, y = value, fill = variable)) + 
-    #   geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-    #   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
-    #   xlab(label = element_blank())  +
-    #   labs(title = "Surface Water", fill = "Demand: ") +
-    #   scale_fill_discrete(labels = c("2020","2030","2040")) +
-    #   scale_y_continuous(name = "MGD") +
-    #   geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Surface Water"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
-    # #ggsave(width = 7.2,height = 6,units = "in",plot = swplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_sw_demand_graph.png",sep=""))
-    # 
-    # #GROUNDWATER GRAPH
-    # gwplot <- ggplot(sqldf('SELECT * FROM h WHERE source_type LIKE "Groundwater"'), aes(x = system_type, y = value, fill = variable)) + 
-    #   geom_bar(position= position_dodge2(preserve = "single"), stat="identity") +
-    #   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12), legend.position = "bottom", legend.title = element_text(size = 13)) +
-    #   xlab(label = element_blank())  +
-    #   labs(title = "Groundwater", fill = "Demand: ") +
-    #   scale_fill_discrete(labels = c("2020","2030","2040")) +
-    #   scale_y_continuous(name = "MGD") +
-    #   geom_text(data = sqldf('SELECT * FROM h WHERE variable LIKE "MGD_2040" AND source_type LIKE "Groundwater"'),aes(x = system_type, y = value, label = paste0(pct_change,"%")),inherit.aes = F, show.legend = F, check_overlap = F, nudge_y = .35, na.rm = T, size = 6)
-    # #ggsave(width = 7.2,height = 6,units = "in",plot = gwplot, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_gw_demand_graph.png",sep=""))
-    # 
-    # #COMBINE PLOTS
-    # plot_row <- plot_grid(swplot, gwplot)
-    # 
-    # # now add the title
-    # title <- ggdraw() + 
-    #   draw_label(
-    #     paste(mb_name$MinorBasin_Name," - Water Withdrawal Demand (excluding Power Generation)",sep=""),
-    #     fontface = 'bold',
-    #     x = 0,
-    #     hjust = 0) +
-    #   theme(
-    #     # add margin on the left of the drawing canvas,
-    #     # so title is aligned with left edge of first plot
-    #     plot.margin = margin(0, 0, 0, 7))
-    # 
-    # demand_graph <- plot_grid(
-    #   title, plot_row,
-    #   ncol = 1,
-    #   # rel_heights values control vertical title margins
-    #   rel_heights = c(0.1, 1)
-    # )
-    # ggsave(width = 7.2,height = 6,units = "in",plot = demand_graph, path = paste(folder,"tables_maps/Xtables/", sep=""),filename = paste(mb_code,"_demand_no_power_graph.png",sep=""))
-    # 
-    
-    
-  # ### SOURCE COUNT TABLE
-  #   ######### system_specific_facility######################################################
-  #   #basin schedule email test to select source count for only specific facility demand (excludes county-wide estimate count but demand amount still included in total sums)
-  #   #count_with_county_estimates column = (specific + county_wide estimate) ---> shows # of MPs in each category including county-wide estimate MPs
-  #   #specific count column = only facilities with specific demand amounts ---> does NOT include county wide estimates
-  #   
-  #   system_specific_facility <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
-  #            (SELECT count(MP_hydroid)
-  #             FROM mb_mps
-  #             WHERE facility_ftype NOT LIKE "wsp%"
-  #             AND facility_ftype NOT LIKE "%power"
-  #             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
-  #                                           aggregate_select,'
-  #                     FROM mb_mps a
-  #       WHERE facility_ftype NOT LIKE "%power"
-  #       GROUP BY a.wsp_ftype
-  #       ORDER BY a.system_type', sep=""))
-  #   
-  #   system_specific_facility_sw <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
-  #            (SELECT count(MP_hydroid)
-  #             FROM mb_mps
-  #             WHERE facility_ftype NOT LIKE "wsp%"
-  #             AND facility_ftype NOT LIKE "%power"
-  #             AND MP_bundle = "intake"
-  #             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
-  #                                              aggregate_select,'
-  #                     FROM mb_mps a
-  #       WHERE facility_ftype NOT LIKE "%power"
-  #         AND MP_bundle = "intake"
-  #       GROUP BY a.wsp_ftype
-  #       ORDER BY a.system_type', sep=""))
-  #   system_specific_facility_sw[nrow(system_specific_facility_sw) + 1,] <- list("Small SSU",0,0)
-  #   system_specific_facility_gw <- sqldf(paste('SELECT a.system_type,  count(MP_hydroid) as "count_with_county_estimates",
-  #            (SELECT count(MP_hydroid)
-  #             FROM mb_mps
-  #             WHERE facility_ftype NOT LIKE "wsp%"
-  #             AND facility_ftype NOT LIKE "%power"
-  #             AND MP_bundle = "well"
-  #             AND wsp_ftype = a.wsp_ftype) AS "specific_count",',
-  #                                              aggregate_select,'
-  #                     FROM mb_mps a
-  #       WHERE facility_ftype NOT LIKE "%power"
-  #         AND MP_bundle = "well"
-  #       GROUP BY a.wsp_ftype
-  #       ORDER BY a.system_type', sep=""))
-  #   
-  #   count_total <- data.frame("system_type" = 'Total',
-  #                             "count_with_county_estimates" = colSums(system_specific_facility[2]),
-  #                             "specific_count" = colSums(system_specific_facility[3]),row.names = NULL ) 
-  #   count_table <- rbind(system_specific_facility_sw[1:3],system_specific_facility_gw[1:3],system_specific_facility[1:3], count_total)
-  #   
-  #   # OUTPUT TABLE IN KABLE FORMAT
-  #   kable(count_table, align = c('l','c','c'),  booktabs = T,
-  #         caption = paste("Source Count in ",mb_name$MinorBasin_Name," Minor Basin",sep=""),
-  #         label = paste("source_count_",mb_code,sep=""),
-  #         col.names = c("System Type",
-  #                       "Count with County Estimates","Specific Count")) %>%
-  #      kable_styling(latex_options = latexoptions)  %>%
-  #      pack_rows("Surface Water", 1, 4, hline_before = T, hline_after = F) %>%
-  #      pack_rows("Groundwater", 5, 8, hline_before = T, hline_after = F) %>%
-  #      pack_rows("Total (GW + SW)", 9, 13, hline_before = T, hline_after = F ) %>%
-  #      row_spec(13, bold=T) %>%
-  #      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_source_count",file_ext,sep=""))
-  
 
   
-  
+    ######## TOP 10 COUNTY-WIDE AGRICULTURE USERS Table ###############################################################
+    #-------------- TOP 10 SURFACE WATER COUNTY-WIDE AGRICULTURE ---------------------
+    top_sw <- sqldf('SELECT facility_name, system_type,
+                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+                        fips_name 
+               FROM mb_mps 
+               WHERE MP_bundle = "intake"
+                  AND facility_ftype LIKE "wsp_plan_system-ssuag"
+               GROUP BY Facility_hydroid')
+    
+    top_10_sw <- sqldf('SELECT facility_name, 
+                           system_type,
+                           fips_name,
+                           MGD_2020,
+                           MGD_2030,
+                           MGD_2040,
+                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+                  FROM top_sw
+                  ORDER BY MGD_2040 DESC
+                  limit 10')
+    
+    # #APPEND LETTERED INDEX TO TOP 10 Surface Water Users table   
+    # index <- list()
+    # 
+    # for (i in 1:nrow(top_10_sw)) {
+    #    
+    #    index <- rbind(index, LETTERS[i])
+    #    #print(index)
+    # }
+    # top_10_sw <- cbind(index, top_10_sw)
+    
+    #APPEND TOTALS to TOP 10 Surface Water Users table 
+    top_10_sw <- append_totals(top_10_sw, "Total SW")
+    
+    #need to select the AA for the YES power (including)
+    top_10_sw$pct_total_use <- round((top_10_sw$MGD_2040 / AA$MGD_2040[5]) * 100,2)
+    
+    
+    #-------------- TOP 10 GROUNDWATER COUNTY-WIDE AGRICULTURE ---------------------
+    
+    top_gw <- sqldf('SELECT facility_name, system_type,
+                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+                        fips_name 
+               FROM mb_mps 
+               WHERE MP_bundle = "well"
+                  AND facility_ftype LIKE "wsp_plan_system-ssuag"
+               GROUP BY Facility_hydroid')
+    
+    top_10_gw <- sqldf('SELECT facility_name, 
+                           system_type,
+                           fips_name,
+                           MGD_2020,
+                           MGD_2030,
+                           MGD_2040,
+                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+                  FROM top_gw
+                  ORDER BY MGD_2040 DESC
+                  limit 10')
+    
+    # #APPEND LETTERED INDEX TO TOP 10 Groundwater Users table   
+    # index <- list()
+    # 
+    # for (i in 1:nrow(top_10_gw)) {
+    #    
+    #    index <- rbind(index, LETTERS[i])
+    #    #print(index)
+    # }
+    # top_10_gw <- cbind(index, top_10_gw)
+    
+    #APPEND TOTALS to TOP 10 Groundwater Users table 
+    top_10_gw <- append_totals(top_10_gw, "Total GW")
+    
+    #need to select the BB for the YES power (including)
+    top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
+    
+    gw_header <- data.frame("facility_name" = 'Groundwater',
+                            "system_type" = '',
+                            "fips_name" = '',
+                            "MGD_2020" = '',
+                            "MGD_2030" ='',
+                            "MGD_2040" ='',
+                            "pct_change" = '',
+                            "pct_total_use" = '% of Total Groundwater')
+    
+    top_10 <- rbind(top_10_sw, gw_header, top_10_gw)
+    
+    top_10$facility_name <- str_to_title(top_10$facility_name)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+    
+    top_10[is.na(top_10)] <- 0
+    
+    # OUTPUT TABLE IN KABLE FORMAT
+    table10_tex <- kable(top_10,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+                         caption = paste("Top 10 County-Wide Agricultural Users in 2040 in ",mb_name[1],sep=""),
+                         label = paste("top_10_ag_",mb_code,sep=""),
+                         col.names = c("Facility Name",
+                                       "System Type",
+                                       "Locality",
+                                       kable_col_names[3:6],
+                                       "% of Total Surface Water")) %>%
+      kable_styling(latex_options = latexoptions) %>%
+      column_spec(1, width = "9em") %>%
+      column_spec(2, width = "3em") %>%
+      column_spec(3, width = "4em") %>%
+      column_spec(4, width = "4em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "4em") %>%
+      column_spec(7, width = "4em") %>%
+      column_spec(8, width = "7em") %>%
+      row_spec(0, bold=T, font_size = 9) %>%
+      pack_rows("Surface Water", 1, 11) %>%
+      row_spec(11, extra_latex_after = "\\hline") %>%
+      row_spec(12, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+    
+    #CUSTOM LATEX CHANGES
+    #insert hold position header
+    table10_tex <- gsub(pattern = "{table}[t]", 
+                        repl    = "{table}[H]", 
+                        x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\hspace{1em}", 
+                        repl    = "", 
+                        x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\hline", 
+                        repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
+                        x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+                        repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
+                        x       = table10_tex, fixed = T )
+    table10_tex <- gsub(pattern = "\\textbf{Locality}", 
+                        repl    = "\\vspace{0.3em}\\textbf{Locality}", 
+                        x       = table10_tex, fixed = T )
+    table10_tex %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_ag_table",file_ext,sep=""))
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
