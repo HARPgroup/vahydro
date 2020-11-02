@@ -80,6 +80,7 @@ class DHMonthlyEvent extends dhTimeSeriesGroupPluggable {
   public function buildForm(&$form, &$form_state) {
     // we can put some things in here if we wish to customize display
     parent::buildForm($form, $form_state);
+	
   }
   
   function prepareQuery() {
@@ -415,6 +416,12 @@ class DHMonthlyReportingEvent extends DHMonthlyEvent {
     );
   }
 
+  public function buildForm(&$form, &$form_state) {
+    // we can put some things in here if we wish to customize display
+    parent::buildForm($form, $form_state);
+	$form['tsvalue']['#size'] = 12;
+  }
+  
   function submitForm(array &$form, $form_state) {
     parent::submitForm($form, $form_state);
     $this->updateAnnualTotal($form_state);
