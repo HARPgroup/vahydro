@@ -1377,7 +1377,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #footnote(symbol = "This table shows demand values greater than 1.0 MGD.") %>%
       #footnote(c("Footnote Symbol 1; Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin", "Footnote Symbol 2")) %>%
       footnote(general_title = "Note: ",
-               general = "Potential unmet demand is the portion of surface water demand for a specific facility that is limited by available streamflow as simulated in a given model scenario, including any known operational limits such as flow-by requirements. This unmet demand, if realized, could be managed through water conservation, through alternative sources, operational changes, or from available storage.", 
+               general = "Potential unmet demand is the portion of surface water demand for a specific facility \\n                             that is limited by available streamflow as simulated in a given model scenario, including \\n                          any known operational limits such as flow-by requirements. This unmet demand, if realized, \\n                          could be managed through water conservation, alternative sources, operational changes, or from available storage.", 
                symbol = "Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin")
 
    unmet_tex <- gsub(pattern = "{table}[t]",
@@ -1400,7 +1400,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'RL', file_extension = '.tex')
+TABLE_GEN_func(minorbasin = 'JL', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
