@@ -484,16 +484,13 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_tidal_segment_8bin_2.0.PNG',sep='')
-    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_tidal_segment.PNG',sep='')
   } else {
-    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg.PNG',sep='')
   }
   
   #base_legend <- draw_image(image_path,height = .34, x = 0.394, y = .55)
   base_legend <- draw_image(image_path,height = .34, x = 0.392, y = .55)
-  
-  tidal_legend <- draw_image(paste(folder, 'tables_maps/tidal_legend.PNG',sep=''),height = .05, x = -0.384, y = .72)
   
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32)
   ######################################################################################################
@@ -501,17 +498,15 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   #COLOR SCALE FOR THE 7 MAPPING "BINS"
   ###color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","#E4FFB9","darkolivegreen3","darkolivegreen4")
-  color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
-  
+  color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","white","darkolivegreen3","darkolivegreen4")
   
   #DIVISIONS TO BE USED IN MAPPING "BINS"
   div1 <- -20
   div2 <- -10
   div3 <- -5
-  div4 <- -1
-  div5 <- 1
-  div6 <- 10
-  div7 <- 20
+  div4 <- 0
+  div5 <- 10
+  div6 <- 20
   
   #INITIATE COLOR AND LABEL LISTS
   color_values <- list()
@@ -597,28 +592,15 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   ######################################################################################################
   ### BIN 7 ############################################################################################
   ######################################################################################################
-  bin7 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div7, "AND pct_chg >= ",div6))
+  bin7 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div6))
   bin7 <- st_as_sf(bin7, wkt = 'geom')
   
   if (nrow(bin7) > 0) {
     geom7 <- geom_sf(data = bin7,aes(geometry = geom,fill = 'aquamarine1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[6])
-    label_values <- rbind(label_values,paste(div5,"% to ",div6,"%",sep=""))
-  } else  {
-    geom7 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 8 ############################################################################################
-  ######################################################################################################
-  bin8 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div7))
-  bin8 <- st_as_sf(bin8, wkt = 'geom')
-  
-  if (nrow(bin8) > 0) {
-    geom8 <- geom_sf(data = bin8,aes(geometry = geom,fill = 'aquamarine2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[7])
     label_values <- rbind(label_values,paste(">= ",div6,"%",sep=""))
   } else  {
-    geom8 <- geom_blank()
+    geom7 <- geom_blank()
   }
   ######################################################################################################
   ######################################################################################################
@@ -646,6 +628,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     geom_tidal <- geom_blank()
   }
   
+
+print(bin5)
   ####################################################################
   source_current <- base_map +
     geom_tidal_base +
@@ -656,7 +640,6 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     geom5 +
     geom6 +
     geom7 +
-    geom8 +
     scale_fill_manual(values=color_values,
                       name = "Legend",
                       labels = label_values)+
@@ -789,13 +772,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       base_theme) +
         base_legend +
         bubble_legend +
-        #tidal_legend +
         deqlogo
-      
-      if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-        map <- map + tidal_legend
-      }
-      
     } else if (rsegs == "OFF") {
       print("PLOTTING - RIVERSEGS TURNED OFF") 
       #EXPORT FILE NAME FOR MAP PNG

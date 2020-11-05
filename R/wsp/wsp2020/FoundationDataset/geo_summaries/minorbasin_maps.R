@@ -48,9 +48,9 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
 # minorbasin.mapgen(minorbasin = "NR",
-#                   metric = "l90_Qout",
+#                   metric = "l30_Qout",
 #                   runid_a = "runid_11",
-#                   runid_b = "runid_18",
+#                   runid_b = "runid_12",
 #                   wd_points <- "ON",
 #                   rsegs <- "ON")
 

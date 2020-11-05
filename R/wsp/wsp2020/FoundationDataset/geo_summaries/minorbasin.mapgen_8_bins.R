@@ -484,16 +484,13 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_tidal_segment_8bin_2.0.PNG',sep='')
-    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_tidal_segment_8bin.PNG',sep='')
   } else {
-    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin.PNG',sep='')
   }
   
   #base_legend <- draw_image(image_path,height = .34, x = 0.394, y = .55)
   base_legend <- draw_image(image_path,height = .34, x = 0.392, y = .55)
-  
-  tidal_legend <- draw_image(paste(folder, 'tables_maps/tidal_legend.PNG',sep=''),height = .05, x = -0.384, y = .72)
   
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32)
   ######################################################################################################
@@ -646,6 +643,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     geom_tidal <- geom_blank()
   }
   
+
+print(bin5)
   ####################################################################
   source_current <- base_map +
     geom_tidal_base +
@@ -789,13 +788,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       base_theme) +
         base_legend +
         bubble_legend +
-        #tidal_legend +
         deqlogo
-      
-      if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-        map <- map + tidal_legend
-      }
-      
     } else if (rsegs == "OFF") {
       print("PLOTTING - RIVERSEGS TURNED OFF") 
       #EXPORT FILE NAME FOR MAP PNG
