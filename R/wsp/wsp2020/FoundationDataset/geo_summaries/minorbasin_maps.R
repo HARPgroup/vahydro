@@ -47,19 +47,20 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "NR",
-                  metric = "l90_Qout",
-                  runid_a = "runid_11",
-                  runid_b = "runid_18",
-                  wd_points <- "ON",
-                  rsegs <- "ON")
+# minorbasin.mapgen(minorbasin = "NR",
+#                   metric = "l30_Qout",
+#                   runid_a = "runid_11",
+#                   runid_b = "runid_12",
+#                   wd_points <- "ON",
+#                   rsegs <- "ON")
 
-minorbasin.mapgen(minorbasin = "JU",
-                  metric = "l90_cc_Qout",
-                  runid_a = "runid_11",
-                  runid_b = "runid_17",
-                  wd_points <- "OFF",
-                  rsegs <- "ON")
+# minorbasin.mapgen(minorbasin = "YM",
+#                   metric = "l30_Qout",
+#                   runid_a = "runid_11",
+#                   runid_b = "runid_13",
+#                   wd_points <- "ON",
+#                   rsegs <- "ON")
+
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS (189 figs)
