@@ -395,7 +395,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
 
   
   
-  # USE THIS TO REMOVE ANY "_0000" TIDAL SEGMENTS - THEY WILL APPEAD AS GAPS ON THE MAP
+  # USE THIS TO REMOVE ANY "_0000" TIDAL SEGMENTS - THEY WILL APPEAR AS GAPS ON THE MAP
   # RSeg_non_tidal <- paste("SELECT *
   #                 FROM RSeg_data
   #                 WHERE hydrocode NOT LIKE '%_0000'")
@@ -482,15 +482,15 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       panel.background = element_blank(),
                       panel.border = element_blank())
   
-  #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
-  if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_tidal_segment_8bin_2.0.PNG',sep='')
-    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
-  } else {
-    image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
-  }
+  # #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
+  # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
+  #   #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_tidal_segment_8bin_2.0.PNG',sep='')
+  #   image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
+  # } else {
+  #   image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
+  # }
   
-  #base_legend <- draw_image(image_path,height = .34, x = 0.394, y = .55)
+  image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
   base_legend <- draw_image(image_path,height = .34, x = 0.392, y = .55)
   
   tidal_legend <- draw_image(paste(folder, 'tables_maps/tidal_legend.PNG',sep=''),height = .05, x = -0.384, y = .72)
@@ -499,8 +499,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   ######################################################################################################
   rseg_border <- 'black'
   
-  #COLOR SCALE FOR THE 7 MAPPING "BINS"
-  ###color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","#E4FFB9","darkolivegreen3","darkolivegreen4")
+  #COLOR SCALE FOR THE 8 MAPPING "BINS"
   color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
   
   
@@ -602,7 +601,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   if (nrow(bin7) > 0) {
     geom7 <- geom_sf(data = bin7,aes(geometry = geom,fill = 'aquamarine1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[6])
+    color_values <- rbind(color_values,color_scale[7])
     label_values <- rbind(label_values,paste(div5,"% to ",div6,"%",sep=""))
   } else  {
     geom7 <- geom_blank()
@@ -612,10 +611,10 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   ######################################################################################################
   bin8 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div7))
   bin8 <- st_as_sf(bin8, wkt = 'geom')
-  
+
   if (nrow(bin8) > 0) {
     geom8 <- geom_sf(data = bin8,aes(geometry = geom,fill = 'aquamarine2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[7])
+    color_values <- rbind(color_values,color_scale[8])
     label_values <- rbind(label_values,paste(">= ",div6,"%",sep=""))
   } else  {
     geom8 <- geom_blank()
