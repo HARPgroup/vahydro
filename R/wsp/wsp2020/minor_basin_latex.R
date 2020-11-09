@@ -191,7 +191,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
    mb_name <- as.character(levels(mb_name$MinorBasin_Name)[mb_name$MinorBasin_Name])
    
    mb_name <- case_when(
-      mb_name == "James Lower" ~ "Lower James",
+      mb_name == "James Bay" ~ "Lower James",
+      mb_name == "James Lower" ~ "Middle James",
       mb_name == "James Upper" ~ "Upper James",
       mb_name == "Potomac Lower" ~ "Lower Potomac",
       mb_name == "Potomac Middle" ~ "Middle Potomac",
@@ -200,7 +201,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       mb_name == "Rappahannock Upper" ~ "Upper Rappahannock",
       mb_name == "Tennessee Upper" ~ "Upper Tennessee",
       mb_name == "York Lower" ~ "Lower York",
-      mb_name == mb_name ~ mb_name)
+      mb_name == mb_name ~ mb_name) #this last line is the else clause to keep all other names supplied that don't need to be changed
    
    #Select measuring points within minor basin of interest, Restrict output to columns of interest
    mb_mps <- sqldf(paste('SELECT  MP_hydroid,
@@ -1356,7 +1357,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    }
    
    # OUTPUT TABLE IN KABLE FORMAT
-   unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T, longtable =T,
+   unmet_tex <- kable(unmet_table[2:7],align = c('l','c','c','c','c','c'),  booktabs = T,
          caption = paste("Change in Highest 30 Day Potential Unmet Demand (MGD) in ",mb_name," Minor Basin",sep=""),
          label = paste("unmet30_",mb_code,sep=""),
          col.names = c("Facility",
@@ -1365,9 +1366,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                        "2040 Demand",
                        "Dry Climate",
                        "Exempt User")) %>%
-      kable_styling(latex_options = "striped") %>%
+      kable_styling(latex_options = c("scale_down","striped")) %>%
       row_spec(0, bold = T) %>%
-      column_spec(1, width = "14em") %>%
+      column_spec(1, width = "11em") %>%
       column_spec(2, width = "5em") %>%
       column_spec(3, width = "5em") %>%
       column_spec(4, width = "5em") %>%
@@ -1376,22 +1377,19 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       #footnote(symbol = "This table shows demand values greater than 1.0 MGD.") %>%
       #footnote(c("Footnote Symbol 1; Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin", "Footnote Symbol 2")) %>%
       footnote(general_title = "Note: ",
-               general = "Potential unmet demand is the portion of surface water demand for a specific facility that is limited by available streamflow as simulated in a given model scenario, including any known operational limits such as flow-by requirements. This unmet demand, if realized, could be managed through water conservation, through alternative sources, operational changes, or from available storage.", 
-               symbol = "Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin")
+               general = "Explain", 
+               symbol = "CC")
 
    unmet_tex <- gsub(pattern = "{table}[t]",
                      repl    = "{table}[H]",
                      x       = unmet_tex, fixed = T )
-   unmet_tex <- gsub(pattern = "\\toprule
-\\textbf{Facility} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{Dry Climate} & \\textbf{Exempt User}\\\\
-\\midrule",
-                     repl    = "\\toprule
-\\textbf{Facility} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{Dry Climate} & \\textbf{Exempt User}\\\\
-\\endfirsthead
-\\multicolumn{3}{l}{\\textbf{ \\tablename\\ \\ref{tab:unmet30_PS} -- continued from previous page}}
-\\endhead
-\\midrule",
+   unmet_tex <- gsub(pattern = "\\multicolumn{6}{l}{\\textit{Note: }}\\\\
+\\multicolumn{6}{l}{Explain}\\\\
+\\multicolumn{6}{l}{\\textsuperscript{*} CC}\\\\",
+                     repl    = "\\addlinespace \\multicolumn{6}{l}{\\textsuperscript{*} Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin}\\\\ \\addlinespace 
+\\multicolumn{6}{l}{ \\multirow{}{}{\\parbox{14cm}{\\textit{Note:} Potential unmet demand is the portion of surface water demand for a specific facility that is limited by available streamflow as simulated in a given model scenario, including any known operational limits such as flow-by requirements. This unmet demand, if realized, could be managed through water conservation, alternative sources, operational changes, or from available storage.}}}\\\\",
                      x       = unmet_tex, fixed = T )
+
       unmet_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_unmet30_table",file_ext,sep=""))
 
@@ -1399,7 +1397,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'RL', file_extension = '.tex')
+TABLE_GEN_func(minorbasin = 'JL', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')

@@ -218,10 +218,35 @@ wsp2020_2040 <- sqldf('SELECT a.*, b.final_exempt_propcode, b.final_exempt_propv
 # Write this file
 write.csv(wsp2020_2040, file=paste(export_path,'wsp2020.mp.all.csv',sep='\\' ), row.names = F)
 
-# count_dupes <- sqldf("SELECT count(facility_name) as facility_count, facility_name, MP_bundle, sum(mp_2020_mgy), sum(mp_2040_mgy)
-#                      FROM wsp2020_2040
-#                      GROUP BY facility_name, MP_bundle
-#                      having count(facility_name) > 1
-#                      AND sum(mp_2020_mgy) != 0")
+# #------------------------------------------------------------------------------------------------#
+#wsp2020_2040 <- read.csv(file = "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\wsp2020.mp.all.csv")
+
+count_fac_dupes <- sqldf('SELECT MP_hydroid, count(MP_hydroid) as mp_count, sum(mp_2020_mgy)
+               FROM wsp2020_2040
+               GROUP BY MP_hydroid
+               having count(MP_hydroid) > 1')
+
+wsp2020_2040_fac <- sqldf("SELECT Facility_hydroid, facility_name, facility_status, facility_ftype, fips_code, facility_lat, facility_long, wsp_ftype, system_type, 
+sum(mp_2020_mgy) AS fac_2020_mgy, 
+sum(mp_2030_mgy) AS fac_2030_mgy, 
+sum(mp_2040_mgy) AS fac_2040_mgy, 
+sum(mp_2040_mgy) - sum(mp_2020_mgy) AS delta_2040_mgy,  
+((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) *100  AS delta_2040_pct
+
+                      FROM wsp2020_2040
+                      GROUP BY Facility_hydroid")
+
+wsp2020_2040_fac <- sqldf("SELECT *, 
+fac_2020_mgy / 365 AS fac_2020_MGD, 
+fac_2030_mgy / 365 AS fac_2030_MGD, 
+fac_2040_mgy / 365 AS fac_2040_MGD, 
+(fac_2040_mgy / 365) - (fac_2020_mgy / 365) AS delta_2040_MGD,  
+((fac_2040_mgy - fac_2020_mgy) / fac_2020_mgy) *100  AS fac_pct_change
+                      FROM wsp2020_2040_fac
+                      GROUP BY Facility_hydroid")
+
+# Write this file
+write.csv(wsp2020_2040_fac, file=paste(export_path,'wsp2020.fac.all.csv',sep='\\' ), row.names = F)
+
 # #------------------------------------------------------------------------------------------------#
 #to generate export for Groundwater Modeling (send to aquaveo), go to gw_model_file_create.R at the bottom
