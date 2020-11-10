@@ -770,16 +770,6 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                   ORDER BY MGD_2040 DESC
                   limit 10')
     
-    # #APPEND LETTERED INDEX TO TOP 10 Surface Water Users table   
-    # index <- list()
-    # 
-    # for (i in 1:nrow(top_10_sw)) {
-    #    
-    #    index <- rbind(index, LETTERS[i])
-    #    #print(index)
-    # }
-    # top_10_sw <- cbind(index, top_10_sw)
-    
     #APPEND TOTALS to TOP 10 Surface Water Users table 
     top_10_sw <- append_totals(top_10_sw, "Total SW")
     
@@ -810,16 +800,6 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                   ORDER BY MGD_2040 DESC
                   limit 10')
     
-    # #APPEND LETTERED INDEX TO TOP 10 Groundwater Users table   
-    # index <- list()
-    # 
-    # for (i in 1:nrow(top_10_gw)) {
-    #    
-    #    index <- rbind(index, LETTERS[i])
-    #    #print(index)
-    # }
-    # top_10_gw <- cbind(index, top_10_gw)
-    
     #APPEND TOTALS to TOP 10 Groundwater Users table 
     top_10_gw <- append_totals(top_10_gw, "Total GW")
     
@@ -832,34 +812,35 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                             "MGD_2020" = '',
                             "MGD_2030" ='',
                             "MGD_2040" ='',
-                            "pct_change" = '% of Total Groundwater',
-                            "pct_total_use" = '')
+                            "pct_change" = '',
+                            "pct_total_use" = '% of Total Groundwater')
     
     top_10 <- rbind(top_10_sw, gw_header, top_10_gw)
     
-    top_10$facility_name <- str_to_title(top_10$facility_name)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+    # top_10$facility_name <- str_to_title(top_10$facility_name)
+    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
     top_10$facility_name <- gsub(x = top_10$facility_name, pattern = " \\(Agriculture\\)", replacement = "", ignore.case = T)
     
-    top_10[is.na(top_10)] <- 0
-    top_10 <- sqldf('SELECT facility_name AS Locality, MGD_2020, MGD_2030, MGD_2040, pct_change
+    top_10[is.na(top_10)] <- 0.00
+    top_10 <- sqldf('SELECT facility_name AS Locality, MGD_2020, MGD_2030, MGD_2040, pct_change, pct_total_use
                     FROM top_10')
     # OUTPUT TABLE IN KABLE FORMAT
-    table10_tex <- kable(top_10,align = c('l','c','c','c','l'),  booktabs = T,
+    table10_tex <- kable(top_10,align = c('l','c','c','c','c','c'),  booktabs = T,
                          caption = paste("Top 10 County-Wide Agricultural Users in 2040 in ",mb_name[1],sep=""),
                          label = paste("top_10_ag_",mb_code,sep=""),
                          col.names = c("Locality",
-                                       kable_col_names[3:5],
+                                       kable_col_names[3:6],
                                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
       column_spec(1, width = "8em") %>%
       column_spec(2, width = "4em") %>%
       column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
-      column_spec(5, width = "7em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "7em") %>%
       row_spec(0, bold=T, font_size = 9) %>%
       pack_rows("Surface Water", 1, 11) %>%
       row_spec(11,bold = T, extra_latex_after = "\\hline") %>%
@@ -889,44 +870,6 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     ######## TOP 10 COUNTY-WIDE SMALL SSU Table ###############################################################
     #-------------- THERE ARE NO SURFACE WATER COUNTY-WIDE SMALL SSU ---------------------
-    top_sw <- sqldf('SELECT facility_name, system_type,
-                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
-                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
-                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
-                        fips_name 
-               FROM mb_mps 
-               WHERE MP_bundle = "intake"
-                  AND facility_ftype LIKE "wsp_plan_system-ssusm"
-               GROUP BY Facility_hydroid')
-    
-    top_10_sw <- sqldf('SELECT facility_name, 
-                           system_type,
-                           fips_name,
-                           MGD_2020,
-                           MGD_2030,
-                           MGD_2040,
-                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
-                  FROM top_sw
-                  ORDER BY MGD_2040 DESC
-                  limit 10')
-    
-    # #APPEND LETTERED INDEX TO TOP 10 Surface Water Users table   
-    # index <- list()
-    # 
-    # for (i in 1:nrow(top_10_sw)) {
-    #    
-    #    index <- rbind(index, LETTERS[i])
-    #    #print(index)
-    # }
-    # top_10_sw <- cbind(index, top_10_sw)
-    
-    #APPEND TOTALS to TOP 10 Surface Water Users table 
-    top_10_sw <- append_totals(top_10_sw, "Total SW")
-    
-    #need to select the AA for the YES power (including)
-    top_10_sw$pct_total_use <- round((top_10_sw$MGD_2040 / AA$MGD_2040[5]) * 100,2)
-    
-    
     #-------------- TOP 10 GROUNDWATER COUNTY-WIDE AGRICULTURE ---------------------
     
     top_gw <- sqldf('SELECT facility_name, system_type,
@@ -936,7 +879,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                         fips_name 
                FROM mb_mps 
                WHERE MP_bundle = "well"
-                  AND facility_ftype LIKE "wsp_plan_system-ssuag"
+                  AND facility_ftype LIKE "wsp_plan_system-ssusm"
                GROUP BY Facility_hydroid')
     
     top_10_gw <- sqldf('SELECT facility_name, 
@@ -950,61 +893,38 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                   ORDER BY MGD_2040 DESC
                   limit 10')
     
-    # #APPEND LETTERED INDEX TO TOP 10 Groundwater Users table   
-    # index <- list()
-    # 
-    # for (i in 1:nrow(top_10_gw)) {
-    #    
-    #    index <- rbind(index, LETTERS[i])
-    #    #print(index)
-    # }
-    # top_10_gw <- cbind(index, top_10_gw)
-    
     #APPEND TOTALS to TOP 10 Groundwater Users table 
     top_10_gw <- append_totals(top_10_gw, "Total GW")
     
     #need to select the BB for the YES power (including)
     top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
+    top_10 <- top_10_gw
+    # top_10$facility_name <- str_to_title(top_10$facility_name)
+    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = " \\(Small Self-Supplied User\\)", replacement = "", ignore.case = T)
     
-    gw_header <- data.frame("facility_name" = 'Groundwater',
-                            "system_type" = '',
-                            "fips_name" = '',
-                            "MGD_2020" = '',
-                            "MGD_2030" ='',
-                            "MGD_2040" ='',
-                            "pct_change" = '% of Total Groundwater',
-                            "pct_total_use" = '')
-    
-    top_10 <- rbind(top_10_sw, gw_header, top_10_gw)
-    
-    top_10$facility_name <- str_to_title(top_10$facility_name)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
-    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = " \\(Agriculture\\)", replacement = "", ignore.case = T)
-    
-    top_10[is.na(top_10)] <- 0
-    top_10 <- sqldf('SELECT facility_name AS Locality, MGD_2020, MGD_2030, MGD_2040, pct_change
+    top_10[is.na(top_10)] <- 0.00
+    top_10 <- sqldf('SELECT facility_name AS Locality, MGD_2020, MGD_2030, MGD_2040, pct_change, pct_total_use
                     FROM top_10')
     # OUTPUT TABLE IN KABLE FORMAT
-    table10_tex <- kable(top_10,align = c('l','c','c','c','l'),  booktabs = T,
-                         caption = paste("Top 10 County-Wide Agricultural Users in 2040 in ",mb_name[1],sep=""),
-                         label = paste("top_10_ag_",mb_code,sep=""),
+    table10_tex <- kable(top_10,align = c('l','c','c','c','c','c'),  booktabs = T,
+                         caption = paste("Top 10 County-Wide Small Self-Supplied Users in 2040 in ",mb_name[1],sep=""),
+                         label = paste("top_10_ssusm_",mb_code,sep=""),
                          col.names = c("Locality",
-                                       kable_col_names[3:5],
-                                       "% of Total Surface Water")) %>%
+                                       kable_col_names[3:6],
+                                       "% of Total Groundwater")) %>%
       kable_styling(latex_options = latexoptions) %>%
       column_spec(1, width = "8em") %>%
       column_spec(2, width = "4em") %>%
       column_spec(3, width = "4em") %>%
       column_spec(4, width = "4em") %>%
-      column_spec(5, width = "7em") %>%
+      column_spec(5, width = "4em") %>%
+      column_spec(6, width = "7em") %>%
       row_spec(0, bold=T, font_size = 9) %>%
-      pack_rows("Surface Water", 1, 11) %>%
-      row_spec(11,bold = T, extra_latex_after = "\\hline") %>%
-      row_spec(12, bold=T, hline_after = F, extra_css = "border-top: 1px solid") %>%
-      row_spec(23, bold = T)
+      row_spec(11,bold = T)
     
     #CUSTOM LATEX CHANGES
     #insert hold position header
@@ -1020,11 +940,11 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table10_tex <- gsub(pattern = "\\textbf{Locality}", 
                         repl    = "\\vspace{0.3em}\\textbf{Locality}", 
                         x       = table10_tex, fixed = T )
-    table10_tex <- gsub(pattern = "\\textbf{\\% of Total Surface Water}", 
-                        repl    = "\\vspace{0.3em}\\textbf{\\% of Total Surface Water}", 
+    table10_tex <- gsub(pattern = "\\textbf{\\% of Total Groundwater}", 
+                        repl    = "\\vspace{0.3em}\\textbf{\\% of Total Groundwater}", 
                         x       = table10_tex, fixed = T )
     table10_tex %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_ag_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_ssusm_table",file_ext,sep=""))
     
     
 }
