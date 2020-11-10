@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "PS", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "ES", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -180,6 +180,11 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
 
    #------CHOOSE A MINOR BASIN ##############################
    
+   # change all EL minorbasin_code values to ES
+   if (minorbasin == 'ES') {
+      mp_all$MinorBasin_Code <- recode(mp_all$MinorBasin_Code, EL = "ES")
+   }
+   
    #select minor basin code to know folder to save in
    mb_code <- minorbasin
    
@@ -201,6 +206,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       mb_name == "Rappahannock Upper" ~ "Upper Rappahannock",
       mb_name == "Tennessee Upper" ~ "Upper Tennessee",
       mb_name == "York Lower" ~ "Lower York",
+      mb_name == "Eastern Shore Atlantic" ~ "Eastern Shore",
       mb_name == mb_name ~ mb_name) #this last line is the else clause to keep all other names supplied that don't need to be changed
    
    #Select measuring points within minor basin of interest, Restrict output to columns of interest
@@ -1286,7 +1292,6 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
  #      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_source_count",file_ext,sep=""))
    
    #---- UNMET/CONSTRAINED DEMAND TABLE -------------------------------------------------------------------------------
-   
    unmet30 <- sqldf('SELECT pid,
                            featureid,
                            propname,
@@ -1301,6 +1306,8 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                  WHERE hydrocode NOT LIKE "wsp_%"
                  AND riverseg NOT LIKE "%_0000%"
                  ORDER BY mb_code DESC, runid_18 DESC')
+   
+   unmet30$mb_code <- recode(unmet30$mb_code, EL = "ES")
    unmet30$runid_17[is.na(unmet30$runid_17)] <- "-"
 
    #filter the 5 runids
@@ -1322,7 +1329,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #write.csv(a_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\a_unmet30.csv", row.names = F)
 
    # # No Minor Basin
-   #
+   # 
    # null_unmet30 <- sqldf('SELECT pid,
    #                            featureid,
    #                            propname,
@@ -1335,7 +1342,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #                  FROM unmet30
    #       WHERE riverseg LIKE ""
    #       ORDER BY runid_18 DESC')
-   #
+   # 
    # write.csv(null_unmet30, file = "C:\\Users\\maf95834\\Documents\\R\\null_unmet30.csv", row.names = F)
 
    #------------------------------------------------------------------------------------------------------------
@@ -1400,7 +1407,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 TABLE_GEN_func(minorbasin = 'JL', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
-basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
+basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
 
 ext <- c(".html",".tex")
 ext <- c(".tex")
