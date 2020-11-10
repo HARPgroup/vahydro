@@ -743,9 +743,6 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table10_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_no_power_table",file_ext,sep=""))
 
-    
-    
-
   
     ######## TOP 10 COUNTY-WIDE AGRICULTURE USERS Table ###############################################################
     #-------------- TOP 10 SURFACE WATER COUNTY-WIDE AGRICULTURE ---------------------
@@ -1206,82 +1203,6 @@ kable(ssu_permitted,  booktabs = T,
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
   cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_no_power_kable",file_ext,sep=""))
-
-
-#---------------------------------------------------------------#
-
-#Demand by System & Source Type with count
-system_source_sql <- paste('SELECT 
-                     wsp_ftype, MP_bundle, count(MP_hydroid) AS sources,',
-                    aggregate_select,'
-                     FROM mps
-                     GROUP BY wsp_ftype, MP_bundle', sep="")
-
-system_source <- sqldf(system_source_sql)
-#calculate columns sums 
-totals <- as.data.frame(lapply(system_source[1:6], totals_func),stringsAsFactors = F)
-#calculate total percentage change
-totals <- sqldf("SELECT *, 
-round(((sum(MGD_2040) - sum(MGD_2020)) / sum(MGD_2020)) * 100,2) AS 'pct_change'
-      FROM totals")
-#append totals to table
-system_source <- rbind(cbind(' '=' ', system_source),
-                        cbind(' '='Total', totals))
-
-# OUTPUT TABLE IN KABLE FORMAT
-kable(system_source,  booktabs = T,
-      caption = "Statewide Withdrawal Demand by System and Source Type (including Power Generation)",
-      label = "demand_system_source_yes_power_statewide",
-      col.names = c("",
-                    "System Type",
-                    "Source Type",
-                    "Source Count",
-                    #"2020 Demand (MGY)",
-                    #"2030 Demand (MGY)",
-                    #"2040 Demand (MGY)",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
-  kable_styling(latex_options = latexoptions) %>%
-  #column_spec(1, width = "6em") %>%
-  #column_spec(2, width = "5em") %>%
-  #column_spec(3, width = "5em") %>%
-  #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_system_source_yes_power_kable",file_ext,sep=""))
-#---------------------------------------------------------------#
-
-#SSU Demand by County 
-by_ssu_county <- sqldf("SELECT 
-fips_code, 
-fips_name, a.MP_bundle,
-sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM mps
-                        where wsp_ftype like '%ssusm'
-                        GROUP BY fips_code, MP_bundle
-                        ORDER BY pct_change DESC")
-
-write.csv(by_ssu_county, paste(folder,"ssu_county.csv", sep=""))
-
-# OUTPUT TABLE IN KABLE FORMAT
-kable(by_ssu_county[1:6],  booktabs = T,
-      caption = "Small Self-Supplied Users Withdrawal Demand by Locality",
-      label = "demand_ssu_locality_statewide",
-      col.names = c("Fips Code",
-                    "Locality",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
-  kable_styling(latex_options = latexoptions) %>%
-  #column_spec(1, width = "5em") %>%
-  #column_spec(2, width = "5em") %>%
-  #column_spec(3, width = "5em") %>%
-  #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_ssu_locality_statewide_kable",file_ext,sep=""))
 
 #---------------------------------------------------------------#
 #POWERPOINT PRESENTATION BRIEFING
