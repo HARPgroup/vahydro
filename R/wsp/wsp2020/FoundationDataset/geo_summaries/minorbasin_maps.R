@@ -47,12 +47,12 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen(minorbasin = "NR",
-#                   metric = "l30_Qout",
-#                   runid_a = "runid_11",
-#                   runid_b = "runid_12",
-#                   wd_points <- "ON",
-#                   rsegs <- "ON")
+minorbasin.mapgen(minorbasin = "ES",
+                  metric = "l30_Qout",
+                  runid_a = "runid_11",
+                  runid_b = "runid_12",
+                  wd_points <- "ON",
+                  rsegs <- "ON")
 
 # minorbasin.mapgen(minorbasin = "YM",
 #                   metric = "l30_Qout",
@@ -64,7 +64,7 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS (189 figs)
-minorbasin <- c("NR", "YP", "EL", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- c("l30_Qout","l90_Qout","7q10")
 runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
 runid_b <- c("runid_12","runid_13","runid_18")
@@ -72,7 +72,7 @@ wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
 
 #NORTHERN BASINS ONLY (FOR CC SCENARIOS) (90 figs)
-minorbasin <- c("YP", "EL", "RL", "PU", "RU", "YM", "JA", "PM", "YL", "PL", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("YP", "RL", "PU", "RU", "YM", "JA", "PM", "YL", "PL", "JU", "JB", "JL","PS","ES")
 metric <- c("l30_cc_Qout", "l90_cc_Qout")
 runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
 runid_b <- c("runid_17","runid_19","runid_20")
@@ -114,13 +114,13 @@ minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "JU",
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - SINGLE SCENARIO (84 figs)
-minorbasin <- c("NR", "YP", "EL", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- "consumptive_use_frac"
 runid_a <- c("runid_11","runid_12","runid_13","runid_18")
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 
 #NORTHERN BASINS ONLY (FOR CC SCENARIO) (45 figs)
-minorbasin <- c("YP", "EL", "RL", "PU", "RU", "YM", "JA", "PM", "YL", "PL", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("YP", "RL", "PU", "RU", "YM", "JA", "PM", "YL", "PL", "JU", "JB", "JL","PS","ES")
 metric <- "consumptive_use_frac"
 runid_a <- c("runid_17","runid_19","runid_20")
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
@@ -167,7 +167,7 @@ minorbasin.mapgen(minorbasin = "PS",
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - (21 figs)
-minorbasin <- c("NR", "YP", "EL", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- "l30_Qout"
 runid_a <- "runid_11"
 runid_b <- "runid_13"
