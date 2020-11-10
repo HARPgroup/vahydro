@@ -40,6 +40,7 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
                             WHEN name == "Rappahannock Upper" Then "Upper Rappahannock"
                             WHEN name == "Tennessee Upper" Then "Upper Tennessee"
                             WHEN name == "York Lower" Then "Lower York"
+                            WHEN name == "Eastern Shore Atlantic" Then "Eastern Shore"
                             ELSE name
                           END AS name
                         FROM "MinorBasins.csv" 
@@ -105,6 +106,13 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
               FROM mb_data 
               WHERE code = "',minorbasin,'"'
                      ,sep="")
+  
+  if (minorbasin == "ES") {
+    print("COMBINING 2 EASTERN SHORE MINOR BASINS")
+    MB_df_sql <- paste('SELECT * FROM mb_data WHERE code = "ES" OR code = "EL"' ,sep="")
+  }
+  
+  
   mb_data <- sqldf(MB_df_sql)
   
   mb_data$id <- as.character(row_number(mb_data$code))
@@ -286,6 +294,15 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
                          FROM mp_layer 
                          WHERE MinorBasin_Code = "',minorbasin,'"'
                         ,sep="")
+  
+  if (minorbasin == "ES") {
+    print("COMBINING 2 EASTERN SHORE MINOR BASINS")
+    mp_layer_sql <- paste('SELECT *, ',demand_query_param,'/365.25 AS demand_metric
+                         FROM mp_layer 
+                         WHERE MinorBasin_Code = "ES" OR MinorBasin_Code = "EL"'
+                          ,sep="")
+  }
+  
   mp_layer <- sqldf(mp_layer_sql)
   
   #DIVISIONS IN MGD
@@ -361,6 +378,15 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
                   LEFT OUTER JOIN RSeg_summary AS b
                   ON (a.hydrocode = b.hydrocode)
                   WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '')
+  
+  if (minorbasin == "ES") {
+    print("COMBINING 2 EASTERN SHORE MINOR BASINS")
+    RSeg_data <- paste('SELECT *
+                  FROM "RSeg.csv" AS a
+                  LEFT OUTER JOIN RSeg_summary AS b
+                  ON (a.hydrocode = b.hydrocode)
+                  WHERE a.hydrocode LIKE "%wshed_ES%" OR a.hydrocode LIKE "%wshed_EL%"',sep = '') 
+  }
   
   
   RSeg_data <- sqldf(RSeg_data)
