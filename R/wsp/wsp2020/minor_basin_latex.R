@@ -1404,7 +1404,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'JL', file_extension = '.tex')
+TABLE_GEN_func(minorbasin = 'ES', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
