@@ -28,6 +28,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                             WHEN name == "Rappahannock Upper" Then "Upper Rappahannock"
                             WHEN name == "Tennessee Upper" Then "Upper Tennessee"
                             WHEN name == "York Lower" Then "Lower York"
+                            WHEN name == "Eastern Shore Atlantic" Then "Eastern Shore"
                             ELSE name
                           END AS name
                         FROM "MinorBasins.csv" 
@@ -93,6 +94,12 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
               FROM mb_data 
               WHERE code = "',minorbasin,'"'
                      ,sep="")
+  
+  if (minorbasin == "ES") {
+    print("COMBINING 2 EASTERN SHORE MINOR BASINS")
+    MB_df_sql <- paste('SELECT * FROM mb_data WHERE code = "ES" OR code = "EL"' ,sep="")
+  }
+
   mb_data <- sqldf(MB_df_sql)
   
   mb_data$id <- as.character(row_number(mb_data$code))
@@ -295,6 +302,15 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                          FROM mp_layer 
                          WHERE MinorBasin_Code = "',minorbasin,'"'
                         ,sep="")
+  
+  if (minorbasin == "ES") {
+    print("COMBINING 2 EASTERN SHORE MINOR BASINS")
+    mp_layer_sql <- paste('SELECT *, ',demand_query_param,'/365.25 AS demand_metric
+                         FROM mp_layer 
+                         WHERE MinorBasin_Code = "ES" OR MinorBasin_Code = "EL"'
+                          ,sep="")
+  }
+  
   mp_layer <- sqldf(mp_layer_sql)
   
   #DIVISIONS IN MGD
@@ -377,6 +393,23 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                   LEFT OUTER JOIN RSeg_summary AS b
                   ON (a.hydrocode = b.hydrocode)
                   WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '')  
+  
+  
+  if (minorbasin == "ES") {
+    print("COMBINING 2 EASTERN SHORE MINOR BASINS")
+    RSeg_data <- paste('SELECT *,
+                  case
+                  when b.',runid_a,' = 0
+                  then 0
+                  when b.',runid_b,' IS NULL
+                  then NULL
+                  else round(((b.',runid_b,' - b.',runid_a,') / b.',runid_a,') * 100,2)
+                  end AS pct_chg
+                  FROM "RSeg.csv" AS a
+                  LEFT OUTER JOIN RSeg_summary AS b
+                  ON (a.hydrocode = b.hydrocode)
+                  WHERE a.hydrocode LIKE "%wshed_ES%" OR a.hydrocode LIKE "%wshed_EL%"',sep = '') 
+  }
   
   
   RSeg_data <- sqldf(RSeg_data)
@@ -648,14 +681,14 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   ####################################################################
   source_current <- base_map +
     geom_tidal_base +
-    geom1 +
-    geom2 +
-    geom3 +
-    geom4 +
-    geom5 +
-    geom6 +
-    geom7 +
     geom8 +
+    geom7 +
+    geom6 +
+    geom5 +
+    geom4 +
+    geom3 +
+    geom2 +
+    geom1 +
     scale_fill_manual(values=color_values,
                       name = "Legend",
                       labels = label_values)+

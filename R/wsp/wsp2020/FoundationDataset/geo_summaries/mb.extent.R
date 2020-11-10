@@ -54,10 +54,15 @@ mb.extent <- function(minorbasin,MinorBasins.csv){
     mb.row <- sqldf(mb.row)
     mb.centroid <- wkt_centroid(mb.row$geom)
     
-    xmin <- mb.centroid$lng - 1.2
-    xmax <- mb.centroid$lng + 1.2
-    ymin <- mb.centroid$lat - 1.35
-    ymax <- mb.centroid$lat + 1.05
+    # xmin <- mb.centroid$lng - 1.2
+    # xmax <- mb.centroid$lng + 1.2
+    # ymin <- mb.centroid$lat - 1.35
+    # ymax <- mb.centroid$lat + 1.05
+    
+    xmin <- mb.centroid$lng - 1.5
+    xmax <- mb.centroid$lng + 0.9
+    ymin <- mb.centroid$lat - 1.3
+    ymax <- mb.centroid$lat + 1.1
     
     extent <- data.frame(x = c(xmin, xmax),y = c(ymin, ymax))   
     
