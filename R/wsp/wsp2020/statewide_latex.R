@@ -207,8 +207,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     stop("This is the Statewide latex script. Please write correct function input == 'VA'")
   }
   #### START SUMMARY TABLE GEN ####
-    #------------------------------------------------------------------------
-    #NO power (excluding power generation)
+    #--#NO power (excluding power generation)-------------------------------------------
+    
     sql_A <- sqldf(paste('SELECT a.system_type, 
                         (SELECT count(MP_hydroid)
              FROM mb_mps
@@ -309,8 +309,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
     
-    ##########################################################################################
-    #YES power (including power generation)
+    #--#YES power (including power generation) ----------------------------------------------
+    
     sql_A <- sqldf(paste('SELECT a.system_type,
                         (SELECT count(MP_hydroid)
              FROM mb_mps
@@ -405,7 +405,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
     
-    ##########################################################################################
+    ####SUMMARY TABLE #################################################
     rownames(table_1) <- c()
     rownames(table_1_VA) <- c()
     table_1_combo <- rbind(table_1,table_1_VA)
@@ -465,7 +465,6 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_table",file_ext,sep=""))
     
     ######## TOP 10 USERS Table ###############################################################
-    
     
     #NOTE: these are sums of each source type by facility (aka the #1 groundwater user may have 4 wells that add up to a huge amount, it's not a table showing simply the largest MP withdrawal by source)
     
@@ -744,7 +743,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_no_power_table",file_ext,sep=""))
 
   
-    ######## TOP 10 COUNTY-WIDE AGRICULTURE USERS Table ###############################################################
+    ######## TOP 10 COUNTY-WIDE AGRICULTURE USERS Table ####################################
     #-------------- TOP 10 SURFACE WATER COUNTY-WIDE AGRICULTURE ---------------------
     top_sw <- sqldf('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
@@ -944,6 +943,53 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_ssusm_table",file_ext,sep=""))
     
     
+    ######## STATEWIDE DEMAND by_locality ###########################################
+    
+    by_locality <- sqldf(paste('SELECT 
+                     fips_code,
+                     fips_name,
+                     ',aggregate_select,'
+                     FROM mb_mps
+                     WHERE fips_code LIKE "51%"
+                     AND fips_code NOT LIKE "51685"
+                     GROUP BY fips_code
+                     ORDER BY pct_change DESC', sep=""))
+    
+    # OUTPUT TABLE IN KABLE FORMAT
+    locality_tex <- kable(by_locality[2:6],  
+                          booktabs = T, 
+                          longtable =T, 
+                          align = c('l','c','c','c','c'),
+          caption = paste("Withdrawal Demand (MGD) by Locality in ",mb_name[1],sep=""),
+          label = paste(mb_code,"_locality_demand",sep=""),
+          col.names = c("Locality",
+                        "2020 Demand",
+                        "2030 Demand",
+                        "2040 Demand",
+                        "20 Year % Change")) %>%
+      kable_styling(latex_options = 'striped') %>%
+      row_spec(0, bold = T) %>%
+      column_spec(1, width = "8em") %>%
+      column_spec(2, width = "4.5em") %>%
+      column_spec(3, width = "4.5em") %>%
+      column_spec(4, width = "4.5em") %>%
+      column_spec(5, width = "6em")
+      
+      locality_tex <- gsub(pattern = "\\toprule
+\\textbf{Locality} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{20 Year \\% Change}\\\\
+\\midrule", 
+                        repl    = "\\toprule
+\\textbf{Locality} & \\textbf{2020 Demand} & \\textbf{2030 Demand} & \\textbf{2040 Demand} & \\textbf{20 Year \\% Change}\\\\
+\\endfirsthead
+\\multicolumn{3}{l}{\\textbf{ \\tablename\\ \\ref{tab:VA_locality_demand} -- continued from previous page}}
+\\endhead
+\\midrule", 
+                        x       = locality_tex, fixed = T )
+    
+    locality_tex %>%
+    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_locality_demand_table",file_ext,sep=""))
+    
+    
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
@@ -954,25 +1000,6 @@ TABLE_GEN_func(state_abbrev = 'VA', file_extension = '.html')
 
 
 
-
-######## by_locality###########################################
-
-by_locality <- sqldf(paste('SELECT 
-                     fips_code,
-                     fips_name,
-                     ',aggregate_select,'
-                     FROM mb_mps
-                     GROUP BY fips_code
-                     ORDER BY pct_change DESC', sep=""))
-
-# OUTPUT TABLE IN KABLE FORMAT
-kable(by_locality[1:6],  booktabs = T,
-      caption = paste("Withdrawal Demand by Locality in ",mb_name$MinorBasin_Name,sep=""),
-      label = paste("demand_locality_",mb_code,sep=""),
-      col.names = c("Fips Code",
-                    "Locality",kable_col_names[3:6])) %>%
-  kable_styling(latex_options = latexoptions) %>%
-  cat(., file = paste(folder,"tables_maps/",mb_name$MinorBasin_Name,"/demand_locality_",mb_code,"_kable",file_ext,sep=""))
 
 
 #---------------------------------------------------------------#
