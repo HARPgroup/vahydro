@@ -28,7 +28,7 @@ site <- "http://deq2.bse.vt.edu/d.dh/"
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 vapop_folder <- "U:/OWS/foundation_datasets/wsp/Population Data/"
-export_file <- paste0(folder, "tables_maps/Xfigures/VA_pop_proj_map.png")
+export_file <- paste0(folder, "tables_maps/Xfigures/VA_pop_proj_map2.png")
 
 #DOWNLOAD STATES AND MINOR BASIN LAYERS DIRECT FROM GITHUB
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
@@ -287,7 +287,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   ######################################################################################################
   #VA POP PCT CHANGE - BREAK INTO BINS
   
-  c_border <- 'black'
+  c_border <- 'gray30'
 
   group_neg25 <- paste("SELECT *
                   FROM 'fips_geom.df'
@@ -450,9 +450,11 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
                   labs(subtitle = "2020 to 2040 Percent Change") +
                   
                   #ADD MINOR BASIN BORDER LAYER ON TOP
-                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.6) +
+                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.65) +
                   #ADD STATE BORDER LAYER ON TOP
-                  geom_path(data = state.df,aes(x = long, y = lat, group = group), color="black",lwd=0.8) +
+                  geom_path(data = state.df,aes(x = long, y = lat, group = group), color="black",lwd=0.4) +
+                  #ADD VIRGINIA STATE BORDER LAYER ON TOP
+                  geom_sf(data = va_state_sf, fill = NA,color = "black", lwd=0.75, inherit.aes = FALSE) +
                   #ADD RIVERS LAYER ON TOP
                   geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
                   #ADD BORDER 
@@ -468,3 +470,5 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
   # ggsave(plot = map, file = export_file, width=5.5, height=5)
   ggsave(plot = map, file = export_file, width=6.5, height=5)
+  beep(sound = 1)
+  

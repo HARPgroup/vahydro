@@ -955,6 +955,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      GROUP BY fips_code
                      ORDER BY pct_change DESC', sep=""))
     
+    write.csv(by_locality, paste(folder,"tables_maps/Xtables/",mb_code,"_locality_demand.csv", sep=""), row.names = F)
+    
     # OUTPUT TABLE IN KABLE FORMAT
     locality_tex <- kable(by_locality[2:6],  
                           booktabs = T, 
