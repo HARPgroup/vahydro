@@ -47,20 +47,25 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "ES",
-                  metric = "l30_Qout",
-                  runid_a = "runid_11",
-                  runid_b = "runid_12",
-                  wd_points <- "ON",
-                  rsegs <- "ON")
-
-# minorbasin.mapgen(minorbasin = "YM",
+# minorbasin.mapgen(minorbasin = "ES",
 #                   metric = "l30_Qout",
 #                   runid_a = "runid_11",
-#                   runid_b = "runid_13",
+#                   runid_b = "runid_12",
 #                   wd_points <- "ON",
 #                   rsegs <- "ON")
-
+# 
+# # minorbasin.mapgen(minorbasin = "YM",
+# #                   metric = "l30_Qout",
+# #                   runid_a = "runid_11",
+# #                   runid_b = "runid_13",
+# #                   wd_points <- "ON",
+# #                   rsegs <- "ON")
+# minorbasin <- c("ES")
+# metric <- c("l30_Qout","l90_Qout","7q10")
+# runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
+# runid_b <- c("runid_12","runid_13","runid_18")
+# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+# rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS (189 figs)
@@ -99,18 +104,23 @@ beep(3)
 ######################################################################################################
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
-source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
-#----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+# #----------- RUN SINGLE MAP --------------------------
+# # minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
+# #                                   metric = "consumptive_use_frac",
+# #                                   runid_a = c("runid_11"),
+# #                                   wd_points = "ON")
+# 
+# minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "ES",
 #                                   metric = "consumptive_use_frac",
 #                                   runid_a = c("runid_11"),
 #                                   wd_points = "ON")
-
-minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "JU",
-                                  metric = "consumptive_use_frac",
-                                  runid_a = c("runid_11"),
-                                  wd_points = "ON")
-
+# 
+# minorbasin <- c("ES")
+# metric <- "consumptive_use_frac"
+# runid_a <- c("runid_11","runid_12","runid_13","runid_18")
+# #runid_a <- c("runid_17","runid_19","runid_20")
+# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - SINGLE SCENARIO (84 figs)
@@ -145,24 +155,16 @@ beep(3)
 ######################################################################################################
 ### Well & Intake Location Maps ######################################################################
 ######################################################################################################
-#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
-
-#----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "PS",
-                  metric = "l30_Qout",
-                  runid_a = "runid_11",
-                  runid_b = "runid_13",
-                  wd_points = "ON", #TURN WITHDRAWAL POINTS "ON" OR "OFF"
-                  rsegs = "OFF"     #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
-)
-
-# #ALL 1 MINOR BASINS, MULTIPLE SCENARIOS
-# minorbasin <- "PS"
-# metric <- "l30_Qout"
-# runid_a <- "runid_11"
-# runid_b <- c("runid_12","runid_13","runid_17","runid_19","runid_20","runid_18")
-# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
-# rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
+# 
+# #----------- RUN SINGLE MAP --------------------------
+# minorbasin.mapgen(minorbasin = "ES",
+#                   metric = "l30_Qout",
+#                   runid_a = "runid_11",
+#                   runid_b = "runid_13",
+#                   wd_points = "ON", #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+#                   rsegs = "OFF",     #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+# )
 
 
 #----------- RUN MAPS IN BULK --------------------------
@@ -191,6 +193,49 @@ for (mb in minorbasin) {
     for (rb in runid_b) {
       print(paste("......PROCESSING runid_b: ",rb,sep=""))
       minorbasin.mapgen(mb,met,runid_a,rb,wd_points,rsegs) 
+    } #CLOSE runid FOR LOOP 
+  } #CLOSE metric FOR LOOP 
+  it <- it + 1
+} #CLOSE minorbasin FOR LOOP  
+toc()
+beep(3)
+
+
+######################################################################################################
+### Well Demand Maps #################################################################################
+######################################################################################################
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.extent.R",sep = '/'))
+
+#----------- RUN SINGLE MAP --------------------------
+# minorbasin.mapgen(minorbasin = "PL",
+#                   metric = "l30_Qout",
+#                   runid_a = "runid_11", #UNUSED WHEN GENERATING WELL DEMAND MAPS
+#                   runid_b = "runid_13", #runid_11, runid_12, or runid_13
+#                   wd_points = "ON", #TURN WITHDRAWAL POINTS "ON" FOR PLOTTING WELL DEMANDS
+#                   rsegs = "OFF",    #TURN RSEGS "OFF" FOR PLOTTING WELL DEMANDS
+#                   wells = "ON"
+# )
+
+#----------- RUN MAPS IN BULK --------------------------
+#ALL 21 MINOR BASINS - (20 figs)
+minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+metric <- "l30_Qout" 
+runid_a <- "runid_11" 
+runid_b <- "runid_13" 
+wd_points <- "ON" 
+rsegs <- "OFF"   
+wells <- "ON"
+
+tic("Total")
+it <- 1 #INITIALIZE ITERATION FOR PRINTING IN LOOP
+for (mb in minorbasin) {
+  print(paste("PROCESSING MINOR BASIN ",it," OF ",length(minorbasin),": ",mb,sep=""))
+  for (met in metric) {
+    print(paste("...PROCESSING METRIC: ",met,sep=""))
+    for (rb in runid_b) {
+      print(paste("......PROCESSING runid_b: ",rb,sep=""))
+      minorbasin.mapgen(mb,met,runid_a,rb,wd_points,rsegs,wells) 
     } #CLOSE runid FOR LOOP 
   } #CLOSE metric FOR LOOP 
   it <- it + 1

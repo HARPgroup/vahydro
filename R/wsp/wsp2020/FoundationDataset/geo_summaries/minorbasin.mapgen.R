@@ -13,7 +13,7 @@ library(magick) #plot static legend
 library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
-minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON"){
+minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON",wells = "OFF"){
   
   # SELECT MINOR BASIN NAME
   mb_name <-sqldf(paste('SELECT 
@@ -287,7 +287,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   mp_layer <- sqldf(mp_layer_nohydro)
   
   mp_layer$mp_exempt_mgy <- mp_layer$final_exempt_propvalue_mgd*365.25
-  demand_query_param <-case_when(runid_b == "runid_12" ~ "mp_2030_mgy",
+  demand_query_param <-case_when(runid_b == "runid_11" ~ "mp_2020_mgy",
+                                 runid_b == "runid_12" ~ "mp_2030_mgy",
                                  runid_b == "runid_13" ~ "mp_2040_mgy",
                                  runid_b == "runid_14" ~ "mp_2020_mgy",
                                  runid_b == "runid_15" ~ "mp_2020_mgy",
@@ -315,6 +316,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   #DIVISIONS IN MGD
   div <- c(0.5,1.0,2.0,5.0,10,25,50,100,1000)
+
   bins_sql <-  paste("SELECT *,
 	                  CASE WHEN demand_metric <= ",div[1]," THEN '1'
 		                WHEN demand_metric >  ",div[1]," AND demand_metric <= ",div[2]," THEN '2'
@@ -336,6 +338,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
               WHERE MP_bundle = "well"'
                           ,sep="")
   well_layer <- sqldf(well_layer_sql)
+  #print(head(well_layer))
   # well.max <- max(well_layer$mp_2040_mgy)
   # well.min <- min(well_layer$mp_2040_mgy)
   # well.range <- paste("Well WD: ",well.min/365.25," to ",round(well.max/365.25,3)," mgd",sep="")
@@ -458,7 +461,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                                 runid_b == "runid_18" ~ "Exempt Users",
                                 runid_b == "runid_19" ~ "Med Climate Change",
                                 runid_b == "runid_20" ~ "Wet Climate Change")
-  legend_b_title <-   case_when(runid_b == "runid_12" ~ "2030",
+  legend_b_title <-   case_when(runid_b == "runid_11" ~ "2020",
+                                runid_b == "runid_12" ~ "2030",
                                 runid_b == "runid_13" ~ "2040",
                                 runid_b == "runid_14" ~ "2020",
                                 runid_b == "runid_15" ~ "2020",
@@ -763,73 +767,80 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     
     if (rsegs == "ON") {
 
-      # LEGEND SETUP
-      if (legend_b_title == "2030") {
-        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_short.PNG',sep='')
-      } else if  (legend_b_title == "2040") {
-        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_short.PNG',sep='')
-      } else if  (legend_b_title == "Exempt") {
-        bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_short.PNG',sep='')
-      }
-      
-      #bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.395, y = 0.04) 
-      bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.395, y = 0.025) 
-      
-      map <- ggdraw(source_current +
-                      geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-                      ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
-                      labs(subtitle = mb_name$name) +
-                      #ADD STATE BORDER LAYER ON TOP
-                      geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
-                      #ADD RIVERS LAYER ON TOP
-                      geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-
-                      #ADD BORDER 
-                      geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-                      
-                      #ADD RIVER POINTS
-                      #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
-                      #ADD RIVER LABELS
-                      geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
-                      #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-                      
-                      #ADD FIPS POINTS
-                      geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
-                                 size =1, shape = 20, fill = "black")+
-                      #ADD FIPS LABELS
-                       geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-                                        size = 2)+
-                      #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-                      
-                      #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
-                      #---------------------------------------------------------------
-                      geom_point(data = intake_bin_1, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 1, alpha = 0.3) +
-                      geom_point(data = intake_bin_2, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.4) +
-                      geom_point(data = intake_bin_3, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 3, alpha = 0.5) +
-                      geom_point(data = intake_bin_4, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 4, alpha = 0.6) +
-                      geom_point(data = intake_bin_5, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 5, alpha = 0.7) +
-                      geom_point(data = intake_bin_6, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 6, alpha = 0.8) +
-                      geom_point(data = intake_bin_7, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 7, alpha = 0.9) +
-                      geom_point(data = intake_bin_8, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 8, alpha = 0.95) +
-                      geom_point(data = intake_bin_9, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 9, alpha = 0.975) +
-                      geom_point(data = intake_bin_10, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 10, alpha = 1.0) +
-                      #---------------------------------------------------------------
-                      
-                      #ADD NORTH BAR
-                      north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-                      base_scale +
-                      base_theme) +
-        base_legend +
-        bubble_legend +
-        #tidal_legend +
-        deqlogo
-      
-      if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-        map <- map + tidal_legend
-      }
+        # LEGEND SETUP
+        if (legend_b_title == "2030") {
+          bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_short.PNG',sep='')
+        } else if  (legend_b_title == "2040") {
+          bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_short.PNG',sep='')
+        } else if  (legend_b_title == "Exempt") {
+          bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_short.PNG',sep='')
+        }
+        
+        #bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.395, y = 0.04) 
+        bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.395, y = 0.025)    
+        
+        
+        map <- ggdraw(source_current +
+                        geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
+                        ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
+                        labs(subtitle = mb_name$name) +
+                        #ADD STATE BORDER LAYER ON TOP
+                        geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                        #ADD RIVERS LAYER ON TOP
+                        geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+  
+                        #ADD BORDER 
+                        geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                        
+                        #ADD RIVER POINTS
+                        #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
+                        #ADD RIVER LABELS
+                        geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
+                        #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                        
+                        #ADD FIPS POINTS
+                        geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                                   size =1, shape = 20, fill = "black")+
+                        #ADD FIPS LABELS
+                         geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                          size = 2)+
+                        #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                        
+                        #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
+                        #---------------------------------------------------------------
+                        geom_point(data = intake_bin_1, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 1, alpha = 0.3) +
+                        geom_point(data = intake_bin_2, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.4) +
+                        geom_point(data = intake_bin_3, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 3, alpha = 0.5) +
+                        geom_point(data = intake_bin_4, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 4, alpha = 0.6) +
+                        geom_point(data = intake_bin_5, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 5, alpha = 0.7) +
+                        geom_point(data = intake_bin_6, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 6, alpha = 0.8) +
+                        geom_point(data = intake_bin_7, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 7, alpha = 0.9) +
+                        geom_point(data = intake_bin_8, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 8, alpha = 0.95) +
+                        geom_point(data = intake_bin_9, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 9, alpha = 0.975) +
+                        geom_point(data = intake_bin_10, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 10, alpha = 1.0) +
+                        #---------------------------------------------------------------
+                        
+                        #ADD NORTH BAR
+                        north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+                        base_scale +
+                        base_theme) +
+          base_legend +
+          bubble_legend +
+          #tidal_legend +
+          deqlogo
+        
+          if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
+            map <- map + tidal_legend
+          }
+        #} #close if wells on
       
     } else if (rsegs == "OFF") {
       print("PLOTTING - RIVERSEGS TURNED OFF") 
+      
+      
+      if (wells == "OFF") {
+      
+      
       #EXPORT FILE NAME FOR MAP PNG
       # export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
       export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawal_Locations_map.png",sep = "")
@@ -844,16 +855,6 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
         SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.39, y = .6)
       }
       
-      # if (legend_b_title == "2030") {
-      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_plain.PNG',sep='')
-      # } else if  (legend_b_title == "2040") {
-      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_plain.PNG',sep='')
-      # } else if  (legend_b_title == "Exempt") { 
-      #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_plain.PNG',sep='')
-      # }
-      # 
-      # bubble_legend <- draw_image(bubble_legend,height = .72, x = 0.42, y = 0.05) #USE TO PLACE LEGEND TO THE RIGHT OF MAP
-      
       
       map <- ggdraw(source_current +
                       geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
@@ -861,7 +862,8 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       ggtitle(paste("Well & Intake Source Locations",sep="")) +
                       labs(subtitle = mb_name$name) +
                       #ADD GREY MB BACKGROUND
-                      geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray55",lwd=0.7) +
+                      #geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray55",lwd=0.7) +
+                      geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray70",lwd=0.7) +
                       #ADD STATE BORDER LAYER ON TOP
                       geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
                       #ADD RIVERS LAYER ON TOP
@@ -900,8 +902,94 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       theme(legend.position=c(1.137, .4))) +
         SourceTypeLegend + 
         deqlogo
+      
+      
+      
+      #----------------------------------------------------------------------------------------------
+      #----------------------------------------------------------------------------------------------
+      } else if (wells == "ON") {
+        print("ADDING WELL DEMANDS TO MAP...")
+        
+        export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Well_Locations_Demands_",legend_b_title,"_map.png",sep = "")
+        
+        # LEGEND SETUP
+        if (legend_b_title == "2020") {
+          bubble_legend <- paste(folder, 'tables_maps/WELLS_bubble_legend_2020.PNG',sep='')
+        } else if  (legend_b_title == "2030") {
+          bubble_legend <- paste(folder, 'tables_maps/WELLS_bubble_legend_2030.PNG',sep='')
+        } else if  (legend_b_title == "2040") {
+          bubble_legend <- paste(folder, 'tables_maps/WELLS_bubble_legend_2040.PNG',sep='')
+        }
+        
+        #bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.395, y = 0.04) 
+        bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.395, y = 0.025) 
+        
+        map <- ggdraw(source_current +
+                        geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
+                        # ggtitle(paste("Well & Intake Source Locations - ",legend_b_title," Demand",sep="")) +
+                        #ggtitle(paste("Well & Intake Source Locations",sep="")) +
+                        ggtitle(paste("Groundwater Well Locations: ",legend_b_title," Demand",sep = '')) +
+                        labs(subtitle = mb_name$name) +
+                        #ADD GREY MB BACKGROUND
+                        geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray70",lwd=0.7) +
+                        #ADD STATE BORDER LAYER ON TOP
+                        geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
+                        #ADD RIVERS LAYER ON TOP
+                        geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+                        
+                        #ADD BORDER 
+                        geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
+                        
+                        #ADD RIVER POINTS
+                        #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
+                        #ADD RIVER LABELS
+                        geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
+                        #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                        
+                        #ADD FIPS POINTS
+                        geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
+                                   size =1, shape = 20, fill = "black")+
+                        #ADD FIPS LABELS
+                        geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
+                                        size = 2)+
+                        #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
+                       
+                        #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
+                        #---------------------------------------------------------------
+                        geom_point(data = well_bin_1, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 1, alpha = 0.3) +
+                        geom_point(data = well_bin_2, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 2, alpha = 0.4) +
+                        geom_point(data = well_bin_3, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 3, alpha = 0.5) +
+                        geom_point(data = well_bin_4, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 4, alpha = 0.6) +
+                        geom_point(data = well_bin_5, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 5, alpha = 0.7) +
+                        geom_point(data = well_bin_6, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 6, alpha = 0.8) +
+                        geom_point(data = well_bin_7, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 7, alpha = 0.9) +
+                        geom_point(data = well_bin_8, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 8, alpha = 0.95) +
+                        geom_point(data = well_bin_9, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 9, alpha = 0.975) +
+                        geom_point(data = well_bin_10, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 10, alpha = 1.0) +
+                        #---------------------------------------------------------------
+
+                      #ADD NORTH BAR
+                      north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
+                        base_scale +
+                        base_theme+
+                        theme(legend.position=c(1.137, .4))) +
+                bubble_legend + 
+                deqlogo  
+        
+        # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
+        #   map <- map + tidal_legend
+        # }
+        
+      } #close if wells on
+      
+      #----------------------------------------------------------------------------------------------
+      #----------------------------------------------------------------------------------------------
+      
+      
+ 
+      
     } #CLOSE rsegs IF STATEMENT
-    
+  
   } #CLOSE WITHDRAWAL POINTS IF STATEMENT
   
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
