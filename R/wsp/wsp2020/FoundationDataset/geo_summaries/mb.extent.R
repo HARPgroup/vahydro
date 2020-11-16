@@ -59,10 +59,17 @@ mb.extent <- function(minorbasin,MinorBasins.csv){
     # ymin <- mb.centroid$lat - 1.35
     # ymax <- mb.centroid$lat + 1.05
     
-    xmin <- mb.centroid$lng - 1.5
-    xmax <- mb.centroid$lng + 0.9
-    ymin <- mb.centroid$lat - 1.3
-    ymax <- mb.centroid$lat + 1.1
+    #NEW GOOD
+    # xmin <- mb.centroid$lng - 1.5
+    # xmax <- mb.centroid$lng + 0.9
+    # ymin <- mb.centroid$lat - 1.3
+    # ymax <- mb.centroid$lat + 1.1
+    
+    #NEW - ZOOMED IN
+    xmin <- mb.centroid$lng - 1.1
+    xmax <- mb.centroid$lng + 0.5
+    ymin <- mb.centroid$lat - 1.2
+    ymax <- mb.centroid$lat + 0.4
     
     extent <- data.frame(x = c(xmin, xmax),y = c(ymin, ymax))   
     
