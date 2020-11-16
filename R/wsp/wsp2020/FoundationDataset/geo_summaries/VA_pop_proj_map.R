@@ -1,4 +1,4 @@
-# STATEWIDE VA POP PROJ MAP
+# STATEWIDE VA POPULATION PROJECTION MAP
 
 library(tictoc) #time elapsed
 library(beepr) #play beep sound when done running
