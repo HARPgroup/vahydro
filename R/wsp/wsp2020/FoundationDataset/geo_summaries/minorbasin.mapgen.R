@@ -395,7 +395,9 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                   FROM "RSeg.csv" AS a
                   LEFT OUTER JOIN RSeg_summary AS b
                   ON (a.hydrocode = b.hydrocode)
-                  WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '')  
+                  WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"
+		  ORDER BY hydroid ASC
+		  ',sep = '')  
   
   
   if (minorbasin == "ES") {
