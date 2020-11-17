@@ -322,6 +322,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                   FROM "RSeg.csv" AS a
                   LEFT OUTER JOIN RSeg_summary AS b
                   ON (a.hydrocode = b.hydrocode)
+                  ORDER BY hydroid ASC  
                   ',sep = '')  
                   # WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '') 
   
