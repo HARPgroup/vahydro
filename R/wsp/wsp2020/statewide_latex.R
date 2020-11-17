@@ -35,8 +35,12 @@ basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 #folder <- "C:\\Users\\maf95834\\Documents\\wsp2020\\" #JM use when vpn can't connect to common drive
 
+#LOAD DEMAND FILE 
 data_raw <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 mp_all <- data_raw
+
+#LOAD VA POPULATION FILE
+vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProjections_Total_2020-2040_final.csv")
 
 ######### TABLE GENERATION FUNCTION #############################
 TABLE_GEN_func <- function(state_abbrev = "VA", file_extension = ".tex"){
@@ -1017,6 +1021,28 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     locality_tex %>%
     cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_locality_demand_table",file_ext,sep=""))
     
+    
+    
+    #---- POPULATION PROJECTION TABLE -------------------------------------------------------------------------------
+    
+    vapop <- sqldf('SELECT FIPS, Geography_Name, round(x2020,0), round(x2030,0), round(x2040,0), round(((X2040 - X2020) / X2020)*100, 2) AS pct_change
+               FROM vapop')
+    vapop$Geography_Name <- str_to_title(vapop$Geography_Name)
+    
+    vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", replacement = "")
+    
+    # OUTPUT TABLE IN KABLE FORMAT
+    kable(vapop[2:6], align = c('l','c','c','c','c'),format.args = list(big.mark = ","),  booktabs = T, longtable =T,
+          caption = "Virginia Population Trend",
+          label = "VA_pop_proj",
+          col.names = c("Locality",
+                        "2020",
+                        "2030",
+                        "2040",
+                        "20 Year Percent Change")) %>%
+      kable_styling(latex_options = c("striped")) %>%
+      column_spec(1, width = "10em") %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/VA_pop_proj_table.tex",sep=""))
     
 }
 
