@@ -105,7 +105,7 @@ beep(3)
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
 # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
-# #----------- RUN SINGLE MAP --------------------------
+# # #----------- RUN SINGLE MAP --------------------------
 # minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
 #                                   metric = "consumptive_use_frac",
 #                                   runid_a = c("runid_11"),
@@ -123,7 +123,7 @@ beep(3)
 # wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 
 #----------- RUN MAPS IN BULK --------------------------
-#ALL 21 MINOR BASINS - SINGLE SCENARIO (84 figs)
+#ALL 21 MINOR BASINS - SINGLE SCENARIO (80 figs)
 minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- "consumptive_use_frac"
 runid_a <- c("runid_11","runid_12","runid_13","runid_18")
