@@ -954,8 +954,34 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      AND fips_code NOT LIKE "51685"
                      GROUP BY fips_code
                      ORDER BY pct_change DESC', sep=""))
-    
+    by_locality[is.na(by_locality)] <- 0.00
     write.csv(by_locality, paste(folder,"tables_maps/Xtables/",mb_code,"_locality_demand.csv", sep=""), row.names = F)
+    
+    by_locality_sw <- sqldf(paste('SELECT 
+                     fips_code,
+                     fips_name,
+                     ',aggregate_select,'
+                     FROM mb_mps
+                     WHERE fips_code LIKE "51%"
+                     AND fips_code NOT LIKE "51685"
+                     AND MP_bundle LIKE "intake"
+                     GROUP BY fips_code
+                     ORDER BY pct_change DESC', sep=""))
+    by_locality_sw[is.na(by_locality_sw)] <- 0.00
+    write.csv(by_locality_sw, paste(folder,"tables_maps/Xtables/",mb_code,"_sw_locality_demand.csv", sep=""), row.names = F)
+    
+    by_locality_gw <- sqldf(paste('SELECT 
+                     fips_code,
+                     fips_name,
+                     ',aggregate_select,'
+                     FROM mb_mps
+                     WHERE fips_code LIKE "51%"
+                     AND fips_code NOT LIKE "51685"
+                     AND MP_bundle LIKE "well"
+                     GROUP BY fips_code
+                     ORDER BY pct_change DESC', sep=""))
+    by_locality_gw[is.na(by_locality_gw)] <- 0.00
+    write.csv(by_locality_gw, paste(folder,"tables_maps/Xtables/",mb_code,"_gw_locality_demand.csv", sep=""), row.names = F)
     
     # OUTPUT TABLE IN KABLE FORMAT
     locality_tex <- kable(by_locality[2:6],  

@@ -28,7 +28,7 @@ site <- "http://deq2.bse.vt.edu/d.dh/"
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 vapop_folder <- "U:/OWS/foundation_datasets/wsp/Population Data/"
-export_file <- paste0(folder, "tables_maps/Xfigures/VA_pop_proj_map2.png")
+export_file <- paste0(folder, "tables_maps/Xfigures/VA_pop_proj_map.png")
 
 #DOWNLOAD STATES AND MINOR BASIN LAYERS DIRECT FROM GITHUB
 STATES <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/cbp6/master/code/GIS_LAYERS/STATES.tsv', sep = '\t', header = TRUE)
@@ -256,7 +256,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
   base_layer <- ggmap(tile_layer)
   
   base_map <- base_layer + 
-    geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)
+    geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color= NA, fill = NA,lwd=0.5)
   
   base_scale <- ggsn::scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'mi',
                                transform = TRUE, model = 'WGS84',st.bottom=FALSE,
@@ -450,7 +450,7 @@ vapop$Geography_Name <- gsub(x = vapop$Geography_Name, pattern = " County", repl
                   labs(subtitle = "2020 to 2040 Percent Change") +
                   
                   #ADD MINOR BASIN BORDER LAYER ON TOP
-                  geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.65) +
+                  #geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.65) +
                   #ADD STATE BORDER LAYER ON TOP
                   geom_path(data = state.df,aes(x = long, y = lat, group = group), color="black",lwd=0.4) +
                   #ADD VIRGINIA STATE BORDER LAYER ON TOP
