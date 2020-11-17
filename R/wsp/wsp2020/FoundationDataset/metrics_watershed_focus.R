@@ -1,9 +1,17 @@
+#NARRATIVE FOCUS - planners use this file to view data in bulk for narrative comparison
+
 library(sqldf)
 library(kableExtra)
 library(sjmisc)
 options(scipen = 999999999)
 
+#LOAD MP ALL DEMAND FILE
+mp_all <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
+
+#LOAD CONSUMPTIVE USE FRACTION FILE
 CU_frac <- read.csv(paste(folder,"metrics_watershed_consumptive_use_frac.csv",sep=""))
+
+### METRICS WATERSHED FOCUS ######################################
 
 metrics_wshed_focus.gen <- function(metric){
   
@@ -108,7 +116,7 @@ if (str_contains(metric, "cc_Qout") == T) {
     
   }
 
-write.csv(RSeg_data, paste(folder,"tables_maps/metrics_focus/metrics_watershed_",metric,"_focus.csv",sep=""), row.names = F)
+write.csv(RSeg_data, paste(folder,"tables_maps/narrative_focus/metrics_watershed_",metric,"_focus.csv",sep=""), row.names = F)
 }
 
 #----------- RUN FILES --------------------------
@@ -118,3 +126,39 @@ for (met in metric) {
     print(paste("...PROCESSING METRIC: ",met,sep=""))
       metrics_wshed_focus.gen(met) 
 }
+
+### CHAPTER 3 - WATER SUPPLY USE AND DEMAND BY BASINS ###################################################
+
+#GROUP BY BASIN AND CATEGORY
+total <- sqldf('SELECT MinorBasin_Code,
+"Total" AS wsp_ftype,
+"Total" AS system_type,
+round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
+round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.25))*100, 2) AS pct_change
+
+           FROM mp_all
+           WHERE MinorBasin_Code IS NOT NULL
+           GROUP BY MinorBasin_Code
+           ORDER BY pct_change DESC')
+
+by_category <- sqldf('SELECT MinorBasin_Code,
+wsp_ftype,
+system_type,
+round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040,
+round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365.25))*100, 2) AS pct_change
+
+           FROM mp_all
+           WHERE MinorBasin_Code IS NOT NULL
+           GROUP BY MinorBasin_Code, wsp_ftype
+           ORDER BY wsp_ftype, pct_change DESC')
+
+#COMBINE categories and totals
+demand_by_basin <- rbind(by_category, total)
+
+#WRITE DEMAND BY BASIN FILE
+write.csv(demand_by_basin, file = "U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/narrative_focus/category_demand_by_basin.csv", row.names = F )
+
