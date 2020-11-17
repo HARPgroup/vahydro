@@ -48,7 +48,7 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/sta
 #----------- RUN SINGLE MAP --------------------------
 # statewide.mapgen(metric = "l30_Qout",
 #                  runid_a = "runid_11",
-#                  runid_b = "runid_18")
+#                  runid_b = "runid_13")
 # 
 # statewide.mapgen(metric = "l30_cc_Qout",
 #                  runid_a = "runid_11",
@@ -86,7 +86,7 @@ beep(3)
 # ######################################################################################################
 # ### SINGLE SCENARIO ##################################################################################
 # ######################################################################################################
-source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 #----------- RUN SINGLE MAP --------------------------
 # statewide.mapgen.SINGLE.SCENARIO(metric = "consumptive_use_frac",
 #                                  runid_a = "runid_13")
@@ -99,9 +99,9 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/sta
 metric <- "consumptive_use_frac"
 runid_a <- c("runid_11","runid_12","runid_13","runid_18")
 # 
-# #NORTHERN BASINS ONLY (FOR CC SCENARIO) (3 figs)
-metric <- "consumptive_use_frac"
-runid_a <- c("runid_17","runid_19","runid_20")
+# # #NORTHERN BASINS ONLY (FOR CC SCENARIO) (3 figs)
+# metric <- "consumptive_use_frac"
+# runid_a <- c("runid_17","runid_19","runid_20")
 
 # 
 tic("Total")

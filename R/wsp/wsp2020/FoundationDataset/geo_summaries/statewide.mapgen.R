@@ -483,128 +483,263 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                       panel.background = element_blank(),
                       panel.border = element_blank())
   
-  #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
-  #color_scale_new <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
-  color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55")
+  #OLD LEGEND
+  #image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment_padding.PNG',sep='')
+  #base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
   
-  #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
-  # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-  #   image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
-  # } else {
-  #   image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
-  # }
-  image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment_padding.PNG',sep='')
-  
-  # base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6) #RIGHT TOP LEGEND
-  base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
+  image_path <- paste(folder, 'tables_maps/X_legend_tidal_padding.PNG',sep='')
+  base_legend <- draw_image(image_path,height = .45, x = -0.375, y = .42)
   
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
   ######################################################################################################
+  # rseg_border <- 'black'
+  # 
+  # group_0_plus <- paste("SELECT *
+  #                 FROM RSeg_data
+  #                 WHERE pct_chg >= 0")  
+  # group_0_plus <- sqldf(group_0_plus)
+  # group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
+  # 
+  # color_values <- list()
+  # label_values <- list()
+  # 
+  # if (nrow(group_0_plus) >0) {
+  #   
+  #   geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE, show.legend = FALSE)
+  #   
+  #   color_values <- color_scale[1]
+  #   
+  #   label_values <- ">= 0%"
+  #   
+  # } else  {
+  #   
+  #   geom1 <- geom_blank()
+  #   
+  # }
+  # #-----------------------------------------------------------------------------------------------------
+  # group_neg5_0 <- paste("SELECT *
+  #                 FROM RSeg_data
+  #                 WHERE pct_chg < 0 AND pct_chg >= -5")  
+  # group_neg5_0 <- sqldf(group_neg5_0)
+  # group_neg5_0 <- st_as_sf(group_neg5_0, wkt = 'geom')
+  # 
+  # if (nrow(group_neg5_0) >0) {
+  #   
+  #   geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE, show.legend = FALSE)
+  #   color_values <- rbind(color_values,color_scale[2])
+  #   label_values <- rbind(label_values,"-5% to 0%")
+  #   
+  # } else  {
+  #   
+  #   geom2 <- geom_blank()
+  #   
+  # }
+  # #-----------------------------------------------------------------------------------------------------
+  # group_neg10_neg5 <- paste("SELECT *
+  #                 FROM RSeg_data
+  #                 WHERE pct_chg < -5 AND pct_chg >= -10")  
+  # group_neg10_neg5 <- sqldf(group_neg10_neg5)
+  # group_neg10_neg5 <- st_as_sf(group_neg10_neg5, wkt = 'geom')
+  # 
+  # if (nrow(group_neg10_neg5) >0) {
+  #   
+  #   geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE, show.legend = FALSE)
+  #   color_values <- rbind(color_values,color_scale[3])
+  #   label_values <- rbind(label_values,"-10% to -5%")
+  #   
+  # } else  {
+  #   
+  #   geom3 <- geom_blank()
+  #   
+  # }
+  # 
+  # #-----------------------------------------------------------------------------------------------------
+  # group_neg20_neg10 <- paste("SELECT *
+  #                 FROM RSeg_data
+  #                 WHERE pct_chg < -10 AND pct_chg >= -20")  
+  # group_neg20_neg10 <- sqldf(group_neg20_neg10)
+  # group_neg20_neg10 <- st_as_sf(group_neg20_neg10, wkt = 'geom')
+  # 
+  # if (nrow(group_neg20_neg10) >0) {
+  #   
+  #   geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE, show.legend = FALSE)
+  #   color_values <- rbind(color_values,color_scale[4])
+  #   label_values <- rbind(label_values,"-20% to -10%")
+  #   
+  # } else  {
+  #   
+  #   geom4 <- geom_blank()
+  #   
+  # }
+  # #-----------------------------------------------------------------------------------------------------
+  # group_negInf_neg20 <- paste("SELECT *
+  #                 FROM RSeg_data
+  #                 WHERE pct_chg <= -20")  
+  # group_negInf_neg20 <- sqldf(group_negInf_neg20)
+  # group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
+  # 
+  # if (nrow(group_negInf_neg20) >0) {
+  #   
+  #   geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE, show.legend = FALSE)
+  #   color_values <- rbind(color_values,color_scale[5])
+  #   label_values <- rbind(label_values,"More than -20%")
+  #   
+  # } else  {
+  #   
+  #   geom5 <- geom_blank()
+  #   
+  # }
+  ######################################################################################################
   rseg_border <- 'black'
   
-  group_0_plus <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE pct_chg >= 0")  
-  group_0_plus <- sqldf(group_0_plus)
-  group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
+  # #COLOR SCALE FOR THE 8 MAPPING "BINS"
+  # color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
   
+  #COLOR SCALE FOR THE 7 MAPPING "BINS"
+  color_scale <- c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
+  
+  # #DIVISIONS TO BE USED IN 8 MAPPING "BINS"
+  # div1 <- -20
+  # div2 <- -10
+  # div3 <- -5
+  # div4 <- -1
+  # div5 <- 1
+  # div6 <- 10
+  # div7 <- 20
+  
+  #DIVISIONS TO BE USED IN 7 MAPPING "BINS"
+  div1 <- -20
+  div2 <- -10
+  div3 <- -5
+  div4 <- 5
+  div5 <- 10
+  div6 <- 20
+  
+  #INITIATE COLOR AND LABEL LISTS
   color_values <- list()
   label_values <- list()
+  ######################################################################################################
+  ### BIN 1 ############################################################################################
+  ######################################################################################################
+  bin1 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div1))  
+  bin1 <- st_as_sf(bin1, wkt = 'geom')
   
-  if (nrow(group_0_plus) >0) {
-    
-    geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE, show.legend = FALSE)
-    
+  if (nrow(bin1) > 0) {
+    geom1 <- geom_sf(data = bin1,aes(geometry = geom,fill = 'antiquewhite',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- color_scale[1]
-    
-    label_values <- ">= 0%"
-    
+    label_values <- paste(" More than ",div1,"%",sep="")
   } else  {
-    
     geom1 <- geom_blank()
-    
   }
-  #-----------------------------------------------------------------------------------------------------
-  group_neg5_0 <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE pct_chg < 0 AND pct_chg >= -5")  
-  group_neg5_0 <- sqldf(group_neg5_0)
-  group_neg5_0 <- st_as_sf(group_neg5_0, wkt = 'geom')
+  ######################################################################################################
+  ### BIN 2 ############################################################################################
+  ######################################################################################################
+  bin2 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div2, "AND pct_chg >= ",div1))
+  bin2 <- st_as_sf(bin2, wkt = 'geom')
   
-  if (nrow(group_neg5_0) >0) {
-    
-    geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE, show.legend = FALSE)
+  if (nrow(bin2) > 0) {
+    geom2 <- geom_sf(data = bin2,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[2])
-    label_values <- rbind(label_values,"-5% to 0%")
-    
+    label_values <- rbind(label_values,paste(div1,"% to ",div2,"%",sep=""))
   } else  {
-    
     geom2 <- geom_blank()
-    
   }
-  #-----------------------------------------------------------------------------------------------------
-  group_neg10_neg5 <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE pct_chg < -5 AND pct_chg >= -10")  
-  group_neg10_neg5 <- sqldf(group_neg10_neg5)
-  group_neg10_neg5 <- st_as_sf(group_neg10_neg5, wkt = 'geom')
+  ######################################################################################################
+  ### BIN 3 ############################################################################################
+  ######################################################################################################
+  bin3 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div3, "AND pct_chg >= ",div2))
+  bin3 <- st_as_sf(bin3, wkt = 'geom')
   
-  if (nrow(group_neg10_neg5) >0) {
-    
-    geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE, show.legend = FALSE)
+  if (nrow(bin3) > 0) {
+    geom3 <- geom_sf(data = bin3,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[3])
-    label_values <- rbind(label_values,"-10% to -5%")
-    
+    label_values <- rbind(label_values,paste(div2,"% to ",div3,"%",sep=""))
   } else  {
-    
     geom3 <- geom_blank()
-    
   }
+  ######################################################################################################
+  ### BIN 4 ############################################################################################
+  ######################################################################################################
+  bin4 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div4, "AND pct_chg >= ",div3))
+  bin4 <- st_as_sf(bin4, wkt = 'geom')
   
-  #-----------------------------------------------------------------------------------------------------
-  group_neg20_neg10 <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE pct_chg < -10 AND pct_chg >= -20")  
-  group_neg20_neg10 <- sqldf(group_neg20_neg10)
-  group_neg20_neg10 <- st_as_sf(group_neg20_neg10, wkt = 'geom')
-  
-  if (nrow(group_neg20_neg10) >0) {
-    
-    geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE, show.legend = FALSE)
+  if (nrow(bin4) > 0) {
+    geom4 <- geom_sf(data = bin4,aes(geometry = geom,fill = 'antiquewhite3',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[4])
-    label_values <- rbind(label_values,"-20% to -10%")
-    
+    label_values <- rbind(label_values,paste(div3,"% to ",div4,"%",sep=""))
   } else  {
-    
     geom4 <- geom_blank()
-    
   }
-  #-----------------------------------------------------------------------------------------------------
-  group_negInf_neg20 <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE pct_chg <= -20")  
-  group_negInf_neg20 <- sqldf(group_negInf_neg20)
-  group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
+  ######################################################################################################
+  ### BIN 5 ############################################################################################
+  ######################################################################################################
+  bin5 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div5, "AND pct_chg >= ",div4))
+  bin5 <- st_as_sf(bin5, wkt = 'geom')
   
-  if (nrow(group_negInf_neg20) >0) {
-    
-    geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE, show.legend = FALSE)
+  if (nrow(bin5) > 0) {
+    geom5 <- geom_sf(data = bin5,aes(geometry = geom,fill = 'antiquewhite4',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[5])
-    label_values <- rbind(label_values,"More than -20%")
-    
+    label_values <- rbind(label_values,paste(div4,"% to ",div5,"%",sep=""))
   } else  {
-    
     geom5 <- geom_blank()
-    
   }
+  ######################################################################################################
+  ### BIN 6 ############################################################################################
+  ######################################################################################################
+  bin6 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div6, "AND pct_chg >= ",div5))
+  bin6 <- st_as_sf(bin6, wkt = 'geom')
   
-  #---------------------------------------------------------------
-  # DATAFRAME OF ANY "_0000" TIDAL SEGMENTS
-  # RSeg_tidal <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE hydrocode LIKE '%_0000'")
-  # RSeg_tidal <- sqldf(RSeg_tidal)
+  if (nrow(bin6) > 0) {
+    geom6 <- geom_sf(data = bin6,aes(geometry = geom,fill = 'aquamarine',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    color_values <- rbind(color_values,color_scale[6])
+    label_values <- rbind(label_values,paste(div5,"% to ",div6,"%",sep=""))
+  } else  {
+    geom6 <- geom_blank()
+  }
+  ######################################################################################################
+  ### BIN 7 ############################################################################################
+  ######################################################################################################
+  # bin7 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div7, "AND pct_chg >= ",div6))
+  # bin7 <- st_as_sf(bin7, wkt = 'geom')
+  # 
+  # if (nrow(bin7) > 0) {
+  #   geom7 <- geom_sf(data = bin7,aes(geometry = geom,fill = 'aquamarine1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+  #   color_values <- rbind(color_values,color_scale[7])
+  #   label_values <- rbind(label_values,paste(div6,"% to ",div7,"%",sep=""))
+  # } else  {
+  #   geom7 <- geom_blank()
+  # }
+  
+  bin7 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div6))
+  bin7 <- st_as_sf(bin7, wkt = 'geom')
+  
+  if (nrow(bin7) > 0) {
+    geom7 <- geom_sf(data = bin7,aes(geometry = geom,fill = 'aquamarine1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    color_values <- rbind(color_values,color_scale[7])
+    label_values <- rbind(label_values,paste(">= ",div6,"%",sep=""))
+  } else  {
+    geom7 <- geom_blank()
+  }
+  ######################################################################################################
+  ### BIN 8 ############################################################################################
+  ######################################################################################################
+  # bin8 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div7))
+  # bin8 <- st_as_sf(bin8, wkt = 'geom')
+  # 
+  # if (nrow(bin8) > 0) {
+  #   geom8 <- geom_sf(data = bin8,aes(geometry = geom,fill = 'aquamarine2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+  #   color_values <- rbind(color_values,color_scale[8])
+  #   label_values <- rbind(label_values,paste(">= ",div7,"%",sep=""))
+  # } else  {
+  #   geom8 <- geom_blank()
+  # }
+  ######################################################################################################
+  ######################################################################################################
+  ######################################################################################################
+  ### TIDAL SEGS #######################################################################################
+  ######################################################################################################
+  tidal_color <- "gray55"
   
   RSeg_tidal <- paste("SELECT *
                   FROM RSeg_data
@@ -622,33 +757,30 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   RSeg_tidal <- sqldf(RSeg_tidal)
   
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
-    
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
-    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = color_scale[6],colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    
-    
+    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     group_tidal <- st_as_sf(RSeg_tidal, wkt = 'geom')
-    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = color_scale[6],colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[6])
+    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    color_values <- rbind(color_values,tidal_color)
     label_values <- rbind(label_values,"Tidal Segment")
-    
   } else  {
-    
     if(exists(x = 'group_tidal')){rm(group_tidal)}
     geom_tidal_base <- geom_blank()
     geom_tidal <- geom_blank()
-    
   }
   
   
   ####################################################################
   source_current <- base_map +
     geom_tidal_base +
-    geom1 +
-    geom2 +
-    geom3 +
-    geom4 +
+    #geom8 +
+    geom7 +
+    geom6 +
     geom5 +
+    geom4 +
+    geom3 +
+    geom2 +
+    geom1 +
     scale_fill_manual(values=color_values,
                       name = "Legend",
                       labels = label_values)+

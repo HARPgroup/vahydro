@@ -468,18 +468,12 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
   #color_scale_new <- c("white","navajowhite","sandybrown","#ad6c51","#754b39","gray55")
   color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55")
   
-  #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
-  # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-  #   image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment.PNG',sep='')
-  # } else {
-  #   image_path <- paste(folder, 'tables_maps/legend_rseg.PNG',sep='')
-  # }
-  #image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment_padding.PNG',sep='')
+  #OLD LEGEND
+  # image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0_tidal_segment_padding.PNG',sep='')
+  # base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
   
-  image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0_tidal_segment_padding.PNG',sep='')
-  
-  # base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6) #RIGHT TOP LEGEND
-  base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
+  image_path <- paste(folder, 'tables_maps/X_legend_single_tidal_padding.PNG',sep='')
+  base_legend <- draw_image(image_path,height = .4, x = -0.364, y = .47)
   
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
