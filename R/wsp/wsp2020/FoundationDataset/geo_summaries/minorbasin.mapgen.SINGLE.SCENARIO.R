@@ -494,9 +494,11 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
   #   image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE.PNG',sep='')
   # }
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-    image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0_tidal_segment.PNG',sep='')
+    #image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0_tidal_segment.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/X_legend_single_tidal.PNG',sep='')
   } else {
-    image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0.PNG',sep='')
+    #image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/X_legend_single.PNG',sep='')
   }
   
   base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6)
