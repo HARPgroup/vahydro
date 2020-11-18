@@ -1043,7 +1043,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(state_abbrev = 'VA', file_extension = '.html')
+TABLE_GEN_func(state_abbrev = 'VA', file_extension = '.tex')
 
 
 
