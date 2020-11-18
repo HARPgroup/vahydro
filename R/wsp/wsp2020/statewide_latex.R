@@ -899,11 +899,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     #need to select the BB for the YES power (including)
     top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
     top_10 <- top_10_gw
-    # top_10$facility_name <- str_to_title(top_10$facility_name)
-    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
-    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
-    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
-    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+    
     top_10$facility_name <- gsub(x = top_10$facility_name, pattern = " \\(Small Self-Supplied User\\)", replacement = "", ignore.case = T)
     
     top_10[is.na(top_10)] <- 0.00
@@ -1055,85 +1051,6 @@ TABLE_GEN_func(state_abbrev = 'VA', file_extension = '.html')
 
 
 
-
-#---------------------------------------------------------------#
-
-#---------------------------------------------------------------#
-
-#---------------------------------------------------------------#
-
-#---------------------------------------------------------------#
-
-#---------------------------------------------------------------#
-
-#---------------------------------------------------------------#
-#Transform
-#Demand by County 
-by_county <- sqldf("SELECT 
-fips_code, 
-fips_name, 
-round(sum(mp_2020_mgy)/365.25,2) AS 'MGD_2020',
-round(sum(mp_2030_mgy)/365.25,2) AS 'MGD_2030', 
-round(sum(mp_2040_mgy)/365.25,2) AS 'MGD_2040',
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM mps 
-                        WHERE fips_code LIKE '51%'
-                        GROUP BY fips_code
-                        ORDER BY pct_change DESC")
-write.csv(by_county, paste(folder,"kable_tables/statewide/demand_by_county_statewide.csv",sep=""))
-
-# OUTPUT TABLE IN KABLE FORMAT
-kable(by_county[1:6],  booktabs = T,
-      caption = "Withdrawal Demand by Locality",
-      label = "demand_locality_statewide",
-      col.names = c("Fips Code",
-                    "Locality",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
-  kable_styling(latex_options = latexoptions) %>%
-  #column_spec(1, width = "5em") %>%
-  #column_spec(2, width = "5em") %>%
-  #column_spec(3, width = "5em") %>%
-  #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_by_county_statewide_kable",file_ext,sep=""))
-
-#---------------------------------------------------------------#
-
-#Demand by County 
-by_county_no_power <- sqldf("SELECT 
-fips_code, 
-fips_name, 
-round(sum(mp_2020_mgy)/365.25,2) AS 'MGD_2020',
-round(sum(mp_2030_mgy)/365.25,2) AS 'MGD_2030', 
-round(sum(mp_2040_mgy)/365.25,2) AS 'MGD_2040',
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM mps 
-                        WHERE fips_code LIKE '51%'
-                        AND facility_ftype NOT LIKE '%power'
-                        GROUP BY fips_code
-                        ORDER BY pct_change DESC")
-write.csv(by_county, paste(folder,"kable_tables/statewide/demand_by_county_statewide_no_power.csv",sep=""))
-
-# OUTPUT TABLE IN KABLE FORMAT
-kable(by_county_no_power[1:6],  booktabs = T,
-      caption = "Withdrawal Demand by Locality (excluding Power Generation)",
-      label = "demand_locality_statewide_no_power",
-      col.names = c("Fips Code",
-                    "Locality",
-                    "2020 Demand (MGD)",
-                    "2030 Demand (MGD)",
-                    "2040 Demand (MGD)",
-                    "20 Year Percent Change")) %>%
-  kable_styling(latex_options = latexoptions) %>%
-  #column_spec(1, width = "5em") %>%
-  #column_spec(2, width = "5em") %>%
-  #column_spec(3, width = "5em") %>%
-  #column_spec(4, width = "4em") %>%
-  cat(., file = paste(folder,"kable_tables/statewide/demand_by_county_statewide_no_power_kable",file_ext,sep=""))
-#---------------------------------------------------------------#
-
 #Transform
 #SSU demand vs. permitted amounts
 
@@ -1284,31 +1201,4 @@ kable(ssu_permitted,  booktabs = T,
   #column_spec(3, width = "5em") %>%
   #column_spec(4, width = "4em") %>%
   cat(., file = paste(folder,"kable_tables/statewide/ssu_demand_vs_permitted_statewide_no_power_kable",file_ext,sep=""))
-
-#---------------------------------------------------------------#
-#POWERPOINT PRESENTATION BRIEFING
-by_county_source <- sqldf("SELECT 
-fips_code, 
-fips_name, MP_bundle,
-sum(mp_2020_mgy)/365.25 AS 'MGD_2020',
-sum(mp_2030_mgy)/365.25 AS 'MGD_2030', 
-sum(mp_2040_mgy)/365.25 AS 'MGD_2040',
-round(((sum(mp_2040_mgy) - sum(mp_2020_mgy)) / sum(mp_2020_mgy)) * 100,2) AS 'pct_change'
-                        FROM mps 
-                        WHERE facility_ftype NOT LIKE '%power'
-                        GROUP BY fips_code, MP_bundle
-                        ORDER BY pct_change DESC")
-write.csv(by_county_source, paste(folder,"county_source_type_demand_no_power.csv", sep=""))
-
-#Tidal vs. Non-tidal
-tidal_vs_nontidal_power <- sqldf("SELECT *
-                    FROM mp_all
-                     WHERE facility_ftype LIKE '%power'
-                      AND MP_bundle = 'intake'
-                      AND VAHydro_RSeg_Code LIKE '%_0000' ")
-write.csv(tidal_vs_nontidal_power, paste(folder,"tidal_vs_nontidal_power.csv", sep=""))
-#---------------------------------------------------------------#
-
-#Transform
-#permitted vs. unpermitted by source type
 
