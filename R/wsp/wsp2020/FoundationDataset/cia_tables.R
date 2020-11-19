@@ -15,7 +15,7 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 
 df <- data.frame(
   'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
-  'runid' = c('runid_13', 'runid_13', 'runid_13', 'runid_13', 'runid_13', 'runid_13'),
+  'runid' = c('runid_203', 'runid_203', 'runid_203', 'runid_203', 'runid_203', 'runid_203'),
   'runlabel' = c('Mean_Q', 'x7Q10', 'Low_Flow_30d', 'Low_Flow_90d', 'Total_WD', 'Total_PS'),
   'metric' = c('Qout', '7q10','l30_Qout','l90_Qout','wd_cumulative_mgd','ps_cumulative_mgd')
 )
@@ -26,35 +26,25 @@ wshed_data <- om_vahydro_metric_grid(metric, df)
 # get drainage areas
 # @todo: replace this with a faster, single view retrieval routine
 #   get properties for view based on hydroid (default = all), bundle, ftype,
-wshed_data$da <- 0.0
-for (segix in index(wshed_data)) {
-  seg <- wshed_data[segix,]
-  print(seg$featureid)
-  inputs <- list (
-    propname = 'wshed_drainage_area_sqmi',
-    featureid = seg$featureid,
-    entity_type = 'dh_feature'
-  )
-  daprop <- getProperty(inputs, site, daprop)
-  if (!is.logical(daprop)) {
-    da <- as.numeric(daprop$propvalue)
-    wshed_data[segix,'da'] <- da
-  } else {
-    wshed_data[segix,'da'] <- 0
-  }
+if (!exists('wshed_da')) {
+  da_url <- 'http://deq2.bse.vt.edu/d.dh/entity-model-prop-level-export/all/dh_feature/watershed/vahydro/vahydro-1.0/0.%20River%20Channel/drainage_area'
+  da_data <- read.csv(da_url)
+  wshed_da = da_data[,c('pid', 'attribute_value')]
+  names(wshed_da) <- c('pid', 'da')
 }
 
 wshed_data$cu_mgd <- wshed_data$Total_WD - wshed_data$Total_PS
-
-runid = 13
-minor_basin_list = c('PU', 'OR', 'JU', 'JL')
+wshed_data <- sqldf("select a.*, b.da from wshed_data as a left outer join wshed_da as b on a.pid = b.pid")
+runid = 203
+minor_basin_list = c('P', 'PM')
 # Save the metric specific file
 for (minor_basin in minor_basin_list) {
   mbdata <- sqldf(
     paste0(
       "select * from wshed_data where hydrocode like 'vahydrosw_wshed_",
       minor_basin,
-      "%'"
+      "%'
+      ORDER BY da"
     )
   )
   filename <- paste0(folder,"cia_", minor_basin, '_', runid, ".csv")
