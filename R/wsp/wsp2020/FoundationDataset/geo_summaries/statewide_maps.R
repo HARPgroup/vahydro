@@ -33,7 +33,7 @@ fips.csv <- read.csv(file=paste(localpath , fips_filename,sep="\\"), header=TRUE
 #LOAD RAW mp.all FILE
 # mp.all <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 
-# #DOWNLOAD RESERVOIR LAYER
+#DOWNLOAD RESERVOIR LAYER FROM LOCAL REPO
 WBDF <- read.table(file=paste(hydro_tools,"GIS_LAYERS","WBDF.csv",sep="/"), header=TRUE, sep=",")
 
 

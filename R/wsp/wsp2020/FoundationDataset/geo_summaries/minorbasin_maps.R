@@ -35,13 +35,8 @@ ifim_destfile <- paste(localpath,ifim_filename,sep="\\")
 download.file(paste(site,"ifim_flow_export",sep=""), destfile = ifim_destfile, method = "libcurl")
 ifim.csv <- read.csv(file=paste(localpath , ifim_filename,sep="\\"), header=TRUE, sep=",")
 
-# #DOWNLOAD RESERVOIR LAYER DIRECT FROM VAHYDRO
-# res_filename <- paste("reservoir_summary_export.csv",sep="")
-# res_destfile <- paste(localpath,res_filename,sep="\\")
-# download.file(paste(site,"reservoir_summary_export",sep=""), destfile = res_destfile, method = "libcurl")
-# MajorReservoirs.csv <- read.csv(file=paste(localpath , res_filename,sep="\\"), header=TRUE, sep=",")
+#DOWNLOAD RESERVOIR LAYER FROM LOCAL REPO
 WBDF <- read.table(file=paste(hydro_tools,"GIS_LAYERS","WBDF.csv",sep="/"), header=TRUE, sep=",")
-#MajorReservoirs.csv <- read.table(file = 'https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_LAYERS/WBDF.csv', sep = ',', header = TRUE)
 
 #LOAD RAW mp.all FILE
 mp.all <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
@@ -171,17 +166,17 @@ beep(3)
 # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
 # 
 # #----------- RUN SINGLE MAP --------------------------
-minorbasin.mapgen(minorbasin = "OR",
-                  metric = "l30_Qout",
-                  runid_a = "runid_11",
-                  runid_b = "runid_13",
-                  wd_points = "ON", #TURN WITHDRAWAL POINTS "ON" OR "OFF"
-                  rsegs = "OFF",     #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
-)
+# minorbasin.mapgen(minorbasin = "OR",
+#                   metric = "l30_Qout",
+#                   runid_a = "runid_11",
+#                   runid_b = "runid_13",
+#                   wd_points = "ON", #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+#                   rsegs = "OFF",     #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+# )
 
 
 #----------- RUN MAPS IN BULK --------------------------
-#ALL 21 MINOR BASINS - (21 figs)
+#ALL 21 MINOR BASINS - (20 figs)
 minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- "l30_Qout"
 runid_a <- "runid_11"
