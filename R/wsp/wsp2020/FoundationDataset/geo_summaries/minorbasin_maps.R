@@ -231,11 +231,12 @@ beep(3)
 # )
 
 #----------- RUN MAPS IN BULK --------------------------
-#ALL 21 MINOR BASINS - (20 figs)
+#ALL 21 MINOR BASINS - (60 figs)
 minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- "l30_Qout" 
 runid_a <- "runid_11" 
-runid_b <- "runid_13" 
+#runid_b <- "runid_13" 
+runid_b <- c("runid_11","runid_12","runid_13")
 wd_points <- "ON" 
 rsegs <- "OFF"   
 wells <- "ON"
