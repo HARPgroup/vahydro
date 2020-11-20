@@ -932,7 +932,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                            runid_18,
                            mb_code
                  FROM unmet30
-                      WHERE (runid_11 > 0
+                      WHERE (runid_11 > 0.0099
                        OR runid_12 > 0.0099
                        OR runid_13 > 0.0099
                        OR runid_17 > 0.0099
