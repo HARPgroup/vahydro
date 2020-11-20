@@ -592,7 +592,8 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   #   
   # }
   ######################################################################################################
-  rseg_border <- 'black'
+  #rseg_border <- 'black'
+  rseg_border <- 'grey35'
   
   # #COLOR SCALE FOR THE 8 MAPPING "BINS"
   # color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
@@ -819,6 +820,11 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                     geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
                     #ADD RIVERS LAYER ON TOP
                     geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+                    
+                    # ADD WATERBODIES ###############################################################
+                    geom_point(data = WBDF, aes(x = long, y = lat), color="dodgerblue3", size=0.09)+
+                    #################################################################################
+                    
                     #ADD BORDER 
                     geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
                     

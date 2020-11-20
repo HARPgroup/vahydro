@@ -35,6 +35,9 @@ ifim_destfile <- paste(localpath,ifim_filename,sep="\\")
 download.file(paste(site,"ifim_flow_export",sep=""), destfile = ifim_destfile, method = "libcurl")
 ifim.csv <- read.csv(file=paste(localpath , ifim_filename,sep="\\"), header=TRUE, sep=",")
 
+#DOWNLOAD RESERVOIR LAYER FROM LOCAL REPO
+WBDF <- read.table(file=paste(hydro_tools,"GIS_LAYERS","WBDF.csv",sep="/"), header=TRUE, sep=",")
+
 #LOAD RAW mp.all FILE
 mp.all <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 
@@ -47,8 +50,8 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen(minorbasin = "PS",
-#                   metric = "l30_Qout",
+# minorbasin.mapgen(minorbasin = "OR",
+#                   metric = "l90_Qout",
 #                   runid_a = "runid_11",
 #                   runid_b = "runid_13",
 #                   wd_points <- "ON",
@@ -163,7 +166,7 @@ beep(3)
 # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
 # 
 # #----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen(minorbasin = "ES",
+# minorbasin.mapgen(minorbasin = "OR",
 #                   metric = "l30_Qout",
 #                   runid_a = "runid_11",
 #                   runid_b = "runid_13",
@@ -173,7 +176,7 @@ beep(3)
 
 
 #----------- RUN MAPS IN BULK --------------------------
-#ALL 21 MINOR BASINS - (21 figs)
+#ALL 21 MINOR BASINS - (20 figs)
 minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- "l30_Qout"
 runid_a <- "runid_11"
@@ -213,7 +216,7 @@ beep(3)
 # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.extent.R",sep = '/'))
 
 #----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen(minorbasin = "PL",
+# minorbasin.mapgen(minorbasin = "OR",
 #                   metric = "l30_Qout",
 #                   runid_a = "runid_11", #UNUSED WHEN GENERATING WELL DEMAND MAPS
 #                   runid_b = "runid_13", #runid_11, runid_12, or runid_13
@@ -223,11 +226,12 @@ beep(3)
 # )
 
 #----------- RUN MAPS IN BULK --------------------------
-#ALL 21 MINOR BASINS - (20 figs)
+#ALL 21 MINOR BASINS - (60 figs)
 minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
 metric <- "l30_Qout" 
 runid_a <- "runid_11" 
-runid_b <- "runid_13" 
+#runid_b <- "runid_13" 
+runid_b <- c("runid_11","runid_12","runid_13")
 wd_points <- "ON" 
 rsegs <- "OFF"   
 wells <- "ON"

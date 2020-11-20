@@ -743,6 +743,10 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
                       #ADD RIVERS LAYER ON TOP
                       geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
                       
+                      # ADD WATERBODIES ###############################################################
+                      geom_point(data = WBDF, aes(x = long, y = lat), color="dodgerblue3", size=0.09)+
+                      #################################################################################
+                      
                       #ADD BORDER 
                       geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
                       

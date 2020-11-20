@@ -478,7 +478,8 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
   ######################################################################################################
-  rseg_border <- 'black'
+  #rseg_border <- 'black'
+  rseg_border <- 'grey35'
   
   group_0_plus <- paste("SELECT *
                   FROM RSeg_data
@@ -669,6 +670,11 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
                     geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
                     #ADD RIVERS LAYER ON TOP
                     geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
+                    
+                    # ADD WATERBODIES ###############################################################
+                    geom_point(data = WBDF, aes(x = long, y = lat), color="dodgerblue3", size=0.09)+
+                    #################################################################################
+                    
                     #ADD BORDER 
                     geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
                     
