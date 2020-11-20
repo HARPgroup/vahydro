@@ -15,18 +15,6 @@ library(ggmap) #used for get_stamenmap, get_map
 
 minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_points = "OFF"){
   
-  #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
-  #good divs for consumptive_use_frac
-  # div1 <- 0.0
-  # div2 <- 0.10
-  # div3 <- 0.20
-  # div4 <- 0.50
-  
-  div1 <- 0.0
-  div2 <- 0.05
-  div3 <- 0.10
-  div4 <- 0.20
-  
   # SELECT MINOR BASIN NAME
   mb_name <-sqldf(paste('SELECT 
                           CASE
@@ -50,7 +38,8 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
   # RETRIEVE RIVERSEG MODEL METRIC SUMMARY DATA
   RSeg_summary <- read.csv(paste(folder,"metrics_watershed_",metric,".csv",sep=""))
   
-
+  # RSeg_summary <<- RSeg_summary
+  # write.csv(RSeg_summary,paste0(export_path, "tables_maps/Xfigures/RSeg_summary.csv",sep = ""))
   ######################################################################################################
   # DETERMINE MAP EXTENT FROM MINOR BASIN CENTROID
   extent <- mb.extent(minorbasin,MinorBasins.csv)
@@ -377,7 +366,9 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
                   FROM "RSeg.csv" AS a
                   LEFT OUTER JOIN RSeg_summary AS b
                   ON (a.hydrocode = b.hydrocode)
-                  WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"',sep = '')
+                  WHERE a.hydrocode LIKE "%wshed_',minorbasin,'%"
+                  ORDER BY hydroid ASC  
+                  ',sep = '')
   
   if (minorbasin == "ES") {
     print("COMBINING 2 EASTERN SHORE MINOR BASINS")
@@ -484,15 +475,6 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
                       panel.background = element_blank(),
                       panel.border = element_blank())
   
-  #color_scale_original <- c("darkolivegreen3","cornflowerblue","khaki2","plum3","coral3")
-  color_scale <- c("white","navajowhite","#f7d679","#d98f50","#ad6c51","gray55")
-  
-  #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
-  # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
-  #   image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_tidal_segment.PNG',sep='')
-  # } else {
-  #   image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE.PNG',sep='')
-  # }
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
     #image_path <- paste(folder, 'tables_maps/legend_rseg_SINGLE_2.0_tidal_segment.PNG',sep='')
     image_path <- paste(folder, 'tables_maps/X_legend_single_tidal.PNG',sep='')
@@ -501,7 +483,8 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
     image_path <- paste(folder, 'tables_maps/X_legend_single.PNG',sep='')
   }
   
-  base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6)
+  #base_legend <- draw_image(image_path,height = .282, x = 0.395, y = .6)
+  base_legend <- draw_image(image_path,height = .35, x = 0.392, y = .54) #NEW LEGEND
   
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32)
   
@@ -509,135 +492,96 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
   ######################################################################################################
   rseg_border <- 'black'
   
-  group_0_plus <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE ",runid_a," <= ",div1)  
-  group_0_plus <- sqldf(group_0_plus)
-  group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
+  #COLOR SCALE FOR THE 7 MAPPING "BINS"
+  color_scale <- c("white","#f7d679","#d98f50","#ad6c51")
   
+  #DIVISIONS TO BE USED IN 4 MAPPING "BINS"
+  #div1 <- 0.0
+  div1 <- 0.05
+  div2 <- 0.10
+  div3 <- 0.20
+  
+  #INITIATE COLOR AND LABEL LISTS
   color_values <- list()
   label_values <- list()
   
-  if (nrow(group_0_plus) >0) {
-    
-    geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    
+  ######################################################################################################
+  ### BIN 1 ############################################################################################
+  ######################################################################################################
+  bin1 <- sqldf(paste("SELECT * FROM RSeg_data WHERE ",runid_a," < ",div1))  
+  bin1 <- st_as_sf(bin1, wkt = 'geom')
+  
+  if (nrow(bin1) > 0) {
+    geom1 <- geom_sf(data = bin1,aes(geometry = geom,fill = 'antiquewhite',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- color_scale[1]
-    
-    label_values <- paste(" <= ",div1,sep="")
-    
+    label_values <- paste(" More than ",div1,"%",sep="")
   } else  {
-    
     geom1 <- geom_blank()
-    
   }
-  #-----------------------------------------------------------------------------------------------------
-  group_neg5_0 <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE ",runid_a," > ",div1," AND ",runid_a," <= ",div2)  
-  group_neg5_0 <- sqldf(group_neg5_0)
-  group_neg5_0 <- st_as_sf(group_neg5_0, wkt = 'geom')
+  ######################################################################################################
+  ### BIN 2 ############################################################################################
+  ######################################################################################################
+  bin2 <- sqldf(paste("SELECT * FROM RSeg_data WHERE ",runid_a," < ",div2, "AND ",runid_a," >= ",div1))
+  bin2 <- st_as_sf(bin2, wkt = 'geom')
   
-  if (nrow(group_neg5_0) >0) {
-    
-    geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+  if (nrow(bin2) > 0) {
+    geom2 <- geom_sf(data = bin2,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[2])
-    label_values <- rbind(label_values,paste(div1," - ",div2,sep=""))
-    
+    label_values <- rbind(label_values,paste(div1,"% to ",div2,"%",sep=""))
   } else  {
-    
     geom2 <- geom_blank()
-    
   }
-  #-----------------------------------------------------------------------------------------------------
-  group_neg10_neg5 <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE ",runid_a," > ",div2," AND ",runid_a," <= ",div3)  
-  group_neg10_neg5 <- sqldf(group_neg10_neg5)
-  group_neg10_neg5 <- st_as_sf(group_neg10_neg5, wkt = 'geom')
+  ######################################################################################################
+  ### BIN 3 ############################################################################################
+  ######################################################################################################
+  bin3 <- sqldf(paste("SELECT * FROM RSeg_data WHERE ",runid_a," < ",div3, "AND ",runid_a," >= ",div2))
+  bin3 <- st_as_sf(bin3, wkt = 'geom')
   
-  if (nrow(group_neg10_neg5) >0) {
-    
-    geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+  if (nrow(bin3) > 0) {
+    geom3 <- geom_sf(data = bin3,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[3])
-    label_values <- rbind(label_values,paste(div2," - ",div3,sep=""))
-    
+    label_values <- rbind(label_values,paste(div2,"% to ",div3,"%",sep=""))
   } else  {
-    
     geom3 <- geom_blank()
-    
   }
+  ######################################################################################################
+  ### BIN 4 ############################################################################################
+  ######################################################################################################
+  bin4 <- sqldf(paste("SELECT * FROM RSeg_data WHERE ",runid_a," >= ",div3))
+  bin4 <- st_as_sf(bin4, wkt = 'geom')
   
-  #-----------------------------------------------------------------------------------------------------
-  group_neg20_neg10 <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE ",runid_a," > ",div3," AND ",runid_a," <= ",div4)  
-  group_neg20_neg10 <- sqldf(group_neg20_neg10)
-  group_neg20_neg10 <- st_as_sf(group_neg20_neg10, wkt = 'geom')
-  
-  if (nrow(group_neg20_neg10) >0) {
-    
-    geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+  if (nrow(bin4) > 0) {
+    geom4 <- geom_sf(data = bin4,aes(geometry = geom,fill = 'antiquewhite3',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     color_values <- rbind(color_values,color_scale[4])
-    #label_values <- rbind(label_values,"-20% to -10%")
-    label_values <- rbind(label_values,paste(div3," - ",div4,sep=""))
-    
+    label_values <- rbind(label_values,paste(">= ",div3,"%",sep=""))
   } else  {
-    
     geom4 <- geom_blank()
-    
   }
+  ######################################################################################################
+  ######################################################################################################
+  ######################################################################################################
+  ### TIDAL SEGS #######################################################################################
+  ######################################################################################################
+  tidal_color <- "gray55"
   
-  
-  #-----------------------------------------------------------------------------------------------------
-  group_negInf_neg20 <- paste("SELECT *
-                  FROM RSeg_data
-                  WHERE ",runid_a," > ",div4)  
-  group_negInf_neg20 <- sqldf(group_negInf_neg20)
-  group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
-  
-  if (nrow(group_negInf_neg20) > 0) {
-    
-    geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[5])
-    #label_values <- rbind(label_values,paste(metric," >= ",div4,sep=""))
-    label_values <- rbind(label_values,paste(" > ",div4,sep=""))
-    
-  } else  {
-    
-    geom5 <- geom_blank()
-    
-  }
-  
-  #---------------------------------------------------------------
   # DATAFRAME OF ANY "_0000" TIDAL SEGMENTS
   RSeg_tidal <- paste("SELECT *
                   FROM RSeg_data
                   WHERE hydrocode LIKE '%_0000'")
   RSeg_tidal <- sqldf(RSeg_tidal)
-
+  
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
-
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
-    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = color_scale[6],colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    
-    
+    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
     group_tidal <- st_as_sf(RSeg_tidal, wkt = 'geom')
-    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = color_scale[6],colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[6])
+    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    color_values <- rbind(color_values,tidal_color)
     label_values <- rbind(label_values,"Tidal Segment")
-
   } else  {
-
-      if(exists(x = 'group_tidal')){rm(group_tidal)}
-      geom_tidal_base <- geom_blank()
-      geom_tidal <- geom_blank()
-
+    if(exists(x = 'group_tidal')){rm(group_tidal)}
+    geom_tidal_base <- geom_blank()
+    geom_tidal <- geom_blank()
   }
-  
-  
-  
-  
   
   
 
@@ -648,7 +592,7 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
     geom2 +
     geom3 +
     geom4 +
-    geom5 +
+    #geom5 +
     scale_fill_manual(values=color_values,
                       name = "Legend",
                       labels = label_values)+

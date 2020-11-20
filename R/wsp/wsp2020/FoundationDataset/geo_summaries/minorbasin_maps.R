@@ -107,11 +107,11 @@ beep(3)
 ######################################################################################################
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
-# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 # # #----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "PS",
+# minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "RU",
 #                                   metric = "consumptive_use_frac",
-#                                   runid_a = c("runid_11"),
+#                                   runid_a = c("runid_13"),
 #                                   wd_points = "ON")
 # 
 # minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "ES",
@@ -119,10 +119,9 @@ beep(3)
 #                                   runid_a = c("runid_11"),
 #                                   wd_points = "ON")
 # 
-# minorbasin <- c("ES")
+# minorbasin <- c("RU")
 # metric <- "consumptive_use_frac"
 # runid_a <- c("runid_11","runid_12","runid_13","runid_18")
-# #runid_a <- c("runid_17","runid_19","runid_20")
 # wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 
 #----------- RUN MAPS IN BULK --------------------------
