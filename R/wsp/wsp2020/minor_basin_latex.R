@@ -904,7 +904,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
    #---- UNMET/CONSTRAINED DEMAND TABLE --------------------------------------------------------------
-   unmet302 <- sqldf('SELECT pid,
+   unmet30 <- sqldf('SELECT pid,
                            featureid,
                            CASE
                            WHEN propname LIKE "Manassas WTP & Service Area:T. Nelson Elliott Dam"
@@ -921,6 +921,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                  from unmet30_raw
                  WHERE hydrocode NOT LIKE "wsp_%"
                  AND riverseg NOT LIKE "%_0000%"
+                 AND pid != 5685622
                  ORDER BY mb_code DESC, runid_18 DESC')
    
    
