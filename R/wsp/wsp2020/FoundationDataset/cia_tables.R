@@ -12,30 +12,43 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 
 # Uses the function om_vahydro_metric_grid()
 # See vahydro/R/cia_tables.R for more examples
+df <- data.frame(
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_11', '0.%20River%20Channel', 'local_channel'),
+  'runlabel' = c('QBaseline_2020', 'comp_da', 'subcomp_da'),
+  'metric' = c('Qbaseline', 'drainage_area', 'drainage_area')
+)
+da_data <- om_vahydro_metric_grid(metric, df)
+da_data <- sqldf(
+  "select pid, comp_da, subcomp_da,
+   CASE
+    WHEN comp_da is null then subcomp_da
+    ELSE comp_da
+    END as da
+   from da_data
+  ")
 
+runid = 13
+run_name = paste0('runid_', runid)
 df <- data.frame(
   'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
-  'runid' = c('runid_203', 'runid_203', 'runid_203', 'runid_203', 'runid_203', 'runid_203'),
+  'runid' = c(run_name, run_name, run_name, run_name, run_name, run_name),
   'runlabel' = c('Mean_Q', 'x7Q10', 'Low_Flow_30d', 'Low_Flow_90d', 'Total_WD', 'Total_PS'),
   'metric' = c('Qout', '7q10','l30_Qout','l90_Qout','wd_cumulative_mgd','ps_cumulative_mgd')
 )
-# choose one to test
-#df <- as.data.frame(df[3,])
-metric = FALSE 
 wshed_data <- om_vahydro_metric_grid(metric, df)
-# get drainage areas
-# @todo: replace this with a faster, single view retrieval routine
-#   get properties for view based on hydroid (default = all), bundle, ftype,
-if (!exists('wshed_da')) {
-  da_url <- 'http://deq2.bse.vt.edu/d.dh/entity-model-prop-level-export/all/dh_feature/watershed/vahydro/vahydro-1.0/0.%20River%20Channel/drainage_area'
-  da_data <- read.csv(da_url)
-  wshed_da = da_data[,c('pid', 'attribute_value')]
-  names(wshed_da) <- c('pid', 'da')
-}
+
+wshed_data <- sqldf(
+  "select a.*, b.da 
+   from wshed_data as a 
+  left outer join da_data as b 
+  on (a.pid = b.pid)
+  order by da
+  ")
 
 wshed_data$cu_mgd <- wshed_data$Total_WD - wshed_data$Total_PS
 wshed_data <- sqldf("select a.*, b.da from wshed_data as a left outer join wshed_da as b on a.pid = b.pid")
-runid = 203
+
 minor_basin_list = c('P', 'PM')
 # Save the metric specific file
 for (minor_basin in minor_basin_list) {
@@ -44,6 +57,7 @@ for (minor_basin in minor_basin_list) {
       "select * from wshed_data where hydrocode like 'vahydrosw_wshed_",
       minor_basin,
       "%'
+      AND hydrocode not like '%0000'
       ORDER BY da"
     )
   )
