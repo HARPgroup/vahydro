@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "ES", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "PL", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -906,7 +906,11 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    #---- UNMET/CONSTRAINED DEMAND TABLE --------------------------------------------------------------
    unmet30 <- sqldf('SELECT pid,
                            featureid,
-                           propname,
+                           CASE
+                           WHEN propname LIKE "Manassas WTP & Service Area:T. Nelson Elliott Dam"
+                           THEN "Manassas WTP & Service Area (Reservoir)"
+                           ELSE propname
+                           END AS propname,
                            round(runid_11,2) AS runid_11,
                            round(runid_12,2) AS runid_12,
                            round(runid_13,2) AS runid_13,
@@ -917,7 +921,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                  from unmet30_raw
                  WHERE hydrocode NOT LIKE "wsp_%"
                  AND riverseg NOT LIKE "%_0000%"
+                 AND pid != 5685622
                  ORDER BY mb_code DESC, runid_18 DESC')
+   
    
    unmet30$mb_code <- recode(unmet30$mb_code, EL = "ES")
    unmet30$runid_17[is.na(unmet30$runid_17)] <- "-"
