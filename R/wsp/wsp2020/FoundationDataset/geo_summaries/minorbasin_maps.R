@@ -63,29 +63,37 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 # #                   runid_b = "runid_13",
 # #                   wd_points <- "ON",
 # #                   rsegs <- "ON")
-# minorbasin <- c("ES")
-# metric <- c("l30_Qout","l90_Qout","7q10")
-# runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
-# runid_b <- c("runid_12","runid_13","runid_18")
-# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
-# rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
-
-#----------- RUN MAPS IN BULK --------------------------
-#ALL 21 MINOR BASINS (180 figs)
-minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("OR","OD")
 metric <- c("l30_Qout","l90_Qout","7q10")
 runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
 runid_b <- c("runid_12","runid_13","runid_18")
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
 
-#NORTHERN BASINS ONLY (FOR CC SCENARIOS) (84 figs)
-minorbasin <- c("YP", "RL", "PU", "RU", "YM", "JA", "PM", "YL", "PL", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("PM","PL")
 metric <- c("l30_cc_Qout", "l90_cc_Qout")
 runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
 runid_b <- c("runid_17","runid_19","runid_20")
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+#---------------------------------------------------------------------------------
+
+# #----------- RUN MAPS IN BULK --------------------------
+# #ALL 21 MINOR BASINS (180 figs)
+# minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+# metric <- c("l30_Qout","l90_Qout","7q10")
+# runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
+# runid_b <- c("runid_12","runid_13","runid_18")
+# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+# rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+# 
+# #NORTHERN BASINS ONLY (FOR CC SCENARIOS) (84 figs)
+# minorbasin <- c("YP", "RL", "PU", "RU", "YM", "JA", "PM", "YL", "PL", "JU", "JB", "JL","PS","ES")
+# metric <- c("l30_cc_Qout", "l90_cc_Qout")
+# runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
+# runid_b <- c("runid_17","runid_19","runid_20")
+# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+# rsegs <- "ON"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
 
 tic("Total")
 it <- 1 #INITIALIZE ITERATION FOR PRINTING IN LOOP
@@ -119,17 +127,18 @@ beep(3)
 #                                   runid_a = c("runid_11"),
 #                                   wd_points = "ON")
 # 
-# minorbasin <- c("RU")
-# metric <- "consumptive_use_frac"
-# runid_a <- c("runid_11","runid_12","runid_13","runid_18")
-# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
-
-#----------- RUN MAPS IN BULK --------------------------
-#ALL 21 MINOR BASINS - SINGLE SCENARIO (80 figs)
-minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("PM","PL")
 metric <- "consumptive_use_frac"
 runid_a <- c("runid_11","runid_12","runid_13","runid_18")
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+
+
+#----------- RUN MAPS IN BULK --------------------------
+#ALL 21 MINOR BASINS - SINGLE SCENARIO (80 figs)
+# minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+# metric <- "consumptive_use_frac"
+# runid_a <- c("runid_11","runid_12","runid_13","runid_18")
+# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 
 #We in fact don't want to use the overall percent of flow change metric with climate change 
 # because climate uses that 10 year simulation period, which introduces some odd results. 
@@ -176,13 +185,19 @@ beep(3)
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - (20 figs)
-minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+# minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+# metric <- "l30_Qout"
+# runid_a <- "runid_11"
+# runid_b <- "runid_13"
+# wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
+# rsegs <- "OFF"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
+
+minorbasin <- c("PM","PL")
 metric <- "l30_Qout"
 runid_a <- "runid_11"
 runid_b <- "runid_13"
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 rsegs <- "OFF"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
-
 
 # minorbasin <- c("NR")
 # metric <- "7q10"
@@ -226,7 +241,8 @@ beep(3)
 
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - (60 figs)
-minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+#minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
+minorbasin <- c("PM","PL")
 metric <- "l30_Qout" 
 runid_a <- "runid_11" 
 #runid_b <- "runid_13" 
