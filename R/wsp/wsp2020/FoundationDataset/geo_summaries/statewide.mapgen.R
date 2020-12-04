@@ -338,7 +338,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                   FROM RSeg_data
                   WHERE geom != ''")  
   RSeg_data <- sqldf(RSeg_valid_geoms)
-  #print(length(RSeg_data[,1]))
+  print(length(RSeg_data[,1]))
   
   ######################################################################################################
   ######################################################################################################
@@ -757,6 +757,8 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                         hydrocode LIKE 'vahydrosw_wshed_ES%_0000'
                       ")
   RSeg_tidal <- sqldf(RSeg_tidal)
+  print(length(RSeg_tidal[,1]))
+  
   
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')

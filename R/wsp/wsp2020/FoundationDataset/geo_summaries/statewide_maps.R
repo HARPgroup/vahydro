@@ -45,6 +45,7 @@ WBDF <- read.table(file=paste(hydro_tools,"GIS_LAYERS","WBDF.csv",sep="/"), head
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.OVERVIEW.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.ELFGEN.R",sep = '/'))
 
 ######################################################################################################
 ### SCENARIO COMPARISONS #############################################################################
@@ -90,8 +91,8 @@ beep(3)
 # ######################################################################################################
 # ### SINGLE SCENARIO ##################################################################################
 # ######################################################################################################
-#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
-#----------- RUN SINGLE MAP --------------------------
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+# #----------- RUN SINGLE MAP --------------------------
 # statewide.mapgen.SINGLE.SCENARIO(metric = "consumptive_use_frac",
 #                                  runid_a = "runid_13")
 
@@ -122,6 +123,129 @@ print(paste("PROCESSING VA",sep=""))
 toc()
 beep(3)
 # #------------------------------------------------------------------
+
+
+# ######################################################################################################
+# ### ELFGEN ##################################################################################
+# ######################################################################################################
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.ELFGEN.R",sep = '/'))
+#----------- RUN SINGLE MAP --------------------------
+
+runid <- "runid_11"
+huc_level <- "huc8"
+richness_chg <- "richness_change_abs"
+elfgen_dataset <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
+
+statewide.mapgen.ELFGEN(metric = "consumptive_use_frac",
+                        runid_a = runid,
+                        huc_level = huc_level,
+                        richness_chg = richness_chg,
+                        elfgen_dataset = elfgen_dataset
+                        )
+
+
+
+
+
+#-----------------------------------------------------------------------------------------------------
+# QA AND ANALYSIS
+#-----------------------------------------------------------------------------------------------------
+# PULL IN DATASET
+runid <- "runid_11"
+huc_level <- "huc8"
+richness_chg <- "richness_change_abs"
+elfgen_dataset_11 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
+
+#------------------------------------------------------------------------------
+# ADD QA COLUMNS
+QA_cols <- paste("SELECT *,
+                          Rseg_Outlet_MAF AS nhdplus_MAF,
+                          Qout AS model_Qout,
+                          Qout-Rseg_Outlet_MAF AS DIFF,
+                          abs(((Qout-Rseg_Outlet_MAF)/Rseg_Outlet_MAF)*100) AS 'Diff_%'
+                  FROM elfgen_dataset_11
+                  ORDER BY abs(((Qout-Rseg_Outlet_MAF)/Rseg_Outlet_MAF)*100) DESC
+                      ")
+elfgen_dataset_11 <- sqldf(QA_cols)
+#------------------------------------------------------------------------------
+# REMOVE TIDAL SEGMENTS
+print(length(elfgen_dataset_11[,1]))
+print("REMOVING TIDAL SEGMENTS")
+RSeg_tidal <- paste("SELECT *
+                  FROM elfgen_dataset_11
+                  WHERE hydrocode NOT LIKE 'vahydrosw_wshed_JA%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_PL%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_RL%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_YL%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_YM%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_YP%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_EL%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_JB%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_MN%_0000' AND
+                        hydrocode NOT LIKE 'vahydrosw_wshed_ES%_0000'
+                      ")
+elfgen_dataset_11 <- sqldf(RSeg_tidal)
+print(length(elfgen_dataset_11[,1]))
+#write.csv(elfgen_dataset_11,paste0(export_path,"tables_maps\\Xfigures\\","elfgen_dataset","_",runid,"_",huc_level,"_",richness_chg,".csv"), row.names = FALSE)
+#------------------------------------------------------------------------------
+# REMOVE ANY WITH Rseg Outlet MAF > breakpt 
+print(length(elfgen_dataset_11[,1]))
+print("REMOVING SEGMENTS TO THE RIGHT OF BREAKPOINT")
+rm_Right_Of_bkpt <- paste('SELECT *
+                            FROM elfgen_dataset_11
+                            WHERE Rseg_Outlet_MAF < breakpt
+                            ORDER BY hydroid ASC  
+                            ',sep = '')
+elfgen_dataset_11 <- sqldf(rm_Right_Of_bkpt)  
+print(length(elfgen_dataset_11[,1]))
+write.csv(elfgen_dataset_11,paste0(export_path,"tables_maps\\Xfigures\\","elfgen_dataset","_",runid,"_",huc_level,"_",richness_chg,".csv"), row.names = FALSE)
+#------------------------------------------------------------------------------
+# JOIN 3 TABLES 
+runid <- "runid_13"
+elfgen_dataset_13 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
+
+runid <- "runid_18"
+elfgen_dataset_18 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
+
+elfgen_combine <- paste('SELECT a.*,
+                                a.richness_change AS "2020_pct_abs",
+                                b.richness_change AS "2040_pct_abs",
+                                c.richness_change AS "Exempt_pct_abs",
+                                a.p AS "2020_p",
+                                b.p AS "2040_p",
+                                c.p AS "Exempt_p"
+                  FROM elfgen_dataset_11 AS a
+                    LEFT OUTER JOIN elfgen_dataset_13 AS b
+                    ON (a.hydroid = b.hydroid)
+                    LEFT OUTER JOIN elfgen_dataset_18 AS c
+                    ON (a.hydroid = c.hydroid)
+                  ORDER BY a.richness_change ASC  
+                  ',sep = '')
+elfgen_combine <- sqldf(elfgen_combine)  
+write.csv(elfgen_combine,paste0(export_path,"tables_maps\\Xfigures\\","elfgen_dataset_rseg_summary_",richness_chg,".csv"), row.names = FALSE)
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# KABLE FORMATTER
+formatted_dataset <- paste('SELECT "Rseg.Model", 
+                                    richness_change
+                            FROM elfgen_dataset
+                            ORDER BY richness_change ASC  
+                            LIMIT 10',sep = '')
+formatted_dataset <- sqldf(formatted_dataset)
+
+library(kableExtra)
+table_tex <- kable(formatted_dataset,align = "l",  booktabs = T,format = "latex",longtable =T,
+                   caption = paste("TEST CAPTION", sep = ""),
+                   label = paste("TEST LABEL", sep = "")) %>%
+  kable_styling(latex_options = "striped") %>%
+  column_spec(2, width = "12em") %>%
+cat(., file = paste0(export_path,"tables_maps\\Xfigures\\","TEST","_",".tex"),sep="")
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
 # ######################################################################################################
