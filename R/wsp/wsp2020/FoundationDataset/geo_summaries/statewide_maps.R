@@ -143,6 +143,35 @@ statewide.mapgen.ELFGEN(metric = "consumptive_use_frac",
                         elfgen_dataset = elfgen_dataset
                         )
 
+#-----------------------------------------------------------------------------------------------------
+# #ELFGEN MAPS (3 figs)
+runid_a <- c("runid_11","runid_13","runid_18")
+huc_level <- "huc8"
+richness_chg <- "richness_change_pct"
+
+tic("Total")
+it <- 1 #INITIALIZE ITERATION FOR PRINTING IN LOOP
+print(paste("PROCESSING VA",sep=""))
+for (rid in runid_a) {
+  print(paste("...RECIEVING DATASET: ",rid,sep=""))
+  elfgen_dataset <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",rid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
+  
+  statewide.mapgen.ELFGEN(metric = "consumptive_use_frac",
+                            runid_a = rid,
+                            huc_level = huc_level,
+                            richness_chg = richness_chg,
+                            elfgen_dataset = elfgen_dataset
+    )
+
+} #CLOSE metric FOR LOOP
+it <- it + 1
+toc()
+beep(3)
+#######################################################################################################
+#######################################################################################################
+#######################################################################################################
+#######################################################################################################
+
 
 
 
