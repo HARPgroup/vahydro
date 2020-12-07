@@ -131,7 +131,7 @@ beep(3)
 # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.ELFGEN.R",sep = '/'))
 #----------- RUN SINGLE MAP --------------------------
 
-runid <- "runid_11"
+runid <- "runid_18"
 huc_level <- "huc8"
 richness_chg <- "richness_change_abs"
 elfgen_dataset <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
@@ -200,6 +200,10 @@ elfgen_dataset_11 <- sqldf(rm_Right_Of_bkpt)
 print(length(elfgen_dataset_11[,1]))
 write.csv(elfgen_dataset_11,paste0(export_path,"tables_maps\\Xfigures\\","elfgen_dataset","_",runid,"_",huc_level,"_",richness_chg,".csv"), row.names = FALSE)
 #------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
 # JOIN 3 TABLES 
 runid <- "runid_13"
 elfgen_dataset_13 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
@@ -207,13 +211,28 @@ elfgen_dataset_13 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propna
 runid <- "runid_18"
 elfgen_dataset_18 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
 
-elfgen_combine <- paste('SELECT a.*,
-                                a.richness_change AS "2020_pct_abs",
-                                b.richness_change AS "2040_pct_abs",
-                                c.richness_change AS "Exempt_pct_abs",
-                                a.p AS "2020_p",
-                                b.p AS "2040_p",
-                                c.p AS "Exempt_p"
+# elfgen_combine <- paste('SELECT a.*,
+#                                 a.richness_change AS "2020_pct_abs",
+#                                 b.richness_change AS "2040_pct_abs",
+#                                 c.richness_change AS "Exempt_pct_abs",
+#                                 a.p AS "2020_p",
+#                                 b.p AS "2040_p",
+#                                 c.p AS "Exempt_p"
+#                   FROM elfgen_dataset_11 AS a
+#                     LEFT OUTER JOIN elfgen_dataset_13 AS b
+#                     ON (a.hydroid = b.hydroid)
+#                     LEFT OUTER JOIN elfgen_dataset_18 AS c
+#                     ON (a.hydroid = c.hydroid)
+#                   ORDER BY a.richness_change ASC  
+#                   ',sep = '')
+elfgen_combine <- paste('SELECT a."Rseg.Model",
+                                a.hydrocode,
+                                a.richness_change AS "2020_chg_#",
+                                b.richness_change AS "2040_chg_#",
+                                c.richness_change AS "Exempt_chg_#",
+                                a.consumptive_use_frac*100 AS "2020_consumptive_use_%",
+                                b.consumptive_use_frac*100 AS "2040_consumptive_use_%",
+                                c.consumptive_use_frac*100 AS "Exempt_consumptive_use_%"
                   FROM elfgen_dataset_11 AS a
                     LEFT OUTER JOIN elfgen_dataset_13 AS b
                     ON (a.hydroid = b.hydroid)
@@ -226,6 +245,18 @@ write.csv(elfgen_combine,paste0(export_path,"tables_maps\\Xfigures\\","elfgen_da
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
+# JOIN PCT AND # TABLES 
+elfgen_num <- read.csv(paste(export_path,"tables_maps/Xfigures/","elfgen_dataset_rseg_summary_richness_change_abs.csv",sep=""))
+elfgen_pct <- read.csv(paste(export_path,"tables_maps/Xfigures/","elfgen_dataset_rseg_summary_richness_change_pct.csv",sep=""))
+
+
+join_em <- paste('SELECT *
+                  FROM elfgen_num AS a
+                    LEFT OUTER JOIN elfgen_pct AS b
+                    ON (a.hydrocode = b.hydrocode)
+                  ',sep = '')
+join_em <- sqldf(join_em)  
+write.csv(join_em,paste0(export_path,"tables_maps\\Xfigures\\","join_em.csv"), row.names = FALSE)
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -246,6 +277,27 @@ table_tex <- kable(formatted_dataset,align = "l",  booktabs = T,format = "latex"
 cat(., file = paste0(export_path,"tables_maps\\Xfigures\\","TEST","_",".tex"),sep="")
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
+
+
+library("readxl")
+my_data <- read_excel(paste(export_path,"tables_maps/Xfigures/" , "Master_elfgen.xlsx",sep=""), sheet = "TU2")
+
+# formatted_dataset <- paste('SELECT "Rseg.Model", 
+#                                     my_data
+#                             FROM elfgen_dataset
+#                             ORDER BY richness_change ASC  
+#                             LIMIT 10',sep = '')
+# formatted_dataset <- sqldf(formatted_dataset)
+
+library(kableExtra)
+table_tex <- kable(my_data,align = "l",  booktabs = T,format = "latex",longtable =T,
+                   caption = paste("Upper Tennessee elfgen Results by River Segment", sep = ""),
+                   label = paste("TU_elfgen", sep = "")) %>%
+  kable_styling(latex_options = "striped") %>%
+  cat(., file = paste0(export_path,"tables_maps\\Xfigures\\","TU_elfgen_table.tex"),sep="")
+
+
+
 
 
 # ######################################################################################################
