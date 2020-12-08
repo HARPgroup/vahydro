@@ -42,6 +42,9 @@ mp_all <- data_raw
 #LOAD VA POPULATION FILE
 vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProjections_Total_2020-2040_final.csv")
 
+#LOAD PREVIOUS YEAR'S ANNUAL REPORT PERMITTED FILE
+mp_permitted_2019 <- read.csv("U:\\OWS\\foundation_datasets\\awrr\\2020\\mp_permitted_2019.csv")
+
 ######### TABLE GENERATION FUNCTION #############################
 TABLE_GEN_func <- function(state_abbrev = "VA", file_extension = ".tex"){
   
@@ -1040,6 +1043,12 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       column_spec(1, width = "10em") %>%
       cat(., file = paste(folder,"tables_maps/Xtables/VA_pop_proj_table.tex",sep=""))
     
+    #---- PERMITTED vs. UNPERMITTED DEMAND TABLE -------------------------------------------------------------------------------
+    sqldf('SELECT a.*,b.mgy AS mgy_2019, b.has_permit 
+          FROM mb_mps a
+          LEFT OUTER JOIN mp_permitted_2019 b
+          ON (a.MP_hydroid = b.HydroID)')
+     
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
