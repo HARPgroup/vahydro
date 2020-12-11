@@ -43,7 +43,9 @@ mp_all <- data_raw
 vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProjections_Total_2020-2040_final.csv")
 
 #LOAD PREVIOUS YEAR'S ANNUAL REPORT PERMITTED FILE
-mp_permitted_2019 <- read.csv("U:\\OWS\\foundation_datasets\\awrr\\2020\\mp_permitted_2019.csv")
+GWP <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\GWP_permit_list_12-09-2020.csv")
+
+VWP <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\VWP_permit_list_12-09-2020.csv")
 
 ######### TABLE GENERATION FUNCTION #############################
 TABLE_GEN_func <- function(state_abbrev = "VA", file_extension = ".tex"){
@@ -1044,12 +1046,52 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       cat(., file = paste(folder,"tables_maps/Xtables/VA_pop_proj_table.tex",sep=""))
     
     #---- PERMITTED vs. UNPERMITTED DEMAND TABLE -------------------------------------------------------------------------------
-    sqldf('SELECT a.*,b.mgy AS mgy_2019, b.has_permit 
+    #SURFACE WATER PERMITS
+    mb_mps_VWP <- sqldf('SELECT a.*, 0 AS GWP, b."Permit.ID" AS VWP
           FROM mb_mps a
-          LEFT OUTER JOIN mp_permitted_2019 b
-          ON (a.MP_hydroid = b.HydroID)')
+          LEFT OUTER JOIN VWP b
+          ON (a.Facility_hydroid = b."VA.Hydro.Facility.ID")
+          WHERE MP_bundle = "intake"')
+    
+    sqldf('SELECT
+          FROM mb_mps_VWP
+          ')
+    
+    sql_A <- sqldf(paste('SELECT a.system_type,',
+                         aggregate_select,'
+                     FROM mb_mps_VWP a
+                     WHERE a.VWP IS NOT NULL
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+    sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
+    AA <- append_totals(sql_A,"Total SW")
+    
+    
+    #GROUNDWATER PERMITS
+    mb_mps_GWP <- sqldf('SELECT a.*, b."Permit.ID" AS GWP, 0 AS VWP
+          FROM mb_mps a
+          LEFT OUTER JOIN GWP b
+          ON (a.Facility_hydroid = b."VA.Hydro.Facility.ID")
+          WHERE MP_bundle = "well"')
      
-}
+    sql_B <- sqldf(paste('SELECT a.system_type,',
+                         aggregate_select,'
+                     FROM mb_mps_GWP a
+                     WHERE a.GWP IS NOT NULL
+                     GROUP BY a.system_type
+                     ORDER BY a.system_type',sep=""))
+    
+    BB <- append_totals(sql_B,"Total GW")
+    
+    
+    # #check to see which permits did NOT have a match in the mp.all file (most are newer permits that do not have a demand proj - makes sense)
+    # GWP_nomatch <- GWP %>% anti_join(mb_mps, by = c( "VA.Hydro.Facility.ID" = "Facility_hydroid"))
+    # VWP_nomatch <-  VWP %>% anti_join(mb_mps, by = c( "VA.Hydro.Facility.ID" = "Facility_hydroid"))
+    
+    
+    
+    
+    }
 
 ### RUN TABLE GENERATION FUNCTION ########################
 TABLE_GEN_func(state_abbrev = 'VA', file_extension = '.tex')
