@@ -46,7 +46,9 @@ vapop <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\Population Data\\VAPopProj
 GWP <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\GWP_permit_list_12-09-2020.csv")
 
 VWP <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\VWP_permit_list_12-09-2020.csv")
-
+VWP <- sqldf('SELECT *
+             FROM VWP 
+             WHERE "Permit.ID" NOT IN ("10-1496", "93-0506", "98-1672", "02-1007", "08-0619", "02-1835", "95-0957")')
 ######### TABLE GENERATION FUNCTION #############################
 TABLE_GEN_func <- function(state_abbrev = "VA", file_extension = ".tex"){
   
@@ -1047,47 +1049,63 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     #---- PERMITTED vs. UNPERMITTED DEMAND TABLE -------------------------------------------------------------------------------
     #SURFACE WATER PERMITS
-    mb_mps_VWP <- sqldf('SELECT a.*, 0 AS GWP, b."Permit.ID" AS VWP
+    mb_mps_VWP <- sqldf('SELECT a.*, 0 AS GWP, b."Permit.ID" AS VWP, b."VA.Hydro.Facility.ID"
           FROM mb_mps a
           LEFT OUTER JOIN VWP b
           ON (a.Facility_hydroid = b."VA.Hydro.Facility.ID")
           WHERE MP_bundle = "intake"')
     
-    sqldf('SELECT
-          FROM mb_mps_VWP
-          ')
-    
-    sql_A <- sqldf(paste('SELECT a.system_type,',
+    SW_perm <- sqldf(paste('SELECT system_type,',
                          aggregate_select,'
-                     FROM mb_mps_VWP a
-                     WHERE a.VWP IS NOT NULL
-                     GROUP BY a.system_type
-                     ORDER BY a.system_type',sep=""))
-    sql_A[nrow(sql_A) + 1,] <- list("Small SSU",0,0.00,0.00,0.00,0.00)
-    AA <- append_totals(sql_A,"Total SW")
+                     FROM mb_mps_VWP
+                     WHERE VWP IS NOT NULL
+                     GROUP BY system_type
+                     ORDER BY system_type',sep=""))
+    SW_perm[nrow(SW_perm) + 1,] <- list("Small SSU",0.00,0.00,0.00,0.00)
+    SW_perm <- append_totals(SW_perm,"Total Permitted SW")
     
+    SW_unperm <- sqldf(paste('SELECT system_type,',
+                           aggregate_select,'
+                     FROM mb_mps_VWP
+                     WHERE VWP IS NOT NULL
+                     GROUP BY system_type
+                     ORDER BY system_type',sep=""))
+    SW_unperm[nrow(SW_unperm) + 1,] <- list("Small SSU",0.00,0.00,0.00,0.00)
+    SW_unperm <- append_totals(SW_unperm,"Total Unpermitted SW")
     
     #GROUNDWATER PERMITS
-    mb_mps_GWP <- sqldf('SELECT a.*, b."Permit.ID" AS GWP, 0 AS VWP
+    mb_mps_GWP <- sqldf('SELECT a.*, b."Permit.ID" AS GWP, 0 AS VWP, b."VA.Hydro.Facility.ID"
           FROM mb_mps a
           LEFT OUTER JOIN GWP b
           ON (a.Facility_hydroid = b."VA.Hydro.Facility.ID")
           WHERE MP_bundle = "well"')
      
-    sql_B <- sqldf(paste('SELECT a.system_type,',
+    GW_perm <- sqldf(paste('SELECT system_type,',
                          aggregate_select,'
-                     FROM mb_mps_GWP a
-                     WHERE a.GWP IS NOT NULL
-                     GROUP BY a.system_type
-                     ORDER BY a.system_type',sep=""))
+                     FROM mb_mps_GWP
+                     WHERE GWP IS NOT NULL
+                     GROUP BY system_type
+                     ORDER BY system_type',sep=""))
+    GW_perm <- append_totals(GW_perm,"Total Permitted GW")
     
-    BB <- append_totals(sql_B,"Total GW")
+    GW_unperm <- sqldf(paste('SELECT system_type,',
+                           aggregate_select,'
+                     FROM mb_mps_GWP a
+                     WHERE GWP IS NULL
+                     GROUP BY system_type
+                     ORDER BY system_type',sep=""))
+    GW_unperm <- append_totals(GW_unperm,"Total Unpermitted GW")
     
     
     # #check to see which permits did NOT have a match in the mp.all file (most are newer permits that do not have a demand proj - makes sense)
     # GWP_nomatch <- GWP %>% anti_join(mb_mps, by = c( "VA.Hydro.Facility.ID" = "Facility_hydroid"))
     # VWP_nomatch <-  VWP %>% anti_join(mb_mps, by = c( "VA.Hydro.Facility.ID" = "Facility_hydroid"))
-    
+    a <- rbind(mb_mps_GWP, mb_mps_VWP)
+    sqldf('SELECT MP_hydroid, count(MP_hydroid), Facility_hydroid, count(Facility_hydroid), round(sum(mp_2020_mgy/365),2) as MGD, GWP, VWP
+          FROM a
+          GROUP BY MP_hydroid
+          HAVING count(MP_Hydroid) > 1
+          ORDER BY MGD desc')
     
     
     
