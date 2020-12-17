@@ -13,29 +13,24 @@ for (m in metric) {
   filepath <- file.path(paste(folder,"metrics_watershe",m,".csv",sep=""))
   assign(m, read.csv(filepath,stringsAsFactors = F))
   
-  
-  #filter out tidal (0000); add MB_CODE and count column
+  #filter out tidal (0000); add MB_CODE and count # of rsegs
   assign(paste0("count_",m), sqldf(paste('SELECT count(pid) AS total_count, substr(hydrocode,17,2) AS mb_code
       FROM',m,' 
       WHERE riverseg NOT LIKE "%_0000%"
       GROUP BY mb_code
-      ORDER BY runid_11 DESC
-')))
+      ORDER BY runid_11 DESC')))
   
   #filter out tidal (0000); only keep riversegs with more than 10% reduction in streamflow compared to 2020
   assign(m, sqldf(paste('SELECT *, substr(riverseg,1,2) AS mb_code
       FROM',m,' 
       WHERE ',s,' < runid_11 * 0.90
       AND riverseg NOT LIKE "%_0000%"
-      ORDER BY runid_11 DESC
-')))
-  
+      ORDER BY runid_11 DESC')))
 
   #aggregate each by minorbasin and count number of riversegs with a >10% streamflow reduction
   assign(paste0("redux_",m), sqldf(paste('SELECT mb_code, count(pid) as count_strmflow_redux
       FROM ',m,'
       GROUP BY mb_code')))
-         
 
   #calculate percentage out of total riversegs
     assign(paste0("pct_",m), sqldf(paste0('SELECT a.mb_code, b.count_strmflow_redux, a.total_count, ((cast (b.count_strmflow_redux as real) / a.total_count) * 100) AS pct_strmflow_redux
@@ -59,7 +54,6 @@ assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, b.pct_strmflow_redux A
                     WHERE (',s,'_7q10 IS NOT NULL
                     OR ',s,'_l30 IS NOT NULL
                     OR ',s,'_l90 IS NOT NULL
-                    OR  ',s,'_CU IS NOT NULL)
-                                       ')))
+                    OR  ',s,'_CU IS NOT NULL)')))
 
 }
