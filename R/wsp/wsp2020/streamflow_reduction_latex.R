@@ -5,15 +5,17 @@ options(scipen = 999999999)
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 
 # RETRIEVE RIVERSEG MODEL METRIC SUMMARY DATA
+scenario <- c("runid_13","runid_17","runid_18")
 metric <- c("d_l30_Qout","d_l90_Qout","d_7q10", "d_consumptive_use_frac")
 
+for (s in scenario) {
 for (m in metric) {
   filepath <- file.path(paste(folder,"metrics_watershe",m,".csv",sep=""))
   assign(m, read.csv(filepath,stringsAsFactors = F))
   
   
   #filter out tidal (0000); add MB_CODE and count column
-  assign(paste0("count_",m), sqldf(paste('SELECT count(pid) AS total_count, substr(riverseg,1,2) AS mb_code
+  assign(paste0("count_",m), sqldf(paste('SELECT count(pid) AS total_count, substr(hydrocode,17,2) AS mb_code
       FROM',m,' 
       WHERE riverseg NOT LIKE "%_0000%"
       GROUP BY mb_code
@@ -23,7 +25,7 @@ for (m in metric) {
   #filter out tidal (0000); only keep riversegs with more than 10% reduction in streamflow compared to 2020
   assign(m, sqldf(paste('SELECT *, substr(riverseg,1,2) AS mb_code
       FROM',m,' 
-      WHERE runid_13 < runid_11 * 0.90
+      WHERE ',s,' < runid_11 * 0.90
       AND riverseg NOT LIKE "%_0000%"
       ORDER BY runid_11 DESC
 ')))
@@ -44,7 +46,7 @@ for (m in metric) {
   }
 
 #Join on minorbasin
-table_2040 <- sqldf('SELECT a.mb_code, b.pct_strmflow_redux AS future_7q10, c.pct_strmflow_redux AS future_l30, d.pct_strmflow_redux AS future_l90, e.pct_strmflow_redux AS future_CU
+assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, b.pct_strmflow_redux AS ',s,'_7q10, c.pct_strmflow_redux AS ',s,'_l30, d.pct_strmflow_redux AS ',s,'_l90, e.pct_strmflow_redux AS ',s,'_CU
                     FROM count_d_7q10 AS a
                     LEFT OUTER JOIN pct_d_7q10 AS b
                     ON a.mb_code = b.mb_code
@@ -53,4 +55,20 @@ table_2040 <- sqldf('SELECT a.mb_code, b.pct_strmflow_redux AS future_7q10, c.pc
                     LEFT OUTER JOIN pct_d_l90_Qout AS d
                     ON c.mb_code = d.mb_code
                     LEFT OUTER JOIN pct_d_consumptive_use_frac AS e
-                    ON d.mb_code = e.mb_code')
+                    ON d.mb_code = e.mb_code
+                    WHERE (',s,'_7q10 IS NOT NULL
+                    OR ',s,'_l30 IS NOT NULL
+                    OR ',s,'_l90 IS NOT NULL
+                    OR  ',s,'_CU IS NOT NULL)
+                                       ')))
+#remove null values
+assign(paste0("a",s,"_table"),sqldf(paste0('SELECT *
+                    FROM ',s,"_table",' AS a
+                    WHERE (',s,'_7q10 IS NOT NULL
+                    OR ',s,'_l30 IS NOT NULL
+                    OR ',s,'_l90 IS NOT NULL
+                    OR  ',s,'_CU IS NOT NULL)
+                                       ')))
+
+
+}
