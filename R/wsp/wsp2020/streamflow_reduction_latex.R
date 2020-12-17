@@ -1,5 +1,6 @@
 #pull in each of the 4 metrics: l30, l90, 7Q10, CU
 library(sqldf)
+library(kableExtra)
 options(scipen = 999999999)
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
@@ -16,15 +17,15 @@ for (m in metric) {
   #filter out tidal (0000); add MB_CODE and count # of rsegs
   assign(paste0("count_",m), sqldf(paste('SELECT count(pid) AS total_count, substr(hydrocode,17,2) AS mb_code
       FROM',m,' 
-      WHERE riverseg NOT LIKE "%_0000%"
+      WHERE hydrocode NOT LIKE "%_0000%"
       GROUP BY mb_code
       ORDER BY runid_11 DESC')))
   
   #filter out tidal (0000); only keep riversegs with more than 10% reduction in streamflow compared to 2020
-  assign(m, sqldf(paste('SELECT *, substr(riverseg,1,2) AS mb_code
+  assign(m, sqldf(paste('SELECT *, substr(hydrocode,17,2) AS mb_code
       FROM',m,' 
       WHERE ',s,' < runid_11 * 0.90
-      AND riverseg NOT LIKE "%_0000%"
+      AND hydrocode NOT LIKE "%_0000%"
       ORDER BY runid_11 DESC')))
 
   #aggregate each by minorbasin and count number of riversegs with a >10% streamflow reduction
@@ -56,4 +57,6 @@ assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, b.pct_strmflow_redux A
                     OR ',s,'_l90 IS NOT NULL
                     OR  ',s,'_CU IS NOT NULL)')))
 
+#KABLE
+kable()
 }
