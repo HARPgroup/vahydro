@@ -7,7 +7,7 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 
 # RETRIEVE RIVERSEG MODEL METRIC SUMMARY DATA
 scenario <- c("runid_13","runid_17","runid_18")
-metric <- c("d_l30_Qout","d_l90_Qout","d_7q10", "d_consumptive_use_frac")
+metric <- c("d_l30_cc_Qout","d_l90_cc_Qout","d_7q10", "d_consumptive_use_frac")
 
 for (s in scenario) {
 for (m in metric) {
