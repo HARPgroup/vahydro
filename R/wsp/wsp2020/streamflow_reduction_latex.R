@@ -45,7 +45,7 @@ for (m in metric) {
       WHERE b.count_strmflow_redux IS NOT NULL')))
   }
 
-#Join on minorbasin
+#Join on minorbasin & remove null values
 assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, b.pct_strmflow_redux AS ',s,'_7q10, c.pct_strmflow_redux AS ',s,'_l30, d.pct_strmflow_redux AS ',s,'_l90, e.pct_strmflow_redux AS ',s,'_CU
                     FROM count_d_7q10 AS a
                     LEFT OUTER JOIN pct_d_7q10 AS b
@@ -61,14 +61,5 @@ assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, b.pct_strmflow_redux A
                     OR ',s,'_l90 IS NOT NULL
                     OR  ',s,'_CU IS NOT NULL)
                                        ')))
-#remove null values
-assign(paste0("a",s,"_table"),sqldf(paste0('SELECT *
-                    FROM ',s,"_table",' AS a
-                    WHERE (',s,'_7q10 IS NOT NULL
-                    OR ',s,'_l30 IS NOT NULL
-                    OR ',s,'_l90 IS NOT NULL
-                    OR  ',s,'_CU IS NOT NULL)
-                                       ')))
-
 
 }
