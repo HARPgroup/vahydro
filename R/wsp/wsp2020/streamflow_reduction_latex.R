@@ -1,7 +1,7 @@
 # #pull in each of the 4 metrics: l30, l90, 7Q10, CU
 # library(sqldf)
 # library(kableExtra)
-options(scipen = 999999999)
+# options(scipen = 999999999)
 options(knitr.kable.NA = '0.00')
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
