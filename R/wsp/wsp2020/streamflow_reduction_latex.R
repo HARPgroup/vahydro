@@ -88,7 +88,6 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
   column_spec(3, width = "6em") %>%
   column_spec(4, width = "6em") %>%
   column_spec(5, width = "6em") %>%
-  #column_spec(6, width = "6em") %>%
   #Header row is row 0
   row_spec(0, bold=T, font_size = 11)
 
@@ -97,9 +96,6 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
 table1_tex <- gsub(pattern = "{table}[t]", 
                    repl    = "{table}[H]", 
                    x       = table1_tex, fixed = T )
-# table1_tex <- gsub(pattern = "\\midrule", 
-#                    repl    = "", 
-#                    x       = table1_tex, fixed = T )
 table1_tex <- gsub(pattern = "\\addlinespace", 
                    repl    = "", 
                    x       = table1_tex, fixed = T )
