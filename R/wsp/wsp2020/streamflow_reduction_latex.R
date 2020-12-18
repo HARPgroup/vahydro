@@ -103,4 +103,5 @@ table1_tex <- gsub(pattern = "\\addlinespace",
 table1_tex %>%
   cat(., file = paste(folder,"tables_maps/Xtables/VA_streamflow_redux_",s,"__table.tex",sep=""))
 
+print(paste0("COMPLETE: ",scen," Scenario Streamflow Reduction Table"))
 }
