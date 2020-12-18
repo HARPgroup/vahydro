@@ -10,6 +10,8 @@ library("tidyr")
 library("ggplot2")
 library("cowplot")
 library("stringr")
+
+options(scipen = 999999999)
 #--INITIALIZE GLOBAL VARIABLES------------------------
 
 #totals function which quickly applies sum to each numeric column (skips non-numeric)
@@ -49,6 +51,7 @@ VWP <- read.csv("U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\VWP_permit_list_12-
 VWP <- sqldf('SELECT *
              FROM VWP 
              WHERE "Permit.ID" NOT IN ("10-1496", "93-0506", "98-1672", "02-1007", "08-0619", "02-1835", "95-0957")')
+
 ######### TABLE GENERATION FUNCTION #############################
 TABLE_GEN_func <- function(state_abbrev = "VA", file_extension = ".tex"){
   
@@ -1170,68 +1173,14 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     perm_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_permitted_table",file_ext,sep=""))
     
-    # #VERSION 2
-    # perm_table <- cbind(SW_perm[1:2], SW_unperm[2], SW_perm[3], SW_unperm[3], SW_perm[4], SW_unperm[4], SW_perm[5], SW_unperm[5])
-    # 
-    # #KABLE   
-    # perm_tex <- kable(perm_table,align = c('l','c','c','c','c','c','c','c','c'),  booktabs = T,
-    #                   caption = paste("Permitted vs. Unpermitted ",mb_name[1]," Water Demand",sep=""),
-    #                   label = paste("permitted_",mb_code,sep=""),
-    #                   col.names = c("System Type",
-    #                                 "Permitted",
-    #                                 "Unpermitted",
-    #                                 "Permitted",
-    #                                 "Unpermitted",
-    #                                 "Permitted",
-    #                                 "Unpermitted",
-    #                                 "Permitted",
-    #                                 "Unpermitted"))%>%
-    #   kable_styling(latex_options = latexoptions) %>%
-    #   kable_styling(font_size = 10) %>%
-    #   column_spec(1, width = "9em") %>%
-    #   column_spec(2, width = "4em") %>%
-    #   column_spec(3, width = "4em") %>%
-    #   column_spec(4, width = "4em") %>%
-    #   column_spec(5, width = "4em") %>%
-    #   column_spec(6, width = "4em") %>%
-    #   column_spec(7, width = "4em") %>%
-    #   column_spec(8, width = "4em") %>%
-    #   column_spec(9, width = "4em") %>%
-    #   pack_rows("Surface Water", 1, 5, hline_before = T, hline_after = F) %>%
-    #   #pack_rows("Groundwater", 6, 10, hline_before = T, hline_after = F) %>%
-    #   #pack_rows("Total (SW + GW)", 11, 14, hline_before = T, hline_after = F) %>%
-    #   #Header row is row 0
-    #   row_spec(0, bold=T, font_size = 11) %>%
-    #   row_spec(5, bold=T, extra_latex_after = ) %>%
-    #   add_header_above(c(" " = 1, "2020" = 2, "2030" = 2, "2040" = 2, "% Change" = 2))
-    # # row_spec(10, bold=T) %>%
-    # # row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-    # # row_spec(15, bold=T) 
-    # 
-    # #CUSTOM LATEX CHANGES
-    # #insert hold position header
-    # perm_tex <- gsub(pattern = "{table}[t]", 
-    #                  repl    = "{table}[H]", 
-    #                  x       = perm_tex, fixed = T )
-    # perm_tex <- gsub(pattern = "\\midrule", 
-    #                  repl    = "", 
-    #                  x       = perm_tex, fixed = T )
-    # perm_tex <- gsub(pattern = "\\hline", 
-    #                  repl    = "\\hline \\addlinespace[0.4em]", 
-    #                  x       = perm_tex, fixed = T )
-    # perm_tex <- gsub(pattern = "\\vphantom{1}", 
-    #                  repl    = "", 
-    #                  x       = perm_tex, fixed = T )
-    # perm_tex <- gsub(pattern = "\\hspace{1em}T", 
-    #                  repl    = "T", 
-    #                  x       = perm_tex, fixed = T )
-    # # perm_tex <- gsub(pattern = "\\textbf{System Type}", 
-    # #                    repl    = "\\vspace{0.3em}\\textbf{System Type}", 
-    # #                    x       = perm_tex, fixed = T )
-    # perm_tex %>%
-    #   cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_permitted_table_v2",file_ext,sep=""))
-    # 
     
+#---- RUN STREAMFLOW REDUCTION LATEX FILE -------------------------------------
+    print("PROCESSING: STREAMFLOW REDUCTION LATEX FILE")
+    source(paste0(vahydro_location,"/R/wsp/wsp2020/streamflow_reduction_latex.R"))
+    
+    #---- RUN NARRATIVE FOCUS FILE -------------------------------------
+    print("PROCESSING: NARRATIVE FOCUS TABLES")
+    source(paste0(vahydro_location,"/R/wsp/wsp2020/narrative_focus_latex.R"))
     
     }
 
