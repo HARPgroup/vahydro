@@ -25,16 +25,7 @@ if (s == "runid_13") {
   #filter out tidal (0000); add MB_CODE and count # of rsegs
   assign(paste0("count_",m), sqldf(paste('SELECT count(pid) AS total_count, substr(hydrocode,17,1) AS mb_code
       FROM',m,' 
-      WHERE hydrocode NOT LIKE "vahydrosw_wshed_JA%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_PL%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_RL%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_YL%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_YM%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_YP%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_EL%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_JB%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_MN%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_ES%_0000"
+      WHERE hydrocode NOT LIKE "%0000%"
       GROUP BY mb_code
       ORDER BY runid_11 DESC')))
   
@@ -42,16 +33,7 @@ if (s == "runid_13") {
   assign(m, sqldf(paste('SELECT *, substr(hydrocode,17,1) AS mb_code
       FROM',m,' 
       WHERE ',s,' < runid_11 * 0.90
-      AND (hydrocode NOT LIKE "vahydrosw_wshed_JA%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_PL%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_RL%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_YL%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_YM%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_YP%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_EL%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_JB%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_MN%_0000" OR
-                       hydrocode NOT LIKE "vahydrosw_wshed_ES%_0000")
+      AND hydrocode NOT LIKE "%0000%"
       ORDER BY runid_11 DESC')))
 
   #aggregate each by minorbasin and count number of riversegs with a >10% streamflow reduction
