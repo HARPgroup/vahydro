@@ -1,11 +1,12 @@
-#pull in each of the 4 metrics: l30, l90, 7Q10, CU
-library(sqldf)
-library(kableExtra)
+# #pull in each of the 4 metrics: l30, l90, 7Q10, CU
+# library(sqldf)
+# library(kableExtra)
 options(scipen = 999999999)
+options(knitr.kable.NA = '0.00')
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+major_basin <- read.csv(paste0(folder, "major_basin_names.csv"))
 
-# RETRIEVE RIVERSEG MODEL METRIC SUMMARY DATA
 scenario <- c("runid_13","runid_17","runid_18")
 metric <- c("d_l30_cc_Qout","d_l90_cc_Qout","d_7q10", "d_consumptive_use_frac")
 
@@ -19,12 +20,13 @@ if (s == "runid_13") {
 }
   
   for (m in metric) {
+  # RETRIEVE RIVERSEG MODEL METRIC SUMMARY DATA
   filepath <- file.path(paste(folder,"metrics_watershe",m,".csv",sep=""))
   assign(m, read.csv(filepath,stringsAsFactors = F))
   
   #filter out tidal (0000); add MB_CODE and count # of rsegs
   assign(paste0("count_",m), sqldf(paste('SELECT count(pid) AS total_count, substr(hydrocode,17,1) AS mb_code
-      FROM',m,' 
+      FROM',m,'
       WHERE hydrocode NOT LIKE "%0000%"
       GROUP BY mb_code
       ORDER BY runid_11 DESC')))
@@ -38,7 +40,7 @@ if (s == "runid_13") {
 
   #aggregate each by minorbasin and count number of riversegs with a >10% streamflow reduction
   assign(paste0("redux_",m), sqldf(paste('SELECT mb_code, count(pid) as count_strmflow_redux
-      FROM ',m,'
+      FROM ',m,' 
       GROUP BY mb_code')))
 
   #calculate percentage out of total riversegs
@@ -50,13 +52,13 @@ if (s == "runid_13") {
   }
 
 #Join on minorbasin & remove null values
-assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, b.pct_strmflow_redux AS ',s,'_7q10, c.pct_strmflow_redux AS ',s,'_l30, d.pct_strmflow_redux AS ',s,'_l90, e.pct_strmflow_redux AS ',s,'_CU
+assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, round(b.pct_strmflow_redux,2) AS ',s,'_7q10, round(c.pct_strmflow_redux,2) AS ',s,'_l30, round(d.pct_strmflow_redux,2) AS ',s,'_l90, round(e.pct_strmflow_redux,2) AS ',s,'_CU
                     FROM count_d_7q10 AS a
                     LEFT OUTER JOIN pct_d_7q10 AS b
                     ON a.mb_code = b.mb_code
-                    LEFT OUTER JOIN pct_d_l30_Qout AS c
+                    LEFT OUTER JOIN pct_d_l30_cc_Qout AS c
                     ON b.mb_code = c.mb_code
-                    LEFT OUTER JOIN pct_d_l90_Qout AS d
+                    LEFT OUTER JOIN pct_d_l90_cc_Qout AS d
                     ON c.mb_code = d.mb_code
                     LEFT OUTER JOIN pct_d_consumptive_use_frac AS e
                     ON d.mb_code = e.mb_code
@@ -65,23 +67,28 @@ assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, b.pct_strmflow_redux A
                     OR ',s,'_l90 IS NOT NULL
                     OR  ',s,'_CU IS NOT NULL)')))
 
-#KABLE   
-table1_tex <- kable(paste0(s,"_table"),align = c('l','c','c','c','c'),  booktabs = T,
-                    caption = paste("Percentage of Major Basins with a >10% Stream Flow Reduction in the ",scen," Scenario",sep=""),
+assign(paste0(s,"_table"), sqldf(paste0('SELECT b.Major_Basin_Name, a.',s,'_7q10, a.',s,'_l30, a.',s,'_l90, a.',s,'_CU 
+                                 FROM ',s,'_table AS a
+                                 LEFT OUTER JOIN major_basin AS b
+                                 ON a.mb_code = b.Major_Basin_Code')))
+
+#KABLE 
+table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
+                    caption = paste("Percentage of Major Basins with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario",sep=""),
                     label = paste("streamflow_reduction_",s,"_VA"),
-                    col.names = c(
-                      "Minor Basin",
+                    col.names = c("Major Basin",
                       "Lowest 30 Day Low Flow",
                       "Lowest 90 Day Low Flow",
                       "7q10",
                       "Overall Change in Flow")) %>%
+  #kable_styling(latex_options = "scale_down") %>%
   # kable_styling(font_size = 10) %>%
-  # column_spec(1, width = "11em") %>%
-  # column_spec(2, width = "6em") %>%
-  # column_spec(3, width = "6em") %>%
-  # column_spec(4, width = "6em") %>%
-  # column_spec(5, width = "6em") %>%
-  # column_spec(6, width = "6em") %>%
+  column_spec(1, width = "6em") %>%
+  column_spec(2, width = "6em") %>%
+  column_spec(3, width = "6em") %>%
+  column_spec(4, width = "6em") %>%
+  column_spec(5, width = "6em") %>%
+  #column_spec(6, width = "6em") %>%
   #Header row is row 0
   row_spec(0, bold=T, font_size = 11)
 
@@ -90,20 +97,14 @@ table1_tex <- kable(paste0(s,"_table"),align = c('l','c','c','c','c'),  booktabs
 table1_tex <- gsub(pattern = "{table}[t]", 
                    repl    = "{table}[H]", 
                    x       = table1_tex, fixed = T )
-table1_tex <- gsub(pattern = "\\midrule", 
+# table1_tex <- gsub(pattern = "\\midrule", 
+#                    repl    = "", 
+#                    x       = table1_tex, fixed = T )
+table1_tex <- gsub(pattern = "\\addlinespace", 
                    repl    = "", 
-                   x       = table1_tex, fixed = T )
-table1_tex <- gsub(pattern = "\\hline", 
-                   repl    = "\\hline \\addlinespace[0.4em]", 
-                   x       = table1_tex, fixed = T )
-table1_tex <- gsub(pattern = "\\vphantom{1}", 
-                   repl    = "", 
-                   x       = table1_tex, fixed = T )
-table1_tex <- gsub(pattern = "\\hspace{1em}T", 
-                   repl    = "T", 
                    x       = table1_tex, fixed = T )
 
 table1_tex %>%
-  cat(., file = paste(folder,"tables_maps/Xtables/VA_",s,"__table",file_ext,sep=""))
+  cat(., file = paste(folder,"tables_maps/Xtables/VA_streamflow_redux_",s,"__table.tex",sep=""))
 
 }
