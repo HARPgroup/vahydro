@@ -99,7 +99,10 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
   column_spec(4, width = "6em") %>%
   column_spec(5, width = "6em") %>%
   #Header row is row 0
-  row_spec(0, bold=T, font_size = 11)
+  row_spec(0, bold=T, font_size = 11) %>%
+  footnote(general_title = "Note: ",
+           general = "Explain", 
+           symbol = "CC")
 
 #CUSTOM LATEX CHANGES
 #insert hold position header
@@ -109,6 +112,11 @@ table1_tex <- gsub(pattern = "{table}[t]",
 table1_tex <- gsub(pattern = "\\addlinespace",
                    repl    = "",
                    x       = table1_tex, fixed = T )
+table1_tex <- gsub(pattern = "\\multicolumn{5}{l}{\\textit{Note: }}\\\\
+\\multicolumn{5}{l}{Explain}\\\\
+\\multicolumn{5}{l}{\\textsuperscript{*} CC}\\\\",
+                  repl    = "\\multicolumn{5}{l}{\\textsuperscript{*} All calculations in this table were made in comparison to the 2020 Current Demand Scenario.}\\\\",
+                  x       = table1_tex, fixed = T )
 
 table1_tex %>%
   cat(., file = paste(folder,"tables_maps/Xtables/VA_streamflow_redux_",s,"__table.tex",sep=""))
