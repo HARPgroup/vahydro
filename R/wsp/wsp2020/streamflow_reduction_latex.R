@@ -8,15 +8,18 @@ folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 major_basin <- read.csv(paste0(folder, "major_basin_names.csv"))
 
 scenario <- c("runid_13","runid_17","runid_18")
-metric <- c("d_l30_cc_Qout","d_l90_cc_Qout","d_7q10", "d_consumptive_use_frac")
+
 
 for (s in scenario) {
 if (s == "runid_13") {
   scen <- "Future Demand"
+  metric <- c("d_l30_Qout","d_l90_Qout","d_7q10", "d_consumptive_use_frac")
 } else if (s == "runid_17"){
   scen <- "Dry Climate"
+  metric <- c("d_l30_cc_Qout","d_l90_cc_Qout","d_7q10", "d_consumptive_use_frac")
 } else if (s == "runid_18") {
   scen <- "Exempt User"
+  metric <- c("d_l30_Qout","d_l90_Qout","d_7q10", "d_consumptive_use_frac")
 }
   
   for (m in metric) {
@@ -72,7 +75,7 @@ assign(paste0(s,"_table"), sqldf(paste0('SELECT b.Major_Basin_Name, a.',s,'_7q10
                                  LEFT OUTER JOIN major_basin AS b
                                  ON a.mb_code = b.Major_Basin_Code')))
 
-#KABLE 
+##KABLE
 table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
                     caption = paste("Percentage of Major Basins with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario",sep=""),
                     label = paste("streamflow_reduction_",s,"_VA"),
@@ -93,11 +96,11 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
 
 #CUSTOM LATEX CHANGES
 #insert hold position header
-table1_tex <- gsub(pattern = "{table}[t]", 
-                   repl    = "{table}[H]", 
+table1_tex <- gsub(pattern = "{table}[t]",
+                   repl    = "{table}[H]",
                    x       = table1_tex, fixed = T )
-table1_tex <- gsub(pattern = "\\addlinespace", 
-                   repl    = "", 
+table1_tex <- gsub(pattern = "\\addlinespace",
+                   repl    = "",
                    x       = table1_tex, fixed = T )
 
 table1_tex %>%
