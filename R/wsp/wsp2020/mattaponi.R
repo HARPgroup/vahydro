@@ -2,7 +2,6 @@ library('knitr')
 library('kableExtra')
 # Ni Reservoir
 qs <- NULL
-
 for (i in c(11,13,17,19)) {
   
   dat <- om_get_rundata(352004 , i)
@@ -47,3 +46,4 @@ qs_tex <- kable(
   #col.names = "Localities"
 ) %>%
 kable_styling(latex_options = "striped") 
+qs_tex
