@@ -14,12 +14,15 @@ for (s in scenario) {
 if (s == "runid_13") {
   scen <- "Future Demand"
   metric <- c("d_l30_Qout","d_l90_Qout","d_7q10", "d_consumptive_use_frac")
+  Qout <- "_Qout"
 } else if (s == "runid_17"){
   scen <- "Dry Climate"
   metric <- c("d_l30_cc_Qout","d_l90_cc_Qout","d_7q10", "d_consumptive_use_frac")
+  Qout <- "_cc_Qout"
 } else if (s == "runid_18") {
   scen <- "Exempt User"
   metric <- c("d_l30_Qout","d_l90_Qout","d_7q10", "d_consumptive_use_frac")
+  Qout <- "_Qout"
 }
   
   for (m in metric) {
@@ -59,9 +62,9 @@ assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, round(b.pct_strmflow_r
                     FROM count_d_7q10 AS a
                     LEFT OUTER JOIN pct_d_7q10 AS b
                     ON a.mb_code = b.mb_code
-                    LEFT OUTER JOIN pct_d_l30_cc_Qout AS c
+                    LEFT OUTER JOIN pct_d_l30',Qout,' AS c
                     ON b.mb_code = c.mb_code
-                    LEFT OUTER JOIN pct_d_l90_cc_Qout AS d
+                    LEFT OUTER JOIN pct_d_l90',Qout,' AS d
                     ON c.mb_code = d.mb_code
                     LEFT OUTER JOIN pct_d_consumptive_use_frac AS e
                     ON d.mb_code = e.mb_code
@@ -80,9 +83,9 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
                     caption = paste("Percentage of Major Basins with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario",sep=""),
                     label = paste("streamflow_reduction_",s,"_VA"),
                     col.names = c("Major Basin",
+                      "7q10",
                       "Lowest 30 Day Low Flow",
                       "Lowest 90 Day Low Flow",
-                      "7q10",
                       "Overall Change in Flow")) %>%
   #kable_styling(latex_options = "scale_down") %>%
   # kable_styling(font_size = 10) %>%
