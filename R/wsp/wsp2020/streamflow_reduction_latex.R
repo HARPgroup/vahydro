@@ -68,15 +68,19 @@ assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, round(b.pct_strmflow_r
                     ON c.mb_code = d.mb_code
                     LEFT OUTER JOIN pct_d_consumptive_use_frac AS e
                     ON d.mb_code = e.mb_code
-                    WHERE (',s,'_7q10 IS NOT NULL
-                    OR ',s,'_l30 IS NOT NULL
-                    OR ',s,'_l90 IS NOT NULL
-                    OR  ',s,'_CU IS NOT NULL)')))
+                    ')))
+#where clause to only keep Basins that have non-null values
+# WHERE (',s,'_7q10 IS NOT NULL
+#        OR ',s,'_l30 IS NOT NULL
+#        OR ',s,'_l90 IS NOT NULL
+#        OR  ',s,'_CU IS NOT NULL)
+
 
 assign(paste0(s,"_table"), sqldf(paste0('SELECT b.Major_Basin_Name, a.',s,'_7q10, a.',s,'_l30, a.',s,'_l90, a.',s,'_CU 
                                  FROM ',s,'_table AS a
                                  LEFT OUTER JOIN major_basin AS b
-                                 ON a.mb_code = b.Major_Basin_Code')))
+                                 ON a.mb_code = b.Major_Basin_Code
+                                 ORDER BY b.Major_Basin_Name')))
 
 ##KABLE
 table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
