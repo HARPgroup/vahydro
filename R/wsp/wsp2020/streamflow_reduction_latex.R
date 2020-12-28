@@ -76,20 +76,57 @@ assign(paste0(s,"_table"),sqldf(paste0('SELECT a.mb_code, round(b.pct_strmflow_r
 #        OR  ',s,'_CU IS NOT NULL)
 
 
-assign(paste0(s,"_table"), sqldf(paste0('SELECT b.Major_Basin_Name, a.',s,'_7q10, a.',s,'_l30, a.',s,'_l90, a.',s,'_CU 
+assign(paste0(s,"_table"), sqldf(paste0('SELECT b.Major_Basin_Name, a.',s,'_l30, a.',s,'_l90, a.',s,'_7q10, a.',s,'_CU 
                                  FROM ',s,'_table AS a
                                  LEFT OUTER JOIN major_basin AS b
                                  ON a.mb_code = b.Major_Basin_Code
                                  ORDER BY b.Major_Basin_Name')))
+
+##recode NA to - for the Basins that are outside of the chesapeake bay drainage
+if (paste0(s,"_table") == "runid_17_table") {
+
+  runid_17_table <- sqldf('SELECT Major_Basin_Name, runid_17_l30, runid_17_l90, runid_17_7q10
+        FROM runid_17_table')
+  runid_17_table[is.na(runid_17_table)] <- "-"
+  
+  
+  ##KABLE
+  table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
+                      caption = paste("Percentage of Major Basins with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario",sep=""),
+                      label = paste("streamflow_reduction_",s,"_VA"),
+                      col.names = c("Major Basin",
+                                    "Lowest 30 Day Low Flow",
+                                    "Lowest 90 Day Low Flow",
+                                    "7q10")) %>%
+    #kable_styling(latex_options = "scale_down") %>%
+    # kable_styling(font_size = 10) %>%
+    column_spec(1, width = "6em") %>%
+    column_spec(2, width = "7em") %>%
+    column_spec(3, width = "7em") %>%
+    column_spec(4, width = "7em") %>%
+    #Header row is row 0
+    row_spec(0, bold=T, font_size = 11) %>%
+    footnote(general_title = "Note: ",
+             general = "Explain", 
+             symbol = "CC")
+  
+  table1_tex <- gsub(pattern = "\\multicolumn{4}{l}{\\textit{Note: }}\\\\
+\\multicolumn{4}{l}{Explain}\\\\
+\\multicolumn{4}{l}{\\textsuperscript{*} CC}\\\\",
+                     repl    =  "\\addlinespace \\multicolumn{4}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand Scenario.}\\\\ \\addlinespace 
+\\multicolumn{4}{l}{ \\multirow{}{}{\\parbox{14cm}{\\textit{Note:} Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.}}}\\\\",
+                     x       = table1_tex, fixed = T )
+  
+} else {
 
 ##KABLE
 table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
                     caption = paste("Percentage of Major Basins with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario",sep=""),
                     label = paste("streamflow_reduction_",s,"_VA"),
                     col.names = c("Major Basin",
-                      "7q10",
                       "Lowest 30 Day Low Flow",
                       "Lowest 90 Day Low Flow",
+                      "7q10",
                       "Overall Change in Flow")) %>%
   #kable_styling(latex_options = "scale_down") %>%
   # kable_styling(font_size = 10) %>%
@@ -100,9 +137,14 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
   column_spec(5, width = "6em") %>%
   #Header row is row 0
   row_spec(0, bold=T, font_size = 11) %>%
-  footnote(general_title = "Note: ",
-           general = "Explain", 
-           symbol = "CC")
+  footnote(general_title = "Note: ",general = "Explain",symbol = "CC")
+  
+  table1_tex <- gsub(pattern = "\\multicolumn{5}{l}{\\textit{Note: }}\\\\
+\\multicolumn{5}{l}{Explain}\\\\
+\\multicolumn{5}{l}{\\textsuperscript{*} CC}\\\\",
+                     repl    = "\\multicolumn{5}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand Scenario.}\\\\",
+                     x       = table1_tex, fixed = T )
+}
 
 #CUSTOM LATEX CHANGES
 #insert hold position header
@@ -112,11 +154,7 @@ table1_tex <- gsub(pattern = "{table}[t]",
 table1_tex <- gsub(pattern = "\\addlinespace",
                    repl    = "",
                    x       = table1_tex, fixed = T )
-table1_tex <- gsub(pattern = "\\multicolumn{5}{l}{\\textit{Note: }}\\\\
-\\multicolumn{5}{l}{Explain}\\\\
-\\multicolumn{5}{l}{\\textsuperscript{*} CC}\\\\",
-                  repl    = "\\multicolumn{5}{l}{\\textsuperscript{*} All calculations in this table were made in comparison to the 2020 Current Demand Scenario.}\\\\",
-                  x       = table1_tex, fixed = T )
+
 
 table1_tex %>%
   cat(., file = paste(folder,"tables_maps/Xtables/VA_streamflow_redux_",s,"__table.tex",sep=""))
