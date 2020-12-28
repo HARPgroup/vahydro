@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "PL", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "ES", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -180,21 +180,24 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
 
    #------CHOOSE A MINOR BASIN ##############################
    
-   # change all EL minorbasin_code values to ES
-   if (minorbasin == 'ES') {
-      mp_all$MinorBasin_Code <- recode(mp_all$MinorBasin_Code, EL = "ES")
-   }
    
    #select minor basin code to know folder to save in
    mb_code <- minorbasin
    
-   mb_name <- sqldf(paste('SELECT distinct MinorBasin_Name
+   # change all EL minorbasin_code values to ES
+   if (minorbasin == 'ES') {
+      mp_all$MinorBasin_Code <- recode(mp_all$MinorBasin_Code, EL = "ES")
+      mb_name <- "Eastern Shore"
+      
+   } else {
+      mb_name <- sqldf(paste('SELECT distinct MinorBasin_Name
                    From mp_all
                    WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
               ',sep=""))
-   
-   mb_name <- as.character(levels(mb_name$MinorBasin_Name)[mb_name$MinorBasin_Name])
-   
+      
+   }
+  
+   #switch around the minor basin names to more human readable labels
    mb_name <- case_when(
       mb_name == "James Bay" ~ "Lower James",
       mb_name == "James Lower" ~ "Middle James",
@@ -1022,7 +1025,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'BS', file_extension = '.tex')
+TABLE_GEN_func(minorbasin = 'ES', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
