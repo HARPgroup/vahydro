@@ -989,7 +989,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      AND fips_code NOT LIKE "51685"
                      AND MP_bundle LIKE "well"
                      GROUP BY fips_code
-                     ORDER BY pct_change DESC', sep=""))
+                     ORDER BY fips_name DESC', sep=""))
     by_locality_gw[is.na(by_locality_gw)] <- 0.00
     write.csv(by_locality_gw, paste(folder,"tables_maps/Xtables/",mb_code,"_gw_locality_demand.csv", sep=""), row.names = F)
     
