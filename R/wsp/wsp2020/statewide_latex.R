@@ -759,7 +759,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
   
     ######## TOP 10 COUNTY-WIDE AGRICULTURE, MUNICIPAL, AND LARGE USERS Table ########################
     #-------------- TOP 10 SURFACE WATER COUNTY-WIDE ---------------------
-    countywide <- c("ag", "cws", "lg")
+    countywide <- c("ssuag", "cws", "ssulg")
     for (c in countywide) {
     
     top_sw <- sqldf(paste0('SELECT facility_name, system_type,
@@ -769,7 +769,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                         fips_name 
                FROM mb_mps 
                WHERE MP_bundle = "intake"
-                  AND facility_ftype LIKE "wsp_plan_system-ssu',c,'"
+                  AND facility_ftype LIKE "wsp_plan_system-',c,'"
                GROUP BY Facility_hydroid'))
     
     top_10_sw <- sqldf('SELECT facility_name, 
@@ -792,15 +792,15 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     #-------------- TOP 10 GROUNDWATER COUNTY-WIDE ---------------------
     
-    top_gw <- sqldf('SELECT facility_name, system_type,
+    top_gw <- sqldf(paste0('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
                         round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
                         round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
                         fips_name 
                FROM mb_mps 
                WHERE MP_bundle = "well"
-                  AND facility_ftype LIKE "wsp_plan_system-ssu',c,'"
-               GROUP BY Facility_hydroid')
+                  AND facility_ftype LIKE "wsp_plan_system-',c,'"
+               GROUP BY Facility_hydroid'))
     
     top_10_gw <- sqldf('SELECT facility_name, 
                            system_type,
