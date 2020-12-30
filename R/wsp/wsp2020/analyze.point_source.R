@@ -1,6 +1,9 @@
+# This is the one we use, as eivdenced by this syntax: fromJSON(file = fname)
+# the other lib does not use the "file" param, just the filename
 library('rjson') # must do unloadNamespace('jsonlite')
 # OR
-library('jsonlite') # must do unloadNamespace('rjson')
+# needed anytime we use the "flatten" command, but I only see one use
+# library('jsonlite') # must do unloadNamespace('rjson')
 library('sqldf') #
 # Facility monthly variation in demand as % of annual
 # use 
@@ -38,7 +41,7 @@ get_matrix_tbl <- function(xfile, cn = c(2,4,6,8,10,12,14,16,18,20,22,24)) {
   
   mofrac_tbl = NULL
   for (i in 1:length(xfile$entity_properties)) {
-    # jsonlite
+    # Uses jsonlite or rjson? Seems to work with rjson
     xfact<- as.data.frame(fromJSON(xfile$entity_properties[[i]]$property$prop_matrix))
     
     mofrac <- xfact[cn]
@@ -57,21 +60,13 @@ get_matrix_tbl <- function(xfile, cn = c(2,4,6,8,10,12,14,16,18,20,22,24)) {
   return(mofrac_tbl)
 }
 
-# dh-properties-json: entity_type/featureid/varkey/propname/propcode
-# Need:
-# facility ->
-#   Model ->
-fname = "http://deq2.bse.vt.edu/d.dh/dh-properties-json/dh_feature/all/all/all/vahydro-1.0"
-# rjson
-dh_xjson_file <-  fromJSON(file = fname)
-#     Withdrawal fracs
-fname = "http://deq2.bse.vt.edu/d.dh/dh-properties-json/dh_properties/all/all/historic_monthly_pct"
-# rjson
-dh_xjson_file <-  fromJSON(file = fname)
 # jsonlite
 # xfile <-  fromJSON(fname)
+# New method uses REST token to authenticate for Withdrawal fracs
+fname = "http://deq2.bse.vt.edu/d.dh/dh-properties-json/dh_properties/all/all/historic_monthly_pct"
+jdat <- vahydro_auth_read(fname, token)
+wd_mofracs <- get_matrix_tbl(jdat)
 
-wd_mofracs <- get_matrix_tbl(dh_xjson_file)
 sqldf(
   "select count(*) from wd_mofracs 
    where 
@@ -93,17 +88,15 @@ sqldf(
     AND (dec > 0) 
   ")
 
+
+fname = "http://deq2.bse.vt.edu/d.dh/dh-properties-json/dh_properties/all/all/wsp2020_2020_mgy"
+jdat <- vahydro_auth_read(fname, token)
+wd_2020 <- get_props_json(jdat)
+
+
 # consumption fracs
 fname = "http://deq2.bse.vt.edu/d.dh/dh-properties-json/dh_properties/all/all/consumption_monthly"
-dh_xjson_file <-  fromJSON(file = fname)
-cu_anfracs <- get_props_json(dh_xjson_file)
-
-xfactdf <- as.data.frame(xfact)
-nrow(xfile$entity_properties[[3]])
-fromJSON(xfile$entity_properties[[,]]$property$prop_matrix)
-
-fname = "http://deq2.bse.vt.edu/d.dh/dh-properties-json/dh_properties/all/all/consumption_monthly"
-dh_xjson_file <-  fromJSON(file = fname)
+dh_xjson_file <- vahydro_auth_read(fname, token)
 cu_mofracs <- get_matrix_tbl(dh_xjson_file)
 mun_fracs <- sqldf(
   "select * 
@@ -123,25 +116,29 @@ mun_fracs <- sqldf(
    )
 ")
 
-valid_anfracs <- flatten(sqldf(
-  " select a.pid, a.propvalue 
-    from cu_anfracs as a 
-    left outer join mun_fracs as b
-    on (entity_id = b.featureid)
-    where b.pid is not null
-  "
-))
+# only if using jsonlite
+#valid_anfracs <- flatten(sqldf(
+#  " select a.pid, a.propvalue 
+#    from cu_anfracs as a 
+#    left outer join mun_fracs as b
+#    on (entity_id = b.featureid)
+#    where b.pid is not null
+#  "
+#))
 
 WBRm = round(mean(as.numeric(mun_fracs$propvalue)),2)
+WBRmd = round(median(as.numeric(mun_fracs$propvalue)),2)
 
+par(lwd=1)
 boxplot(
   mun_fracs$jan + 0.1, mun_fracs$feb + 0.1, mun_fracs$mar + 0.1, 
   mun_fracs$apr + 0.1, mun_fracs$may + 0.1, mun_fracs$jun + 0.1, 
   mun_fracs$jul + 0.1, mun_fracs$aug + 0.1, mun_fracs$sept + 0.1, 
   mun_fracs$oct + 0.1, mun_fracs$nov + 0.1, mun_fracs$dec + 0.1,
   outline = FALSE,
-  ylim = c(0,1.0),
-  ylab = 'Fraction of Withdrawal to Consmptive Uses', 
+  ylim = c(0,0.6),
+  ylab = 'Fraction Consumptive Use + Losses', 
+  main="Municipal Monthly CU Factors Inc. Trans. Losses",
   names=month.abb
 )
 par(lwd=3)
@@ -154,18 +151,32 @@ boxplot(
   mun_fracs$jul, mun_fracs$aug, mun_fracs$sept, 
   mun_fracs$oct, mun_fracs$nov, mun_fracs$dec,
   outline = FALSE,
-  ylim = c(0,0.4),
-  ylab = 'Fraction of Withdrawal to Consmptive Uses', 
+  ylim = c(0,0.6),
+  ylab = 'Fraction Consumptive Use + Losses', 
   names=month.abb,
-  main="Winter Base Rate (WBR) Monthly CU Factors"
+  main="Municipal Monthly CU Factors"
 )
 #par(lwd=3)
 #lines(c(1:12), rep(0.1,12), col="red")
 
+# do a single chart
+allfracs = cbind( mun_fracs$jan + 0.1);
+for (mo in c('feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sept', 'oct', 'nov', 'dec')) {
+  allfracs <- rbind(allfracs, cbind( mun_fracs[,mo] + 0.1))
+}
+boxplot(
+  allfracs,
+  outline = FALSE,
+  ylim = c(0,0.6),
+  ylab = 'Fraction Consumptive Use + Losses', 
+  main="CU Factors for all Months"
+)
+
 # dissag data
 fname = "http://deq2.bse.vt.edu/d.dh/dh-properties-json/dh_adminreg_feature/all/wsp_current_disagg_use/all"
 
-dh_xjson_file <-  fromJSON(file = fname)
+dh_xjson_file <- vahydro_auth_read(fname, token)
+#dh_xjson_file <-  fromJSON(file = fname)
 dissag <- get_props_json(dh_xjson_file)
 total_cat_use <- sqldf (
   "select entity_id, sum(propvalue) as total_use
@@ -183,7 +194,7 @@ use_cat_use <- sqldf (
 )
 
 unloss <- sqldf(
-  " select a.propvalue as unacc, total_use, 
+  " select a.entity_id as adminid, a.propvalue as unacc, total_use, 
     round(a.propvalue / b.total_use, 4) as unac_frac
     from dissag as a 
     left outer join total_cat_use as b 
@@ -194,7 +205,7 @@ unloss <- sqldf(
   "
 )
 unloss <- as.data.frame(unloss)
-mode(unloss) <- 'numeric'
+#mode(unloss) <- 'numeric'
 UNACd = median(unloss$unac_frac, na.rm= TRUE)
 UNACq = quantile(unloss$unac_frac, na.rm= TRUE)
 #       0%      25%      50%      75%     100% 

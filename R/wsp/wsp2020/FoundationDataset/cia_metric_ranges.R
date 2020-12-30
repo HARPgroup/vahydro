@@ -7,7 +7,7 @@ site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d
 source("/var/www/R/config.local.private"); 
 source(paste(basepath,'config.R',sep='/'))
 source(paste(hydro_tools_location,'/R/om_vahydro_metric_grid.R', sep = ''));
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+#folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 #folder <- "C:/Workspace/tmp/"
 
 # Uses the function om_vahydro_metric_grid()
@@ -28,7 +28,7 @@ da_data <- sqldf(
    from da_data
   ")
 
-runid = 13
+runid = 11
 run_name = paste0('runid_', runid)
 df <- data.frame(
   'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
@@ -43,24 +43,52 @@ wshed_data <- sqldf(
    from wshed_data as a 
   left outer join da_data as b 
   on (a.pid = b.pid)
+  WHERE a.hydrocode not like '%0000'
   order by da
   ")
+wshed_data$ua_Q0 <- wshed_data$Mean_Q / wshed_data$da
+wshed_data$ua_7q10 <- wshed_data$x7Q10 / wshed_data$da
+wshed_data$ua_l30 <- wshed_data$Low_Flow_30d / wshed_data$da
+wshed_data$ua_l90 <- wshed_data$Low_Flow_90d / wshed_data$da
 
-wshed_data$cu_mgd <- wshed_data$Total_WD - wshed_data$Total_PS
-wshed_data <- sqldf("select a.*, b.da from wshed_data as a left outer join wshed_da as b on a.pid = b.pid")
+boxplot(
+#  wshed_data$ua_Q, 
+  wshed_data$ua_l90 * 100.0, 
+  wshed_data$ua_l30 * 100.0, 
+  wshed_data$ua_7q10 * 100.0,
+  ylim=c(0,80)
+)
 
-minor_basin_list = c('YP', 'YM')
-# Save the metric specific file
-for (minor_basin in minor_basin_list) {
-  mbdata <- sqldf(
-    paste0(
-      "select * from wshed_data where hydrocode like 'vahydrosw_wshed_",
-      minor_basin,
-      "%'
-      AND hydrocode not like '%0000'
-      ORDER BY da"
-    )
-  )
-  filename <- paste0(folder,"cia_", minor_basin, '_', runid, ".csv")
-  write.csv(mbdata,filename)
-}
+boxplot(
+  #  wshed_data$ua_Q, 
+  wshed_data$ua_l90, 
+  wshed_data$ua_l30, 
+  wshed_data$ua_7q10,
+  names = c('90-day', '30-day', '7Q10'),
+  ylab = 'Flow per Unit of Watershed Area cfs/sqmi',
+  main = 'Comparison of Unit Area Flows for Low Flow Metrics (current)'
+)
+
+hist(wshed_data$ua_l90, plot = TRUE)
+hist(wshed_data$ua_l30, plot = TRUE)
+hist(wshed_data$ua_7q10, plot = TRUE)
+
+boxplot(
+  #  wshed_data$ua_Q, 
+  wshed_data$Low_Flow_90, 
+  wshed_data$Low_Flow_30d, 
+  wshed_data$x7Q10
+)
+
+sqldf(
+  "select count(*) from wshed_data 
+   where ua_l30 < ua_7q10
+")
+
+sqldf(
+  "select count(*) from wshed_data 
+   where ua_7q10 <= ua_l30
+")
+
+quantile(wshed_data$ua_l30, na.rm=TRUE)
+quantile(wshed_data$ua_7q10, na.rm=TRUE)

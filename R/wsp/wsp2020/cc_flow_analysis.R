@@ -1,3 +1,6 @@
+# Upper and Middle Potomac cia table for model debugging
+# where is the extra water comingfrom in 2040 baseline flows?
+
 library("sqldf")
 library("stringr") #for str_remove()
 
@@ -7,11 +10,10 @@ site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d
 source("/var/www/R/config.local.private"); 
 source(paste(basepath,'config.R',sep='/'))
 source(paste(hydro_tools_location,'/R/om_vahydro_metric_grid.R', sep = ''));
-folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
-#folder <- "C:/Workspace/tmp/"
+folder <- "C:/Workspace/tmp/"
 
-# Uses the function om_vahydro_metric_grid()
-# See vahydro/R/cia_tables.R for more examples
+# get the DA, need to grab a model output first in order to insure segments with a channel subcomp
+# are included, hence the first column is to look for prop runid_11, Qbaseline, then the next 2 get 
 df <- data.frame(
   'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
   'runid' = c('runid_11', '0.%20River%20Channel', 'local_channel'),
@@ -28,13 +30,12 @@ da_data <- sqldf(
    from da_data
   ")
 
-runid = 13
-run_name = paste0('runid_', runid)
+
 df <- data.frame(
-  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
-  'runid' = c(run_name, run_name, run_name, run_name, run_name, run_name),
-  'runlabel' = c('Mean_Q', 'x7Q10', 'Low_Flow_30d', 'Low_Flow_90d', 'Total_WD', 'Total_PS'),
-  'metric' = c('Qout', '7q10','l30_Qout','l90_Qout','wd_cumulative_mgd','ps_cumulative_mgd')
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
+  'runid' = c('runid_11', 'runid_17', 'runid_11', 'runid_13', 'runid_17', 'runid_11', 'runid_11', 'runid_13', 'runid_13'),
+  'metric' = c('l90_year', 'l90_cc_year','l90_Qout','l90_Qout','l90_Qout','wd_cumulative_mgd','ps_cumulative_mgd','wd_cumulative_mgd','ps_cumulative_mgd'),
+  'runlabel' = c('l90_year', 'l90_cc_year', 'L90_2020', 'L90_2040', 'L90_CCdry', 'Total_WD_2020', 'Total_PS_2020', 'Total_WD_2040', 'Total_PS_2040')
 )
 wshed_data <- om_vahydro_metric_grid(metric, df)
 
@@ -43,13 +44,12 @@ wshed_data <- sqldf(
    from wshed_data as a 
   left outer join da_data as b 
   on (a.pid = b.pid)
+  WHERE a.hydrocode not like '%0000'
   order by da
   ")
 
-wshed_data$cu_mgd <- wshed_data$Total_WD - wshed_data$Total_PS
-wshed_data <- sqldf("select a.*, b.da from wshed_data as a left outer join wshed_da as b on a.pid = b.pid")
-
 minor_basin_list = c('YP', 'YM')
+table_name = 'cc_year_compare'
 # Save the metric specific file
 for (minor_basin in minor_basin_list) {
   mbdata <- sqldf(
@@ -61,6 +61,6 @@ for (minor_basin in minor_basin_list) {
       ORDER BY da"
     )
   )
-  filename <- paste0(folder,"cia_", minor_basin, '_', runid, ".csv")
+  filename <- paste0(folder,"cia_", minor_basin, '_', table_name, ".csv")
   write.csv(mbdata,filename)
 }
