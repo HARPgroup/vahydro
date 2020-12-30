@@ -52,10 +52,10 @@ wshed_data <- sqldf(
 
 wshed_case <- sqldf(
   "select * from 
-  wshed_data 
-  where 
-    (abs(1.0 - (QBaseline_2020/QBaseline_2040)) > 0.01)
-  and hydrocode not like '%0000'
+   wshed_data 
+   where 
+     (abs(1.0 - (QBaseline_2020/QBaseline_2040)) > 0.01)
+   and hydrocode not like '%0000'
   "
 )
 
@@ -64,3 +64,30 @@ pordat <- fn_get_runfile(elid, 11)
 pordf <- as.data.frame(pordat)
 
 
+df <- data.frame(
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_11', 'runid_12', 'runid_13'),
+  'runlabel' = c('wdc_2020', 'wdc_2030', 'wdc_2040'),
+  'metric' = c('wd_cumulative_mgd', 'wd_cumulative_mgd','wd_cumulative_mgd')
+)
+wshed_data <- om_vahydro_metric_grid(metric, df)
+
+wshed_data <- sqldf(
+  "select a.*, b.da 
+   from wshed_data as a 
+  left outer join da_data as b 
+  on (a.pid = b.pid)
+  order by da
+  ")
+# Look for anomalys in run 12
+sqldf(
+  "select pid, propname, 
+     round(wdc_2020,2) as r11, 
+     round(wdc_2030,2) as r12, 
+     round(wdc_2040,2) as r13 
+   from wshed_data 
+   where round(wdc_2030,2) <> round(((wdc_2020 + wdc_2040) / 2.0),2) 
+   and riverseg not like '%0000%' 
+   and not ((wdc_2020 < wdc_2030) and (wdc_2030 < wdc_2040)) 
+  "
+)
