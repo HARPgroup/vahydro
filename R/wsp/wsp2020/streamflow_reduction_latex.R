@@ -154,7 +154,9 @@ table1_tex <- gsub(pattern = "{table}[t]",
 table1_tex <- gsub(pattern = "\\addlinespace",
                    repl    = "",
                    x       = table1_tex, fixed = T )
-
+table1_tex <- gsub(pattern = "Lowest 30 Day Low Flow}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{Lowest 90 Day Low Flow}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{7q10",
+                   repl    = "Lowest 30 Day Low Flow*}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{Lowest 90 Day Low Flow*}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{7q10*",
+                   x       = table1_tex, fixed = T )
 
 table1_tex %>%
   cat(., file = paste(folder,"tables_maps/Xtables/VA_streamflow_redux_",s,"__table.tex",sep=""))
