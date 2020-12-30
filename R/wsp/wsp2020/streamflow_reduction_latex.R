@@ -99,11 +99,11 @@ if (paste0(s,"_table") == "runid_17_table") {
                                     "Lowest 90 Day Low Flow",
                                     "7q10")) %>%
     #kable_styling(latex_options = "scale_down") %>%
-    # kable_styling(font_size = 10) %>%
-    column_spec(1, width = "6em") %>%
-    column_spec(2, width = "7em") %>%
-    column_spec(3, width = "7em") %>%
-    column_spec(4, width = "7em") %>%
+    kable_styling(font_size = 11) %>%
+    column_spec(1, width = "9em") %>%
+    column_spec(2, width = "9em") %>%
+    column_spec(3, width = "9em") %>%
+    column_spec(4, width = "8em") %>%
     #Header row is row 0
     row_spec(0, bold=T, font_size = 11) %>%
     footnote(general_title = "Note: ",
@@ -114,7 +114,7 @@ if (paste0(s,"_table") == "runid_17_table") {
 \\multicolumn{4}{l}{Explain}\\\\
 \\multicolumn{4}{l}{\\textsuperscript{*} CC}\\\\",
                      repl    =  "\\addlinespace \\multicolumn{4}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand Scenario.}\\\\ \\addlinespace 
-\\multicolumn{4}{l}{ \\multirow{}{}{\\parbox{14cm}{\\textit{Note:} Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.}}}\\\\",
+\\multicolumn{4}{l}{ \\multirow{}{}{\\parbox{15cm}{\\textit{Note:} Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.}}}\\\\",
                      x       = table1_tex, fixed = T )
   
 } else {
@@ -129,12 +129,12 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
                       "7q10",
                       "Overall Change in Flow")) %>%
   #kable_styling(latex_options = "scale_down") %>%
-  # kable_styling(font_size = 10) %>%
-  column_spec(1, width = "6em") %>%
-  column_spec(2, width = "6em") %>%
-  column_spec(3, width = "6em") %>%
-  column_spec(4, width = "6em") %>%
-  column_spec(5, width = "6em") %>%
+  kable_styling(font_size = 11) %>%
+  column_spec(1, width = "8em") %>%
+  column_spec(2, width = "7em") %>%
+  column_spec(3, width = "7em") %>%
+  column_spec(4, width = "4em") %>%
+  column_spec(5, width = "7em") %>%
   #Header row is row 0
   row_spec(0, bold=T, font_size = 11) %>%
   footnote(general_title = "Note: ",general = "Explain",symbol = "CC")
