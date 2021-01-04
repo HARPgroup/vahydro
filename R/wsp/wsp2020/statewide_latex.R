@@ -1200,7 +1200,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     #---- RUN NARRATIVE FOCUS FILE -------------------------------------
     print("PROCESSING: NARRATIVE FOCUS TABLES")
-    source(paste0(vahydro_location,"/R/wsp/wsp2020/narrative_focus_latex.R"))
+    source(paste0(vahydro_location,"/R/wsp/wsp2020/FoundationDataset/narrative_focus.R"))
     
     }
 
