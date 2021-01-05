@@ -654,18 +654,22 @@ statewide.mapgen.ELFGEN <- function(metric,runid_a,huc_level,richness_chg,elfgen
   tidal_color <- "gray55"
   
   # DATAFRAME OF ANY "_0000" TIDAL SEGMENTS
+  # RSeg_tidal <- paste("SELECT *
+  #                 FROM RSeg_data
+  #                 WHERE hydrocode LIKE 'vahydrosw_wshed_JA%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_PL%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_RL%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_YL%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_YM%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_YP%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_EL%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_JB%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_MN%_0000' OR
+  #                       hydrocode LIKE 'vahydrosw_wshed_ES%_0000'
+  #                     ")
   RSeg_tidal <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE hydrocode LIKE 'vahydrosw_wshed_JA%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_PL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_RL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YM%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YP%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_EL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_JB%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_MN%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_ES%_0000'
+                  WHERE hydrocode LIKE 'vahydrosw_wshed_%_0000'
                       ")
   RSeg_tidal <- sqldf(RSeg_tidal)
   

@@ -133,7 +133,7 @@ beep(3)
 
 runid <- "runid_11"
 huc_level <- "huc8"
-richness_chg <- "richness_change_abs"
+richness_chg <- "richness_change_pct"
 elfgen_dataset <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
 
 statewide.mapgen.ELFGEN(metric = "consumptive_use_frac",
@@ -182,7 +182,7 @@ beep(3)
 # PULL IN DATASET
 runid <- "runid_11"
 huc_level <- "huc8"
-richness_chg <- "richness_change_abs"
+richness_chg <- "richness_change_pct"
 elfgen_dataset_11 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
 
 #------------------------------------------------------------------------------
@@ -200,18 +200,22 @@ elfgen_dataset_11 <- sqldf(QA_cols)
 # REMOVE TIDAL SEGMENTS
 print(length(elfgen_dataset_11[,1]))
 print("REMOVING TIDAL SEGMENTS")
+# RSeg_tidal <- paste("SELECT *
+#                   FROM elfgen_dataset_11
+#                   WHERE hydrocode NOT LIKE 'vahydrosw_wshed_JA%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_PL%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_RL%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_YL%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_YM%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_YP%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_EL%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_JB%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_MN%_0000' AND
+#                         hydrocode NOT LIKE 'vahydrosw_wshed_ES%_0000'
+#                       ")
 RSeg_tidal <- paste("SELECT *
                   FROM elfgen_dataset_11
-                  WHERE hydrocode NOT LIKE 'vahydrosw_wshed_JA%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_PL%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_RL%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_YL%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_YM%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_YP%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_EL%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_JB%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_MN%_0000' AND
-                        hydrocode NOT LIKE 'vahydrosw_wshed_ES%_0000'
+                  WHERE hydrocode NOT LIKE 'vahydrosw_wshed_%_0000'
                       ")
 elfgen_dataset_11 <- sqldf(RSeg_tidal)
 print(length(elfgen_dataset_11[,1]))
@@ -227,8 +231,12 @@ rm_Right_Of_bkpt <- paste('SELECT *
                             ',sep = '')
 elfgen_dataset_11 <- sqldf(rm_Right_Of_bkpt)  
 print(length(elfgen_dataset_11[,1]))
-write.csv(elfgen_dataset_11,paste0(export_path,"tables_maps\\Xfigures\\","elfgen_dataset","_",runid,"_",huc_level,"_",richness_chg,".csv"), row.names = FALSE)
+#write.csv(elfgen_dataset_11,paste0(export_path,"tables_maps\\Xfigures\\","elfgen_dataset","_",runid,"_",huc_level,"_",richness_chg,".csv"), row.names = FALSE)
 #------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
 # JOIN 3 TABLES 
 runid <- "runid_13"
 elfgen_dataset_13 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
@@ -236,13 +244,28 @@ elfgen_dataset_13 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propna
 runid <- "runid_18"
 elfgen_dataset_18 <- read.csv(paste(site,"vahydro_riversegs_elfgen_export?propname=",runid,"&propname_2=elfgen_EDAS_",huc_level,"&propname_3=",richness_chg,sep=""))
 
-elfgen_combine <- paste('SELECT a.*,
-                                a.richness_change AS "2020_pct_abs",
-                                b.richness_change AS "2040_pct_abs",
-                                c.richness_change AS "Exempt_pct_abs",
-                                a.p AS "2020_p",
-                                b.p AS "2040_p",
-                                c.p AS "Exempt_p"
+# elfgen_combine <- paste('SELECT a.*,
+#                                 a.richness_change AS "2020_pct_abs",
+#                                 b.richness_change AS "2040_pct_abs",
+#                                 c.richness_change AS "Exempt_pct_abs",
+#                                 a.p AS "2020_p",
+#                                 b.p AS "2040_p",
+#                                 c.p AS "Exempt_p"
+#                   FROM elfgen_dataset_11 AS a
+#                     LEFT OUTER JOIN elfgen_dataset_13 AS b
+#                     ON (a.hydroid = b.hydroid)
+#                     LEFT OUTER JOIN elfgen_dataset_18 AS c
+#                     ON (a.hydroid = c.hydroid)
+#                   ORDER BY a.richness_change ASC  
+#                   ',sep = '')
+elfgen_combine <- paste('SELECT a."Rseg.Model",
+                                a.hydrocode,
+                                a.richness_change AS "2020_chg_pct",
+                                b.richness_change AS "2040_chg_pct",
+                                c.richness_change AS "Exempt_chg_pct",
+                                a.consumptive_use_frac*100 AS "2020_consumptive_use_%",
+                                b.consumptive_use_frac*100 AS "2040_consumptive_use_%",
+                                c.consumptive_use_frac*100 AS "Exempt_consumptive_use_%"
                   FROM elfgen_dataset_11 AS a
                     LEFT OUTER JOIN elfgen_dataset_13 AS b
                     ON (a.hydroid = b.hydroid)
@@ -255,24 +278,126 @@ write.csv(elfgen_combine,paste0(export_path,"tables_maps\\Xfigures\\","elfgen_da
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
+# JOIN PCT AND # TABLES 
+elfgen_num <- read.csv(paste(export_path,"tables_maps/Xfigures/","elfgen_dataset_rseg_summary_richness_change_abs.csv",sep=""))
+elfgen_pct <- read.csv(paste(export_path,"tables_maps/Xfigures/","elfgen_dataset_rseg_summary_richness_change_pct.csv",sep=""))
 
+
+join_em <- paste('SELECT *
+                  FROM elfgen_num AS a
+                    LEFT OUTER JOIN elfgen_pct AS b
+                    ON (a.hydrocode = b.hydrocode)
+                  ',sep = '')
+join_em <- sqldf(join_em)  
+write.csv(join_em,paste0(export_path,"tables_maps\\Xfigures\\","join_em.csv"), row.names = FALSE)
+
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
+MB_names <- paste('SELECT *,
+                      substr(hydrocode, 17, 2) AS "MB"
+                      FROM elfgen_pct
+                  ',sep = '')
+MB_names <- sqldf(MB_names)
+
+
+elfgen_pct <-sqldf(paste('SELECT *,
+                          CASE
+                            WHEN MB == "JB" Then "Lower James"
+                            WHEN MB == "JL" Then "Middle James"
+                            WHEN MB == "JU" Then "Upper James"
+                            WHEN MB == "PL" Then "Lower Potomac"
+                            WHEN MB == "PM" Then "Middle Potomac"
+                            WHEN MB == "PU" Then "Upper Potomac"
+                            WHEN MB == "RL" Then "Lower Rappahannock"
+                            WHEN MB == "RU" Then "Upper Rappahannock"
+                            WHEN MB == "TU" Then "Upper Tennessee"
+                            WHEN MB == "YL" Then "Lower York"
+                            WHEN MB == "ES" Then "Eastern Shore"
+                            WHEN MB == "OR" Then "Roanoke"
+                            WHEN MB == "OD" Then "Roanoke Dan"
+                            WHEN MB == "YM" Then "York Mattaponi"
+                            WHEN MB == "JA" Then "James Appomattox"
+                            WHEN MB == "BS" Then "Big Sandy"
+                            WHEN MB == "PS" Then "Potomac Shenandoah"
+                            WHEN MB == "MN" Then "Meherrin Nottoway"
+                            WHEN MB == "YP" Then "York Pamunkey"
+                            WHEN MB == "NR" Then "New River"
+                            ELSE MB
+                          END AS name
+                        FROM MB_names
+                        ',sep=""))
+
+
+
+
+tops <- paste('SELECT a."Rseg.Model" AS "River Segment",
+                      a.name AS "Minor Basin",
+                      ROUND(a."X2020_consumptive_use_.",2) AS "2020 CU (%)",
+                      ROUND(a.X2020_chg_pct,2) AS "2020 Chg (%)",
+                      ROUND(b."X2020_chg_abs",2) AS "2020 Chg (#)",
+                      ROUND(a."X2040_consumptive_use_.",2) AS "2040 CU (%)",
+                      ROUND(a.X2040_chg_pct,2) AS "2040 Chg (%)",
+                      ROUND(b."X2040_chg_abs",2) AS "2040 Chg (#)",
+                      ROUND(a."Exempt_consumptive_use_.",2) AS "Exempt CU (%)",
+                      ROUND(a.Exempt_chg_pct,2) AS "Exempt Chg (%)",
+                      ROUND(b."Exempt_chg_abs",2) AS "Exempt Chg (#)"
+                FROM elfgen_pct AS a
+                    LEFT OUTER JOIN elfgen_num AS b
+                    ON (a.hydrocode = b.hydrocode)
+                WHERE a.Exempt_chg_pct != "NA"
+                ORDER BY a.Exempt_chg_pct ASC
+                LIMIT 30',sep = '')
+
+tops <- sqldf(tops)  
+write.csv(tops,paste0(export_path,"tables_maps\\Xfigures\\","tops.csv"), row.names = FALSE)
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 # KABLE FORMATTER
-formatted_dataset <- paste('SELECT "Rseg.Model", 
-                                    richness_change
-                            FROM elfgen_dataset
-                            ORDER BY richness_change ASC  
-                            LIMIT 10',sep = '')
-formatted_dataset <- sqldf(formatted_dataset)
+# formatted_dataset <- paste('SELECT "Rseg.Model", 
+#                                     richness_change
+#                             FROM elfgen_dataset
+#                             ORDER BY richness_change ASC  
+#                             LIMIT 10',sep = '')
+# formatted_dataset <- sqldf(formatted_dataset)
 
 library(kableExtra)
-table_tex <- kable(formatted_dataset,align = "l",  booktabs = T,format = "latex",longtable =T,
-                   caption = paste("TEST CAPTION", sep = ""),
-                   label = paste("TEST LABEL", sep = "")) %>%
+table_tex <- kable(tops,align = "l",  booktabs = T,format = "latex",longtable =T,
+                   caption = paste("Richness Change (Top 30 River Segments at Risk of Loss)", sep = ""),
+                   label = paste("VA_elfgen", sep = "")) %>%
   kable_styling(latex_options = "striped") %>%
-  column_spec(2, width = "12em") %>%
-cat(., file = paste0(export_path,"tables_maps\\Xfigures\\","TEST","_",".tex"),sep="")
+  column_spec(1, width = "15em") %>%
+  cat(., file = paste0(export_path,"tables_maps\\Xfigures\\","VA_Rseg_elfgen_summary_table.tex"),sep="")
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
+  
+
+# library("readxl")
+# my_data <- read_excel(paste(export_path,"tables_maps/Xfigures/" , "Master_elfgen.xlsx",sep=""), sheet = "TU2")
+# 
+# # formatted_dataset <- paste('SELECT "Rseg.Model", 
+# #                                     my_data
+# #                             FROM elfgen_dataset
+# #                             ORDER BY richness_change ASC  
+# #                             LIMIT 10',sep = '')
+# # formatted_dataset <- sqldf(formatted_dataset)
+# 
+# library(kableExtra)
+# table_tex <- kable(my_data,align = "l",  booktabs = T,format = "latex",longtable =T,
+#                    caption = paste("Upper Tennessee elfgen Results by River Segment", sep = ""),
+#                    label = paste("TU_elfgen", sep = "")) %>%
+#   kable_styling(latex_options = "striped") %>%
+#   cat(., file = paste0(export_path,"tables_maps\\Xfigures\\","TU_elfgen_table.tex"),sep="")
+# 
+
+
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 

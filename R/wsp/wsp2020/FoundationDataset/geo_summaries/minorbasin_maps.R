@@ -63,7 +63,7 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.
 # #                   runid_b = "runid_13",
 # #                   wd_points <- "ON",
 # #                   rsegs <- "ON")
-minorbasin <- c("OR","OD")
+minorbasin <- c("BS")
 metric <- c("l30_Qout","l90_Qout","7q10")
 runid_a <- "runid_11" # NOTE: LOOP ONLY ACCEPTS A SINGLE runid_a
 runid_b <- c("runid_12","runid_13","runid_18")
@@ -127,7 +127,7 @@ beep(3)
 #                                   runid_a = c("runid_11"),
 #                                   wd_points = "ON")
 # 
-minorbasin <- c("PM","PL")
+minorbasin <- c("BS")
 metric <- "consumptive_use_frac"
 runid_a <- c("runid_11","runid_12","runid_13","runid_18")
 wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
@@ -192,7 +192,7 @@ beep(3)
 # wd_points <- "ON" #TURN WITHDRAWAL POINTS "ON" OR "OFF"
 # rsegs <- "OFF"    #TURN RSEGS "ON" OR "OFF" - ONLY USED IF wd_points = "ON"
 
-minorbasin <- c("PM","PL")
+minorbasin <- c("BS")
 metric <- "l30_Qout"
 runid_a <- "runid_11"
 runid_b <- "runid_13"
@@ -242,7 +242,7 @@ beep(3)
 #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS - (60 figs)
 #minorbasin <- c("NR", "YP", "TU", "RL", "OR", "PU", "RU", "YM", "JA", "MN", "PM", "YL", "BS", "PL", "OD", "JU", "JB", "JL","PS","ES")
-minorbasin <- c("PM","PL")
+minorbasin <- c("BS")
 metric <- "l30_Qout" 
 runid_a <- "runid_11" 
 #runid_b <- "runid_13" 
