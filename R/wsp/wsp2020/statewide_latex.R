@@ -846,8 +846,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                     FROM top_10')
     
     if (c == "ssuag") {
-      system_type <- "County-Wide Agricultural"
-      colname_1 <- "Locality"
+      system_type <- "Agricultural"
+      colname_1 <- "Locality \\ Facility"
     } else if (c == "cws") {
       system_type <- "Municipal"
       colname_1 <- "Facility"
