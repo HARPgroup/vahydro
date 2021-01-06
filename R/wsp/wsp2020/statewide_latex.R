@@ -757,17 +757,21 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_no_power_table",file_ext,sep=""))
 
   
-    ######## TOP 10 COUNTY-WIDE AGRICULTURE USERS Table ####################################
-    #-------------- TOP 10 SURFACE WATER COUNTY-WIDE AGRICULTURE ---------------------
-    top_sw <- sqldf('SELECT facility_name, system_type,
+    ######## TOP 10 COUNTY-WIDE AGRICULTURE, MUNICIPAL, AND LARGE USERS Table ########################
+    #-------------- TOP 10 SURFACE WATER COUNTY-WIDE ---------------------
+    countywide <- c("ssuag", "cws", "ssulg")
+    for (c in countywide) {
+    
+    top_sw <- sqldf(paste0('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
                         round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
                         round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
                         fips_name 
                FROM mb_mps 
                WHERE MP_bundle = "intake"
-                  AND facility_ftype LIKE "wsp_plan_system-ssuag"
-               GROUP BY Facility_hydroid')
+                  AND wsp_ftype LIKE "wsp_plan_system-',c,'"
+                  AND facility_ftype NOT LIKE "%power"
+               GROUP BY Facility_hydroid'))
     
     top_10_sw <- sqldf('SELECT facility_name, 
                            system_type,
@@ -784,20 +788,21 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     top_10_sw <- append_totals(top_10_sw, "Total SW")
     
     #need to select the AA for the YES power (including)
-    top_10_sw$pct_total_use <- round((top_10_sw$MGD_2040 / AA$MGD_2040[5]) * 100,2)
+    top_10_sw$pct_total_use <- round((top_10_sw$MGD_2040 / A$MGD_2040[5]) * 100,2)
     
     
-    #-------------- TOP 10 GROUNDWATER COUNTY-WIDE AGRICULTURE ---------------------
+    #-------------- TOP 10 GROUNDWATER COUNTY-WIDE ---------------------
     
-    top_gw <- sqldf('SELECT facility_name, system_type,
+    top_gw <- sqldf(paste0('SELECT facility_name, system_type,
                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
                         round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
                         round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
                         fips_name 
                FROM mb_mps 
                WHERE MP_bundle = "well"
-                  AND facility_ftype LIKE "wsp_plan_system-ssuag"
-               GROUP BY Facility_hydroid')
+                  AND wsp_ftype LIKE "wsp_plan_system-',c,'"
+                  AND facility_ftype NOT LIKE "%power"
+               GROUP BY Facility_hydroid'))
     
     top_10_gw <- sqldf('SELECT facility_name, 
                            system_type,
@@ -814,7 +819,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     top_10_gw <- append_totals(top_10_gw, "Total GW")
     
     #need to select the BB for the YES power (including)
-    top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
+    top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / B$MGD_2040[5]) * 100,2)
     
     gw_header <- data.frame("facility_name" = 'Groundwater',
                             "system_type" = '',
@@ -827,21 +832,35 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     top_10 <- rbind(top_10_sw, gw_header, top_10_gw)
     
-    # top_10$facility_name <- str_to_title(top_10$facility_name)
-    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
-    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
-    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
-    # top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+    top_10$facility_name <- str_to_title(top_10$facility_name)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
     top_10$facility_name <- gsub(x = top_10$facility_name, pattern = " \\(Agriculture\\)", replacement = "", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = " \\(Community Water System\\)", replacement = "", ignore.case = T)
+    top_10$facility_name <- gsub(x = top_10$facility_name, pattern = " \\(Large Self-Supplied User\\)", replacement = "", ignore.case = T)
     
     top_10[is.na(top_10)] <- 0.00
     top_10 <- sqldf('SELECT facility_name AS Locality, MGD_2020, MGD_2030, MGD_2040, pct_change, pct_total_use
                     FROM top_10')
+    
+    if (c == "ssuag") {
+      system_type <- "County-Wide Agricultural"
+      colname_1 <- "Locality"
+    } else if (c == "cws") {
+      system_type <- "Municipal"
+      colname_1 <- "Facility"
+    } else if (c == "ssulg") {
+      system_type <- "Large Self-Supplied"
+      colname_1 <- "Facility"
+    }
+
     # OUTPUT TABLE IN KABLE FORMAT
     table10_tex <- kable(top_10,align = c('l','c','c','c','c','c'),  booktabs = T,
-                         caption = paste("Top 10 County-Wide Agricultural Users in 2040 in ",mb_name[1],sep=""),
-                         label = paste("top_10_ag_",mb_code,sep=""),
-                         col.names = c("Locality",
+                         caption = paste("Top 10 ",system_type," Users in 2040 in ",mb_name[1],sep=""),
+                         label = paste("top_10_",c,"_",mb_code,sep=""),
+                         col.names = c(colname_1,
                                        kable_col_names[3:6],
                                        "% of Total Surface Water")) %>%
       kable_styling(latex_options = latexoptions) %>%
@@ -875,8 +894,9 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                         repl    = "\\vspace{0.3em}\\textbf{\\% of Total Surface Water}", 
                         x       = table10_tex, fixed = T )
     table10_tex %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_ag_table",file_ext,sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top10_",c,"_table",file_ext,sep=""))
     
+    }
     
     ######## TOP 10 COUNTY-WIDE SMALL SSU Table ###############################################################
     #-------------- THERE ARE NO SURFACE WATER COUNTY-WIDE SMALL SSU ---------------------
@@ -907,7 +927,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     top_10_gw <- append_totals(top_10_gw, "Total GW")
     
     #need to select the BB for the YES power (including)
-    top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / BB$MGD_2040[5]) * 100,2)
+    top_10_gw$pct_total_use <- round((top_10_gw$MGD_2040 / B$MGD_2040[5]) * 100,2)
     top_10 <- top_10_gw
     
     top_10$facility_name <- gsub(x = top_10$facility_name, pattern = " \\(Small Self-Supplied User\\)", replacement = "", ignore.case = T)
@@ -989,7 +1009,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                      AND fips_code NOT LIKE "51685"
                      AND MP_bundle LIKE "well"
                      GROUP BY fips_code
-                     ORDER BY pct_change DESC', sep=""))
+                     ORDER BY fips_name DESC', sep=""))
     by_locality_gw[is.na(by_locality_gw)] <- 0.00
     write.csv(by_locality_gw, paste(folder,"tables_maps/Xtables/",mb_code,"_gw_locality_demand.csv", sep=""), row.names = F)
     
@@ -1180,7 +1200,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     
     #---- RUN NARRATIVE FOCUS FILE -------------------------------------
     print("PROCESSING: NARRATIVE FOCUS TABLES")
-    source(paste0(vahydro_location,"/R/wsp/wsp2020/narrative_focus_latex.R"))
+    source(paste0(vahydro_location,"/R/wsp/wsp2020/FoundationDataset/narrative_focus.R"))
     
     }
 
