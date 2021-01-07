@@ -1,0 +1,3380 @@
+MAP
+NAME WATERUSE
+SIZE 900 600
+STATUS ON
+#SYMBOLSET "./sym_wateruse.sym"
+# for map in dd
+EXTENT  -83.6754150390625 36.5407371520996 -75.2422637939453 39.4660148620605
+UNITS DD
+# for map in utm 83z18
+#UNITS METERS
+SHAPEPATH "data"
+FONTSET "./fonts.txt"
+PROJECTION
+  "init=epsg:4326"
+END
+DEBUG ON
+CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
+
+SYMBOL
+  NAME 'hatch-simple'
+  TYPE HATCH
+END
+
+SYMBOL
+  NAME 'hatch-dashed'
+  TYPE HATCH
+END
+
+SYMBOL
+  NAME 'circle'
+  TYPE ELLIPSE
+  POINTS 1 1 END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME 'circlefill'
+  TYPE ELLIPSE
+  POINTS 10 10 END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME 'downwarddiagonalfill'
+  TYPE vector
+  TRANSPARENT 0
+  POINTS
+    0 1
+    1 0
+  END
+END
+
+WEB
+   MAXSCALE 5000000
+   IMAGEPATH "/var/www/html/tmp/"
+   IMAGEURL "/tmp/"
+  METADATA
+    "wfs_title"            "COVA-OSGWSP WFS Testing Service"  ## REQUIRED
+    "wfs_onlineresource"   "http://deq1.bse.vt.edu/cgi-bin/mapserv?map=/var/www/html/mapserv/drupal_wsp_data.map&"  ## Recommended
+    "wfs_srs"               "EPSG:4326"  ## Recommended
+    "wfs_abstract"       "This text describes my WFS service." ## Recommended
+    "wfs_enable_request" "*"  # necessary
+    "ows_schemas_location" "http://ogc.dmsolutions.ca"  ## Optional
+    # WMS MetaData
+    "wms_title"            "dH Mapserver WMS"  ## REQUIRED
+    "wms_onlineresource"   "http://deq1.bse.vt.edu/cgi-bin/mapserv?map=/var/www/html/mapserv/dh_wfs.map&"  ## Recommended
+    "wms_srs"               "EPSG:3857 EPSG:4269 EPSG:4326"  ## Recommended
+    "wms_format"               "img/png"  ## Recommended
+    "wms_abstract"       "Maps from dH - An Environmental Data Model in Drupal." ## Recommended
+    "wms_enable_request" "*"  # necessary
+  END
+   TEMPLATE webmap.html
+   VALIDATION
+      'runid'   '[0-9]+$'
+      'runid1'   '[0-9]+$'
+      'runid2'   '[0-9]+$'
+      'pscen'    '[0-9]+$'
+      'nid'    '[0-9]+$'
+      'default_nid' '-1'
+      'nontidal'    '[0-9]+$'
+      'default_nontidal' '1'
+      'excludepat'    '[0-9a-zA-Z\-]+$'
+      'default_excludepat' '-99999'
+      'covpat'    '[0-9a-zA-Z\-]+$'
+      'default_covpat' 'major_basin'
+      'div1'     '[0-9\.\-]+$'
+      'div2'     '[0-9\.\-]+$'
+      'div3'     '[0-9\.\-]+$'
+      'div4'     '[0-9\.\-]+$'
+      'dataname1'     '[0-9a-zA-Z\-]+$'
+      'default_dataname1' 'auglowflow'
+      'dataname2'     '[0-9a-zA-Z\-]+$'
+      'default_dataname2' 'auglowflow'
+      'default_runid' '21'
+      'default_runid1' '21'
+      'default_runid2' '22'
+      'default_pscen' '37'
+      'default_div1' '-0.2'
+      'default_div2' '-0.1'
+      'default_div3' '0.1'
+      'default_div4' '0.2'
+   END
+END
+
+LEGEND 
+   IMAGECOLOR 255 250 240
+   OUTLINECOLOR 0 0 0 
+   KEYSIZE 16 16
+   STATUS OFF
+   #TRANSPARENT OFF
+   #TRANSPARENCY 50
+   LABEL
+     COLOR 0 0 0
+     #SHADOWCOLOR 218 218 218
+     #SHADOWSIZE 2 2
+     TYPE TRUETYPE
+     FONT arial
+     SIZE 7
+     ANTIALIAS TRUE
+   END # end of label
+   POSITION ul
+END
+
+LAYER
+   NAME bg_coverage
+   METADATA
+      "wfs_title"    "Spatial Coverage" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+	   "gml_nid_type" "integer"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   #OPACITY 0
+   DEBUG OFF
+   DATA "the_geom FROM (select b.title, a.the_geom, a.entity_id, %nid% as nid  
+      from cache_geofield_coverage_wkt as a 
+      left outer join node as b 
+      on (a.entity_id = b.nid)
+      where ( 
+         (a.entity_id = '%nid%' )
+         OR 
+         (
+            ('%nid%' = '-1') 
+            AND a.entity_id in (
+               select entity_id from field_data_field_coverage_id 
+               where field_coverage_id_value like ('%covpat%' || '%')
+            )
+         )
+      )         
+   ) AS foo USING UNIQUE entity_id"
+   #FILTER "runid = 22"
+   TEMPLATE webmap.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   #LABELITEM "title"
+   CLASS
+      EXPRESSION ( [nid] <> -1 )
+      COLOR 220 220 220
+      OUTLINECOLOR 0 0 0
+      STYLE
+         OUTLINECOLOR 0 0 0
+         WIDTH 4
+      END
+      LABEL
+        COLOR 0 0 0
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 10
+        ANTIALIAS TRUE
+        POSITION LC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [nid] = -1 )
+      #BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 67 66 81
+        SIZE 10
+        WIDTH 2
+        ANGLE 45
+        OPACITY 50
+      END # STYLE
+   END
+   CLASS
+      COLOR 220 220 220
+      OUTLINECOLOR 0 0 0
+      STYLE
+         OUTLINECOLOR 0 0 0
+         WIDTH 4
+      END
+      LABEL
+        COLOR 0 0 0
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 10
+        ANTIALIAS TRUE
+        POSITION LC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   NAME poli_bounds
+   GROUP poli_bounds
+   TYPE POLYGON
+   STATUS OFF
+   DEBUG OFF
+   DATA "the_geom from va_counties"
+   #FILTER " projectid = 3"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   #LABELITEM "name"
+   CLASS
+      NAME "Political"
+      SYMBOL 'circle'
+      SIZE 2
+      COLOR -1 -1 -1
+      OUTLINECOLOR 222 222 222
+      LABEL
+        COLOR 222 222 222
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 300
+        MINFEATURESIZE 30
+        BUFFER 4
+      END # end of label
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "proj=latlong"
+   END
+   METADATA
+    "DESCRIPTION"   "Political"
+    "RESULT_FIELDS" "name county state"
+   END
+END
+
+LAYER
+   NAME model_element_info
+   METADATA
+      "wfs_title"    "Model Element Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (
+      select geo.entity_id, cbp.the_geom, cbp.riverseg
+      from cache_geofield_coverage_wkt as geo
+      left outer join cbp53_dd as cbp 
+      on (
+         geo.the_geom && cbp.the_geom 
+         and contains(geo.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+      )
+      where geo.entity_id = %nid% 
+      order by cbp.riverseg 
+   ) AS foo USING UNIQUE entity_id"
+   TEMPLATE webmap.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      #SYMBOL 'circle'
+      #SIZE 11
+      COLOR -1 -1 -1
+      OUTLINECOLOR 0 0 0
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+   NAME wsp_coverage
+   METADATA
+      "wfs_title"    "Spatial Coverage" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+	   "gml_nid_type" "integer"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   #OPACITY 0
+   DEBUG OFF
+   DATA "the_geom FROM (select b.title, a.the_geom, a.entity_id 
+      from cache_geofield_coverage_wkt as a 
+      left outer join node as b 
+      on (a.entity_id = b.nid)
+      where a.entity_id = '%nid%'  ) AS foo USING UNIQUE entity_id"
+   #FILTER "runid = 22"
+   TEMPLATE webmap.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   #LABELITEM "title"
+   CLASS
+      #COLOR 245 245 245
+      COLOR -1 -1 -1
+      OUTLINECOLOR 0 0 0
+      STYLE
+         OUTLINECOLOR 0 0 0
+         WIDTH 4
+      END
+      LABEL
+        COLOR 0 0 0
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 10
+        ANTIALIAS TRUE
+        POSITION LC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME wsp_locality_gw_summary
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_area_sqmi_type" "double"
+	   "gml_current_gw_in_yr_type" "double"
+	   "gml_proj_gw_in_yr_type" "double"
+	   "gml_delta_gw_in_yr_type" "double"
+	   "gml_gw_proj_mgd_type" "double"
+	   "gml_sw_proj_mgd_type" "double"
+   END
+   VALIDATION
+      'default_div1' '0.0'
+      'default_div2' '0.10'
+      'default_div3' '0.25'
+      'default_pscen' '37'
+      'default_nscen' '95'
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   DATA "sane_geom FROM (select a.gid, a.name, a.sane_geom, sum(b.current_mgy) as current_mgy, 
+      sum(b.current_max_mgd) as current_max_mgd, sum(b.proj_use_mgy) as proj_use_mgy,     
+      sum(b.sw_proj_mgd) as sw_proj_mgd, sum(b.gw_proj_mgd) as gw_proj_mgd, 
+      round( sum(365.0 * b.gw_current_mgd * 0.0575625 / a.area_sqmi)::numeric, 3) as current_gw_in_yr, 
+      round( sum(365.0 * b.gw_proj_mgd * 0.0575625 / a.area_sqmi)::numeric, 3) as proj_gw_in_yr, 
+      round( sum( 365.0 * (b.gw_proj_mgd - b.gw_current_mgd) * 0.0575625 / a.area_sqmi)::numeric, 3) as delta_gw_in_yr, 
+      CASE WHEN (sum(current_mgy) > 0.0) 
+         THEN round((sum(proj_use_mgy - current_mgy) / sum(current_mgy))::numeric,4) 
+         ELSE round(sum(proj_use_mgy)::numeric,4) 
+      END as delta_pct 
+   from va_counties as a left outer join wsp_sysloc_cache as b 
+   on ( a.sane_geom && b.the_geom 
+         and contains(a.sane_geom, b.the_geom) 
+      )
+   where 
+      (
+         ( (   a.stcofips not in (
+                  select b.stcofips 
+                  from cache_geofield_coverage_wkt as a, va_counties as b
+                  where a.entity_id = 231300
+                     and a.the_geom && b.sane_geom
+                     and contains(a.the_geom, ST_PointOnSurface(b.sane_geom)) 
+               ) 
+            )
+            and ( %nontidal% = 1 )
+         )
+         OR 
+         ( %nontidal% = 0 )
+         OR 
+         ( ( %nontidal% = 2 ) 
+         
+            and (   a.stcofips in (
+                  select b.stcofips 
+                  from cache_geofield_coverage_wkt as a, va_counties as b
+                  where a.entity_id = 231300
+                     and a.the_geom && b.sane_geom
+                     and contains(a.the_geom, ST_PointOnSurface(b.sane_geom)) 
+               ) 
+            )
+         )
+         OR 
+         ( ( %nontidal% = 3 ) 
+         
+            and (   a.stcofips in (
+                  select b.stcofips 
+                  from cache_geofield_coverage_wkt as a, va_counties as b
+                  where a.entity_id = 247223
+                     and a.the_geom && b.sane_geom
+                     and contains(a.the_geom, ST_PointOnSurface(b.sane_geom)) 
+               ) 
+            )
+         )
+      )
+         
+   GROUP BY a.gid, a.name, a.sane_geom
+   ) AS foo USING UNIQUE gid"
+   #FILTER "leapyear <> true"
+   TEMPLATE webmap.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   #LABELITEM  proj_gw_in_yr
+   CLASS
+      NAME "Less than 0.25 in/yr"
+      EXPRESSION ( [proj_gw_in_yr] < 0.25 )
+      COLOR 255 255 102
+      BACKGROUNDCOLOR 205 102 102
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Between 0.25 to 0.5 in/yr"
+      EXPRESSION ( ( [proj_gw_in_yr] >= 0.25 ) and ( [proj_gw_in_yr] < 0.5 ) )
+      COLOR 238 204 102
+      BACKGROUNDCOLOR 255 211 127
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Between 0.5 to 1.0 in/yr"
+      EXPRESSION ( ( [proj_gw_in_yr] >= 0.5 ) and ( [proj_gw_in_yr] < 1.0 ) )
+      COLOR 221 153 102
+      BACKGROUNDCOLOR 194 158 215
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Greater than 1.0 in/yr"
+      EXPRESSION ( ( [proj_gw_in_yr] >= 1.0 ) )
+      COLOR 205 102 102
+      BACKGROUNDCOLOR 102 153 205
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "No Data"
+      COLOR 204 204 204
+      BACKGROUNDCOLOR 204 204 204
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME model_run_huc_info_abs100
+   METADATA
+      "wfs_title"    "Model Run Status Info 100 scale" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG ON
+   # Query ties a control point to its parent
+   DATA "the_geom FROM (
+      select huc.gid, huc.the_geom, 
+         a.runid, a.dataname, 
+         CASE 
+            WHEN sum(a.dataval) is NUll THEN -99999 
+            ELSE sum(a.dataval)
+         END as dataval_sum, 
+         CASE 
+            WHEN sum(a.dataval) is NUll THEN -99999 
+            ELSE median(a.dataval)
+         END as dataval_median, 
+         CASE 
+            WHEN sum(a.dataval) is NUll THEN -99999 
+            ELSE max(a.dataval)
+         END as dataval_max
+      from huc_va_single as huc 
+      left outer join cbp53_dd as cbp 
+      on (
+         huc.the_geom && cbp.the_geom 
+         and contains(huc.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+         and (
+            (cbp.riverseg not like '%0000%')
+            OR
+            ( 1 = 0 )
+         )
+         and (
+            (cbp.riverseg  not like '%excludepat%%')
+            OR
+            ( '' = '' )
+         )
+         -- eliminate 2 power plants that need screening
+         and (cbp.riverseg not IN ('') )
+      )
+      left outer join om_model_results as a 
+      on ( a.custom2 = cbp.riverseg 
+         and a.runid =  %runid1%
+         and a.dataname = '%dataname1%'
+         and a.custom1 in ('cova_ws_subnodal', 'cova_ws_container')
+         and (
+            (a.custom2 not like '%0000%')
+            OR 
+            ( %nontidal% = 0 )
+         )
+         and (
+            (a.custom2  not like '%excludepat%%')
+            OR 
+            ( '%excludepat%' = '' )
+         )
+      )
+      group by huc.gid, huc.the_geom, 
+         a.runid, a.dataname
+   ) AS foo USING UNIQUE gid"
+   TEMPLATE webmap.html
+   #LABELITEM "dataval"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      EXPRESSION ( [dataval_max] >= 0.0 and [dataval_max] < 25.0 )
+      NAME "0 to 10.0"
+      COLOR 223 230 250
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval_max] > 25.0 and [dataval_max] < 50.0 )
+      NAME "25.0 to 50.0"
+      COLOR 191 205 245	
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval_max] > 50.0 and [dataval_max] < 100.0 )
+      NAME "50.0 to 100.0"
+      COLOR 160 180 240	
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval_max] > 150.0 and [dataval_max] < 200.0 )
+      NAME "250.0 to 200.0"
+      COLOR 128 155 235
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval_max] > 200.0 )
+      NAME "Greater than 200.0"
+      COLOR 65 105 225
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Undefined"
+      BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 67 66 81
+        SIZE 10
+        width 3
+        ANGLE 45
+        OPACITY 100
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME system_info_huc_abs100
+   METADATA
+      "wfs_title"    "Model Run Status Info 100 scale" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   # Query ties a control point to its parent
+   DATA "the_geom FROM (
+      select huc.gid, huc.the_geom, sum(a.current_mgd) as current_mgd, 
+         sum(proj_use_mgd) as proj_use_mgd, sum(a.proj_nc_power_mgd) as proj_nc_power_mgd 
+      from huc_va_single as huc 
+      left outer join cbp53_dd as cbp 
+      on (
+         huc.the_geom && cbp.the_geom 
+         and contains(huc.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+         and (
+            (cbp.riverseg not like '%0000%')
+            OR
+            ( %nontidal% = 0 )
+         )
+         and (
+            (cbp.riverseg  not like '%excludepat%%')
+            OR
+            ( '' = '' )
+         )
+         -- eliminate 2 power plants that need screening
+         and (cbp.riverseg not IN ('') )
+      )
+      left outer join wsp_sysloc_cache as a 
+      on ( 
+         cbp.the_geom && a.the_geom 
+         and contains(cbp.the_geom, a.the_geom ) 
+      )
+      group by huc.gid, huc.the_geom
+   ) AS foo USING UNIQUE gid"
+   TEMPLATE webmap.html
+   #LABELITEM "dataval"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      EXPRESSION ( [proj_nc_power_mgd] >= 0.0 and [proj_nc_power_mgd] < 25.0 )
+      NAME "0 to 25.0"
+      COLOR 223 230 250
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [proj_nc_power_mgd] > 25.0 and [proj_nc_power_mgd] < 50.0 )
+      NAME "25.0 to 50.0"
+      COLOR 191 205 245	
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [proj_nc_power_mgd] > 50.0 and [proj_nc_power_mgd] < 100.0 )
+      NAME "50.0 to 100.0"
+      COLOR 160 180 240	
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [proj_nc_power_mgd] > 100.0 and [proj_nc_power_mgd] < 200.0 )
+      NAME "100.0 to 200.0"
+      COLOR 128 155 235
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [proj_nc_power_mgd] > 200.0 )
+      NAME "Greater than 200.0"
+      COLOR 65 105 225
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Undefined"
+      BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 67 66 81
+        SIZE 10
+        width 3
+        ANGLE 45
+        OPACITY 100
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME model_wsp_matrix
+   METADATA
+      "wfs_title"    "Matrix of Critical Indicators" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_delta_pct_type" "double"
+	   "gml_dataval_run1_type" "double"
+	   "gml_dataval_run2_type" "double"
+	   "gml_run1_id_type" "integer"
+	   "gml_run2_id_type" "integer"
+	   "gml_delta_pct_type" "double"
+      "wfs_enable_request_type" "*"
+	   "wfs_version" "1.0.0"
+   END
+   VALIDATION
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS DEFAULT
+   DUMP TRUE
+   DEBUG ON
+   DATA "the_geom FROM (
+      select a.entity_id, cbp.the_geom, cbp.riverseg, 
+         a.run1_id, a.run2_id, 
+			a.d_7q10, a.d_alf, a.d_sep_dor, a.pct_sep10flow,
+			a.flag_7q10, a.flag_alf, a.flag_dor, a.flag_wdw, 
+			--CASE 
+			--   WHEN (a.flag_7q10 + a.flag_alf + a.flag_dor + a.flag_wdw) IS NULL THEN -99999
+			--   ELSE (a.flag_7q10 + a.flag_alf + a.flag_dor + a.flag_wdw) 
+			--END as flag_count 
+			(a.flag_7q10 + a.flag_alf + a.flag_dor + a.flag_wdw) as flag_count 
+      from cache_geofield_coverage_wkt as geo
+      left outer join cbp53_dd as cbp 
+      on (
+         geo.the_geom && cbp.the_geom 
+         and contains(geo.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+      )
+      left outer join view_model_wsp_matrix as a 
+      on ( a.riverseg = cbp.riverseg 
+         and a.run1_id = %runid1%
+         and a.run2_id = %runid2%
+         and a.riverseg is not null 
+         and (
+            (a.riverseg  not like '%0000%')
+            OR 
+            ( %nontidal% = 0 )
+         )
+         and (
+            (a.riverseg  not like '%excludepat%%')
+            OR 
+            ( '%excludepat%' = '' )
+         )
+      )
+      --where geo.entity_id = 245894
+      where geo.entity_id = %nid%
+      order by cbp.riverseg 
+   ) AS foo USING UNIQUE entity_id"
+   TEMPLATE webmap.html
+   #LABELITEM "riverseg"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "4 Critical Indicators"
+      EXPRESSION ( [flag_count] >= 4 )
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "circlefill"
+        COLOR 205 102 102
+        OUTLINECOLOR 205 102 102
+        SIZE 5
+        GAP 15
+      END # STYLE
+   END
+   CLASS
+      NAME "3 Critical Indicators"
+      EXPRESSION ( [flag_count] = 3 )
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "circlefill"
+        COLOR 221 153 102
+        OUTLINECOLOR 221 153 102
+        SIZE 5
+        GAP 15
+      END # STYLE
+   END 
+   CLASS
+      NAME "2 Critical Indicators"
+      EXPRESSION ( [flag_count] = 2 )
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "circlefill"
+        COLOR 238 204 102
+        OUTLINECOLOR 238 204 102
+        SIZE 5
+        GAP 15
+      END # STYLE
+   END
+   CLASS
+      NAME "1 Critical Indicators"
+      EXPRESSION ( [flag_count] = 1 )
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "circlefill"
+        COLOR 255 255 102
+        OUTLINECOLOR 255 255 102
+        SIZE 5
+        GAP 15
+      END # STYLE
+   END
+   CLASS
+      NAME "0 Critical Indicators"
+      EXPRESSION ('[flag_count]' = '0' )
+      #COLOR 171 205 102
+      #COLOR 220 220 220
+      #BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "circlefill"
+        COLOR 220 220 220
+        OUTLINECOLOR 220 220 220
+        SIZE 5
+        GAP 15
+      END # STYLE
+   END
+   CLASS
+      NAME "Undefined"
+      BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-dashed"
+        COLOR 67 66 81
+        SIZE 10
+        WIDTH 1
+        ANGLE 45
+        OPACITY 100
+        PATTERN 10 5 5 10 END
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME model_huc_delta_distro_20pct
+   METADATA
+      "wfs_title"    "Model Run Comparison Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_delta_pct_type" "double"
+	   "gml_dataval_run1_type" "double"
+	   "gml_dataval_run2_type" "double"
+	   "gml_run1_id_type" "integer"
+	   "gml_run2_id_type" "integer"
+	   "gml_delta_pct_type" "double"
+      "wfs_enable_request_type" "*"
+	   "wfs_version" "1.0.0"
+   END
+   VALIDATION
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (
+      select huc.gid, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.5)
+         END as median_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE max(a.delta_pct)
+         END as max_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE min(a.delta_pct)
+         END as min_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.1)
+         END as pct10_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.25)
+         END as pct25_delta
+      from huc_va_single as huc 
+      left outer join cbp53_dd as cbp 
+      on (
+         huc.the_geom && cbp.the_geom 
+         and contains(huc.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+         and (
+            (cbp.riverseg not like '%0000%')
+            OR
+            ( 1 = 0 )
+         )
+         and (
+            (cbp.riverseg  not like '%excludepat%%')
+            OR
+            ( '' = '' )
+         )
+      )
+      left outer join cache_om_model_run_compare as a 
+      on ( a.riverseg = cbp.riverseg 
+         and a.run1_id = %runid1%
+         and a.dataname = '%dataname1%'
+         and a.run2_id = %runid2%
+         and a.riverseg is not null 
+         and (
+            (a.riverseg not like '%0000%')
+            OR 
+            ( %nontidal% = 0 )
+         )
+         and (
+            (a.riverseg  not like '%excludepat%%')
+            OR 
+            ( '%excludepat%' = '' )
+         )
+      )
+      group by huc.gid, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id 
+   ) AS foo USING UNIQUE gid"
+   TEMPLATE webmap.html
+   #LABELITEM "riverseg"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "More than -20%"
+      EXPRESSION ( ([median_delta] < -0.2) and ([median_delta] > -99999 ) )
+      COLOR 205 102 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "-20% to -10%"
+      EXPRESSION ( [median_delta] >= -0.2 and [median_delta] < -0.1 )
+      COLOR 221 153 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END 
+   CLASS
+      NAME "-10% to -5%"
+      EXPRESSION ( [median_delta] >= -0.10 and [median_delta] < -0.05 )
+      COLOR 238 204 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "-5% to -1%"
+      EXPRESSION ( [median_delta] >= -0.05 and [median_delta] < -0.01 )
+      COLOR 255 255 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME " +/- 1%"
+      EXPRESSION ( [median_delta] >= -0.01 and [median_delta] < 0.01 )
+      COLOR 220 220 220
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "From 1% to +10%"
+      EXPRESSION ( [median_delta] >= 0.01 and [median_delta] < 0.1 )
+      COLOR 171 205 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Greater than +10%"
+      EXPRESSION ( [median_delta] >= 0.1 )
+      COLOR 46 139 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Undefined"
+      BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 67 66 81
+        SIZE 10
+        WIDTH 3
+        ANGLE 45
+        OPACITY 100
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME model_huc_delta_distro_20pct_dev
+   METADATA
+      "wfs_title"    "Model Run Comparison Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_delta_pct_type" "double"
+	   "gml_dataval_run1_type" "double"
+	   "gml_dataval_run2_type" "double"
+	   "gml_run1_id_type" "integer"
+	   "gml_run2_id_type" "integer"
+	   "gml_delta_pct_type" "double"
+      "wfs_enable_request_type" "*"
+	   "wfs_version" "1.0.0"
+   END
+   VALIDATION
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (
+      select huc.gid, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.5)
+         END as median_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE max(a.delta_pct)
+         END as max_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE min(a.delta_pct)
+         END as min_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.1)
+         END as pct10_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.25)
+         END as pct25_delta
+      from huc_va_single as huc 
+      left outer join cbp53_dd as cbp 
+      on (
+         huc.the_geom && cbp.the_geom 
+         and contains(huc.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+         and (
+            (cbp.riverseg not like '%0000%')
+            OR
+            ( 1 = 0 )
+         )
+         and (
+            (cbp.riverseg  not like '%excludepat%%')
+            OR
+            ( '' = '' )
+         )
+      )
+      left outer join cache_om_model_run_compare as a 
+      on ( a.riverseg = cbp.riverseg 
+         and a.run1_id = %runid1%
+         and a.dataname = '%dataname1%'
+         and a.run2_id = %runid2%
+         and a.riverseg is not null 
+         and (
+            (a.riverseg not like '%0000%')
+            OR 
+            ( %nontidal% = 0 )
+         )
+         and (
+            (a.riverseg  not like '%excludepat%%')
+            OR 
+            ( '%excludepat%' = '' )
+         )
+      )
+      group by huc.gid, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id 
+   ) AS foo USING UNIQUE gid"
+   TEMPLATE webmap.html
+   #LABELITEM "riverseg"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "More than -20%"
+      EXPRESSION ( ([median_delta] < -0.2) and ([median_delta] > -99999 ) )
+      COLOR 205 102 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "-20% to -10%"
+      EXPRESSION ( [median_delta] >= -0.2 and [median_delta] < -0.1 )
+      COLOR 221 153 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END 
+   CLASS
+      NAME "-10% to -5%"
+      EXPRESSION ( [median_delta] >= -0.10 and [median_delta] < -0.05 )
+      COLOR 238 204 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "-5% to -1%"
+      EXPRESSION ( [median_delta] >= -0.05 and [median_delta] < -0.01 )
+      COLOR 255 255 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME " +/- 1%"
+      EXPRESSION ( [median_delta] >= -0.01 and [median_delta] < 0.01 )
+      COLOR 220 220 220
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "From 1% to +10%"
+      EXPRESSION ( [median_delta] >= 0.01 and [median_delta] < 0.1 )
+      COLOR 171 205 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Greater than +10%"
+      EXPRESSION ( [median_delta] >= 0.1 )
+      COLOR 46 139 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Undefined"
+      BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 67 66 81
+        SIZE 10
+        WIDTH 3
+        ANGLE 45
+        OPACITY 100
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+   NAME model_huc_10th_percentile_delta
+   METADATA
+      "wfs_title"    "Model Run Comparison Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_delta_pct_type" "double"
+	   "gml_dataval_run1_type" "double"
+	   "gml_dataval_run2_type" "double"
+	   "gml_run1_id_type" "integer"
+	   "gml_run2_id_type" "integer"
+	   "gml_delta_pct_type" "double"
+      "wfs_enable_request_type" "*"
+	   "wfs_version" "1.0.0"
+   END
+   VALIDATION
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (
+      select huc.gid, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.5)
+         END as median_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE max(a.delta_pct)
+         END as max_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE min(a.delta_pct)
+         END as min_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.1)
+         END as pct10_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.25)
+         END as pct25_delta
+      from huc_va_single as huc 
+      left outer join cbp53_dd as cbp 
+      on (
+         huc.the_geom && cbp.the_geom 
+         and contains(huc.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+         and (
+            (cbp.riverseg not like '%0000%')
+            OR
+            ( 1 = 0 )
+         )
+         and (
+            (cbp.riverseg  not like '%excludepat%%')
+            OR
+            ( '' = '' )
+         )
+      )
+      left outer join cache_om_model_run_compare as a 
+      on ( a.riverseg = cbp.riverseg 
+         and a.run1_id = %runid1%
+         and a.dataname = '%dataname1%'
+         and a.run2_id = %runid2%
+         and a.riverseg is not null 
+         and (
+            (a.riverseg not like '%0000%')
+            OR 
+            ( %nontidal% = 0 )
+         )
+         and (
+            (a.riverseg  not like '%excludepat%%')
+            OR 
+            ( '%excludepat%' = '' )
+         )
+      )
+      group by huc.gid, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id 
+   ) AS foo USING UNIQUE gid"
+   TEMPLATE webmap.html
+   #LABELITEM "riverseg"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "More than -20%"
+      EXPRESSION ( ([pct10_delta] < -0.2) and ([pct10_delta] > -99999 ) )
+      COLOR 205 102 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "-20% to -10%"
+      EXPRESSION ( [pct10_delta] >= -0.2 and [pct10_delta] < -0.1 )
+      COLOR 221 153 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END 
+   CLASS
+      NAME "-10% to -5%"
+      EXPRESSION ( [pct10_delta] >= -0.10 and [pct10_delta] < -0.05 )
+      COLOR 238 204 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "-5% to -1%"
+      EXPRESSION ( [pct10_delta] >= -0.05 and [pct10_delta] < -0.01 )
+      COLOR 255 255 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME " +/- 1%"
+      EXPRESSION ( [pct10_delta] >= -0.01 and [pct10_delta] < 0.01 )
+      COLOR 220 220 220
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "From 1% to +10%"
+      EXPRESSION ( [pct10_delta] >= 0.01 and [pct10_delta] < 0.1 )
+      COLOR 171 205 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Greater than +10%"
+      EXPRESSION ( [pct10_delta] >= 0.1 )
+      COLOR 46 139 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Undefined"
+      BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 67 66 81
+        SIZE 10
+        WIDTH 3
+        ANGLE 45
+        OPACITY 100
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME model_huc_distro_30pct
+   METADATA
+      "wfs_title"    "Model Run Comparison Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_delta_pct_type" "double"
+	   "gml_dataval_run1_type" "double"
+	   "gml_dataval_run2_type" "double"
+	   "gml_run1_id_type" "integer"
+	   "gml_run2_id_type" "integer"
+	   "gml_delta_pct_type" "double"
+	   "gml_median_delta_type" "double"
+      "wfs_enable_request_type" "*"
+	   "wfs_version" "1.0.0"
+   END
+   VALIDATION
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (
+      select huc.gid, huc.huc, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.5)
+         END as median_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE max(a.delta_pct)
+         END as max_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE min(a.delta_pct)
+         END as min_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.1)
+         END as pct10_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.25)
+         END as pct25_delta
+      from huc_va_single as huc 
+      left outer join cbp53_dd as cbp 
+      on (
+         huc.the_geom && cbp.the_geom 
+         and contains(huc.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+         and (
+            (cbp.riverseg not like '%0000%')
+            OR
+            ( 1 = 0 )
+         )
+         and (
+            (cbp.riverseg  not like '%excludepat%%')
+            OR
+            ( '' = '' )
+         )
+      )
+      left outer join cache_om_model_run_compare as a 
+      on ( a.riverseg = cbp.riverseg 
+         and a.run1_id = %runid1%
+         and a.dataname = '%dataname1%'
+         and a.run2_id = %runid2%
+         and a.riverseg is not null 
+         and (
+            (a.riverseg not like '%0000%')
+            OR 
+            ( %nontidal% = 0 )
+         )
+         and (
+            (a.riverseg  not like '%excludepat%%')
+            OR 
+            ( '%excludepat%' = '' )
+         )
+      )
+      group by huc.gid, huc.huc, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id 
+   ) AS foo USING UNIQUE gid"
+   TEMPLATE webmap.html
+   #LABELITEM "riverseg"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME " < 5%"
+      EXPRESSION ( [median_delta] >= 0 and [median_delta] <= 0.05 )
+      COLOR 220 220 220
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "5% to 10%"
+      EXPRESSION ( [median_delta] >= 0.05 and [median_delta] < 0.1 )
+      COLOR 255 255 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "10% to 20%"
+      EXPRESSION ( [median_delta] >= 0.1 and [median_delta] < 0.2 )
+      COLOR 238 204 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "20% to 30%"
+      EXPRESSION ( [median_delta] >= 0.2 and [median_delta] < 0.3 )
+      COLOR 221 153 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END 
+   CLASS
+      NAME "More than 30%"
+      EXPRESSION ( [median_delta] >= 0.3 )
+      COLOR 205 102 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Undefined"
+      BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 67 66 81
+        SIZE 10
+        WIDTH 3
+        ANGLE 45
+        OPACITY 100
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME model_huc_distro_90th_30pct
+   METADATA
+      "wfs_title"    "Model Run Comparison Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_delta_pct_type" "double"
+	   "gml_dataval_run1_type" "double"
+	   "gml_dataval_run2_type" "double"
+	   "gml_run1_id_type" "integer"
+	   "gml_run2_id_type" "integer"
+	   "gml_delta_pct_type" "double"
+      "wfs_enable_request_type" "*"
+	   "wfs_version" "1.0.0"
+   END
+   VALIDATION
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM ( 
+      select huc.gid, huc.huc, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.5)
+         END as median_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE max(a.delta_pct)
+         END as max_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE min(a.delta_pct)
+         END as min_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.9)
+         END as pct90_delta, 
+         CASE 
+            WHEN avg(a.delta_pct) is NUll THEN -99999 
+            ELSE r_quantile(array_accum(a.delta_pct), 0.25)
+         END as pct25_delta
+      from huc_va_single as huc 
+      left outer join cbp53_dd as cbp 
+      on (
+         huc.the_geom && cbp.the_geom 
+         and contains(huc.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+         and (
+            (cbp.riverseg not like '%0000%')
+            OR
+            ( 1 = 0 )
+         )
+         and (
+            (cbp.riverseg  not like '%excludepat%%')
+            OR
+            ( '' = '' )
+         )
+      )
+      left outer join cache_om_model_run_compare as a 
+      on ( a.riverseg = cbp.riverseg 
+         and a.run1_id = %runid1%
+         and a.dataname = '%dataname1%'
+         and a.run2_id = %runid2%
+         and a.riverseg is not null 
+         and (
+            (a.riverseg not like '%0000%')
+            OR 
+            ( %nontidal% = 0 )
+         )
+         and (
+            (a.riverseg  not like '%excludepat%%')
+            OR 
+            ( '%excludepat%' = '' )
+         )
+      )
+      group by huc.gid, huc.huc, huc.the_geom, 
+         a.run1_id, a.dataname, a.run2_id 
+   ) AS foo USING UNIQUE gid"
+   TEMPLATE webmap.html
+   #LABELITEM "riverseg"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME " < 5%"
+      EXPRESSION ( [pct90_delta] >= 0 and [pct90_delta] <= 0.05 )
+      COLOR 220 220 220
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "5% to 10%"
+      EXPRESSION ( [pct90_delta] >= 0.05 and [pct90_delta] < 0.1 )
+      COLOR 255 255 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "10% to 20%"
+      EXPRESSION ( [pct90_delta] >= 0.1 and [pct90_delta] < 0.2 )
+      COLOR 238 204 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "20% to 30%"
+      EXPRESSION ( [pct90_delta] >= 0.2 and [pct90_delta] < 0.3 )
+      COLOR 221 153 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END 
+   CLASS
+      NAME "More than 30%"
+      EXPRESSION ( [pct90_delta] > 0.3 )
+      COLOR 205 102 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Undefined"
+      BACKGROUNDCOLOR 255 255 255
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 67 66 81
+        SIZE 10
+        WIDTH 3
+        ANGLE 45
+        OPACITY 100
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME major_basins_va_only
+   METADATA
+      "wfs_title"    "Spatial Coverage" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+	   "gml_nid_type" "integer"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   #OPACITY 0
+   DEBUG OFF
+   DATA "the_geom FROM 
+   ( select cbp.* from cache_geofield_coverage_wkt as geo
+      left outer join va_basins_va_only as cbp 
+      on (
+         geo.the_geom && cbp.the_geom 
+         and contains(geo.the_geom, ST_PointOnSurface(cbp.the_geom) ) 
+      )
+     where 
+	    ( 
+	       (%nid% = -1)
+		  OR 
+		    ( geo.entity_id = %nid% )
+		)
+   ) as foo USING UNIQUE gid"
+   #FILTER "runid = 22"
+   TEMPLATE webmap.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   #LABELITEM "title"
+   CLASS
+      NAME "Watershed"
+      #COLOR -1 -1 -1
+      #COLOR 220 220 220
+      #BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      STYLE
+         OUTLINECOLOR 0 0 0
+         WIDTH 4
+      END
+      LABEL
+        COLOR 0 0 0
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 10
+        ANTIALIAS TRUE
+        POSITION LC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME major_basins_va_only_opaque
+   METADATA
+      "wfs_title"    "Spatial Coverage" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+	   "gml_nid_type" "integer"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   #OPACITY 0
+   DEBUG OFF
+   DATA "the_geom FROM 
+   ( select * from va_basins_va_only 
+   ) as foo USING UNIQUE gid"
+   #FILTER "runid = 22"
+   TEMPLATE webmap.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   #LABELITEM "title"
+   CLASS
+      COLOR 220 220 220
+      OUTLINECOLOR 0 0 0
+      STYLE
+         OUTLINECOLOR 0 0 0
+         WIDTH 4
+      END
+      LABEL
+        COLOR 0 0 0
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 10
+        ANTIALIAS TRUE
+        POSITION LC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME coverage_system_scaled_absolute
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select sys.system_nid, sys.the_geom,
+      CASE 
+         WHEN sys.proj_use_mgd is NULL THEN 0.0 
+         ELSE sys.proj_use_mgd
+      END as proj_use_mgd 
+      from wsp_sysloc_cache as sys
+      ) AS foo USING UNIQUE system_nid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "Less than 1.0 MGD"
+      EXPRESSION ( [proj_use_mgd] < 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 245 245 245
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "1 - 5 MGD"
+      EXPRESSION ( [proj_use_mgd] >= 1.0 and [proj_use_mgd] < 5.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 6
+         COLOR 245 245 245
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "5 - 15 MGD"
+      EXPRESSION ( [proj_use_mgd] >= 5.0 and [proj_use_mgd] < 15.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 12
+         COLOR 245 245 245
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "15 - 30 MGD"
+      EXPRESSION ( [proj_use_mgd] >= 15.0 and [proj_use_mgd] < 30.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 16
+         COLOR 245 245 245
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "> 30 MGD"
+      EXPRESSION ( [proj_use_mgd] >= 30.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 20
+         COLOR 245 245 245
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME wsp_system_ps
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select sys.fid, sys.the_geom,
+      CASE 
+         WHEN sys.design_flow_mgd is NULL THEN 0.0 
+         ELSE sys.design_flow_mgd
+      END as new_ps_mgd 
+      from cache_geofield_coverage_wkt as a  
+      left outer join vpdes_one_location as sys 
+      on (
+         a.the_geom && sys.the_geom 
+         and contains(a.the_geom, sys.the_geom ) 
+      )
+      where 
+			(
+				(a.entity_id = '%nid%' )
+				or ( '%nid%' = '-1')
+			)
+      ) AS foo USING UNIQUE fid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      #NAME "0.0 to 1.0 MGD"
+      EXPRESSION ( [new_ps_mgd] < 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      #NAME "1 - 3 MGD"
+      EXPRESSION ( [new_ps_mgd] >= 1.0 and [new_ps_mgd] < 3.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 5
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      #NAME "3 - 10 MGD"
+      EXPRESSION ( [new_ps_mgd] >= 3.0 and [new_ps_mgd] < 10.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 8
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      #NAME "10 - 20 MGD"
+      EXPRESSION ( [new_ps_mgd] >= 10.0 and [new_ps_mgd] < 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 12
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      #NAME "> 20 MGD"
+      EXPRESSION ( [new_ps_mgd] >= 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 15
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+   NAME npdes_system_ps
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select sys.gid, sys.the_geom,
+      CASE 
+         WHEN sys.design_flo is NULL THEN 0.0 
+         ELSE sys.design_flo
+      END as new_ps_mgd 
+      from cache_geofield_coverage_wkt as a  
+      left outer join tmp_icprb_pointsources as sys 
+      on (
+         a.the_geom && sys.the_geom 
+         and contains(a.the_geom, sys.the_geom ) 
+      )
+      where 
+			(
+				(a.entity_id = '%nid%' )
+				or ( '%nid%' = '-1')
+			)
+      ) AS foo USING UNIQUE gid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      #NAME "0.0 to 1.0 MGD"
+      EXPRESSION ( [new_ps_mgd] < 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      #NAME "1 - 3 MGD"
+      EXPRESSION ( [new_ps_mgd] >= 1.0 and [new_ps_mgd] < 3.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 5
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      #NAME "3 - 10 MGD"
+      EXPRESSION ( [new_ps_mgd] >= 3.0 and [new_ps_mgd] < 10.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 8
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      #NAME "10 - 20 MGD"
+      EXPRESSION ( [new_ps_mgd] >= 10.0 and [new_ps_mgd] < 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 12
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      #NAME "> 20 MGD"
+      EXPRESSION ( [new_ps_mgd] >= 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 15
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+   NAME wsp_system_new_water
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select sys.system_nid, sys.the_geom,
+      CASE 
+         WHEN sys.proj_use_mgd is NULL THEN 0.0 
+         ELSE sys.proj_use_mgd
+      END as proj_use_mgd ,
+      CASE 
+         WHEN (sys.proj_use_mgd is NULL) or (sys.current_mgd is null) THEN 0.0 
+         ELSE sys.proj_use_mgd - sys.current_mgd
+      END as new_use_mgd 
+      from cache_geofield_coverage_wkt as a  
+      left outer join wsp_sysloc_cache as sys 
+      on (
+         a.the_geom && sys.the_geom 
+         and contains(a.the_geom, sys.the_geom ) 
+      )
+      where 
+			(
+				(a.entity_id = '%nid%' )
+				or ( '%nid%' = '-1')
+			)
+      ) AS foo USING UNIQUE system_nid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "0.0 to 1.0 MGD"
+      EXPRESSION ( [new_use_mgd] < 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "1 - 3 MGD"
+      EXPRESSION ( [new_use_mgd] >= 1.0 and [new_use_mgd] < 3.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 6
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "3 - 10 MGD"
+      EXPRESSION ( [new_use_mgd] >= 3.0 and [new_use_mgd] < 10.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 12
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "10 - 20 MGD"
+      EXPRESSION ( [new_use_mgd] >= 10.0 and [new_use_mgd] < 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 16
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "> 20 MGD"
+      EXPRESSION ( [new_use_mgd] >= 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 20
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+#tmp_icprb_pointsources
+LAYER
+   NAME icprb_new_water
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select b.gid, b.the_geom, b.wd_pt, 
+      CASE 
+         WHEN (c.current_divr + c.current_diva) is NULL THEN 0.0 
+         ELSE (c.current_divr + c.current_diva)
+      END as current_use_mgd ,
+      CASE 
+         WHEN (c.divr2030 + c.diva2030) is NULL THEN 0.0 
+         ELSE (c.divr2030 + c.diva2030)
+      END as proj_use_mgd ,
+      CASE 
+         WHEN ((c.divr2030 + c.diva2030) is NOT NULL) AND ((c.current_divr + c.current_diva) is null) THEN (c.divr2030 + c.diva2030) 
+         WHEN ((c.divr2030 + c.diva2030) is NULL) AND ((c.current_divr + c.current_diva) is not null) THEN (c.current_divr + c.current_diva) 
+         WHEN ((c.divr2030 + c.diva2030) is NULL) AND ((c.current_divr + c.current_diva) is null) THEN 0.0 
+         ELSE ( (c.divr2030 + c.diva2030) - (c.current_divr + c.current_diva) )
+      END as new_use_mgd 
+      
+      from cache_geofield_coverage_wkt as a  
+      left outer join tmp_icprb_withdrawals b
+      on (
+         a.the_geom && b.the_geom 
+         and contains(a.the_geom, b.the_geom ) 
+         and wd_pt not in (
+            select a.wd_pt from tmp_icprb_withdrawals as a, va_counties as b 
+            where contains(setsrid(b.the_geom,4326),a.the_geom) group by a.wd_pt
+         ) 
+      )
+      left outer join icprb_wd_stats c
+      on ( b.wd_pt = c.wd_pt ) 
+      where 
+		(
+			(a.entity_id = '%nid%' )
+			or ( '%nid%' = '-1')
+		)
+      ) AS foo USING UNIQUE gid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      #NAME "0.0 to 1.0 MGD"
+      EXPRESSION ( [new_use_mgd] < 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+         INITIALGAP 2
+         PATTERN 36 14 END
+      END
+   END
+   CLASS
+      #NAME "1 - 3 MGD"
+      EXPRESSION ( [new_use_mgd] >= 1.0 and [new_use_mgd] < 3.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 6
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+         INITIALGAP 2
+         PATTERN 36 14 END
+      END
+   END
+   CLASS
+      #NAME "3 - 10 MGD"
+      EXPRESSION ( [new_use_mgd] >= 3.0 and [new_use_mgd] < 10.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 12
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+         INITIALGAP 2
+         PATTERN 36 14 END
+      END
+   END
+   CLASS
+      #NAME "10 - 20 MGD"
+      EXPRESSION ( [new_use_mgd] >= 10.0 and [new_use_mgd] < 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 16
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+         INITIALGAP 2
+         PATTERN 36 14 END
+      END
+   END
+   CLASS
+      #NAME "> 20 MGD"
+      EXPRESSION ( [new_use_mgd] >= 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 20
+         COLOR 209 179 27
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+         INITIALGAP 2
+         PATTERN 36 14 END
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME coverage_system_new_water
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select sys.system_nid, sys.the_geom,
+      CASE 
+         WHEN sys.proj_use_mgd is NULL THEN 0.0 
+         ELSE sys.proj_use_mgd
+      END as proj_use_mgd ,
+      CASE 
+         WHEN (sys.proj_use_mgd is NULL) or (sys.current_mgd is null) THEN 0.0 
+         ELSE sys.proj_use_mgd - sys.current_mgd
+      END as new_use_mgd 
+      from cache_geofield_coverage_wkt as geo
+      left outer join wsp_sysloc_cache as sys
+      on (
+         geo.the_geom && sys.the_geom 
+         and contains(geo.the_geom, sys.the_geom ) 
+      )
+      where geo.entity_id = %nid% 
+      ) AS foo USING UNIQUE system_nid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "0.0 to 1.0 MGD"
+      EXPRESSION ( [new_use_mgd] < 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "1 - 3 MGD"
+      EXPRESSION ( [new_use_mgd] >= 1.0 and [new_use_mgd] < 3.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 6
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "3 - 10 MGD"
+      EXPRESSION ( [new_use_mgd] >= 3.0 and [new_use_mgd] < 10.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 12
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "10 - 20 MGD"
+      EXPRESSION ( [new_use_mgd] >= 10.0 and [new_use_mgd] < 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 16
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "> 20 MGD"
+      EXPRESSION ( [new_use_mgd] >= 20.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 20
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME coverage_system_new_water_small
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select sys.system_nid, sys.the_geom,
+      CASE 
+         WHEN sys.proj_use_mgd is NULL THEN 0.0 
+         ELSE sys.proj_use_mgd
+      END as proj_use_mgd ,
+      CASE 
+         WHEN (sys.proj_use_mgd is NULL) or (sys.current_mgd is null) THEN 0.0 
+         ELSE sys.proj_use_mgd - sys.current_mgd
+      END as new_use_mgd 
+      from cache_geofield_coverage_wkt as geo
+      left outer join wsp_sysloc_cache as sys
+      on (
+         geo.the_geom && sys.the_geom 
+         and contains(geo.the_geom, sys.the_geom ) 
+      )
+      where geo.entity_id = %nid% 
+      ) AS foo USING UNIQUE system_nid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "0.0 to 0.25 MGD"
+      EXPRESSION ( [new_use_mgd] < 0.25 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "0.25 to 0.5 MGD"
+      EXPRESSION ( [new_use_mgd] >= 0.25 and [new_use_mgd] < 0.5 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 6
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "0.5 to 1.0 MGD"
+      EXPRESSION ( [new_use_mgd] >= 0.5 and [new_use_mgd] < 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 12
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "1 - 5 MGD"
+      EXPRESSION ( [new_use_mgd] >= 1.0 and [new_use_mgd] < 5.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 16
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "> 5 MGD"
+      EXPRESSION ( [new_use_mgd] >= 5.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 20
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME coverage_system_new_water_tiny
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select sys.system_nid, sys.the_geom,
+      CASE 
+         WHEN sys.proj_use_mgd is NULL THEN 0.0 
+         ELSE sys.proj_use_mgd
+      END as proj_use_mgd ,
+      CASE 
+         WHEN (sys.proj_use_mgd is NULL) or (sys.current_mgd is null) THEN 0.0 
+         ELSE sys.proj_use_mgd - sys.current_mgd
+      END as new_use_mgd 
+      from cache_geofield_coverage_wkt as geo
+      left outer join wsp_sysloc_cache as sys
+      on (
+         geo.the_geom && sys.the_geom 
+         and contains(geo.the_geom, sys.the_geom ) 
+      )
+      where geo.entity_id = %nid% 
+      ) AS foo USING UNIQUE system_nid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "0.0 to 0.1 MGD"
+      EXPRESSION ( [new_use_mgd] < 0.1 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 4
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "0.1 to 0.25 MGD"
+      EXPRESSION ( [new_use_mgd] >= 0.1 and [new_use_mgd] < 0.25 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 6
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "0.25 to 0.5 MGD"
+      EXPRESSION ( [new_use_mgd] >= 0.25 and [new_use_mgd] < 0.5 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 12
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "0.5 - 1 MGD"
+      EXPRESSION ( [new_use_mgd] >= 0.5 and [new_use_mgd] < 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 16
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   CLASS
+      NAME "> 1 MGD"
+      EXPRESSION ( [new_use_mgd] >= 1.0 )
+      STYLE
+         SYMBOL 'circle'
+         SIZE 20
+         COLOR 162 181 205
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+   NAME coverage_system_info
+   METADATA
+      "wfs_title"    "Water Supply Plan System Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	   "gml_current_mgy_type" "double"
+	   "gml_current_max_mgd_type" "double"
+	   "gml_proj_use_mgy_type" "double"
+	   "gml_proj_year_type" "integer"
+	   "gml_sw_num_src_type" "integer"
+	   "gml_sw_dc_max_mgd_type" "double"
+	   "gml_sw_dc_avg_mgd_type" "double"
+	   "gml_sw_perm_max_mgy_type" "double"
+	   "gml_sw_bg_mgd_type" "double"
+	   "gml_gw_num_src_type" "integer"
+	   "gml_gw_dc_max_mgd_type" "double"
+	   "gml_gw_dc_avg_mgd_type" "double"
+	   "gml_gw_perm_max_mgy_type" "double"
+	   "gml_gw_bg_mgd_type" "double"
+	   "gml_pw_num_src_type" "integer"
+	   "gml_pw_dc_max_mgd_type" "double"
+	   "gml_pw_dc_avg_mgd_type" "double"
+	   "gml_pw_perm_max_mgy_type" "double"
+	   "gml_pw_bg_mgd_type" "double"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   TYPE POINT
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   DATA "the_geom FROM (select geo.entity_id, sys.* 
+      from cache_geofield_coverage_wkt as geo
+      left outer join wsp_sysloc_cache as sys
+      on (
+         geo.the_geom && sys.the_geom 
+         and contains(geo.the_geom, sys.the_geom ) 
+      )
+      where geo.entity_id = %nid% 
+      ) AS foo USING UNIQUE system_nid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      SYMBOL 'circle'
+      SIZE 11
+      NAME "Water Users"
+      COLOR 245 245 245
+      BACKGROUNDCOLOR 245 245 245
+      OUTLINECOLOR 0 0 0
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+#LAYER
+#  NAME infolayer
+#  STATUS ON
+#  TYPE annotation
+#  TRANSFORM false
+#  FEATURE
+#    POINTS
+#      425 35 #this is the position of the text in image coordinates (pixels)
+#    END
+#    TEXT " Comparison of %dataname1% metrics for runs %runid1% and %runid2%    " #this is your displaying text
+#  END   
+#  CLASS
+#    #NAME thislabel
+#    EXPRESSION ( %dataname1% == 'auglowflow' )
+#    LABEL #defines the font, colors etc. of the text
+#      TEXT "      Comparison of August Low-Flow metrics      "
+#      FONT "arial"
+#      TYPE TRUETYPE
+#      SIZE 10
+#      BUFFER 1
+#      COLOR 0 0 0
+#      FORCE TRUE
+#    END
+#  END 
+#  CLASS
+#    #NAME thislabel
+#    EXPRESSION ( %dataname1% == '7q10' )
+#    LABEL #defines the font, colors etc. of the text
+#      TEXT "      Comparison of 7Q10 metrics      "
+#      FONT "arial"
+#      TYPE TRUETYPE
+#      SIZE 10
+#      BUFFER 1
+#      COLOR 0 0 0
+#      FORCE TRUE
+#    END
+#  END 
+#  CLASS
+#    LABEL #defines the font, colors etc. of the text
+#      TEXT "      Comparison of metrics      "
+#      FONT "arial"
+#      TYPE TRUETYPE
+#      SIZE 10
+#      BUFFER 1
+#      COLOR 0 0 0
+#      FORCE TRUE
+#    END
+#  END 
+#END
+#map definition end
+END

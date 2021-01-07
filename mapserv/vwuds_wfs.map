@@ -1,0 +1,78 @@
+MAP
+NAME WATERUSE
+SIZE 900 600
+STATUS ON
+#SYMBOLSET "./sym_wateruse.sym"
+# for map in dd
+EXTENT  -83.6754150390625 36.5407371520996 -75.2422637939453 39.4660148620605
+UNITS DD
+# for map in utm 83z18
+#UNITS METERS
+SHAPEPATH "data"
+FONTSET "./fonts.txt"
+PROJECTION
+  "init=epsg:4326"
+END
+DEBUG ON
+CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
+
+SYMBOL
+  NAME 'circle'
+  TYPE ELLIPSE
+  POINTS 1 1 END
+  FILLED TRUE
+END
+
+WEB
+   MAXSCALE 5000000
+   IMAGEPATH "/var/www/html/tmp/"
+   IMAGEURL "/tmp/"
+  METADATA
+    "wfs_title"            "Water Use Data - Commonwealth of Virginia"  ## REQUIRED
+    "wfs_onlineresource"   "http://deq2.bse.vt.edu/cgi-bin/wateruse_wfs?"  ## Recommended
+    "wfs_srs"               "EPSG:4326"  ## Recommended
+    "wfs_abstract"       "This text describes my WFS service." ## Recommended
+    "wfs_enable_request" "*"  # necessary
+    "ows_schemas_location" "http://ogc.dmsolutions.ca"  ## Optional
+  END
+END
+
+LAYER
+   NAME vwuds_max
+   METADATA
+      "wfs_title"    "Water Use Point Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "oid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+   END
+   GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=deq3.bse.vt.edu user=wsp_ro password=314159 dbname=vwuds"
+   TYPE POINT
+   STATUS DEFAULT
+   DUMP TRUE
+   DEBUG ON
+   #DATA "the_geom FROM (select * from precip_gridded_period where dataname = 'wy2date_nml') AS foo USING UNIQUE oid using 
+   DATA "the_geom FROM (select * from vwuds_max_action_cached where type = 'SW' and action = 'WL' and within(the_geom,setsrid((select extent(the_geom) from va_counties),4326)) LIMIT 50) AS foo USING UNIQUE oid"
+   #FILTER "leapyear <> true"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      SYMBOL 'circle'
+      SIZE 11
+      NAME "precip_nml"
+      COLOR 245 245 245
+      BACKGROUNDCOLOR 245 245 245
+      OUTLINECOLOR 0 0 0
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+#map definition end
+END

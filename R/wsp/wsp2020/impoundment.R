@@ -11,8 +11,8 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Camp Creek - 279187, South Anna - 207771
-elid = 207925
-runid = 15
+elid = 251331 
+runid = 12
 
 omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);

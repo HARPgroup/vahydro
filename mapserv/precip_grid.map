@@ -1,0 +1,205 @@
+MAP
+NAME imageMapFile     
+STATUS ON
+SIZE 600 360
+EXTENT -78.2871246337891 37.4636764526367 -76.759147644043 38.2742691040039
+UNITS DD
+SHAPEPATH "data"  
+IMAGECOLOR 255 255 255
+PROJECTION
+  "proj=latlong"
+END
+FONTSET fonts.txt
+DEBUG ON
+CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
+
+#OUTPUTFORMAT
+# NAME 'AGG'
+# DRIVER AGG/PNG
+# IMAGEMODE RGB
+#END
+
+SYMBOL
+  NAME "triangle"
+  TYPE vector
+  POINTS
+    0 4
+    2 0
+    4 4
+    0 4
+  END
+END
+
+SYMBOL
+  NAME "rectangle"
+  TYPE vector
+  POINTS    
+    0 0
+    0 3
+    3 3
+    3 0
+    0 0
+  END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME "foursquare"
+  TYPE vector
+  POINTS    
+    0 0
+    0 4
+    4 4
+    4 0
+    0 0
+   -4 0
+  END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME 'circle'
+  TYPE ELLIPSE
+  POINTS 1 1 END
+  FILLED TRUE
+END
+
+QUERYMAP
+ STATUS ON
+ STYLE NORMAL
+END
+
+WEB
+   IMAGEPATH "/var/www/html/drought/state/images/maps/"
+   IMAGEURL "/drought/state/images/maps/"
+   TEMPLATE "north_anna.html"
+   #TEMPLATE "/var/www/html/drought/state/imap.html"
+END   
+
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.13 user=postgres password=314159 dbname=model"
+   NAME poli_bounds
+   GROUP poli_bounds
+   TYPE POLYGON
+   STATUS ON
+   DEBUG ON
+   DATA "the_geom from poli_bounds"
+   FILTER " projectid = 3"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   LABELITEM "name"
+   CLASS
+      NAME "Political Boundaries"
+      SYMBOL 'circle'
+      SIZE 2
+      COLOR -1 -1 -1
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 222 222 222
+      LABEL
+        COLOR 222 222 222
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 300
+        MINFEATURESIZE 30
+        BUFFER 4
+      END # end of label
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "proj=latlong"
+   END
+   METADATA
+    "DESCRIPTION"   "Political Boundaries"
+    "RESULT_FIELDS" "name county state"
+   END
+END
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.13 user=postgres password=314159 dbname=noaa"
+   NAME precip_period
+   GROUP precip_period
+   TYPE POINT
+   STATUS OFF
+   DEBUG ON
+   #DATA "the_geom from precip_gridded_period"
+   #FILTER " dataname = 'wy2date' "
+   TEMPLATE blank.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   TRANSPARENCY 90
+   CLASS
+      NAME "1st Quartile: 0.0 <= P <= 19.63"
+      #EXPRESSION ( [globvalue] <= 19.63 )
+      SYMBOL 'circle'
+      SIZE 6
+      COLOR 176 23 31
+      BACKGROUNDCOLOR 176 23 31
+      OUTLINECOLOR 176 23 31
+      #COLOR 202 207 254
+      #BACKGROUNDCOLOR 202 207 254
+      #OUTLINECOLOR 202 207 254
+   END
+   CLASS
+      NAME "2nd Quartile: 19.63 < P <= 22.64"
+      #EXPRESSION ( [globvalue] > 19.63 and [globvalue] <= 22.64 )
+      SYMBOL 'circle'
+      SIZE 6
+      COLOR 227 168 105
+      BACKGROUNDCOLOR 227 168 105
+      OUTLINECOLOR 227 168 105
+      #COLOR 137 148 253
+      #BACKGROUNDCOLOR 137 148 253
+      #OUTLINECOLOR 137 148 253
+   END
+   CLASS
+      NAME "3rd Quartile: 22.64 < P <= 25.6"
+      #EXPRESSION ( [globvalue] > 22.64 and [globvalue] <= 25.6 )
+      SYMBOL 'circle'
+      SIZE 6
+      COLOR 154 255 154
+      BACKGROUNDCOLOR 154 255 154
+      OUTLINECOLOR 154 255 154
+      #COLOR 66 84 252
+      #BACKGROUNDCOLOR 66 84 252
+      #OUTLINECOLOR 66 84 252
+   END
+   CLASS
+      NAME "4th Quartile: P > 25.6"
+      #EXPRESSION ( [globvalue] > 25.6 )
+      SYMBOL 'circle'
+      SIZE 6
+      COLOR 0 100 0
+      BACKGROUNDCOLOR 0 100 0
+      OUTLINECOLOR 0 100 0
+      #COLOR 4 26 236
+      #BACKGROUNDCOLOR 4 26 236
+      #OUTLINECOLOR 4 26 236
+   END
+   CLASS
+      NAME "No Data"
+      SYMBOL 'circle'
+      SIZE 6
+      COLOR 96 160 248
+      BACKGROUNDCOLOR 96 160 248
+      OUTLINECOLOR 96 160 248
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "proj=latlong"
+   END
+  METADATA
+    "DESCRIPTION"   "Stat Results"
+  END
+END
+
+END # Map Definition End

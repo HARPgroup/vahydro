@@ -1,0 +1,804 @@
+MAP
+NAME WATERUSE
+SIZE 900 600
+STATUS ON
+#SYMBOLSET "./sym_wateruse.sym"
+# for map in dd
+EXTENT  -83.6754150390625 36.5407371520996 -75.2422637939453 39.4660148620605
+UNITS DD
+# for map in utm 83z18
+#UNITS METERS
+SHAPEPATH "data"
+FONTSET "./fonts.txt"
+PROJECTION
+  "init=epsg:4326"
+END
+DEBUG ON
+CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
+
+SYMBOL
+  NAME 'hatch-simple'
+  TYPE HATCH
+END
+
+SYMBOL
+  NAME 'circle'
+  TYPE ELLIPSE
+  POINTS 1 1 END
+  FILLED TRUE
+END
+
+LEGEND 
+   IMAGECOLOR 255 250 240
+   OUTLINECOLOR 0 0 0 
+   KEYSIZE 16 16
+   STATUS EMBED
+   #TRANSPARENT OFF
+   #TRANSPARENCY 50
+   LABEL
+     COLOR 0 0 0
+     #SHADOWCOLOR 218 218 218
+     #SHADOWSIZE 2 2
+     TYPE TRUETYPE
+     FONT arial
+     SIZE 7
+     ANTIALIAS TRUE
+   END # end of label
+   POSITION ul
+END
+
+WEB
+   MAXSCALE 5000000
+   IMAGEPATH "/var/www/html/tmp/"
+   IMAGEURL "/tmp/"
+  METADATA
+    "wfs_title"            "COVA-OSGWSP WFS Testing Service"  ## REQUIRED
+    "wfs_onlineresource"   "http://deq2.bse.vt.edu/cgi-bin/mapserv?map=/var/www/html/mapserv/wooomm_result.map&"  ## Recommended
+    "wfs_srs"               "EPSG:4326"  ## Recommended
+    "wfs_abstract"       "This text describes my WFS service." ## Recommended
+    "wfs_enable_request" "*"  # necessary
+    "ows_schemas_location" "http://ogc.dmsolutions.ca"  ## Optional
+  END
+   TEMPLATE webmap.html
+   VALIDATION
+      'runid'   '[0-9]+$'
+      'runid1'   '[0-9]+$'
+      'runid2'   '[0-9]+$'
+      'pscen'    '[0-9]+$'
+      'div1'     '[0-9\.\-]+$'
+      'div2'     '[0-9\.\-]+$'
+      'div3'     '[0-9\.\-]+$'
+      'div4'     '[0-9\.\-]+$'
+      'dataname'     '[0-9a-zA-Z\-]+$'
+      'dataname1'     '[0-9a-zA-Z\-]+$'
+      'dataname2'     '[0-9a-zA-Z\-]+$'
+      'default_runid' '21'
+      'default_runid1' '21'
+      'default_runid2' '22'
+      'default_pscen' '37'
+      'default_div1' '-0.15'
+      'default_div2' '-0.05'
+      'default_div3' '0.05'
+      'default_div4' '0.15'
+      'default_dataname1' 'auglowflow'
+      'default_dataname2' 'auglowflow'
+   END
+END
+
+LAYER
+   NAME model_element_info
+   METADATA
+      "wfs_title"    "Model Element Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   TYPE POLYGON
+   STATUS DEFAULT
+   DUMP TRUE
+   DEBUG OFF
+   DATA "poly_geom FROM (select a.poly_geom, a.elementid, a.elemname, a.custom1, a.custom2 from scen_model_element as a where a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %pscen% ) AS foo USING UNIQUE elementid"
+   #FILTER "runid = 22"
+   TEMPLATE webmap.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      #SYMBOL 'circle'
+      #SIZE 11
+      NAME "Watershed Bounds"
+      COLOR 245 245 245
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+   NAME model_run_info
+   METADATA
+      "wfs_title"    "Model Run Status Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   # Query ties a control point to its parent
+   DATA "poly_geom FROM (select a.poly_geom, b.elementid, a.scenarioid, a.elemname, a.custom1, a.custom2, b.runid, b.dataname, b.dataval, b.datatext from scen_model_element as a left outer join scen_model_run_data as b on ( a.elementid = b.elementid) where a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %pscen% and b.runid = %runid% and b.dataname = '%dataname%' ) AS foo USING UNIQUE elementid"
+   FILTER "scenarioid = %pscen% and runid = %runid% and dataname = '%dataname%' "
+   TEMPLATE webmap.html
+   LABELITEM "elemname"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME Class1
+      EXPRESSION ( [dataval] < %div1% )
+      NAME "Watershed Bounds"
+      #COLOR 245 245 245
+      COLOR 100 100 100
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME Class2
+      EXPRESSION ( [dataval] >= %div1% and [dataval] < %div2% )
+      NAME "Watershed Bounds"
+      #COLOR 245 245 245
+      COLOR 150 150 150
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME Class3
+      EXPRESSION ( [dataval] >= %div2% and [dataval] < %div3% )
+      NAME "Watershed Bounds"
+      COLOR 200 200 200
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME Class4
+      EXPRESSION ( [dataval] >= %div3% )
+      COLOR 245 245 245
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME Defclass
+      #COLOR 245 245 245
+      COLOR 162 181 205
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME model_point_scaled
+   METADATA
+      "wfs_title"    "Model Withdrawal Point Information" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "system_nid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+   END
+   #GROUP vwuds_max
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=model"
+   TYPE POINT
+   STATUS off
+   DUMP TRUE
+   DEBUG OFF
+   # Query ties a control point to its parent
+   DATA "point_geom FROM (
+     select a.point_geom, b.elementid, a.scenarioid, a.elemname, 
+       a.custom1, a.custom2, b.runid, b.dataname, b.dataval, b.datatext, 
+       (4 * ceil(sqrt((b.dataval)))) as curr_scale        
+     from scen_model_element as a left outer join scen_model_run_data as b 
+     on ( a.elementid = b.elementid) 
+     where a.custom1 in ('cova_withdrawal') 
+       and a.scenarioid = %pscen% 
+       and b.runid = %runid% 
+       and b.dataname = '%dataname%' 
+     ) AS foo USING UNIQUE elementid"
+   FILTER "scenarioid = %pscen% and runid = %runid% and dataname = '%dataname%' "
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      STYLE
+         SYMBOL 'circle'
+         SIZE [curr_scale]
+         COLOR 100 149 237
+         BACKGROUNDCOLOR 245 245 245
+         OUTLINECOLOR 0 0 0
+      END
+      NAME "Withdrawals"
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+   NAME model_run_info_abs100
+   METADATA
+      "wfs_title"    "Model Run Status Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   # Query ties a control point to its parent
+   DATA "poly_geom FROM (select a.poly_geom, b.elementid, a.scenarioid, a.elemname, a.custom1, a.custom2, b.runid, b.dataname,
+      CASE
+         WHEN b.dataval is null THEN -99999      
+         ELSE b.dataval 
+      END as dataval, 
+   b.datatext from scen_model_element as a left outer join scen_model_run_data as b on ( a.elementid = b.elementid) where a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %pscen% and b.runid = %runid% and b.dataname = '%dataname%' ) AS foo USING UNIQUE elementid"
+   FILTER "scenarioid = %pscen% and runid = %runid% and dataname = '%dataname%' "
+   TEMPLATE webmap.html
+   #LABELITEM "elemname"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      EXPRESSION ( [dataval] >= 0.0 and [dataval] < 5.0 )
+      NAME "0 to 10.0"
+      COLOR 223 223 226
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 5.0 and [dataval] < 10.0 )
+      NAME "10.0 to 25.0"
+      COLOR 192 192 197
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 10.0 and [dataval] < 25.0 )
+      NAME "25.0 to 50.0"
+      COLOR 161 160 168
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 25.0 and [dataval] < 50.0 )
+      NAME "50.0 to 100.0"
+      COLOR 129 129 139
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 50.0 and [dataval] < 100.0 )
+      NAME "100.0 to 200.0"
+      COLOR 98 97 110
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 100.0 )
+      NAME "Greater than 100.0"
+      COLOR 67 66 81
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Undefined"
+      COLOR 0 0 0
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 255 255 255
+        SIZE 10
+        WIDTH 6
+        ANGLE 45
+        OPACITY 10
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+   NAME model_run_info_abs200
+   METADATA
+      "wfs_title"    "Model Run Status Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+      "wfs_enable_request" "*"
+	  "wfs_version" "1.0.0"
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   # Query ties a control point to its parent
+   DATA "poly_geom FROM (select a.poly_geom, b.elementid, a.scenarioid, a.elemname, a.custom1, a.custom2, b.runid, b.dataname, b.dataval, b.datatext from scen_model_element as a left outer join scen_model_run_data as b on ( a.elementid = b.elementid) where a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') and a.scenarioid = %pscen% and b.runid = %runid% and b.dataname = '%dataname%' ) AS foo USING UNIQUE elementid"
+   FILTER "scenarioid = %pscen% and runid = %runid% and dataname = '%dataname%' "
+   TEMPLATE webmap.html
+   #LABELITEM "elemname"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      EXPRESSION ( [dataval] > 0.0 and [dataval] < 10.0 )
+      NAME "0 to 10.0"
+      COLOR 223 223 226
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 10.0 and [dataval] < 25.0 )
+      NAME "10.0 to 25.0"
+      COLOR 192 192 197
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 25.0 and [dataval] < 50.0 )
+      NAME "25.0 to 50.0"
+      COLOR 161 160 168
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 50.0 and [dataval] < 100.0 )
+      NAME "50.0 to 100.0"
+      COLOR 129 129 139
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 100.0 and [dataval] < 200.0 )
+      NAME "100.0 to 200.0"
+      COLOR 98 97 110
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [dataval] > 200.0 )
+      NAME "Greater than 200.0"
+      COLOR 67 66 81
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "0.0"
+      COLOR 255 255 255
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+
+LAYER
+   NAME model_run_compare
+   METADATA
+      "wfs_title"    "Model Run Comparison Info" ## REQUIRED
+      "wfs_srs"           "EPSG:4326" ## REQUIRED
+      "gml_featureid" "elementid" ## REQUIRED
+      "gml_include_items" "all"  ## Optional (serves all attributes for layer)
+	   "gml_delta_pct_type" "double"
+	   "gml_dataval_run1_type" "double"
+	   "gml_dataval_run2_type" "double"
+	   "gml_run1_id_type" "integer"
+	   "gml_run2_id_type" "integer"
+	   "gml_delta_pct_type" "double"
+      "wfs_enable_request_type" "*"
+	   "wfs_version" "1.0.0"
+   END
+   VALIDATION
+   END
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   TYPE POLYGON
+   STATUS OFF
+   DUMP TRUE
+   DEBUG OFF
+   # Query only uses parent
+   # Try to include HUC screening
+   # DATA "poly_geom FROM ( select a.poly_geom, a.elemname, a.elementid, foo.runid as run1_id, bar.runid as run2_id, foo.dataval as dataval_run1, bar.dataval as dataval_run2, CASE WHEN ( (foo.dataval is null) or (bar.dataval is null) ) THEN NULL WHEN foo.dataval > 0 THEN round(((bar.dataval - foo.dataval) / foo.dataval)::numeric,4) ELSE 0.0 END as delta_pct from scen_model_element as a left outer join scen_model_run_data as foo on (a.elementid = foo.elementid and foo.runid = %runid1% and foo.dataname = '%dataname1%' )  left outer join scen_model_run_data as bar on (a.elementid = bar.elementid and bar.runid = %runid2% and bar.dataname = '%dataname2%' ) left outer join huc_va as palooza on (a.the_geom && palooza.the_geom and contains(palooza.the_geom,  ST_PointOnSurface(a.poly_geom)) ) where a.scenarioid = %pscen% and ( (palooza.huc = '%huc%') OR ('%huc%' = '') ) ) AS foobar USING UNIQUE elementid"
+   #
+   DATA "poly_geom FROM ( select a.poly_geom, a.elemname, a.elementid, foo.dataname, foo.runid as run1_id, bar.runid as run2_id, foo.dataval as dataval_run1, bar.dataval as dataval_run2, CASE WHEN ( (foo.dataval is null) or (bar.dataval is null) ) THEN -99999 WHEN foo.dataval > 0 THEN round(((bar.dataval - foo.dataval) / foo.dataval)::numeric,4) ELSE 0.0 END as delta_pct from scen_model_element as a left outer join scen_model_run_data as foo on (a.elementid = foo.elementid and foo.runid = %runid1% and foo.dataname = '%dataname1%' )  left outer join scen_model_run_data as bar on (a.elementid = bar.elementid and bar.runid = %runid2% and bar.dataname = '%dataname2%' )  where a.scenarioid = %pscen% AND a.custom1 in ('cova_ws_subnodal', 'cova_ws_container') ) AS foobar USING UNIQUE elementid"
+   TEMPLATE webmap.html
+   LABELITEM "elemname"
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "More than -15%"
+      EXPRESSION ( ([delta_pct] < %div1%) and ([delta_pct] > -99999 ) )
+      COLOR 205 102 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "-15% to -5%"
+      EXPRESSION ( [delta_pct] >= %div1% and [delta_pct] < %div2% )
+      COLOR 255 211 127
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "-5% to +5%"
+      EXPRESSION ( [delta_pct] >= %div2% and [delta_pct] < %div3% )
+      COLOR 194 158 215
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "+5% to +15%"
+      EXPRESSION ( [delta_pct] >= %div3% and [delta_pct] < %div4% )
+      COLOR 102 153 205
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      NAME "Greater than +15%"
+      EXPRESSION ( [delta_pct] >= %div4% )
+      COLOR 171 205 102
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   CLASS
+      EXPRESSION ( [delta_pct] == -99999)
+      NAME "No Data"
+      COLOR 204 204 204
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+      STYLE
+        SYMBOL "hatch-simple"
+        COLOR 255 255 255
+        SIZE 10
+        WIDTH 6
+        ANGLE 45
+        OPACITY 10
+      END # STYLE
+      LABEL
+        COLOR 132 31 31
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 8000
+      END
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "init=epsg:4326"
+   END
+END
+
+LAYER
+  NAME infolayer
+  STATUS ON
+  TYPE annotation
+  TRANSFORM false
+  FEATURE
+    POINTS
+      425 35 #this is the position of the text in image coordinates (pixels)
+    END
+    TEXT " Comparison of %dataname1% metrics for runs %runid1% and %runid2%    " #this is your displaying text
+  END   
+  CLASS
+    #NAME thislabel
+    EXPRESSION ( %dataname1% == 'auglowflow' )
+    LABEL #defines the font, colors etc. of the text
+      TEXT "      Comparison of August Low-Flow metrics      "
+      FONT "arial"
+      TYPE TRUETYPE
+      SIZE 10
+      BUFFER 1
+      COLOR 0 0 0
+      FORCE TRUE
+    END
+  END 
+  CLASS
+    #NAME thislabel
+    EXPRESSION ( %dataname1% == '7q10' )
+    LABEL #defines the font, colors etc. of the text
+      TEXT "      Comparison of 7Q10 metrics      "
+      FONT "arial"
+      TYPE TRUETYPE
+      SIZE 10
+      BUFFER 1
+      COLOR 0 0 0
+      FORCE TRUE
+    END
+  END 
+  CLASS
+    LABEL #defines the font, colors etc. of the text
+      TEXT "      Comparison of metrics      "
+      FONT "arial"
+      TYPE TRUETYPE
+      SIZE 10
+      BUFFER 1
+      COLOR 0 0 0
+      FORCE TRUE
+    END
+  END 
+END
+#map definition end
+END
