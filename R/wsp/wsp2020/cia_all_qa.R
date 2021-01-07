@@ -65,10 +65,10 @@ pordf <- as.data.frame(pordat)
 
 
 df <- data.frame(
-  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
-  'runid' = c('runid_11', 'runid_12', 'runid_13'),
-  'runlabel' = c('wdc_2020', 'wdc_2030', 'wdc_2040'),
-  'metric' = c('wd_cumulative_mgd', 'wd_cumulative_mgd','wd_cumulative_mgd')
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_11', 'runid_12', 'runid_13', 'runid_11', 'runid_12', 'runid_13'),
+  'runlabel' = c('wdc_2020', 'wdc_2030', 'wdc_2040', 'l90_2020', 'l90_2030', 'l90_2040'),
+  'metric' = c('wd_cumulative_mgd', 'wd_cumulative_mgd','wd_cumulative_mgd', 'l90_Qout', 'l90_Qout', 'l90_Qout')
 )
 wshed_data <- om_vahydro_metric_grid(metric, df)
 
@@ -89,5 +89,17 @@ sqldf(
    where round(wdc_2030,2) <> round(((wdc_2020 + wdc_2040) / 2.0),2) 
    and riverseg not like '%0000%' 
    and not ((wdc_2020 < wdc_2030) and (wdc_2030 < wdc_2040)) 
+  "
+)
+
+sqldf(
+  "select pid, propname, 
+     round(wdc_2020,2) as r11, 
+     round(wdc_2030,2) as r12, 
+     round(wdc_2040,2) as r13,
+     l90_2020, l90_2030, l90_2040
+   from wshed_data 
+   where riverseg like 'OD%' 
+   and l90_2020 < l90_2030
   "
 )

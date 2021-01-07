@@ -1,12 +1,24 @@
 library(dplyr)
 library(sqldf)
 library(openxlsx)
+library("httr")
+library("stringr") #for str_remove()
 
+# Load Libraries
+basepath='/var/www/R';
+site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+source("/var/www/R/config.local.private"); 
+source(paste(basepath,'config.R',sep='/'))
+source(paste(hydro_tools_location,'/R/om_vahydro_metric_grid.R', sep = ''));
+#folder <- "C:/Workspace/tmp/"
 
 options(scipen=999) #Disable scientific notation
 options(digits = 9)
 
-wdata_original<- read.csv(file="C:/Users/hp/Google Drive/VDEQ/updated_exempt/withdrawaldata_updated.csv",header = T, sep = ",", 
+# Lals origina: 
+# wdata_file <- "C:/Users/hp/Google Drive/VDEQ/updated_exempt/withdrawaldata_updated.csv"
+wdata_file <- 'https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/wsp/wsp2020/FoundationDataset/ows-exemptions-export.csv'
+wdata_original<- read.csv(file=wdata_file,header = T, sep = ",", 
                  na.strings=c("","NA")) #Permiting Issuing Authority-All
 
 

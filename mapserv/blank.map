@@ -1,0 +1,125 @@
+MAP
+NAME imageMapFile     
+STATUS ON
+SIZE 600 360
+EXTENT -83.675413 36.540738 -75.242266 39.466012
+UNITS DD
+SHAPEPATH "data"  
+IMAGECOLOR 255 255 255
+PROJECTION
+  "proj=latlong"
+END
+FONTSET fonts.txt
+DEBUG ON
+CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
+
+#OUTPUTFORMAT
+# NAME 'AGG'
+# DRIVER AGG/PNG
+# IMAGEMODE RGB
+#END
+
+SYMBOL
+  NAME "triangle"
+  TYPE vector
+  POINTS
+    0 4
+    2 0
+    4 4
+    0 4
+  END
+END
+
+SYMBOL
+  NAME "rectangle"
+  TYPE vector
+  POINTS    
+    0 0
+    0 3
+    3 3
+    3 0
+    0 0
+  END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME "foursquare"
+  TYPE vector
+  POINTS    
+    0 0
+    0 4
+    4 4
+    4 0
+    0 0
+   -4 0
+  END
+  FILLED TRUE
+END
+
+SYMBOL
+  NAME 'circle'
+  TYPE ELLIPSE
+  POINTS 1 1 END
+  FILLED TRUE
+END
+
+QUERYMAP
+ STATUS ON
+ STYLE NORMAL
+END
+
+WEB
+   IMAGEPATH "/var/www/html/drought/state/images/maps/"
+   IMAGEURL "/drought/state/images/maps/"
+   TEMPLATE "webmap.html"
+   #TEMPLATE "/var/www/html/drought/state/imap.html"
+END   
+
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   NAME poli_bounds
+   GROUP poli_bounds
+   TYPE POLYGON
+   STATUS DEFAULT
+   DEBUG ON
+   DATA "the_geom from poli_bounds"
+   FILTER " projectid = 3"
+   TEMPLATE drought.html
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   LABELITEM "name"
+   CLASS
+      NAME "Political Boundaries"
+      SYMBOL 'circle'
+      SIZE 2
+      COLOR -1 -1 -1
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 222 222 222
+      LABEL
+        COLOR 222 222 222
+        TYPE TRUETYPE
+        FONT arial
+        SIZE 8
+        ANTIALIAS TRUE
+        POSITION CC
+        PARTIALS FALSE
+        MINDISTANCE 300
+        MINFEATURESIZE 30
+        BUFFER 4
+      END # end of label
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "proj=latlong"
+   END
+   METADATA
+    "DESCRIPTION"   "Political Boundaries"
+    "RESULT_FIELDS" "name county state"
+   END
+END
+
+END
