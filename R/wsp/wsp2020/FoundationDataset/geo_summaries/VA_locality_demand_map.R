@@ -386,7 +386,7 @@ if (nrow(group_div5_div6) >0) {
   
   geom6 <- geom_sf(data = group_div5_div6, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
   
-  color_values <- rbind(color_values,color_scale[5])
+  color_values <- rbind(color_values,color_scale[6])
   label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
   
 } else  {
@@ -406,7 +406,7 @@ if (nrow(group_div6) >0) {
   
   geom7 <- geom_sf(data = group_div6, fill = color_scale[7],color = c_border, inherit.aes = FALSE)
   
-  color_values <- rbind(color_values,color_scale[6])
+  color_values <- rbind(color_values,color_scale[7])
   label_values <- rbind(label_values,paste(" >= ",div6,sep=""))
   
 } else  {
@@ -486,13 +486,14 @@ export_file <- paste0(folder, "tables_maps/Xfigures/VA_2020_locality_demand_map.
 #DEMAND TABLE 
 va_demand <- read.csv(paste0(folder, "tables_maps/Xtables/VA_locality_demand.csv"))
 # #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
-div1 <- 0
-div2 <- 10
-div3 <- 50
-div4 <- 100
-div5 <- 500
-div6 <- 1000
+#div1 <- 0
+div1 <- 10
+div2 <- 50
+div3 <- 100
+div4 <- 500
+#div6 <- 1000
 
+color_scale <- c("#d98f50","#f7d679","#E4FFB9","darkolivegreen2","darkolivegreen")
 ### PROCESS FIPS GEOM LAYER  #####################################################################
 fips_data <- paste('SELECT *
                   FROM "fips_geom.csv" AS a
@@ -526,7 +527,7 @@ fips.df <- fortify(fips, region = 'id')
 fips_geom.df <- merge(fips.df, fips@data, by = 'id')
 
 #LEFT TOP LEGEND
-base_legend <- draw_image("U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/legend_locality_demand_2020.png",height = .35, x = -.38, y = .515) 
+base_legend <- draw_image("U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/legend_locality_demand_2020_5bins.png",height = .35, x = -.39, y = .517) 
 
 ### #VA LOCALITY 2020 DEMAND - BREAK INTO BINS ##########################################
 c_border <- 'gray30'
@@ -614,63 +615,63 @@ if (nrow(group_div3_div4) >0) {
   
 }
 # #-----------------------------------------------------------------------------------------------------
-group_div4_div5 <- paste("SELECT *
+# group_div4_div5 <- paste("SELECT *
+#                   FROM 'fips_geom.df'
+#                   WHERE MGD_2020 > ",div4," AND MGD_2020 <= ",div5)
+# group_div4_div5 <- sqldf(group_div4_div5)
+# group_div4_div5 <- st_as_sf(group_div4_div5, wkt = 'fips_geom')
+# 
+# 
+# if (nrow(group_div4_div5) >0) {
+#   
+#   geom5 <- geom_sf(data = group_div4_div5, fill = color_scale[5],color = c_border, inherit.aes = FALSE)
+#   
+#   color_values <- rbind(color_values,color_scale[5])
+#   label_values <- rbind(label_values,paste(div4," to ",div5,sep=""))
+#   
+# } else  {
+#   
+#   geom5 <- geom_blank()
+#   
+# }
+# #-----------------------------------------------------------------------------------------------------
+# group_div5_div6 <- paste("SELECT *
+#                   FROM 'fips_geom.df'
+#                   WHERE MGD_2020 > ",div5," AND MGD_2020 <= ",div6)
+# group_div5_div6 <- sqldf(group_div5_div6)
+# group_div5_div6 <- st_as_sf(group_div5_div6, wkt = 'fips_geom')
+# 
+# 
+# if (nrow(group_div5_div6) >0) {
+#   
+#   geom6 <- geom_sf(data = group_div5_div6, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
+#   
+#   color_values <- rbind(color_values,color_scale[5])
+#   label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
+#   
+# } else  {
+#   
+#   geom6 <- geom_blank()
+#   
+# }
+# #-----------------------------------------------------------------------------------------------------
+group_div4 <- paste("SELECT *
                   FROM 'fips_geom.df'
-                  WHERE MGD_2020 > ",div4," AND MGD_2020 <= ",div5)
-group_div4_div5 <- sqldf(group_div4_div5)
-group_div4_div5 <- st_as_sf(group_div4_div5, wkt = 'fips_geom')
+                  WHERE MGD_2020 >= ",div4)
+group_div4 <- sqldf(group_div4)
+group_div4 <- st_as_sf(group_div4, wkt = 'fips_geom')
 
 
-if (nrow(group_div4_div5) >0) {
+if (nrow(group_div4) >0) {
   
-  geom5 <- geom_sf(data = group_div4_div5, fill = color_scale[5],color = c_border, inherit.aes = FALSE)
+  geom5 <- geom_sf(data = group_div4, fill = color_scale[5],color = c_border, inherit.aes = FALSE)
   
   color_values <- rbind(color_values,color_scale[5])
-  label_values <- rbind(label_values,paste(div4," to ",div5,sep=""))
+  label_values <- rbind(label_values,paste(" >= ",div4,sep=""))
   
 } else  {
   
   geom5 <- geom_blank()
-  
-}
-# #-----------------------------------------------------------------------------------------------------
-group_div5_div6 <- paste("SELECT *
-                  FROM 'fips_geom.df'
-                  WHERE MGD_2020 > ",div5," AND MGD_2020 <= ",div6)
-group_div5_div6 <- sqldf(group_div5_div6)
-group_div5_div6 <- st_as_sf(group_div5_div6, wkt = 'fips_geom')
-
-
-if (nrow(group_div5_div6) >0) {
-  
-  geom6 <- geom_sf(data = group_div5_div6, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
-  
-  color_values <- rbind(color_values,color_scale[5])
-  label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
-  
-} else  {
-  
-  geom6 <- geom_blank()
-  
-}
-# #-----------------------------------------------------------------------------------------------------
-group_div6 <- paste("SELECT *
-                  FROM 'fips_geom.df'
-                  WHERE MGD_2020 >= ",div6)
-group_div6 <- sqldf(group_div6)
-group_div6 <- st_as_sf(group_div6, wkt = 'fips_geom')
-
-
-if (nrow(group_div6) >0) {
-  
-  geom7 <- geom_sf(data = group_div6, fill = color_scale[7],color = c_border, inherit.aes = FALSE)
-  
-  color_values <- rbind(color_values,color_scale[6])
-  label_values <- rbind(label_values,paste(" >= ",div6,sep=""))
-  
-} else  {
-  
-  geom7 <- geom_blank()
   
 }
 
@@ -681,15 +682,13 @@ source_current <- base_map +
   geom2 +
   geom3 +
   geom4 +
-  geom5 +
-  geom6 +
-  geom7 
+  geom5 
 
-ggsave(plot = source_current, file =  paste0(folder, "JM_VA_locality_demand_map_TEST.png"), width=6.5, height=5) 
+#ggsave(plot = source_current, file =  paste0(folder, "JM_VA_locality_demand_map_TEST.png"), width=6.5, height=5) 
 
 map <- ggdraw(source_current +
                 ggtitle("Virginia Demand by Locality") +
-                labs(subtitle = "2020 Demand") +
+                labs(subtitle = "2020 Demand (including Power Generation)") +
                 
                 #ADD MINOR BASIN BORDER LAYER ON TOP
                 #geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.65) +
@@ -722,13 +721,14 @@ export_file <- paste0(folder, "tables_maps/Xfigures/VA_sw_2020_locality_demand_m
 #DEMAND TABLE 
 va_demand <- read.csv(paste0(folder, "tables_maps/Xtables/VA_sw_locality_demand.csv"))
 # #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
-div1 <- 0
-div2 <- 10
-div3 <- 50
-div4 <- 100
-div5 <- 500
-div6 <- 1000
+#div1 <- 0
+div1 <- 10
+div2 <- 50
+div3 <- 100
+div4 <- 500
+#div6 <- 1000
 
+color_scale <- c("#d98f50","#f7d679","#E4FFB9","darkolivegreen2","darkolivegreen")
 ### PROCESS FIPS GEOM LAYER  #####################################################################
 fips_data <- paste('SELECT *
                   FROM "fips_geom.csv" AS a
@@ -762,7 +762,7 @@ fips.df <- fortify(fips, region = 'id')
 fips_geom.df <- merge(fips.df, fips@data, by = 'id')
 
 #LEFT TOP LEGEND
-base_legend <- draw_image("U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/legend_locality_demand_2020.png",height = .35, x = -.38, y = .515) 
+base_legend <- draw_image("U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/legend_locality_demand_2020_5bins.png",height = .35, x = -.38, y = .535) 
 
 ### #VA LOCALITY 2020 DEMAND - BREAK INTO BINS ##########################################
 c_border <- 'gray30'
@@ -850,63 +850,63 @@ if (nrow(group_div3_div4) >0) {
   
 }
 # #-----------------------------------------------------------------------------------------------------
-group_div4_div5 <- paste("SELECT *
+# group_div4_div5 <- paste("SELECT *
+#                   FROM 'fips_geom.df'
+#                   WHERE MGD_2020 > ",div4," AND MGD_2020 <= ",div5)
+# group_div4_div5 <- sqldf(group_div4_div5)
+# group_div4_div5 <- st_as_sf(group_div4_div5, wkt = 'fips_geom')
+# 
+# 
+# if (nrow(group_div4_div5) >0) {
+#   
+#   geom5 <- geom_sf(data = group_div4_div5, fill = color_scale[5],color = c_border, inherit.aes = FALSE)
+#   
+#   color_values <- rbind(color_values,color_scale[5])
+#   label_values <- rbind(label_values,paste(div4," to ",div5,sep=""))
+#   
+# } else  {
+#   
+#   geom5 <- geom_blank()
+#   
+# }
+# #-----------------------------------------------------------------------------------------------------
+# group_div5_div6 <- paste("SELECT *
+#                   FROM 'fips_geom.df'
+#                   WHERE MGD_2020 > ",div5," AND MGD_2020 <= ",div6)
+# group_div5_div6 <- sqldf(group_div5_div6)
+# group_div5_div6 <- st_as_sf(group_div5_div6, wkt = 'fips_geom')
+# 
+# 
+# if (nrow(group_div5_div6) >0) {
+#   
+#   geom6 <- geom_sf(data = group_div5_div6, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
+#   
+#   color_values <- rbind(color_values,color_scale[5])
+#   label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
+#   
+# } else  {
+#   
+#   geom6 <- geom_blank()
+#   
+# }
+# #-----------------------------------------------------------------------------------------------------
+group_div4 <- paste("SELECT *
                   FROM 'fips_geom.df'
-                  WHERE MGD_2020 > ",div4," AND MGD_2020 <= ",div5)
-group_div4_div5 <- sqldf(group_div4_div5)
-group_div4_div5 <- st_as_sf(group_div4_div5, wkt = 'fips_geom')
+                  WHERE MGD_2020 >= ",div4)
+group_div4 <- sqldf(group_div4)
+group_div4 <- st_as_sf(group_div4, wkt = 'fips_geom')
 
 
-if (nrow(group_div4_div5) >0) {
+if (nrow(group_div4) >0) {
   
-  geom5 <- geom_sf(data = group_div4_div5, fill = color_scale[5],color = c_border, inherit.aes = FALSE)
+  geom5 <- geom_sf(data = group_div4, fill = color_scale[5],color = c_border, inherit.aes = FALSE)
   
   color_values <- rbind(color_values,color_scale[5])
-  label_values <- rbind(label_values,paste(div4," to ",div5,sep=""))
+  label_values <- rbind(label_values,paste(" >= ",div4,sep=""))
   
 } else  {
   
   geom5 <- geom_blank()
-  
-}
-# #-----------------------------------------------------------------------------------------------------
-group_div5_div6 <- paste("SELECT *
-                  FROM 'fips_geom.df'
-                  WHERE MGD_2020 > ",div5," AND MGD_2020 <= ",div6)
-group_div5_div6 <- sqldf(group_div5_div6)
-group_div5_div6 <- st_as_sf(group_div5_div6, wkt = 'fips_geom')
-
-
-if (nrow(group_div5_div6) >0) {
-  
-  geom6 <- geom_sf(data = group_div5_div6, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
-  
-  color_values <- rbind(color_values,color_scale[5])
-  label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
-  
-} else  {
-  
-  geom6 <- geom_blank()
-  
-}
-# #-----------------------------------------------------------------------------------------------------
-group_div6 <- paste("SELECT *
-                  FROM 'fips_geom.df'
-                  WHERE MGD_2020 >= ",div6)
-group_div6 <- sqldf(group_div6)
-group_div6 <- st_as_sf(group_div6, wkt = 'fips_geom')
-
-
-if (nrow(group_div6) >0) {
-  
-  geom7 <- geom_sf(data = group_div6, fill = color_scale[7],color = c_border, inherit.aes = FALSE)
-  
-  color_values <- rbind(color_values,color_scale[6])
-  label_values <- rbind(label_values,paste(" >= ",div6,sep=""))
-  
-} else  {
-  
-  geom7 <- geom_blank()
   
 }
 
@@ -917,15 +917,13 @@ source_current <- base_map +
   geom2 +
   geom3 +
   geom4 +
-  geom5 +
-  geom6 +
-  geom7 
+  geom5 
 
 #ggsave(plot = source_current, file =  paste0(folder, "JM_VA_locality_demand_map_TEST.png"), width=6.5, height=5) 
 
 map <- ggdraw(source_current +
                 ggtitle("Virginia Surface Water Demand by Locality") +
-                labs(subtitle = "2020 Demand") +
+                labs(subtitle = "2020 Demand (including Power Generation)") +
                 
                 #ADD MINOR BASIN BORDER LAYER ON TOP
                 #geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.65) +
@@ -955,17 +953,18 @@ beep(sound = 1)
 ############################################################################################
 # GROUNDWATER MAP - 2020 DEMAND ############################################################
 ############################################################################################
-export_file <- paste0(folder, "tables_maps/Xfigures/VA_gw_2020_locality_demand_map.png")
+export_file <- paste0(folder, "tables_maps/Xfigures/VA_gw_2020_locality_demand_map2.png")
 #DEMAND TABLE 
 va_demand <- read.csv(paste0(folder, "tables_maps/Xtables/VA_gw_locality_demand.csv"))
 # #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
-div1 <- 0
-div2 <- 0.5
-div3 <- 1
-div4 <- 5
-div5 <- 10
-div6 <- 15
+#div1 <- 0
+div1 <- 0.5
+div2 <- 1
+div3 <- 5
+div4 <- 10
+div5 <- 15
 
+color_scale <- c("#d98f50","#f7d679","#E4FFB9","darkolivegreen2","darkolivegreen3","darkolivegreen")
 ### PROCESS FIPS GEOM LAYER  #####################################################################
 fips_data <- paste('SELECT *
                   FROM "fips_geom.csv" AS a
@@ -997,6 +996,18 @@ fips@data <- merge(fips@data, fips_layer, by = 'id')
 fips@data <- fips@data[,-c(2:3)]
 fips.df <- fortify(fips, region = 'id')
 fips_geom.df <- merge(fips.df, fips@data, by = 'id')
+
+# NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
+fips_geom.df <- fips_geom.df[,-which(colnames(fips_geom.df)=="fips_code..8" )]
+
+# REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
+fips_geom.df.sql <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE fips_geom != ''")  
+fips_geom.df <- sqldf(fips_geom.df.sql)
+#print(length(fips_geom.df[,1]))
+
+
 
 #LEFT TOP LEGEND
 base_legend <- draw_image("U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/legend_locality_demand_2020_gw.png",height = .35, x = -.38, y = .515) 
@@ -1107,44 +1118,44 @@ if (nrow(group_div4_div5) >0) {
   geom5 <- geom_blank()
   
 }
+# # #-----------------------------------------------------------------------------------------------------
+# group_div5_div6 <- paste("SELECT *
+#                   FROM 'fips_geom.df'
+#                   WHERE MGD_2020 > ",div5," AND MGD_2020 <= ",div6)
+# group_div5_div6 <- sqldf(group_div5_div6)
+# group_div5_div6 <- st_as_sf(group_div5_div6, wkt = 'fips_geom')
+# 
+# 
+# if (nrow(group_div5_div6) >0) {
+#   
+#   geom6 <- geom_sf(data = group_div5_div6, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
+#   
+#   color_values <- rbind(color_values,color_scale[5])
+#   label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
+#   
+# } else  {
+#   
+#   geom6 <- geom_blank()
+#   
+# }
 # #-----------------------------------------------------------------------------------------------------
-group_div5_div6 <- paste("SELECT *
+group_div5 <- paste("SELECT *
                   FROM 'fips_geom.df'
-                  WHERE MGD_2020 > ",div5," AND MGD_2020 <= ",div6)
-group_div5_div6 <- sqldf(group_div5_div6)
-group_div5_div6 <- st_as_sf(group_div5_div6, wkt = 'fips_geom')
+                  WHERE MGD_2020 >= ",div5)
+group_div5 <- sqldf(group_div5)
+group_div5 <- st_as_sf(group_div5, wkt = 'fips_geom')
 
 
-if (nrow(group_div5_div6) >0) {
+if (nrow(group_div5) >0) {
   
-  geom6 <- geom_sf(data = group_div5_div6, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
+  geom6 <- geom_sf(data = group_div5, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
   
-  color_values <- rbind(color_values,color_scale[5])
-  label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
+  color_values <- rbind(color_values,color_scale[6])
+  label_values <- rbind(label_values,paste(" >= ",div5,sep=""))
   
 } else  {
   
   geom6 <- geom_blank()
-  
-}
-# #-----------------------------------------------------------------------------------------------------
-group_div6 <- paste("SELECT *
-                  FROM 'fips_geom.df'
-                  WHERE MGD_2020 >= ",div6)
-group_div6 <- sqldf(group_div6)
-group_div6 <- st_as_sf(group_div6, wkt = 'fips_geom')
-
-
-if (nrow(group_div6) >0) {
-  
-  geom7 <- geom_sf(data = group_div6, fill = color_scale[7],color = c_border, inherit.aes = FALSE)
-  
-  color_values <- rbind(color_values,color_scale[6])
-  label_values <- rbind(label_values,paste(" >= ",div6,sep=""))
-  
-} else  {
-  
-  geom7 <- geom_blank()
   
 }
 
@@ -1156,14 +1167,13 @@ source_current <- base_map +
   geom3 +
   geom4 +
   geom5 +
-  geom6 +
-  geom7 
+  geom6 
 
 #ggsave(plot = source_current, file =  paste0(folder, "JM_VA_locality_demand_map_TEST.png"), width=6.5, height=5) 
 
 map <- ggdraw(source_current +
                 ggtitle("Virginia Groundwater Demand by Locality") +
-                labs(subtitle = "2020 Demand") +
+                labs(subtitle = "2020 Demand (including Power Generation)") +
                 
                 #ADD MINOR BASIN BORDER LAYER ON TOP
                 #geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.65) +
