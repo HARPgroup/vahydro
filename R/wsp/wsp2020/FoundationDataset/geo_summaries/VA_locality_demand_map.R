@@ -175,6 +175,18 @@ fips@data <- fips@data[,-c(2:3)]
 fips.df <- fortify(fips, region = 'id')
 fips_geom.df <- merge(fips.df, fips@data, by = 'id')
 
+
+# NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
+fips_geom.df <- fips_geom.df[,-which(colnames(fips_geom.df)=="fips_code..8" )]
+
+# REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
+fips_geom.df.sql <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE fips_geom != ''")  
+fips_geom.df <- sqldf(fips_geom.df.sql)
+#print(length(fips_geom.df[,1]))
+
+
 ######################################################################################################
 ### PROCESS MajorRivers.csv LAYER  ###################################################################
 ######################################################################################################
@@ -526,6 +538,18 @@ fips@data <- fips@data[,-c(2:3)]
 fips.df <- fortify(fips, region = 'id')
 fips_geom.df <- merge(fips.df, fips@data, by = 'id')
 
+
+# NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
+fips_geom.df <- fips_geom.df[,-which(colnames(fips_geom.df)=="fips_code..8" )]
+
+# REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
+fips_geom.df.sql <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE fips_geom != ''")  
+fips_geom.df <- sqldf(fips_geom.df.sql)
+#print(length(fips_geom.df[,1]))
+
+
 #LEFT TOP LEGEND
 base_legend <- draw_image("U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/legend_locality_demand_2020_5bins.png",height = .35, x = -.39, y = .517) 
 
@@ -761,6 +785,18 @@ fips@data <- fips@data[,-c(2:3)]
 fips.df <- fortify(fips, region = 'id')
 fips_geom.df <- merge(fips.df, fips@data, by = 'id')
 
+
+# NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
+fips_geom.df <- fips_geom.df[,-which(colnames(fips_geom.df)=="fips_code..8" )]
+
+# REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
+fips_geom.df.sql <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE fips_geom != ''")  
+fips_geom.df <- sqldf(fips_geom.df.sql)
+#print(length(fips_geom.df[,1]))
+
+
 #LEFT TOP LEGEND
 base_legend <- draw_image("U:/OWS/foundation_datasets/wsp/wsp2020/tables_maps/legend_locality_demand_2020_5bins.png",height = .35, x = -.38, y = .535) 
 
@@ -953,7 +989,7 @@ beep(sound = 1)
 ############################################################################################
 # GROUNDWATER MAP - 2020 DEMAND ############################################################
 ############################################################################################
-export_file <- paste0(folder, "tables_maps/Xfigures/VA_gw_2020_locality_demand_map2.png")
+export_file <- paste0(folder, "tables_maps/Xfigures/VA_gw_2020_locality_demand_map.png")
 #DEMAND TABLE 
 va_demand <- read.csv(paste0(folder, "tables_maps/Xtables/VA_gw_locality_demand.csv"))
 # #CUSTOM DIVS *NOTE* Currently the legend is not dynamic, but a static image
