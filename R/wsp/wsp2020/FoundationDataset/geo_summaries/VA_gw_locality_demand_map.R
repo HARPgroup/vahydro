@@ -175,6 +175,18 @@ fips@data <- fips@data[,-c(2:3)]
 fips.df <- fortify(fips, region = 'id')
 fips_geom.df <- merge(fips.df, fips@data, by = 'id')
 
+
+# NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
+fips_geom.df <- fips_geom.df[,-which(colnames(fips_geom.df)=="fips_code..8" )]
+
+# REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
+fips_geom.df.sql <- paste("SELECT *
+                  FROM 'fips_geom.df'
+                  WHERE fips_geom != ''")  
+fips_geom.df <- sqldf(fips_geom.df.sql)
+#print(length(fips_geom.df[,1]))
+
+
 ######################################################################################################
 ### PROCESS MajorRivers.csv LAYER  ###################################################################
 ######################################################################################################
@@ -386,7 +398,7 @@ if (nrow(group_div5_div6) >0) {
   
   geom6 <- geom_sf(data = group_div5_div6, fill = color_scale[6],color = c_border, inherit.aes = FALSE)
   
-  color_values <- rbind(color_values,color_scale[5])
+  color_values <- rbind(color_values,color_scale[6])
   label_values <- rbind(label_values,paste(div5," to ",div6,sep=""))
   
 } else  {
@@ -406,7 +418,7 @@ if (nrow(group_div6) >0) {
   
   geom7 <- geom_sf(data = group_div6, fill = color_scale[7],color = c_border, inherit.aes = FALSE)
   
-  color_values <- rbind(color_values,color_scale[6])
+  color_values <- rbind(color_values,color_scale[7])
   label_values <- rbind(label_values,paste(" >= ",div6,sep=""))
   
 } else  {

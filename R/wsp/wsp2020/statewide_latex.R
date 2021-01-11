@@ -846,8 +846,8 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                     FROM top_10')
     
     if (c == "ssuag") {
-      system_type <- "County-Wide Agricultural"
-      colname_1 <- "Locality"
+      system_type <- "Agricultural"
+      colname_1 <- "Locality \\ Facility"
     } else if (c == "cws") {
       system_type <- "Municipal"
       colname_1 <- "Facility"
@@ -1202,6 +1202,58 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     print("PROCESSING: NARRATIVE FOCUS TABLES")
     source(paste0(vahydro_location,"/R/wsp/wsp2020/FoundationDataset/narrative_focus.R"))
     
+    #---- RUN WSP LOCALITY UPDATES TABLES -------------------------------------
+    print("PROCESSING: WSP LOCALITY UPDATES TABLES")
+    localities_updates <- read.csv(paste(folder,"localities_wsp_2018_updates.csv",sep=""))     
+    #LOCALITIES WSP 2018 UPDATES TABLE
+    localities_2018 <- sqldf('SELECT Localities_2018
+                             FROM localities_updates')
+    
+    # OUTPUT TABLE IN KABLE FORMAT
+    localities_2018_tex <- kable(localities_2018,  booktabs = T,format = "latex", align = c("l"),
+                            caption = "2018 Locality Demand Updates",
+                            label = "locality_2018_demand_updates",
+                            col.names = "Localities") %>%
+      kable_styling(latex_options = "striped") 
+    
+    #CUSTOM LATEX CHANGES
+    #change to wraptable environment
+    localities_2018_tex <- gsub(pattern = "\\begin{table}[t]",
+                           repl    = "\\begin{wraptable}[20]{r}{7cm}",
+                           x       = localities_2018_tex, fixed = T )
+    localities_2018_tex <- gsub(pattern = "\\end{table}",
+                           repl    = "\\end{wraptable}",
+                           x       = localities_2018_tex, fixed = T )
+    localities_2018_tex <- gsub(pattern = "\\addlinespace",
+                           repl    = "",
+                           x       = localities_2018_tex, fixed = T )
+    localities_2018_tex %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",minorbasin,"_locality_2018_demand_updates_table.tex",sep=""))
+    
+    #LOCALITIES WSP DEQ STAFF UPDATES TABLE
+    localities_deq_staff <- sqldf('SELECT Localities_DEQ_Staff
+                             FROM localities_updates')
+    
+    # OUTPUT TABLE IN KABLE FORMAT
+    localities_2018_tex <- kable(localities_deq_staff,  booktabs = T,format = "latex", align = c("l"),
+                                 caption = "DEQ Staff Locality Demand Updates",
+                                 label = "locality_deq_staff_demand_updates",
+                                 col.names = "Localities") %>%
+      kable_styling(latex_options = "striped") 
+    
+    #CUSTOM LATEX CHANGES
+    #change to wraptable environment
+    localities_2018_tex <- gsub(pattern = "\\begin{table}[t]",
+                                repl    = "\\begin{wraptable}[22]{r}{7cm}",
+                                x       = localities_2018_tex, fixed = T )
+    localities_2018_tex <- gsub(pattern = "\\end{table}",
+                                repl    = "\\end{wraptable}",
+                                x       = localities_2018_tex, fixed = T )
+    localities_2018_tex <- gsub(pattern = "\\addlinespace",
+                                repl    = "",
+                                x       = localities_2018_tex, fixed = T )
+    localities_2018_tex %>%
+      cat(., file = paste(folder,"tables_maps/Xtables/",minorbasin,"_locality_deq_staff_demand_updates_table.tex",sep=""))
     }
 
 ### RUN TABLE GENERATION FUNCTION ########################
