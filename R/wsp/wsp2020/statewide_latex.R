@@ -1228,7 +1228,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                            repl    = "",
                            x       = localities_2018_tex, fixed = T )
     localities_2018_tex %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",minorbasin,"_locality_2018_demand_updates_table.tex",sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_locality_2018_demand_updates_table.tex",sep=""))
     
     #LOCALITIES WSP DEQ STAFF UPDATES TABLE
     localities_deq_staff <- sqldf('SELECT Localities_DEQ_Staff
@@ -1253,7 +1253,7 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                                 repl    = "",
                                 x       = localities_2018_tex, fixed = T )
     localities_2018_tex %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",minorbasin,"_locality_deq_staff_demand_updates_table.tex",sep=""))
+      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_locality_deq_staff_demand_updates_table.tex",sep=""))
     }
 
 ### RUN TABLE GENERATION FUNCTION ########################
