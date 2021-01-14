@@ -42,6 +42,7 @@ duplicate<-wdata_original[duplicated(wdata_original$mp_hydroid),]
 # summary(wdata)
 
 
+names(wdata)[names(wdata)=="Facility.Type"] <-"Facility_Type"
 names(wdata)[names(wdata)=="Max_Pre.89_.MGY."] <-"max_pre89_mgy"
 names(wdata)[names(wdata)=="Intake_Capacity_.MGD."]<-"intake_capacity_mgd"
 names(wdata)[names(wdata)=="VDH_Total_Pumping_Capacity_.MGD."] <-"VDH_total_pumping_cap_mgd"
@@ -141,3 +142,81 @@ Anydata1$exempt_value05<-ifelse(Anydata1$w401_certification_limit_mgd >0,
 Exempt05<-filter(Anydata1, exempt05=="X2005_Safe_Yield_mgd")
 summary(Exempt05$exempt_value05)
 sum(Exempt05$exempt_value05)
+
+
+########################################### 
+# Check any that don't have pre89 data as lowest value
+lowestNot89 <- sqldf(
+  "select Facility_Name, mp_hydroid, max_pre89_mgd_f_mgm, final_exempt_propcode, 
+    CASE WHEN
+      (max_pre89_mgd_f_mgm > X1985_Safe_Yield_mgd and X1985_Safe_Yield_mgd > 0) THEN X1985_Safe_Yield_mgd
+      WHEN
+    (max_pre89_mgd_f_mgm > X2005_Safe_Yield_mgd and X2005_Safe_Yield_mgd > 0) THEN X2005_Safe_Yield_mgd
+      WHEN
+    (max_pre89_mgd_f_mgm > rfi_wd_capacity_mgd_f_mgy and rfi_wd_capacity_mgd_f_mgy > 0) THEN rfi_wd_capacity_mgd_f_mgy
+      WHEN
+    (max_pre89_mgd_f_mgm > VDH_total_pumping_cap_mgd and VDH_total_pumping_cap_mgd > 0) THEN VDH_total_pumping_cap_mgd
+      WHEN
+    (max_pre89_mgd_f_mgm > intake_capacity_mgd and intake_capacity_mgd > 0) THEN intake_capacity_mgd 
+    END as lesser_val,
+    CASE WHEN
+      (max_pre89_mgd_f_mgm > X1985_Safe_Yield_mgd and X1985_Safe_Yield_mgd > 0) THEN 'X1985_Safe_Yield_mgd'
+      WHEN
+    (max_pre89_mgd_f_mgm > X2005_Safe_Yield_mgd and X2005_Safe_Yield_mgd > 0) THEN 'X2005_Safe_Yield_mgd'
+      WHEN
+    (max_pre89_mgd_f_mgm > rfi_wd_capacity_mgd_f_mgy and rfi_wd_capacity_mgd_f_mgy > 0) THEN 'rfi_wd_capacity_mgd_f_mgy'
+      WHEN
+    (max_pre89_mgd_f_mgm > VDH_total_pumping_cap_mgd and VDH_total_pumping_cap_mgd > 0) THEN 'VDH_total_pumping_cap_mgd'
+      WHEN
+    (max_pre89_mgd_f_mgm > intake_capacity_mgd and intake_capacity_mgd > 0) THEN 'intake_capacity_mgd'
+    END as lesser_src
+  from Anydata where 
+    (
+      (max_pre89_mgd_f_mgm > X1985_Safe_Yield_mgd and X1985_Safe_Yield_mgd > 0)
+      OR
+      (max_pre89_mgd_f_mgm > X2005_Safe_Yield_mgd and X2005_Safe_Yield_mgd > 0)
+      OR
+      (max_pre89_mgd_f_mgm > rfi_wd_capacity_mgd_f_mgy and rfi_wd_capacity_mgd_f_mgy > 0)
+      OR
+      (max_pre89_mgd_f_mgm > VDH_total_pumping_cap_mgd and VDH_total_pumping_cap_mgd > 0)
+      OR
+      (max_pre89_mgd_f_mgm > intake_capacity_mgd and intake_capacity_mgd > 0)
+    )
+    AND final_exempt_propcode not in ('vwp_mgm', 'vwp_mgy', 'vwp_mgd', '401_certification')
+")
+lowestNot89
+
+sqldf(
+  "select lesser_src, count(*) as num, round(sum(max_pre89_mgd_f_mgm),1) as max89, 
+   round(sum(lesser_val),1) as ex_min
+   from lowestNot89
+   group by lesser_src
+  "
+)
+
+# Formatted final exemption data 
+results_formatted <- sqldf(
+  "select Organization, Facility_Name, mp_hydroid, final_exempt_propvalue_mgd as amount,
+   CASE 
+     WHEN final_exempt_propcode in ('vwp_mgm', 'vwp_mgy', 'vwp_mgd')
+       THEN 'VWP Permit'
+     WHEN final_exempt_propcode = '401_certification' THEN '401 Cert.'
+     WHEN final_exempt_propcode in ('safe_yield_2005', 'safe_yield_1985')
+       THEN 'Safe Yield Study'
+     WHEN final_exempt_propcode = 'vdh_pump_capacity_mgd' 
+       THEN 'Pump Capacity (VDH)'
+     WHEN final_exempt_propcode = 'intake_capacity_mgd' 
+       THEN 'Intake Capacity (VDH)'
+     WHEN final_exempt_propcode in ('pre_89_mgm', 'wd_mgy_max_pre1990' )
+       THEN 'Pre July 1989 Maximum'
+     WHEN final_exempt_propcode = 'rfi_exempt_wd' 
+       THEN '2009 DEQ Request For Info'
+     WHEN final_exempt_propcode = 'wsp2020_2020' THEN 'Non-Exempt, 2020 Withdrawal'
+     ELSE 'Other'
+   END as data_source
+   from Anydata
+   WHERE Facility_Type <> 'hydropower'
+  "
+)
+names(results_formatted) <- c('Owner', 'Facility Name', 'MP Hydroid', 'Max Exempt Amt.', 'Exemption Data Source')
+write.csv(results_formatted, paste(save_directory,'app_exempt_data.csv',sep='/'))
