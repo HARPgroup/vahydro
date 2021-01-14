@@ -1,10 +1,20 @@
 # This is the one we use, as eivdenced by this syntax: fromJSON(file = fname)
 # the other lib does not use the "file" param, just the filename
+library('httr') # 
 library('rjson') # must do unloadNamespace('jsonlite')
 # OR
 # needed anytime we use the "flatten" command, but I only see one use
 # library('jsonlite') # must do unloadNamespace('rjson')
 library('sqldf') #
+
+# Load Libraries
+basepath='/var/www/R';
+site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+source("/var/www/R/config.local.private"); 
+source(paste(basepath,'config.R',sep='/'))
+source(paste(hydro_tools_location,'/R/om_vahydro_metric_grid.R', sep = ''));
+folder <- "C:/Workspace/tmp/"
+
 # Facility monthly variation in demand as % of annual
 # use 
 fname = "http://deq2.bse.vt.edu/d.dh/dh-properties-json/dh_feature/all/all/wd_current_mon_factors"

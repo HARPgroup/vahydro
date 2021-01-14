@@ -103,3 +103,16 @@ sqldf(
    and l90_2020 < l90_2030
   "
 )
+
+sqldf(
+  "select pid, propname, 
+     round(wdc_2020,2) as r11, 
+     round(wdc_2030,2) as r12, 
+     round(wdc_2040,2) as r13,
+     l90_2020, l90_2030, l90_2040
+   from wshed_data 
+   where 
+     ( (propname like 'Smith%' )
+     OR  (propname like 'Philpot%' ) )
+  "
+)
