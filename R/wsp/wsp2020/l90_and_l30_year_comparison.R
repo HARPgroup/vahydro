@@ -79,8 +79,11 @@ wshed_wu <- sqldf(
   "
 )
 
-quantile(wshed_case$dl90, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
-quantile(wshed_case$dl30, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
+ql90_all <- quantile(wshed_case$dl90, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
+ql30_all <- quantile(wshed_case$dl30, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
 
-quantile(wshed_wu$dl90, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
-quantile(wshed_wu$dl30, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
+ql90_haswd <- quantile(wshed_wu$dl90, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
+ql30_haswd <- quantile(wshed_wu$dl30, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
+
+ql_table <- as.data.frame(rbind(ql90_all, ql30_all, ql90_haswd, ql30_haswd))
+knitr(ql_table)
