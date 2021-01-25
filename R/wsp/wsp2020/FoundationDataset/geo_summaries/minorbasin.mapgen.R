@@ -13,7 +13,7 @@ library(magick) #plot static legend
 library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
-minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON",wells = "OFF"){
+minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON",wells = "OFF",custom.legend = FALSE){
   
   # SELECT MINOR BASIN NAME
   mb_name <-sqldf(paste('SELECT 
@@ -503,13 +503,12 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                                 ))
 
 
-  base_theme <- theme(legend.justification=c(0,1), 
-                      legend.position="none",
-                      
+  base_theme <- theme(legend.title = element_text(size = 7.4),
+                      #legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
+                      legend.position=c(1.2, .65),
                       plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
                       plot.title = element_text(size=12),
                       plot.subtitle = element_text(size=10),
-                      
                       axis.title.x=element_blank(),
                       axis.text.x=element_blank(),
                       axis.ticks.x=element_blank(),
@@ -520,6 +519,25 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                       panel.grid.minor = element_blank(),
                       panel.background = element_blank(),
                       panel.border = element_blank())
+  
+  if (custom.legend == TRUE){
+    base_theme <- theme(legend.title = element_text(size = 7.4),
+                        legend.position="none",
+                        plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
+                        plot.title = element_text(size=12),
+                        plot.subtitle = element_text(size=10),
+                        axis.title.x=element_blank(),
+                        axis.text.x=element_blank(),
+                        axis.ticks.x=element_blank(),
+                        axis.title.y=element_blank(),
+                        axis.text.y=element_blank(),
+                        axis.ticks.y=element_blank(),
+                        panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(),
+                        panel.border = element_blank())
+  }
+  
   
   # #SELECT LEGEND IMAGE PATH (WITH OR WITHOUT TIDAL SEGMENT)
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
@@ -533,155 +551,32 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   
   #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
   #base_legend <- draw_image(image_path,height = .34, x = 0.392, y = .55)
+  # base_legend <- draw_image(image_path,height = .35, x = 0.392, y = .54)
+  
+  if (custom.legend == TRUE){
+  #CUSTOM LEGEND
+  #base_legend <- draw_image(custom.legend.path,height = .35, x = 0.392, y = .54)
   base_legend <- draw_image(image_path,height = .35, x = 0.392, y = .54)
+  }
   
   #tidal_legend <- draw_image(paste(folder, 'tables_maps/tidal_legend.PNG',sep=''),height = .05, x = -0.384, y = .72)
   
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32)
   ######################################################################################################
+  
+  ######################################################################################################
+  ### PROCESS rseg layers###############################################################################
+  ######################################################################################################
   rseg_border <- 'black'
-  
-  # #COLOR SCALE FOR THE 8 MAPPING "BINS"
-  # color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
-  
-  #COLOR SCALE FOR THE 7 MAPPING "BINS"
   color_scale <- c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
-    
-  # #DIVISIONS TO BE USED IN 8 MAPPING "BINS"
-  # div1 <- -20
-  # div2 <- -10
-  # div3 <- -5
-  # div4 <- -1
-  # div5 <- 1
-  # div6 <- 10
-  # div7 <- 20
+  divs <- c(-20,-10,-5,5,10,20)
   
-  #DIVISIONS TO BE USED IN 7 MAPPING "BINS"
-  div1 <- -20
-  div2 <- -10
-  div3 <- -5
-  div4 <- 5
-  div5 <- 10
-  div6 <- 20
+  map_divs <- map.divs(RSeg_data,rseg_border,color_scale,divs)
+  color_values <- map_divs$color_values
+  label_values <- map_divs$label_values
   
-  #INITIATE COLOR AND LABEL LISTS
-  color_values <- list()
-  label_values <- list()
   ######################################################################################################
-  ### BIN 1 ############################################################################################
   ######################################################################################################
-  bin1 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div1))  
-  bin1 <- st_as_sf(bin1, wkt = 'geom')
-  
-  if (nrow(bin1) > 0) {
-    geom1 <- geom_sf(data = bin1,aes(geometry = geom,fill = 'antiquewhite',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- color_scale[1]
-    label_values <- paste(" More than ",div1,"%",sep="")
-  } else  {
-    geom1 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 2 ############################################################################################
-  ######################################################################################################
-  bin2 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div2, "AND pct_chg >= ",div1))
-  bin2 <- st_as_sf(bin2, wkt = 'geom')
-  
-  if (nrow(bin2) > 0) {
-    geom2 <- geom_sf(data = bin2,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[2])
-    label_values <- rbind(label_values,paste(div1,"% to ",div2,"%",sep=""))
-  } else  {
-    geom2 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 3 ############################################################################################
-  ######################################################################################################
-  bin3 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div3, "AND pct_chg >= ",div2))
-  bin3 <- st_as_sf(bin3, wkt = 'geom')
-
-  if (nrow(bin3) > 0) {
-    geom3 <- geom_sf(data = bin3,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[3])
-    label_values <- rbind(label_values,paste(div2,"% to ",div3,"%",sep=""))
-  } else  {
-    geom3 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 4 ############################################################################################
-  ######################################################################################################
-  bin4 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div4, "AND pct_chg >= ",div3))
-  bin4 <- st_as_sf(bin4, wkt = 'geom')
-
-  if (nrow(bin4) > 0) {
-    geom4 <- geom_sf(data = bin4,aes(geometry = geom,fill = 'antiquewhite3',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[4])
-    label_values <- rbind(label_values,paste(div3,"% to ",div4,"%",sep=""))
-  } else  {
-    geom4 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 5 ############################################################################################
-  ######################################################################################################
-  bin5 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div5, "AND pct_chg >= ",div4))
-  bin5 <- st_as_sf(bin5, wkt = 'geom')
-
-  if (nrow(bin5) > 0) {
-    geom5 <- geom_sf(data = bin5,aes(geometry = geom,fill = 'antiquewhite4',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[5])
-    label_values <- rbind(label_values,paste(div4,"% to ",div5,"%",sep=""))
-  } else  {
-    geom5 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 6 ############################################################################################
-  ######################################################################################################
-  bin6 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div6, "AND pct_chg >= ",div5))
-  bin6 <- st_as_sf(bin6, wkt = 'geom')
-
-  if (nrow(bin6) > 0) {
-    geom6 <- geom_sf(data = bin6,aes(geometry = geom,fill = 'aquamarine',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[6])
-    label_values <- rbind(label_values,paste(div5,"% to ",div6,"%",sep=""))
-  } else  {
-    geom6 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 7 ############################################################################################
-  ######################################################################################################
-  # bin7 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div7, "AND pct_chg >= ",div6))
-  # bin7 <- st_as_sf(bin7, wkt = 'geom')
-  # 
-  # if (nrow(bin7) > 0) {
-  #   geom7 <- geom_sf(data = bin7,aes(geometry = geom,fill = 'aquamarine1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-  #   color_values <- rbind(color_values,color_scale[7])
-  #   label_values <- rbind(label_values,paste(div6,"% to ",div7,"%",sep=""))
-  # } else  {
-  #   geom7 <- geom_blank()
-  # }
-  
-  bin7 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div6))
-  bin7 <- st_as_sf(bin7, wkt = 'geom')
-  
-  if (nrow(bin7) > 0) {
-    geom7 <- geom_sf(data = bin7,aes(geometry = geom,fill = 'aquamarine1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[7])
-    label_values <- rbind(label_values,paste(">= ",div6,"%",sep=""))
-  } else  {
-    geom7 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 8 ############################################################################################
-  ######################################################################################################
-  # bin8 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div7))
-  # bin8 <- st_as_sf(bin8, wkt = 'geom')
-  # 
-  # if (nrow(bin8) > 0) {
-  #   geom8 <- geom_sf(data = bin8,aes(geometry = geom,fill = 'aquamarine2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-  #   color_values <- rbind(color_values,color_scale[8])
-  #   label_values <- rbind(label_values,paste(">= ",div7,"%",sep=""))
-  # } else  {
-  #   geom8 <- geom_blank()
-  # }
   ######################################################################################################
   ######################################################################################################
   ######################################################################################################
@@ -708,24 +603,42 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     geom_tidal <- geom_blank()
   }
   
-  ####################################################################
-  source_current <- base_map +
-    geom_tidal_base +
-    #geom8 +
-    geom7 +
-    geom6 +
-    geom5 +
-    geom4 +
-    geom3 +
-    geom2 +
-    geom1 +
-    scale_fill_manual(values=color_values,
-                      name = "Legend",
-                      labels = label_values)+
+  # ####################################################################
+  # source_current <- base_map +
+  #   geom_tidal_base +
+  #   #geom8 +
+  #   geom7 +
+  #   geom6 +
+  #   geom5 +
+  #   geom4 +
+  #   geom3 +
+  #   geom2 +
+  #   geom1 +
+  #   scale_fill_manual(values=color_values,
+  #                     name = "Legend",
+  #                     labels = label_values)+
+  #   scale_colour_manual(values=rseg_border)+
+  #   guides(fill = guide_legend(reverse=TRUE))
+  
+  ######################################################################################################
+  ######################################################################################################
+  source_current <- base_map + geom_tidal_base
+  
+  #LOOP THROUGH rseg MAP LAYERS
+  #x <- 1
+  for (x in 1:length(map_divs$layers)) {
+    rseg_layer <- map_divs$layers[x]
+    source_current <- source_current + rseg_layer
+    
+  }
+  
+  source_current <- source_current + scale_fill_manual(values=color_values,
+                                                       name = "Legend",
+                                                       labels = label_values)+
     scale_colour_manual(values=rseg_border)+
     guides(fill = guide_legend(reverse=TRUE))
-  
-  
+  ######################################################################################################
+  ######################################################################################################
   
   #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
   # *note, if the following if statement was removed and geom_tidal layer still 
@@ -773,28 +686,66 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                     north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                     base_scale +
                     base_theme) +
-      base_legend +
+      #base_legend +
       deqlogo 
     
   } else if (wd_points == "ON") {
     print("PLOTTING - WITHDRAWAL POINTS ON") 
     
+    # base_theme <- theme(legend.title = element_text(size = 7.4),
+    #   legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
+    #   plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
+    #   plot.title = element_text(size=12),
+    #   plot.subtitle = element_text(size=10),
+    #   
+    #   axis.title.x=element_blank(),
+    #   axis.text.x=element_blank(),
+    #   axis.ticks.x=element_blank(),
+    #   axis.title.y=element_blank(),
+    #   axis.text.y=element_blank(),
+    #   axis.ticks.y=element_blank(),
+    #   panel.grid.major = element_blank(), 
+    #   panel.grid.minor = element_blank(),
+    #   panel.background = element_blank(),
+    #   panel.border = element_blank())
+    
     base_theme <- theme(legend.title = element_text(size = 7.4),
-      legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
-      plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
-      plot.title = element_text(size=12),
-      plot.subtitle = element_text(size=10),
-      
-      axis.title.x=element_blank(),
-      axis.text.x=element_blank(),
-      axis.ticks.x=element_blank(),
-      axis.title.y=element_blank(),
-      axis.text.y=element_blank(),
-      axis.ticks.y=element_blank(),
-      panel.grid.major = element_blank(), 
-      panel.grid.minor = element_blank(),
-      panel.background = element_blank(),
-      panel.border = element_blank())
+                        #legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
+                        legend.position=c(1.2, .65),
+                        plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
+                        plot.title = element_text(size=12),
+                        plot.subtitle = element_text(size=10),
+                        axis.title.x=element_blank(),
+                        axis.text.x=element_blank(),
+                        axis.ticks.x=element_blank(),
+                        axis.title.y=element_blank(),
+                        axis.text.y=element_blank(),
+                        axis.ticks.y=element_blank(),
+                        panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(),
+                        panel.border = element_blank())
+    
+    if (custom.legend == TRUE){
+      base_theme <- theme(legend.title = element_text(size = 7.4),
+                          legend.position="none",
+                          plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
+                          plot.title = element_text(size=12),
+                          plot.subtitle = element_text(size=10),
+                          axis.title.x=element_blank(),
+                          axis.text.x=element_blank(),
+                          axis.ticks.x=element_blank(),
+                          axis.title.y=element_blank(),
+                          axis.text.y=element_blank(),
+                          axis.ticks.y=element_blank(),
+                          panel.grid.major = element_blank(), 
+                          panel.grid.minor = element_blank(),
+                          panel.background = element_blank(),
+                          panel.border = element_blank())
+    }
+    
+    
+    
     
     if (rsegs == "ON") {
 
@@ -862,7 +813,7 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
                         north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                         base_scale +
                         base_theme) +
-          base_legend +
+          #base_legend +
           bubble_legend +
           #tidal_legend +
           deqlogo
@@ -1037,6 +988,10 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
     } #CLOSE rsegs IF STATEMENT
   
   } #CLOSE WITHDRAWAL POINTS IF STATEMENT
+  
+  if (custom.legend == TRUE){
+    map <- map + base_legend
+  }
   
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
   ggsave(plot = map, file = export_file, width=5.5, height=5)

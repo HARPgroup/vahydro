@@ -46,18 +46,19 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/sta
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.OVERVIEW.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.ELFGEN.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map.divs.R",sep = '/'))
 
 ######################################################################################################
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-# statewide.mapgen(metric = "l30_Qout",
-#                  runid_a = "runid_11",
-#                  runid_b = "runid_13")
-# 
-# statewide.mapgen(metric = "l30_cc_Qout",
-#                  runid_a = "runid_11",
-#                  runid_b = "runid_17")
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.R",sep = '/'))
+# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map.divs.R",sep = '/'))
+statewide.mapgen(metric = "l30_Qout",
+                 runid_a = "runid_11",
+                 runid_b = "runid_13",
+                 custom.legend = TRUE,
+                 custom.legend.path = paste(folder,'tables_maps/X_legend_tidal_padding.PNG',sep=''))
 
 
 # #----------- RUN MAPS IN BULK --------------------------
@@ -80,7 +81,7 @@ print(paste("PROCESSING VA",sep=""))
     print(paste("...PROCESSING METRIC: ",met,sep=""))
     for (rb in runid_b) {
       print(paste("......PROCESSING runid_b: ",rb,sep=""))
-      statewide.mapgen(met,runid_a,rb)
+      statewide.mapgen(met,runid_a,rb,custom.legend = TRUE,custom.legend.path = paste(folder,'tables_maps/X_legend_tidal_padding.PNG',sep=''))
     } #CLOSE runid FOR LOOP
   } #CLOSE metric FOR LOOP
   it <- it + 1
@@ -91,13 +92,15 @@ beep(3)
 # ######################################################################################################
 # ### SINGLE SCENARIO ##################################################################################
 # ######################################################################################################
-# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
-# #----------- RUN SINGLE MAP --------------------------
-# statewide.mapgen.SINGLE.SCENARIO(metric = "consumptive_use_frac",
-#                                  runid_a = "runid_13")
+ # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+ # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map.divs.R",sep = '/'))
 
- # statewide.mapgen.SINGLE.SCENARIO(metric = "consumptive_use_frac",
- #                                  runid_a = "runid_18")
+# #----------- RUN SINGLE MAP --------------------------
+statewide.mapgen.SINGLE.SCENARIO(metric = "consumptive_use_frac",
+                                 runid_a = "runid_13",
+                                 custom.legend = FALSE,
+                                 custom.legend.path = paste(folder,'tables_maps/X_legend_single_tidal_padding.PNG',sep=''))
+
 
 # #----------- RUN MAPS IN BULK --------------------------
 # #ALL 21 MINOR BASINS - SINGLE SCENARIO (4 figs)
@@ -116,7 +119,7 @@ print(paste("PROCESSING VA",sep=""))
     print(paste("...PROCESSING METRIC: ",met,sep=""))
     for (rb in runid_a) {
       print(paste("......PROCESSING runid_a: ",rb,sep=""))
-      statewide.mapgen.SINGLE.SCENARIO(met,rb)
+      statewide.mapgen.SINGLE.SCENARIO(met,rb,custom.legend = TRUE,custom.legend.path = paste(folder,'tables_maps/X_legend_single_tidal_padding.PNG',sep=''))
     } #CLOSE runid FOR LOOP
   } #CLOSE metric FOR LOOP
   it <- it + 1

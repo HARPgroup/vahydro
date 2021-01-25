@@ -14,7 +14,7 @@ library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
 # statewide.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON"){
-statewide.mapgen <- function(metric,runid_a,runid_b){
+statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE,custom.legend.path = FALSE){
   
   # SELECT MINOR BASIN NAME
   # mb_name <-sqldf(paste('SELECT name
@@ -340,32 +340,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   RSeg_data <- sqldf(RSeg_valid_geoms)
   print(length(RSeg_data[,1]))
   
-  ######################################################################################################
-  ######################################################################################################
-  ######################################################################################################
-  # #EXPORT DATA FOR TESTING PURPOSES
-  # div7 <- 20
-  # bin8 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div7))
-  # if (nrow(bin8) > 0) {
-  #   beep(3)
-  # }
-  # 
-  # export.filename <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_bin8.csv",sep = "")
-  # write.csv(bin8,export.filename)
-  ######################################################################################################
-  ######################################################################################################
-  ######################################################################################################
-  
-  #PL_hcodes <<- RSeg_data[,1:5]
-  
-  
-  # USE THIS TO REMOVE ANY "_0000" TIDAL SEGMENTS - THEY WILL APPEAD AS GAPS ON THE MAP
-  # RSeg_non_tidal <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE hydrocode NOT LIKE '%_0000'")
-  # RSeg_data <- sqldf(RSeg_non_tidal)
-  # print(length(RSeg_data[,1]))
-  
+
   ######################################################################################################
   ### PLOTTING TITLES  #################################################################################
   ######################################################################################################
@@ -446,18 +421,8 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   base_layer <- ggmap(tile_layer)
   
   base_map <- base_layer + 
-    #geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
     geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)
-  
-  # base_scale <-  ggsn::scalebar(data = bbDF, location = 'bottomleft', dist = 25, dist_unit = 'mi', 
-  #                               transform = TRUE, model = 'WGS84',st.bottom=FALSE, 
-  #                               st.size = 3, st.dist = 0.03,
-  #                               anchor = c(
-  #                                 x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])-0.45,
-  #                                 y = extent$y[1]+(extent$y[1])*0.001
-  #                               ))
-  
-  base_scale <- ggsn::scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'mi',
+    base_scale <- ggsn::scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'mi',
                                transform = TRUE, model = 'WGS84',st.bottom=FALSE,
                                st.size = 3.5, st.dist = 0.0285,
                                anchor = c(
@@ -465,14 +430,9 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                                  y = extent$y[1]+(extent$y[1])*0.001
                                ))
 
-
-  base_theme <- theme(legend.justification=c(0,1), 
-                      legend.position="none",
-                      
-                      # plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
+  base_theme <- theme(legend.position = c(0.12,0.625),
                       plot.title = element_text(size=12),
                       plot.subtitle = element_text(size=10),
-                      
                       axis.title.x=element_blank(),
                       axis.text.x=element_blank(),
                       axis.ticks.x=element_blank(),
@@ -484,259 +444,45 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                       panel.background = element_blank(),
                       panel.border = element_blank())
   
-  #OLD LEGEND
-  #image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment_padding.PNG',sep='')
-  #base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
   
-  image_path <- paste(folder, 'tables_maps/X_legend_tidal_padding.PNG',sep='')
-  base_legend <- draw_image(image_path,height = .45, x = -0.375, y = .42)
+  if (custom.legend == TRUE){
+    base_theme <- theme(legend.justification=c(0,1), 
+                        legend.position="none",
+                        plot.title = element_text(size=12),
+                        plot.subtitle = element_text(size=10),
+                        axis.title.x=element_blank(),
+                        axis.text.x=element_blank(),
+                        axis.ticks.x=element_blank(),
+                        axis.title.y=element_blank(),
+                        axis.text.y=element_blank(),
+                        axis.ticks.y=element_blank(),
+                        panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(),
+                        panel.border = element_blank())
+  }
   
-  # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
+  if (custom.legend == TRUE){
+  #CUSTOM LEGEND
+  base_legend <- draw_image(custom.legend.path,height = .45, x = -0.375, y = .42)
+  }
+  
+  #DEQ LOGO
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
   ######################################################################################################
-  # rseg_border <- 'black'
-  # 
-  # group_0_plus <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE pct_chg >= 0")  
-  # group_0_plus <- sqldf(group_0_plus)
-  # group_0_plus <- st_as_sf(group_0_plus, wkt = 'geom')
-  # 
-  # color_values <- list()
-  # label_values <- list()
-  # 
-  # if (nrow(group_0_plus) >0) {
-  #   
-  #   geom1 <- geom_sf(data = group_0_plus,aes(geometry = geom,fill = 'antiquewhite'), inherit.aes = FALSE, show.legend = FALSE)
-  #   
-  #   color_values <- color_scale[1]
-  #   
-  #   label_values <- ">= 0%"
-  #   
-  # } else  {
-  #   
-  #   geom1 <- geom_blank()
-  #   
-  # }
-  # #-----------------------------------------------------------------------------------------------------
-  # group_neg5_0 <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE pct_chg < 0 AND pct_chg >= -5")  
-  # group_neg5_0 <- sqldf(group_neg5_0)
-  # group_neg5_0 <- st_as_sf(group_neg5_0, wkt = 'geom')
-  # 
-  # if (nrow(group_neg5_0) >0) {
-  #   
-  #   geom2 <- geom_sf(data = group_neg5_0,aes(geometry = geom,fill = 'antiquewhite1'), inherit.aes = FALSE, show.legend = FALSE)
-  #   color_values <- rbind(color_values,color_scale[2])
-  #   label_values <- rbind(label_values,"-5% to 0%")
-  #   
-  # } else  {
-  #   
-  #   geom2 <- geom_blank()
-  #   
-  # }
-  # #-----------------------------------------------------------------------------------------------------
-  # group_neg10_neg5 <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE pct_chg < -5 AND pct_chg >= -10")  
-  # group_neg10_neg5 <- sqldf(group_neg10_neg5)
-  # group_neg10_neg5 <- st_as_sf(group_neg10_neg5, wkt = 'geom')
-  # 
-  # if (nrow(group_neg10_neg5) >0) {
-  #   
-  #   geom3 <- geom_sf(data = group_neg10_neg5,aes(geometry = geom,fill = 'antiquewhite2'), inherit.aes = FALSE, show.legend = FALSE)
-  #   color_values <- rbind(color_values,color_scale[3])
-  #   label_values <- rbind(label_values,"-10% to -5%")
-  #   
-  # } else  {
-  #   
-  #   geom3 <- geom_blank()
-  #   
-  # }
-  # 
-  # #-----------------------------------------------------------------------------------------------------
-  # group_neg20_neg10 <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE pct_chg < -10 AND pct_chg >= -20")  
-  # group_neg20_neg10 <- sqldf(group_neg20_neg10)
-  # group_neg20_neg10 <- st_as_sf(group_neg20_neg10, wkt = 'geom')
-  # 
-  # if (nrow(group_neg20_neg10) >0) {
-  #   
-  #   geom4 <- geom_sf(data = group_neg20_neg10,aes(geometry = geom,fill = 'antiquewhite3'), inherit.aes = FALSE, show.legend = FALSE)
-  #   color_values <- rbind(color_values,color_scale[4])
-  #   label_values <- rbind(label_values,"-20% to -10%")
-  #   
-  # } else  {
-  #   
-  #   geom4 <- geom_blank()
-  #   
-  # }
-  # #-----------------------------------------------------------------------------------------------------
-  # group_negInf_neg20 <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE pct_chg <= -20")  
-  # group_negInf_neg20 <- sqldf(group_negInf_neg20)
-  # group_negInf_neg20 <- st_as_sf(group_negInf_neg20, wkt = 'geom')
-  # 
-  # if (nrow(group_negInf_neg20) >0) {
-  #   
-  #   geom5 <- geom_sf(data = group_negInf_neg20,aes(geometry = geom,fill = 'antiquewhite4'), inherit.aes = FALSE, show.legend = FALSE)
-  #   color_values <- rbind(color_values,color_scale[5])
-  #   label_values <- rbind(label_values,"More than -20%")
-  #   
-  # } else  {
-  #   
-  #   geom5 <- geom_blank()
-  #   
-  # }
+
   ######################################################################################################
-  #rseg_border <- 'black'
+  ### PROCESS rseg layers###############################################################################
+  ######################################################################################################
   rseg_border <- 'grey35'
-  
-  # #COLOR SCALE FOR THE 8 MAPPING "BINS"
-  # color_scale <- c("#ad6c51","#d98f50","#f7d679","navajowhite","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
-  
-  #COLOR SCALE FOR THE 7 MAPPING "BINS"
   color_scale <- c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
+  divs <- c(-20,-10,-5,5,10,20)
+  #divs <- c(-9999,-20,-10,-5,5,10,20,9999)
   
-  # #DIVISIONS TO BE USED IN 8 MAPPING "BINS"
-  # div1 <- -20
-  # div2 <- -10
-  # div3 <- -5
-  # div4 <- -1
-  # div5 <- 1
-  # div6 <- 10
-  # div7 <- 20
-  
-  #DIVISIONS TO BE USED IN 7 MAPPING "BINS"
-  div1 <- -20
-  div2 <- -10
-  div3 <- -5
-  div4 <- 5
-  div5 <- 10
-  div6 <- 20
-  
-  #INITIATE COLOR AND LABEL LISTS
-  color_values <- list()
-  label_values <- list()
-  ######################################################################################################
-  ### BIN 1 ############################################################################################
-  ######################################################################################################
-  bin1 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div1))  
-  bin1 <- st_as_sf(bin1, wkt = 'geom')
-  
-  if (nrow(bin1) > 0) {
-    geom1 <- geom_sf(data = bin1,aes(geometry = geom,fill = 'antiquewhite',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- color_scale[1]
-    label_values <- paste(" More than ",div1,"%",sep="")
-  } else  {
-    geom1 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 2 ############################################################################################
-  ######################################################################################################
-  bin2 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div2, "AND pct_chg >= ",div1))
-  bin2 <- st_as_sf(bin2, wkt = 'geom')
-  
-  if (nrow(bin2) > 0) {
-    geom2 <- geom_sf(data = bin2,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[2])
-    label_values <- rbind(label_values,paste(div1,"% to ",div2,"%",sep=""))
-  } else  {
-    geom2 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 3 ############################################################################################
-  ######################################################################################################
-  bin3 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div3, "AND pct_chg >= ",div2))
-  bin3 <- st_as_sf(bin3, wkt = 'geom')
-  
-  if (nrow(bin3) > 0) {
-    geom3 <- geom_sf(data = bin3,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[3])
-    label_values <- rbind(label_values,paste(div2,"% to ",div3,"%",sep=""))
-  } else  {
-    geom3 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 4 ############################################################################################
-  ######################################################################################################
-  bin4 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div4, "AND pct_chg >= ",div3))
-  bin4 <- st_as_sf(bin4, wkt = 'geom')
-  
-  if (nrow(bin4) > 0) {
-    geom4 <- geom_sf(data = bin4,aes(geometry = geom,fill = 'antiquewhite3',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[4])
-    label_values <- rbind(label_values,paste(div3,"% to ",div4,"%",sep=""))
-  } else  {
-    geom4 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 5 ############################################################################################
-  ######################################################################################################
-  bin5 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div5, "AND pct_chg >= ",div4))
-  bin5 <- st_as_sf(bin5, wkt = 'geom')
-  
-  if (nrow(bin5) > 0) {
-    geom5 <- geom_sf(data = bin5,aes(geometry = geom,fill = 'antiquewhite4',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[5])
-    label_values <- rbind(label_values,paste(div4,"% to ",div5,"%",sep=""))
-  } else  {
-    geom5 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 6 ############################################################################################
-  ######################################################################################################
-  bin6 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div6, "AND pct_chg >= ",div5))
-  bin6 <- st_as_sf(bin6, wkt = 'geom')
-  
-  if (nrow(bin6) > 0) {
-    geom6 <- geom_sf(data = bin6,aes(geometry = geom,fill = 'aquamarine',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[6])
-    label_values <- rbind(label_values,paste(div5,"% to ",div6,"%",sep=""))
-  } else  {
-    geom6 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 7 ############################################################################################
-  ######################################################################################################
-  # bin7 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div7, "AND pct_chg >= ",div6))
-  # bin7 <- st_as_sf(bin7, wkt = 'geom')
-  # 
-  # if (nrow(bin7) > 0) {
-  #   geom7 <- geom_sf(data = bin7,aes(geometry = geom,fill = 'aquamarine1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-  #   color_values <- rbind(color_values,color_scale[7])
-  #   label_values <- rbind(label_values,paste(div6,"% to ",div7,"%",sep=""))
-  # } else  {
-  #   geom7 <- geom_blank()
-  # }
-  
-  bin7 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div6))
-  bin7 <- st_as_sf(bin7, wkt = 'geom')
-  
-  if (nrow(bin7) > 0) {
-    geom7 <- geom_sf(data = bin7,aes(geometry = geom,fill = 'aquamarine1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[7])
-    label_values <- rbind(label_values,paste(">= ",div6,"%",sep=""))
-  } else  {
-    geom7 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 8 ############################################################################################
-  ######################################################################################################
-  # bin8 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div7))
-  # bin8 <- st_as_sf(bin8, wkt = 'geom')
-  # 
-  # if (nrow(bin8) > 0) {
-  #   geom8 <- geom_sf(data = bin8,aes(geometry = geom,fill = 'aquamarine2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-  #   color_values <- rbind(color_values,color_scale[8])
-  #   label_values <- rbind(label_values,paste(">= ",div7,"%",sep=""))
-  # } else  {
-  #   geom8 <- geom_blank()
-  # }
-  ######################################################################################################
+  map_divs <- map.divs(RSeg_data,rseg_border,color_scale,divs)
+  color_values <- map_divs$color_values
+  label_values <- map_divs$label_values
+
   ######################################################################################################
   ######################################################################################################
   ### TIDAL SEGS #######################################################################################
@@ -757,15 +503,14 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                         hydrocode LIKE 'vahydrosw_wshed_ES%_0000'
                       ")
   RSeg_tidal <- sqldf(RSeg_tidal)
-  print(length(RSeg_tidal[,1]))
-  
-  
+
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
-    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
+    geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE)
     group_tidal <- st_as_sf(RSeg_tidal, wkt = 'geom')
-    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,tidal_color)
+    geom_tidal <- geom_sf(data = group_tidal,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE)
+    #color_values <- rbind(color_values,tidal_color)
+    color_values <- rbind(color_values,"gray55")
     label_values <- rbind(label_values,"Tidal Segment")
   } else  {
     if(exists(x = 'group_tidal')){rm(group_tidal)}
@@ -773,24 +518,29 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
     geom_tidal <- geom_blank()
   }
   
+
+  ######################################################################################################
+  ######################################################################################################
+  source_current <- base_map + geom_tidal_base
   
-  ####################################################################
-  source_current <- base_map +
-    geom_tidal_base +
-    #geom8 +
-    geom7 +
-    geom6 +
-    geom5 +
-    geom4 +
-    geom3 +
-    geom2 +
-    geom1 +
-    scale_fill_manual(values=color_values,
-                      name = "Legend",
-                      labels = label_values)+
-    scale_colour_manual(values=rseg_border)+
-    guides(fill = guide_legend(reverse=TRUE))
+  #LOOP THROUGH rseg MAP LAYERS
+  #x <- 1
+  for (x in 1:length(map_divs$layers)) {
+    rseg_layer <- map_divs$layers[x]
+    source_current <- source_current + rseg_layer
+
+  }
+
+  source_current <- source_current + scale_fill_manual(values=color_values,
+                                                       name = "Legend",
+                                                       labels = label_values)+
+                                     scale_colour_manual(values=rseg_border)+
+                                     guides(fill = guide_legend(reverse=TRUE))
+  ######################################################################################################
+  ######################################################################################################
+
   
+  #draw_image(image_path,height = .45, x = -0.375, y = .42)
   
   
   #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
@@ -804,10 +554,6 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
   source_current <- source_current + geom_tidal
   
   #EXPORT FILE NAME FOR MAP PNG
-  # export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
-  #export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
-  
-  #metric first makes it easier to page through comparisons
   export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.png",sep = "")
    
   # if (wd_points == "OFF") {
@@ -853,154 +599,13 @@ statewide.mapgen <- function(metric,runid_a,runid_b){
                     north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                     base_scale +
                     base_theme) +
-      base_legend +
+      #base_legend +
       deqlogo 
+
+    if (custom.legend == TRUE){
+      map <- map + base_legend
+    }
     
-  # } else if (wd_points == "ON") {
-  #   print("PLOTTING - WITHDRAWAL POINTS ON") 
-  #   
-  #   base_theme <- theme(legend.title = element_text(size = 7.4),
-  #     legend.position=c(1.137, .4), #USE TO PLACE LEGEND TO THE RIGHT OF MAP
-  #     # plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
-  #     plot.title = element_text(size=12),
-  #     plot.subtitle = element_text(size=10),
-  #     
-  #     axis.title.x=element_blank(),
-  #     axis.text.x=element_blank(),
-  #     axis.ticks.x=element_blank(),
-  #     axis.title.y=element_blank(),
-  #     axis.text.y=element_blank(),
-  #     axis.ticks.y=element_blank(),
-  #     panel.grid.major = element_blank(), 
-  #     panel.grid.minor = element_blank(),
-  #     panel.background = element_blank(),
-  #     panel.border = element_blank())
-  #   
-  #   if (rsegs == "ON") {
-  # 
-  #     # LEGEND SETUP
-  #     if (legend_b_title == "2030") {
-  #       bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_short.PNG',sep='')
-  #     } else if  (legend_b_title == "2040") {
-  #       bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_short.PNG',sep='')
-  #     } else if  (legend_b_title == "Exempt") {
-  #       bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_short.PNG',sep='')
-  #     }
-  #     
-  #     bubble_legend <- draw_image(bubble_legend,height = .5, x = 0.395, y = 0.04) 
-  #     
-  #     map <- ggdraw(source_current +
-  #                     geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-  #                     ggtitle(paste(metric_title," (Percent Change ",scenario_a_title," to ",scenario_b_title,")",sep = '')) +
-  #                     labs(subtitle = mb_name$name) +
-  #                     #ADD STATE BORDER LAYER ON TOP
-  #                     geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
-  #                     #ADD RIVERS LAYER ON TOP
-  #                     geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-  # 
-  #                     #ADD BORDER 
-  #                     geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-  #                     
-  #                     #ADD RIVER POINTS
-  #                     #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
-  #                     #ADD RIVER LABELS
-  #                     geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
-  #                     #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-  #                     
-  #                     #ADD FIPS POINTS
-  #                     geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
-  #                                size =1, shape = 20, fill = "black")+
-  #                     #ADD FIPS LABELS
-  #                      geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-  #                                       size = 2)+
-  #                     #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-  #                     
-  #                     # #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
-  #                     # #---------------------------------------------------------------
-  #                     # geom_point(data = intake_bin_1, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 1, alpha = 0.3) +
-  #                     # geom_point(data = intake_bin_2, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.4) +
-  #                     # geom_point(data = intake_bin_3, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 3, alpha = 0.5) +
-  #                     # geom_point(data = intake_bin_4, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 4, alpha = 0.6) +
-  #                     # geom_point(data = intake_bin_5, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 5, alpha = 0.7) +
-  #                     # geom_point(data = intake_bin_6, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 6, alpha = 0.8) +
-  #                     # geom_point(data = intake_bin_7, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 7, alpha = 0.9) +
-  #                     # geom_point(data = intake_bin_8, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 8, alpha = 0.95) +
-  #                     # geom_point(data = intake_bin_9, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 9, alpha = 0.975) +
-  #                     # geom_point(data = intake_bin_10, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 10, alpha = 1.0) +
-  #                     # #---------------------------------------------------------------
-  #                     
-  #                     #ADD NORTH BAR
-  #                     north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-  #                     base_scale +
-  #                     base_theme) +
-  #       base_legend +
-  #       # bubble_legend +
-  #       deqlogo
-  #   } else if (rsegs == "OFF") {
-  #     print("PLOTTING - RIVERSEGS TURNED OFF") 
-  #     #EXPORT FILE NAME FOR MAP PNG
-  #     # export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawa_Locations_",legend_b_title,"_map.png",sep = "")
-  #     export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_Withdrawal_Locations_map.png",sep = "")
-  #     
-  #     SourceTypeLegend <- paste(folder, 'tables_maps/SourceTypeLegend.PNG',sep='')
-  #     SourceTypeLegend <- draw_image(SourceTypeLegend,height = .26, x = 0.39, y = .6)
-  #     
-  #     # if (legend_b_title == "2030") {
-  #     #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2030_plain.PNG',sep='')
-  #     # } else if  (legend_b_title == "2040") {
-  #     #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_2040_plain.PNG',sep='')
-  #     # } else if  (legend_b_title == "Exempt") { 
-  #     #   bubble_legend <- paste(folder, 'tables_maps/bubble_legend_exempt_plain.PNG',sep='')
-  #     # }
-  #     # 
-  #     # bubble_legend <- draw_image(bubble_legend,height = .72, x = 0.42, y = 0.05) #USE TO PLACE LEGEND TO THE RIGHT OF MAP
-  #     
-  #     
-  #     map <- ggdraw(source_current +
-  #                     geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.7) +
-  #                     # ggtitle(paste("Well & Intake Source Locations - ",legend_b_title," Demand",sep="")) +
-  #                     ggtitle(paste("Well & Intake Source Locations",sep="")) +
-  #                     labs(subtitle = mb_name$name) +
-  #                     #ADD GREY MB BACKGROUND
-  #                     geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = "gray55",lwd=0.7) +
-  #                     #ADD STATE BORDER LAYER ON TOP
-  #                     geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
-  #                     #ADD RIVERS LAYER ON TOP
-  #                     geom_path(data = rivs.df, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4) +
-  #                     
-  #                     #ADD BORDER 
-  #                     geom_polygon(data = bbDF,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)+
-  #                     
-  #                     #ADD RIVER POINTS
-  #                     #geom_point(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1),size =1, shape = 20, fill = "black")+
-  #                     #ADD RIVER LABELS
-  #                     geom_text_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 2, color = "dodgerblue3")+
-  #                     #geom_label_repel(data = riv.centroid.df, aes(x = as.numeric(centroid_longitude), y = as.numeric(centroid_latitude), group = 1, label = GNIS_NAME),size = 1.75, color = "dodgerblue3", fill = NA, xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-  #                     
-  #                     #ADD FIPS POINTS
-  #                     geom_point(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1),
-  #                                size =1, shape = 20, fill = "black")+
-  #                     #ADD FIPS LABELS
-  #                     geom_text_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),
-  #                                     size = 2)+
-  #                     #geom_label_repel(data = fips.df, aes(x = fips_longitude, y = fips_latitude, group = 1, label = fips_name),size = 1.75, color = "black", fill = "white", xlim = c(-Inf, Inf), ylim = c(-Inf, Inf))+
-  #                     
-  #                    #ADD WITHDRAWAL LOCATIONS ON TOP (ALL MPS) #corrected_longitude, corrected_latitude
-  #                     #---------------------------------------------------------------
-  #                     geom_point(data = well_layer, aes(x = Longitude, y = Latitude), colour="black", fill ="green4", pch = 24, size = 2, alpha = 0.8) +
-  #                     geom_point(data = intake_layer, aes(x = Longitude, y = Latitude), colour="black", fill ="purple4", pch = 21, size = 2, alpha = 0.8) +
-  #                     #---------------------------------------------------------------
-  #                   
-  #                     #ADD NORTH BAR
-  #                     north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
-  #                     base_scale +
-  #                     base_theme+
-  #                     theme(legend.position=c(1.137, .4))) +
-  #       SourceTypeLegend + 
-  #       deqlogo
-  #   } #CLOSE rsegs IF STATEMENT
-  #   
-  # } #CLOSE WITHDRAWAL POINTS IF STATEMENT
   
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
   # ggsave(plot = map, file = export_file, width=5.5, height=5)
