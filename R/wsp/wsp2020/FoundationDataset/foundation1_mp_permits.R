@@ -24,7 +24,15 @@ export_path <- "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\"
    destfile <- paste(localpath,filename,sep="\\")
    download.file(paste(basepath,"ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=hydropower&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B%5D=well&bundle%5B%5D=intake&dh_link_admin_reg_issuer_target_id%5B%5D=65668&dh_link_admin_reg_issuer_target_id%5B%5D=91200&dh_link_admin_reg_issuer_target_id%5B%5D=77498",sep=""), destfile = destfile, method = "libcurl")
    data.all <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-
+   # Propose to use a method that supports REST authentication.
+   url <- paste(
+       basepath,"ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=hydropower&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",
+       startdate,"&tstime%5Bmax%5D=",
+       enddate,
+       "&bundle%5B%5D=well&bundle%5B%5D=intake&dh_link_admin_reg_issuer_target_id",
+       "%5B%5D=65668&dh_link_admin_reg_issuer_target_id",
+       "%5B%5D=91200&dh_link_admin_reg_issuer_target_id%5B%5D=77498",sep="")
+   data.all <- vahydro_auth_read(url, token)
    data_all <- data.all
  #VWP
    localpath <- tempdir()
