@@ -196,7 +196,7 @@ total_cat_use <- sqldf (
 )
 
 use_cat_use <- sqldf (
-  "select propcode, sum(propvalue) as total_use
+  "select propcode, count(pid), sum(propvalue) as total_use
    from dissag 
    group by propcode 
    order by propcode
@@ -215,6 +215,7 @@ unloss <- sqldf(
   "
 )
 unloss <- as.data.frame(unloss)
+quantile(unloss$unac_frac, na.rm = TRUE)
 #mode(unloss) <- 'numeric'
 UNACd = median(unloss$unac_frac, na.rm= TRUE)
 UNACq = quantile(unloss$unac_frac, na.rm= TRUE)

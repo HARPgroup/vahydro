@@ -1,6 +1,7 @@
 library(dplyr)
 library(sqldf)
 library(openxlsx)
+library(kableExtra)
 library("httr")
 library("stringr") #for str_remove()
 
@@ -194,9 +195,10 @@ sqldf(
   "
 )
 
+
 # Formatted final exemption data 
 results_formatted <- sqldf(
-  "select Organization, Facility_Name, mp_hydroid, final_exempt_propvalue_mgd as amount,
+  "select Facility_Name, mp_hydroid, round(final_exempt_propvalue_mgd,2) as amount,
    CASE 
      WHEN final_exempt_propcode in ('vwp_mgm', 'vwp_mgy', 'vwp_mgd')
        THEN 'VWP Permit'
@@ -215,8 +217,30 @@ results_formatted <- sqldf(
      ELSE 'Other'
    END as data_source
    from Anydata
-   WHERE Facility_Type <> 'hydropower'
+   WHERE Facility_Type <> 'hydropower' 
+   and Facility_Status <> 'abandoned'
   "
 )
-names(results_formatted) <- c('Owner', 'Facility Name', 'MP Hydroid', 'Max Exempt Amt.', 'Exemption Data Source')
+
+names(results_formatted) <- c('Facility Name', 'MP Hydroid', 'Max Exempt Amt.', 'Exemption Data Source')
 write.csv(results_formatted, paste(save_directory,'app_exempt_data.csv',sep='/'))
+
+app_file <- paste(save_directory,'app_exempt_data.csv',sep='/')
+
+#WRITE KABLE TABLE
+table_tex <- kable(results_formatted,align = "l",  booktabs = T,format = "latex",longtable =T,
+                   caption = "Exempt Info",
+                   label = "Exempt Info") %>%
+  kable_styling(latex_options = "striped") %>%
+  column_spec(2, width = "12em")
+
+table_tex <- gsub(pattern = "{table}[t]", 
+                  repl    = "{table}[H]", 
+                  x       = table_tex, fixed = T )
+table_tex %>%
+  cat(., file = paste0(export_path,"\\app_exempt_data.tex"),sep="")
+
+
+#wRITE NEW LATEX LINE IN .TEX FILE
+#cat(paste0("\\input{sections/Xtables/",basins[b,],"_", (str_remove(file.names[i],'.csv')),".tex}"),file=paste0(basins[b,],"_section_latex.tex"),sep="\n",append=TRUE)
+#cat("",file=paste0(basins[b,],"_section_latex.tex"),sep="\n",append=TRUE)

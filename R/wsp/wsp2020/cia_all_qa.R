@@ -50,6 +50,15 @@ wshed_data <- sqldf(
 # where hydrocode like 'vahydrosw_wshed_P%'
 # and hydrocode not like 'vahydrosw_wshed_PL%'
 
+wshed_data$dl90 <- (wshed_data$L90_2040 - wshed_data$L90_2020) / wshed_data$L90_2020
+wshed_case <- sqldf(
+  "select * from 
+   wshed_data 
+   where 
+     hydrocode not like '%0000'
+  "
+)
+quantile(wshed_case$dl90, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
 wshed_case <- sqldf(
   "select * from 
    wshed_data 
@@ -79,6 +88,15 @@ wshed_data <- sqldf(
   on (a.pid = b.pid)
   order by da
   ")
+wshed_case <- sqldf(
+  "select * from 
+   wshed_data 
+   where 
+     wdc_2040 < wdc_2020
+   and hydrocode not like '%0000'
+  "
+)
+
 # Look for anomalys in run 12
 sqldf(
   "select pid, propname, 
