@@ -109,7 +109,7 @@ if (nrow(bin7) > 0) {
 div.out <- list(
               "color_values" = color_values,
               "label_values" = label_values,
-              layers = list("geom7" = geom7,
+              "layers" = list("geom7" = geom7,
                             "geom6" = geom6,
                             "geom5" = geom5,
                             "geom4" = geom4,

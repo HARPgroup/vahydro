@@ -57,7 +57,7 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map
 statewide.mapgen(metric = "l30_Qout",
                  runid_a = "runid_11",
                  runid_b = "runid_13",
-                 custom.legend = FALSE)
+                 custom.legend = TRUE)
 # 
 # statewide.mapgen(metric = "l30_cc_Qout",
 #                  runid_a = "runid_11",
