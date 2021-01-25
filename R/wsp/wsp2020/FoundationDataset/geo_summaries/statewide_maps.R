@@ -43,6 +43,7 @@ WBDF <- read.table(file=paste(hydro_tools,"GIS_LAYERS","WBDF.csv",sep="/"), head
 # source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.extent.R",sep = '/'))
 
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map.divs.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.OVERVIEW.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.ELFGEN.R",sep = '/'))
@@ -51,9 +52,12 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/sta
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-# statewide.mapgen(metric = "l30_Qout",
-#                  runid_a = "runid_11",
-#                  runid_b = "runid_13")
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map.divs.R",sep = '/'))
+statewide.mapgen(metric = "l30_Qout",
+                 runid_a = "runid_11",
+                 runid_b = "runid_13",
+                 custom.legend = FALSE)
 # 
 # statewide.mapgen(metric = "l30_cc_Qout",
 #                  runid_a = "runid_11",
