@@ -14,7 +14,7 @@ library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
 # statewide.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON"){
-statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
+statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE,custom.legend.path = FALSE){
   
   # SELECT MINOR BASIN NAME
   # mb_name <-sqldf(paste('SELECT name
@@ -340,32 +340,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
   RSeg_data <- sqldf(RSeg_valid_geoms)
   print(length(RSeg_data[,1]))
   
-  ######################################################################################################
-  ######################################################################################################
-  ######################################################################################################
-  # #EXPORT DATA FOR TESTING PURPOSES
-  # div7 <- 20
-  # bin8 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg >= ",div7))
-  # if (nrow(bin8) > 0) {
-  #   beep(3)
-  # }
-  # 
-  # export.filename <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_bin8.csv",sep = "")
-  # write.csv(bin8,export.filename)
-  ######################################################################################################
-  ######################################################################################################
-  ######################################################################################################
-  
-  #PL_hcodes <<- RSeg_data[,1:5]
-  
-  
-  # USE THIS TO REMOVE ANY "_0000" TIDAL SEGMENTS - THEY WILL APPEAD AS GAPS ON THE MAP
-  # RSeg_non_tidal <- paste("SELECT *
-  #                 FROM RSeg_data
-  #                 WHERE hydrocode NOT LIKE '%_0000'")
-  # RSeg_data <- sqldf(RSeg_non_tidal)
-  # print(length(RSeg_data[,1]))
-  
+
   ######################################################################################################
   ### PLOTTING TITLES  #################################################################################
   ######################################################################################################
@@ -446,18 +421,8 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
   base_layer <- ggmap(tile_layer)
   
   base_map <- base_layer + 
-    #geom_path(data = state.df,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5) +
     geom_polygon(data = MB.df,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5)
-  
-  # base_scale <-  ggsn::scalebar(data = bbDF, location = 'bottomleft', dist = 25, dist_unit = 'mi', 
-  #                               transform = TRUE, model = 'WGS84',st.bottom=FALSE, 
-  #                               st.size = 3, st.dist = 0.03,
-  #                               anchor = c(
-  #                                 x = (((extent$x[2] - extent$x[1])/2)+extent$x[1])-0.45,
-  #                                 y = extent$y[1]+(extent$y[1])*0.001
-  #                               ))
-  
-  base_scale <- ggsn::scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'mi',
+    base_scale <- ggsn::scalebar(bbDF, location = 'bottomleft', dist = 100, dist_unit = 'mi',
                                transform = TRUE, model = 'WGS84',st.bottom=FALSE,
                                st.size = 3.5, st.dist = 0.0285,
                                anchor = c(
@@ -465,21 +430,9 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
                                  y = extent$y[1]+(extent$y[1])*0.001
                                ))
 
-
- # theme(legend.position = c(-0.375, 0.42))+
-  
-  # -81.3 print((((extent$x[2] - extent$x[1])/2)+extent$x[1])-1.8)
-  # 35.035 print(extent$y[1]+(extent$y[1])*0.001)
-  
-  base_theme <- theme(#legend.justification=c(0,1), 
-                      #legend.position="none",
-                      
-                      legend.position = c(0.12,0.625),
-                      
-                      # plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
+  base_theme <- theme(legend.position = c(0.12,0.625),
                       plot.title = element_text(size=12),
                       plot.subtitle = element_text(size=10),
-                      
                       axis.title.x=element_blank(),
                       axis.text.x=element_blank(),
                       axis.ticks.x=element_blank(),
@@ -509,19 +462,17 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
                         panel.border = element_blank())
   }
   
-  #OLD LEGEND
-  #image_path <- paste(folder, 'tables_maps/legend_rseg_tidal_segment_padding.PNG',sep='')
-  #base_legend <- draw_image(image_path,height = .4, x = -0.359, y = .47) #LEFT TOP LEGEND
+  if (custom.legend == TRUE){
+  #CUSTOM LEGEND
+  base_legend <- draw_image(custom.legend.path,height = .45, x = -0.375, y = .42)
+  }
   
-  image_path <- paste(folder, 'tables_maps/X_legend_tidal_padding.PNG',sep='')
-  base_legend <- draw_image(image_path,height = .45, x = -0.375, y = .42)
-  
-  # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
+  #DEQ LOGO
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
   ######################################################################################################
 
   ######################################################################################################
-  ######################################################################################################
+  ### PROCESS rseg layers###############################################################################
   ######################################################################################################
   rseg_border <- 'grey35'
   color_scale <- c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
@@ -532,7 +483,6 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
   color_values <- map_divs$color_values
   label_values <- map_divs$label_values
 
-  
   ######################################################################################################
   ######################################################################################################
   ### TIDAL SEGS #######################################################################################
@@ -553,9 +503,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
                         hydrocode LIKE 'vahydrosw_wshed_ES%_0000'
                       ")
   RSeg_tidal <- sqldf(RSeg_tidal)
-  #print(length(RSeg_tidal[,1]))
-  
-  
+
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
     geom_tidal_base <- geom_sf(data = group_tidal_base,aes(geometry = geom,fill = tidal_color,colour=rseg_border), inherit.aes = FALSE)
@@ -575,6 +523,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
   ######################################################################################################
   source_current <- base_map + geom_tidal_base
   
+  #LOOP THROUGH rseg MAP LAYERS
   #x <- 1
   for (x in 1:length(map_divs$layers)) {
     rseg_layer <- map_divs$layers[x]
@@ -605,10 +554,6 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE){
   source_current <- source_current + geom_tidal
   
   #EXPORT FILE NAME FOR MAP PNG
-  # export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
-  #export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
-  
-  #metric first makes it easier to page through comparisons
   export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.png",sep = "")
    
   # if (wd_points == "OFF") {

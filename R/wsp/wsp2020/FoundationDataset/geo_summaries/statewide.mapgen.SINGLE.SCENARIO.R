@@ -14,7 +14,7 @@ library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
 # statewide.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON"){
-statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
+statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a,custom.legend = FALSE,custom.legend.path = FALSE){
   
   # SELECT MINOR BASIN NAME
   # mb_name <-sqldf(paste('SELECT name
@@ -436,13 +436,9 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
                                ))
 
 
-  base_theme <- theme(legend.justification=c(0,1), 
-                      legend.position="none",
-                      
-                      # plot.margin = unit(c(0.5,-0.2,0.25,-3), "cm"),
+  base_theme <- theme(legend.position = c(0.12,0.625),
                       plot.title = element_text(size=12),
                       plot.subtitle = element_text(size=10),
-                      
                       axis.title.x=element_blank(),
                       axis.text.x=element_blank(),
                       axis.ticks.x=element_blank(),
@@ -454,84 +450,40 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
                       panel.background = element_blank(),
                       panel.border = element_blank())
 
-  #OLD LEGEND
-  # image_path <- paste(folder, 'tables_maps/X_legend_single_tidal_padding.PNG',sep='')
-  # base_legend <- draw_image(image_path,height = .4, x = -0.364, y = .47)
+  if (custom.legend == TRUE){
+    base_theme <- theme(legend.justification=c(0,1), 
+                        legend.position="none",
+                        plot.title = element_text(size=12),
+                        plot.subtitle = element_text(size=10),
+                        axis.title.x=element_blank(),
+                        axis.text.x=element_blank(),
+                        axis.ticks.x=element_blank(),
+                        axis.title.y=element_blank(),
+                        axis.text.y=element_blank(),
+                        axis.ticks.y=element_blank(),
+                        panel.grid.major = element_blank(), 
+                        panel.grid.minor = element_blank(),
+                        panel.background = element_blank(),
+                        panel.border = element_blank())
+  }
   
-  image_path <- paste(folder, 'tables_maps/X_legend_single_tidal_padding.PNG',sep='')
-  base_legend <- draw_image(image_path,height = .313, x = -0.375, y = .557)
+  #CUSTOM LEGEND
+  base_legend <- draw_image(custom.legend.path,height = .313, x = -0.375, y = .557)
   
   # deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1,  x = -.384, y = 0.32) #LEFT TOP LOGO
   deqlogo <- draw_image(paste(folder,'tables_maps/HiResDEQLogo.tif',sep=''),scale = 0.175, height = 1, x = -.388, y = -0.402) #LEFT BOTTOM LOGO
   ######################################################################################################
-  #rseg_border <- "gray55"
-  rseg_border <- "gray35"
-  
-  #COLOR SCALE FOR THE 7 MAPPING "BINS"
+ 
+  ######################################################################################################
+  ### PROCESS rseg layers ###############################################################################
+  ######################################################################################################
+  rseg_border <- 'grey35'
   color_scale <- c("white","#f7d679","#d98f50","#ad6c51")
+  divs <- c(0.05,0.10,0.20)
   
-  #DIVISIONS TO BE USED IN 4 MAPPING "BINS"
-  #div1 <- 0.0
-  div1 <- 0.05
-  div2 <- 0.10
-  div3 <- 0.20
-  
-  #INITIATE COLOR AND LABEL LISTS
-  color_values <- list()
-  label_values <- list()
-  
-  ######################################################################################################
-  ### BIN 1 ############################################################################################
-  ######################################################################################################
-  bin1 <- sqldf(paste("SELECT * FROM RSeg_data WHERE ",runid_a," < ",div1))  
-  bin1 <- st_as_sf(bin1, wkt = 'geom')
-  
-  if (nrow(bin1) > 0) {
-    geom1 <- geom_sf(data = bin1,aes(geometry = geom,fill = 'antiquewhite',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- color_scale[1]
-    label_values <- paste(" More than ",div1,"%",sep="")
-  } else  {
-    geom1 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 2 ############################################################################################
-  ######################################################################################################
-  bin2 <- sqldf(paste("SELECT * FROM RSeg_data WHERE ",runid_a," < ",div2, "AND ",runid_a," >= ",div1))
-  bin2 <- st_as_sf(bin2, wkt = 'geom')
-  
-  if (nrow(bin2) > 0) {
-    geom2 <- geom_sf(data = bin2,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[2])
-    label_values <- rbind(label_values,paste(div1,"% to ",div2,"%",sep=""))
-  } else  {
-    geom2 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 3 ############################################################################################
-  ######################################################################################################
-  bin3 <- sqldf(paste("SELECT * FROM RSeg_data WHERE ",runid_a," < ",div3, "AND ",runid_a," >= ",div2))
-  bin3 <- st_as_sf(bin3, wkt = 'geom')
-  
-  if (nrow(bin3) > 0) {
-    geom3 <- geom_sf(data = bin3,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[3])
-    label_values <- rbind(label_values,paste(div2,"% to ",div3,"%",sep=""))
-  } else  {
-    geom3 <- geom_blank()
-  }
-  ######################################################################################################
-  ### BIN 4 ############################################################################################
-  ######################################################################################################
-  bin4 <- sqldf(paste("SELECT * FROM RSeg_data WHERE ",runid_a," >= ",div3))
-  bin4 <- st_as_sf(bin4, wkt = 'geom')
-  
-  if (nrow(bin4) > 0) {
-    geom4 <- geom_sf(data = bin4,aes(geometry = geom,fill = 'antiquewhite3',colour=rseg_border), inherit.aes = FALSE, show.legend = FALSE)
-    color_values <- rbind(color_values,color_scale[4])
-    label_values <- rbind(label_values,paste(">= ",div3,"%",sep=""))
-  } else  {
-    geom4 <- geom_blank()
-  }
+  map_divs <- map.divs.one(RSeg_data,rseg_border,color_scale,divs,runid_a)
+  color_values <- map_divs$color_values
+  label_values <- map_divs$label_values
   ######################################################################################################
   ######################################################################################################
   ######################################################################################################
@@ -568,21 +520,39 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
     geom_tidal <- geom_blank()
   }
   
-  ####################################################################
-  source_current <- base_map +
-    geom_tidal_base +
-    geom1 +
-    geom2 +
-    geom3 +
-    geom4 +
-    #geom5 +
-    scale_fill_manual(values=color_values,
-                      name = "Legend",
-                      labels = label_values)+
+  # ####################################################################
+  # source_current <- base_map +
+  #   geom_tidal_base +
+  #   geom1 +
+  #   geom2 +
+  #   geom3 +
+  #   geom4 +
+  #   #geom5 +
+  #   scale_fill_manual(values=color_values,
+  #                     name = "Legend",
+  #                     labels = label_values)+
+  #   scale_colour_manual(values=rseg_border)+
+  #   guides(fill = guide_legend(reverse=TRUE))
+  
+  ######################################################################################################
+  ######################################################################################################
+  source_current <- base_map + geom_tidal_base
+  
+  #LOOP THROUGH rseg MAP LAYERS
+  #x <- 1
+  for (x in 1:length(map_divs$layers)) {
+    rseg_layer <- map_divs$layers[x]
+    source_current <- source_current + rseg_layer
+    
+  }
+  
+  source_current <- source_current + scale_fill_manual(values=color_values,
+                                                       name = "Legend",
+                                                       labels = label_values)+
     scale_colour_manual(values=rseg_border)+
     guides(fill = guide_legend(reverse=TRUE))
-  
-  
+  ######################################################################################################
+  ######################################################################################################
   
   #ADD TIDAL RSEGS LAYER ON TOP FOR THOSE MINOR BASINS THAT HAVE TIDAL RSEGS
   # *note, if the following if statement was removed and geom_tidal layer still 
@@ -646,9 +616,12 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a){
                     north(bbDF, location = 'topright', symbol = 3, scale=0.12) +
                     base_scale +
                     base_theme) +
-      base_legend +
+      #base_legend +
       deqlogo 
     
+    if (custom.legend == TRUE){
+      map <- map + base_legend
+    }
   
   print(paste("GENERATED MAP CAN BE FOUND HERE: ",export_file,sep=""))
   # ggsave(plot = map, file = export_file, width=5.5, height=5)

@@ -45,17 +45,19 @@ mp.all <- read.csv(paste(folder,"wsp2020.mp.all.MinorBasins_RSegs.csv",sep=""))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/mb.extent.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map.divs.R",sep = '/'))
 
 ######################################################################################################
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen(minorbasin = "OR",
-#                   metric = "l90_Qout",
-#                   runid_a = "runid_11",
-#                   runid_b = "runid_13",
-#                   wd_points <- "ON",
-#                   rsegs <- "ON")
+minorbasin.mapgen(minorbasin = "OR",
+                  metric = "l90_Qout",
+                  runid_a = "runid_11",
+                  runid_b = "runid_13",
+                  wd_points <- "ON",
+                  rsegs <- "ON",
+                  custom.legend = TRUE)
 # 
 # # minorbasin.mapgen(minorbasin = "YM",
 # #                   metric = "l30_Qout",
@@ -103,7 +105,7 @@ for (mb in minorbasin) {
     print(paste("...PROCESSING METRIC: ",met,sep=""))
     for (rb in runid_b) {
       print(paste("......PROCESSING runid_b: ",rb,sep=""))
-      minorbasin.mapgen(mb,met,runid_a,rb,wd_points,rsegs) 
+      minorbasin.mapgen(mb,met,runid_a,rb,wd_points,rsegs,custom.legend = TRUE) 
     } #CLOSE runid FOR LOOP 
   } #CLOSE metric FOR LOOP 
   it <- it + 1
@@ -115,12 +117,13 @@ beep(3)
 ######################################################################################################
 ### SINGLE SCENARIO ##################################################################################
 ######################################################################################################
-#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
+source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/minorbasin.mapgen.SINGLE.SCENARIO.R",sep = '/'))
 # # #----------- RUN SINGLE MAP --------------------------
-# minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "RU",
-#                                   metric = "consumptive_use_frac",
-#                                   runid_a = c("runid_13"),
-#                                   wd_points = "ON")
+minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "RU",
+                                  metric = "consumptive_use_frac",
+                                  runid_a = c("runid_13"),
+                                  wd_points = "ON",
+                                  custom.legend = TRUE)
 # 
 # minorbasin.mapgen.SINGLE.SCENARIO(minorbasin = "ES",
 #                                   metric = "consumptive_use_frac",
@@ -159,7 +162,7 @@ for (mb in minorbasin) {
     print(paste("...PROCESSING METRIC: ",met,sep=""))
     for (rb in runid_a) {
       print(paste("......PROCESSING runid_a: ",rb,sep=""))
-      minorbasin.mapgen.SINGLE.SCENARIO(mb,met,rb,wd_points) 
+      minorbasin.mapgen.SINGLE.SCENARIO(mb,met,rb,wd_points,custom.legend = TRUE) 
     } #CLOSE runid FOR LOOP 
   } #CLOSE metric FOR LOOP 
   it <- it + 1
