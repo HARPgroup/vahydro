@@ -61,3 +61,26 @@ wshed_case <- sqldf(
 elid = 229119
 pordat <- fn_get_runfile(elid, 201)
 pordf <- as.data.frame(pordat)
+
+
+# 
+df <- data.frame(
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_11', 'runid_13'),
+  'metric' = c('consumptive_use_frac', 'consumptive_use_frac'),
+  'runlabel' = c('CU_2020', 'CU_2040')
+)
+wshed_data <- om_vahydro_metric_grid(metric, df)
+
+wshed_data <- sqldf(
+  "select a.*, b.da 
+   from wshed_data as a 
+  left outer join da_data as b 
+  on (a.pid = b.pid)
+  where hydrocode like 'vahydrosw_wshed_P%'
+  and hydrocode not like 'vahydrosw_wshed_PL%'
+  order by da
+  ")
+
+sqldf("select count(*) from wshed_data")
+sqldf("select count(*) from wshed_data where CU_2040 > 0.1")
