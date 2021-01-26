@@ -49,11 +49,44 @@ vapop <- sqldf('SELECT FIPS, Geography_Name, round(x2020,0), round(x2030,0), rou
 
 FIPS_in_basins <- function(minorbasin){
   
-  # SELECT MINOR BASIN NAME
-  mb_name <-sqldf(paste('SELECT name
-              FROM "MinorBasins.csv" 
-              WHERE code == "',minorbasin,'"',sep=""))
-  print(paste("PROCESSING: ",mb_name$name,sep=""))
+  # # SELECT MINOR BASIN NAME
+  # mb_name <-sqldf(paste('SELECT name
+  #             FROM "MinorBasins.csv" 
+  #             WHERE code == "',minorbasin,'"',sep=""))
+  
+  #select minor basin code to know folder to save in
+  mb_code <- minorbasin
+  
+  # change all EL minorbasin_code values to ES
+  if (minorbasin == 'ES') {
+    mp_all$MinorBasin_Code <- recode(mp_all$MinorBasin_Code, EL = "ES")
+    mb_name <- "Eastern Shore"
+    
+  } else {
+    mb_name <- sqldf(paste('SELECT distinct MinorBasin_Name
+                   From mp_all
+                   WHERE MinorBasin_Code = ','\"',minorbasin,'\"','
+              ',sep=""))
+    mb_name <- as.character(levels(mb_name$MinorBasin_Name)[mb_name$MinorBasin_Name])
+    
+  }
+  
+  #switch around the minor basin names to more human readable labels
+  mb_name <- case_when(
+    mb_name == "James Bay" ~ "Lower James",
+    mb_name == "James Lower" ~ "Middle James",
+    mb_name == "James Upper" ~ "Upper James",
+    mb_name == "Potomac Lower" ~ "Lower Potomac",
+    mb_name == "Potomac Middle" ~ "Middle Potomac",
+    mb_name == "Potomac Upper" ~ "Upper Potomac",
+    mb_name == "Rappahannock Lower" ~ "Lower Rappahannock",
+    mb_name == "Rappahannock Upper" ~ "Upper Rappahannock",
+    mb_name == "Tennessee Upper" ~ "Upper Tennessee",
+    mb_name == "York Lower" ~ "Lower York",
+    mb_name == "Eastern Shore Atlantic" ~ "Eastern Shore",
+    mb_name == mb_name ~ mb_name) #this last line is the else clause to keep all other names supplied that don't need to be changed
+  
+  print(paste("PROCESSING: ",mb_name,sep=""))
   
   ######################################################################################################
   # DETERMINE MAP EXTENT FROM MINOR BASIN CENTROID
@@ -147,7 +180,7 @@ FIPS_in_basins <- function(minorbasin){
   
 #append minor basin name to fips_centroid.df
   
-  fips_centroid.df$mb_name <- mb_name$name
+  fips_centroid.df$mb_name <- mb_name
   
   fips_centroid.df$mb_code <- minorbasin
   #print(fips_centroid.df)
@@ -199,7 +232,7 @@ FIPS_in_basins <- function(minorbasin){
   
   #append minor basin name to fips.df
   
-  fips.df$mb_name <- mb_name$name
+  fips.df$mb_name <- mb_name
   
   fips.df$mb_code <- minorbasin
   
@@ -219,7 +252,7 @@ FIPS_in_basins <- function(minorbasin){
   
   # OUTPUT TABLE IN KABLE FORMAT
   localities_tex <- kable(fips.df,  booktabs = T,format = "latex", align = c("l","c"),
-        caption = paste0("Population Trend by Locality in ", mb_name$name, " Basin"),
+        caption = paste0("Population Trend by Locality in ", mb_name, " Basin"),
         label = paste0(minorbasin,"_localities")) %>%
     kable_styling(latex_options = "striped") 
   
@@ -248,7 +281,7 @@ FIPS_in_basins <- function(minorbasin){
 }
 ################ RUN FIPS IN BASINS FUNCTION ##################################################
 # SINGLE BASIN
-NR_fips <- FIPS_in_basins(minorbasin = "OR")
+PU_fips <- FIPS_in_basins(minorbasin = "PU")
 
 # ALL BASINS
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'EL', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
@@ -259,9 +292,9 @@ for (b in basins) {
   
   basin_b <- FIPS_in_basins(minorbasin = b)
   
-  #all_basins <- rbind(all_basins,basin_b)
+  all_basins <- rbind(all_basins,basin_b)
   
 }
 
-#write.csv(all_basins, file = "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\tables_maps\\Xtables\\VA_fips_in_minorbasins.csv" , row.names = F)
+write.csv(all_basins, file = "U:\\OWS\\foundation_datasets\\wsp\\wsp2020\\tables_maps\\Xtables\\VA_fips_in_minorbasins.csv" , row.names = F)
 

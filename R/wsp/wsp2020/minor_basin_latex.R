@@ -48,7 +48,7 @@ unmet30_raw <- read.csv(paste(folder,"metrics_facility_unmet30_mgd.csv",sep=""))
 # write.csv(null_minorbasin, paste(folder,"tables_maps/Xtables/NA_minorbasin_mp.csv", sep=""))
 
 ######### TABLE GENERATION FUNCTION #############################
-TABLE_GEN_func <- function(minorbasin = "PS", file_extension = ".tex"){
+TABLE_GEN_func <- function(minorbasin = "PU", file_extension = ".tex"){
 
    
    #-------- html or latex -----
@@ -422,6 +422,11 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    top_5_no[top_5_no == 0] <- "0.00"
    top_5_no[top_5_no == "Agriculture"] <- "AG"
    
+   # if (nrow(top_5_sw_no) < 6) {
+   #    a <- "yes"
+   # } else {
+   #    
+   # }
    # OUTPUT TABLE IN KABLE FORMAT
    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
          caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name," Minor Basin",sep=""),
@@ -441,9 +446,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       column_spec(7, width = "4em") %>%
       column_spec(8, width = "7em") %>%
       row_spec(0, bold=T, font_size = 9) %>%
-      pack_rows("Surface Water", 1, 6) %>%
-      row_spec(6, extra_latex_after = "\\hline") %>%
-      row_spec(7, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+      pack_rows("Surface Water", 1, nrow(top_5_sw_no)) %>%
+      row_spec(nrow(top_5_sw_no), extra_latex_after = "\\hline") %>%
+      row_spec(nrow(top_5_sw_no)+1, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
       
    #CUSTOM LATEX CHANGES
    #insert hold position header
@@ -1026,7 +1031,7 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
 }
 
 ### RUN TABLE GENERATION FUNCTION ########################
-TABLE_GEN_func(minorbasin = 'PS', file_extension = '.tex')
+TABLE_GEN_func(minorbasin = 'PU', file_extension = '.tex')
 
 # call summary table function in for loop to iterate through basins
 basins <- c('PS', 'NR', 'YP', 'TU', 'RL', 'OR', 'ES', 'PU', 'RU', 'YM', 'JA', 'MN', 'PM', 'YL', 'BS', 'PL', 'OD', 'JU', 'JB', 'JL')
