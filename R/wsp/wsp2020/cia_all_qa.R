@@ -74,12 +74,15 @@ pordf <- as.data.frame(pordat)
 
 
 df <- data.frame(
-  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
-  'runid' = c('runid_11', 'runid_12', 'runid_13', 'runid_11', 'runid_12', 'runid_13'),
-  'runlabel' = c('wdc_2020', 'wdc_2030', 'wdc_2040', 'l90_2020', 'l90_2030', 'l90_2040'),
-  'metric' = c('wd_cumulative_mgd', 'wd_cumulative_mgd','wd_cumulative_mgd', 'l90_Qout', 'l90_Qout', 'l90_Qout')
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_11', 'runid_12', 'runid_13', 'runid_11', 'runid_12', 'runid_13', 'runid_11', 'runid_13'),
+  'runlabel' = c('wdc_2020', 'wdc_2030', 'wdc_2040', 'l90_2020', 'l90_2030', 'l90_2040', 'l30_2020', 'l30_2040'),
+  'metric' = c('wd_cumulative_mgd', 'wd_cumulative_mgd','wd_cumulative_mgd', 'l90_Qout', 'l90_Qout', 'l90_Qout', 'l30_Qout', 'l30_Qout')
 )
 wshed_data <- om_vahydro_metric_grid(metric, df)
+
+wshed_data$dl90 <- (wshed_data$l90_2040 - wshed_data$l90_2020) / wshed_data$l90_2020
+wshed_data$dl30 <- (wshed_data$l30_2040 - wshed_data$l30_2020) / wshed_data$l30_2020
 
 wshed_data <- sqldf(
   "select a.*, b.da 
@@ -88,6 +91,7 @@ wshed_data <- sqldf(
   on (a.pid = b.pid)
   order by da
   ")
+
 wshed_case <- sqldf(
   "select * from 
    wshed_data 
@@ -134,3 +138,17 @@ sqldf(
      OR  (propname like 'Philpot%' ) )
   "
 )
+
+
+MN_data <- sqldf(
+  "select *
+   from wshed_data
+  where hydrocode like 'vahydrosw_wshed_MN%'
+  and riverseg not like '%0000%'
+  ")
+
+sqldf("select count(*) from MN_data")
+sqldf("select count(*) from MN_data where dl90 < -0.1")
+sqldf("select count(*) from MN_data where dl30 < -0.1")
+
+

@@ -72,15 +72,16 @@ df <- data.frame(
 )
 wshed_data <- om_vahydro_metric_grid(metric, df)
 
-wshed_data <- sqldf(
+P_data <- sqldf(
   "select a.*, b.da 
    from wshed_data as a 
   left outer join da_data as b 
   on (a.pid = b.pid)
   where hydrocode like 'vahydrosw_wshed_P%'
-  and hydrocode not like 'vahydrosw_wshed_PL%'
+  and hydrocode not like 'vahydrosw_wshed_PU%'
+  and riverseg not like '%0000%'
   order by da
   ")
 
-sqldf("select count(*) from wshed_data")
-sqldf("select count(*) from wshed_data where CU_2040 > 0.1")
+sqldf("select count(*) from P_data")
+sqldf("select count(*) from P_data where CU_2040 > 0.1")
