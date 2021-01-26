@@ -86,4 +86,18 @@ ql90_haswd <- quantile(wshed_wu$dl90, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), n
 ql30_haswd <- quantile(wshed_wu$dl30, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
 
 ql_table <- as.data.frame(rbind(ql90_all, ql30_all, ql90_haswd, ql30_haswd))
-knitr(ql_table)
+names(ql_table) <- c(
+  
+)
+table_tex <- kable(sum_tbl,align = "l",  booktabs = T,format = "latex",longtable =T,
+                   caption = "Unmet Demand Summaries, 2020 veruss 2040 demands.",
+                   label = "Unmet Demand Summary") %>%
+  kable_styling(latex_options = "striped") %>%
+  column_spec(2, width = "12em")
+
+table_tex <- gsub(pattern = "{table}[t]", 
+                  repl    = "{table}[H]", 
+                  x       = table_tex, fixed = T )
+table_tex %>%
+  cat(., file = paste0(export_path,"\\unmet_summary_tbl.tex"),sep="")
+
