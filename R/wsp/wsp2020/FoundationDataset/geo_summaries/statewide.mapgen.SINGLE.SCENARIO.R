@@ -14,7 +14,7 @@ library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
 # statewide.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON"){
-statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a,custom.legend = FALSE,custom.legend.path = FALSE){
+statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a,custom.legend = FALSE,custom.legend.path = FALSE,legend_colors=FALSE,legend_divs=FALSE){
   
   # SELECT MINOR BASIN NAME
   # mb_name <-sqldf(paste('SELECT name
@@ -478,8 +478,9 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a,custom.legend = FALS
   ### PROCESS rseg layers ###############################################################################
   ######################################################################################################
   rseg_border <- 'grey35'
-  color_scale <- c("white","#f7d679","#d98f50","#ad6c51")
-  divs <- c(0.05,0.10,0.20)
+
+  color_scale <- legend_colors
+  divs <- legend_divs
   
   map_divs <- map.divs.one(RSeg_data,rseg_border,color_scale,divs,runid_a)
   color_values <- map_divs$color_values
@@ -494,17 +495,7 @@ statewide.mapgen.SINGLE.SCENARIO <- function(metric,runid_a,custom.legend = FALS
   # DATAFRAME OF ANY "_0000" TIDAL SEGMENTS
   RSeg_tidal <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE hydrocode LIKE 'vahydrosw_wshed_JA%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_PL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_RL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YM%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YP%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_EL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_JB%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_MN%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_ES%_0000'
-                      ")
+                  WHERE hydrocode LIKE '%_0000%'")
   RSeg_tidal <- sqldf(RSeg_tidal)
   
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {

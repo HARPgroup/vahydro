@@ -52,14 +52,17 @@ source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map
 ### SCENARIO COMPARISONS #############################################################################
 ######################################################################################################
 #----------- RUN SINGLE MAP --------------------------
-# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.R",sep = '/'))
-# source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map.divs.R",sep = '/'))
-statewide.mapgen(metric = "l30_Qout",
+#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/statewide.mapgen.R",sep = '/'))
+#source(paste(vahydro_location,"R/wsp/wsp2020/FoundationDataset/geo_summaries/map.divs.R",sep = '/'))
+statewide.mapgen(metric = "l90_Qout",
                  runid_a = "runid_11",
                  runid_b = "runid_13",
                  custom.legend = TRUE,
-                 custom.legend.path = paste(folder,'tables_maps/X_legend_tidal_padding.PNG',sep=''))
-
+                 custom.legend.path = paste(folder,'tables_maps/X_legend_tidal_padding_3.PNG',sep=''),
+                 legend_colors = c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4"),
+                 legend_divs = c(-20,-10,-1,1,10,20)
+                 )
+                #legend_divs <- divs <- c(-20,-10,-5,5,10,20 #Prior to 1.26.21
 
 # #----------- RUN MAPS IN BULK --------------------------
 #ALL 21 MINOR BASINS (9 figs)
@@ -81,7 +84,11 @@ print(paste("PROCESSING VA",sep=""))
     print(paste("...PROCESSING METRIC: ",met,sep=""))
     for (rb in runid_b) {
       print(paste("......PROCESSING runid_b: ",rb,sep=""))
-      statewide.mapgen(met,runid_a,rb,custom.legend = TRUE,custom.legend.path = paste(folder,'tables_maps/X_legend_tidal_padding.PNG',sep=''))
+      statewide.mapgen(met,runid_a,rb,custom.legend = TRUE,
+                       custom.legend.path = paste(folder,'tables_maps/X_legend_tidal_padding_3.PNG',sep=''),
+                       legend_colors = c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4"),
+                       legend_divs = c(-20,-10,-1,1,10,20)
+                      )
     } #CLOSE runid FOR LOOP
   } #CLOSE metric FOR LOOP
   it <- it + 1
@@ -98,8 +105,11 @@ beep(3)
 # #----------- RUN SINGLE MAP --------------------------
 statewide.mapgen.SINGLE.SCENARIO(metric = "consumptive_use_frac",
                                  runid_a = "runid_13",
-                                 custom.legend = FALSE,
-                                 custom.legend.path = paste(folder,'tables_maps/X_legend_single_tidal_padding.PNG',sep=''))
+                                 custom.legend = TRUE,
+                                 custom.legend.path = paste(folder,'tables_maps/X_legend_single_tidal_padding.PNG',sep=''),
+                                 legend_colors = c("white","#f7d679","#d98f50","#ad6c51"),
+                                 legend_divs = c(0.05,0.10,0.20)
+                                 )
 
 
 # #----------- RUN MAPS IN BULK --------------------------
@@ -119,7 +129,11 @@ print(paste("PROCESSING VA",sep=""))
     print(paste("...PROCESSING METRIC: ",met,sep=""))
     for (rb in runid_a) {
       print(paste("......PROCESSING runid_a: ",rb,sep=""))
-      statewide.mapgen.SINGLE.SCENARIO(met,rb,custom.legend = TRUE,custom.legend.path = paste(folder,'tables_maps/X_legend_single_tidal_padding.PNG',sep=''))
+      statewide.mapgen.SINGLE.SCENARIO(met,rb,custom.legend = TRUE,
+                                       custom.legend.path = paste(folder,'tables_maps/X_legend_single_tidal_padding.PNG',sep=''),
+                                       legend_colors = c("white","#f7d679","#d98f50","#ad6c51"),
+                                       legend_divs = c(0.05,0.10,0.20)
+                                       )
     } #CLOSE runid FOR LOOP
   } #CLOSE metric FOR LOOP
   it <- it + 1

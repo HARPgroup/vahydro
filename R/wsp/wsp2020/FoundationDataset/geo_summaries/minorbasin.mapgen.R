@@ -13,7 +13,7 @@ library(magick) #plot static legend
 library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
-minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON",wells = "OFF",custom.legend = FALSE){
+minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON",wells = "OFF",custom.legend = FALSE,legend_colors=FALSE,legend_divs=FALSE){
   
   # SELECT MINOR BASIN NAME
   mb_name <-sqldf(paste('SELECT 
@@ -421,7 +421,9 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   #print(length(RSeg_data[,1]))
   
   # NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
-  RSeg_data <- RSeg_data[,-which(colnames(RSeg_data)=="hydrocode" )[2]]
+  #RSeg_data <- RSeg_data[,-which(colnames(RSeg_data)=="hydrocode" )[2]]
+  RSeg_data <- RSeg_data[,-max(which(grepl("hydrocode",colnames(RSeg_data),fixed = TRUE)==TRUE))] #FIXED TO WORK ON JM & JK MACHINES 1.26.21
+  
   
   # REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
   RSeg_valid_geoms <- paste("SELECT *
@@ -543,12 +545,14 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
     #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_tidal_segment_8bin_2.0.PNG',sep='')
     #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
-    image_path <- paste(folder, 'tables_maps/X_legend_tidal.PNG',sep='')
+    #image_path <- paste(folder, 'tables_maps/X_legend_tidal.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/X_legend_tidal_2.PNG',sep='')
   } else {
     #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
-    image_path <- paste(folder, 'tables_maps/X_legend.PNG',sep='')
+    #image_path <- paste(folder, 'tables_maps/X_legend.PNG',sep='')
+    image_path <- paste(folder, 'tables_maps/X_legend_2.PNG',sep='')
   }
-  
+
   #image_path <- paste(folder, 'tables_maps/GRN_legend_rseg_8bin_2.0.PNG',sep='')
   #base_legend <- draw_image(image_path,height = .34, x = 0.392, y = .55)
   # base_legend <- draw_image(image_path,height = .35, x = 0.392, y = .54)
@@ -568,13 +572,16 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   ### PROCESS rseg layers###############################################################################
   ######################################################################################################
   rseg_border <- 'black'
-  color_scale <- c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
-  divs <- c(-20,-10,-5,5,10,20)
+  # color_scale <- c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
+  # divs <- c(-20,-10,-5,5,10,20)
+
+  color_scale <- legend_colors
+  divs <- legend_divs
   
   map_divs <- map.divs(RSeg_data,rseg_border,color_scale,divs)
+  
   color_values <- map_divs$color_values
   label_values <- map_divs$label_values
-  
   ######################################################################################################
   ######################################################################################################
   ######################################################################################################
@@ -587,8 +594,13 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   # DATAFRAME OF ANY "_0000" TIDAL SEGMENTS
   RSeg_tidal <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE hydrocode LIKE '%_0000'")
+                  WHERE hydrocode LIKE '%_0000%'")
   RSeg_tidal <- sqldf(RSeg_tidal)
+  
+  # RSeg_tidal <- paste("SELECT *
+  #                 FROM RSeg_data
+  #                 WHERE hydrocode LIKE '%_0000'")
+  # RSeg_tidal <- sqldf(RSeg_tidal)
   
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
     group_tidal_base <- st_as_sf(RSeg_data, wkt = 'geom')
@@ -644,9 +656,9 @@ minorbasin.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF
   # *note, if the following if statement was removed and geom_tidal layer still 
   #     added on top, the resulting maps will be 100% identical to the vahydro mapserv maps
   #     i.e. minor basins such as TU will have _0000 rsegs greyed out (but thats yucky)
-  if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
+  # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
     source_current <- source_current + geom_tidal
-  }
+  # }
   
   #EXPORT FILE NAME FOR MAP PNG
   export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_to_",runid_b,"_",metric,"_map.png",sep = "")
