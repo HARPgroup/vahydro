@@ -26,12 +26,13 @@ map.divs <- function(RSeg_data,rseg_border,color_scale,divs){
   } else  {
     geom1 <- geom_blank()
   }
+ 
   ######################################################################################################
   ### BIN 2 ############################################################################################
   ######################################################################################################
   bin2 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div2, "AND pct_chg >= ",div1))
   bin2 <- st_as_sf(bin2, wkt = 'geom')
-  
+
   if (nrow(bin2) > 0) {
     geom2 <- geom_sf(data = bin2,aes(geometry = geom,fill = 'antiquewhite1',colour=rseg_border), inherit.aes = FALSE)
     color_values <- rbind(color_values,color_scale[2])
@@ -44,7 +45,7 @@ map.divs <- function(RSeg_data,rseg_border,color_scale,divs){
   ######################################################################################################
   bin3 <- sqldf(paste("SELECT * FROM RSeg_data WHERE pct_chg < ",div3, "AND pct_chg >= ",div2))
   bin3 <- st_as_sf(bin3, wkt = 'geom')
-  
+
   if (nrow(bin3) > 0) {
     geom3 <- geom_sf(data = bin3,aes(geometry = geom,fill = 'antiquewhite2',colour=rseg_border), inherit.aes = FALSE)
     color_values <- rbind(color_values,color_scale[3])
@@ -124,13 +125,13 @@ map.divs <- function(RSeg_data,rseg_border,color_scale,divs){
 } #close function  
 
 map.divs.one <- function(RSeg_data,rseg_border,color_scale,divs,runid_a){
-
+  
   
   #DIVISIONS TO BE USED IN 4 MAPPING "BINS"
   div1 <- divs[1]
   div2 <- divs[2] 
   div3 <- divs[3] 
-
+  
   #INITIATE COLOR AND LABEL LISTS
   color_values <- list()
   label_values <- list()

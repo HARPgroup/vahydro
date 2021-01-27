@@ -611,9 +611,9 @@ minorbasin.mapgen.SINGLE.SCENARIO <- function(minorbasin,metric,runid_a,wd_point
   # *note, if the following if statement was removed and geom_tidal layer still 
   #     added on top, the resulting maps will be 100% identical to the vahydro mapserv maps
   #     i.e. minor basins such as TU will have _0000 rsegs greyed out (but thats yucky)
-  if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
+  # if (minorbasin %in% c('JA','PL','RL','YL','YM','YP','EL','JB','MN','ES')) {
     source_current <- source_current + geom_tidal
-  }
+  # }
 
   #EXPORT FILE NAME FOR MAP PNG
   export_file <- paste0(export_path, "tables_maps/Xfigures/",minorbasin,"_",runid_a,"_",metric,"_map.png",sep = "")

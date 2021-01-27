@@ -14,7 +14,7 @@ library(ggrepel) #needed for geom_text_repel()
 library(ggmap) #used for get_stamenmap, get_map
 
 # statewide.mapgen <- function(minorbasin,metric,runid_a,runid_b,wd_points = "OFF",rsegs = "ON"){
-statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE,custom.legend.path = FALSE){
+statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE,custom.legend.path = FALSE,legend_colors=FALSE,legend_divs=FALSE){
   
   # SELECT MINOR BASIN NAME
   # mb_name <-sqldf(paste('SELECT name
@@ -329,9 +329,10 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE,custom
   
   RSeg_data <- sqldf(RSeg_data)
   #print(length(RSeg_data[,1]))
-  
+ 
   # NEED TO REMOVE SECOND "hydrocode" COLUMN TO PREVENT ERROR LATER ON
-  RSeg_data <- RSeg_data[,-which(colnames(RSeg_data)=="hydrocode" )[2]]
+  #RSeg_data <- RSeg_data[,-which(colnames(RSeg_data)=="hydrocode" )[2]]
+  RSeg_data <- RSeg_data[,-max(which(grepl("hydrocode",colnames(RSeg_data),fixed = TRUE)==TRUE))] #FIXED TO WORK ON JM & JK MACHINES 1.26.21
   
   # REMOVE ANY WITH EMPTY GEOMETRY FIELD (NEEDED PRIOR TO GEOPROCESSING)
   RSeg_valid_geoms <- paste("SELECT *
@@ -475,9 +476,12 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE,custom
   ### PROCESS rseg layers###############################################################################
   ######################################################################################################
   rseg_border <- 'grey35'
-  color_scale <- c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
-  divs <- c(-20,-10,-5,5,10,20)
+  # legend_colors <- c("#ad6c51","#d98f50","#f7d679","white","#E4FFB9","darkolivegreen3","darkolivegreen4")
+  # legend_divs <- c(-20,-10,-5,5,10,20)
   #divs <- c(-9999,-20,-10,-5,5,10,20,9999)
+  
+  color_scale <- legend_colors
+  divs <- legend_divs
   
   map_divs <- map.divs(RSeg_data,rseg_border,color_scale,divs)
   color_values <- map_divs$color_values
@@ -491,17 +495,7 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE,custom
   
   RSeg_tidal <- paste("SELECT *
                   FROM RSeg_data
-                  WHERE hydrocode LIKE 'vahydrosw_wshed_JA%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_PL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_RL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YM%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_YP%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_EL%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_JB%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_MN%_0000' OR
-                        hydrocode LIKE 'vahydrosw_wshed_ES%_0000'
-                      ")
+                  WHERE hydrocode LIKE '%_0000%'")
   RSeg_tidal <- sqldf(RSeg_tidal)
 
   if ((length(RSeg_tidal[,1]) >= 1) == TRUE) {
@@ -555,7 +549,10 @@ statewide.mapgen <- function(metric,runid_a,runid_b,custom.legend = FALSE,custom
   
   #EXPORT FILE NAME FOR MAP PNG
   export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.png",sep = "")
-   
+  
+  #EXPORT FILE NAME FOR MAP PDF
+  #export_file <- paste0(export_path, "tables_maps/Xfigures/VA_",metric,"_",runid_a,"_to_",runid_b,"_map.pdf",sep = "")
+  
   # if (wd_points == "OFF") {
   #   print("PLOTTING - WITHDRAWAL POINTS OFF") 
     
