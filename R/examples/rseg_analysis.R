@@ -42,6 +42,10 @@ boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,5),
 dev.off()
 
 
+# 
+# library(hydrotools)
+dat <- om_get_rundata(352078,601) #automatically cuts out model warm-up periods 
+dat.df <- data.frame(dat)
 
 
 
