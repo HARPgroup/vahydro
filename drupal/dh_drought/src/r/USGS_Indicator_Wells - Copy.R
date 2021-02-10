@@ -151,7 +151,7 @@ for (j in 1:length(hydrocodes)) {
   #write.csv(format(annual_summaries, digits=4),paste(export_path,well_code,'_annual_summaries.csv',sep=''), row.names=FALSE)
   write.csv(annual_summaries,paste(export_path,well_code,'_annual_summaries.csv',sep=''), row.names=FALSE)
   annual_summary_list[[well_code]] <- annual_summaries
- 
+    
   #################################################################################################
   # REST (TO BE REVISED)
   #################################################################################################
@@ -173,95 +173,15 @@ for (j in 1:length(hydrocodes)) {
          # tstime = as.numeric(as.POSIXct("2020-01-01",origin = "1970-01-01", tz = "GMT")),
          # tsendtime = as.numeric(as.POSIXct("2020-12-31",origin = "1970-01-01", tz = "GMT")),
          tstime = as.numeric(as.POSIXct(paste(startyear,"-01-02",sep=""),origin = "1970-01-01", tz = "GMT")),
-         tsendtime = as.numeric(as.POSIXct(paste(format(Sys.Date(), "%Y"),"-01-01",sep=""),origin = "1970-01-01", tz = "GMT")),
+         tsendtime = as.numeric(as.POSIXct(paste(format(Sys.Date(), "%Y"),"-12-31",sep=""),origin = "1970-01-01", tz = "GMT")),
          tscode = tscode,
          limit = 100
        );
 
       post_ts <- postTimeseries(tsbody, base_url)
-       
-      indicator_rating.tsid <- post_ts
-      print(indicator_rating.tsid)
   #################################################################################################
   #################################################################################################
 
-  #################################################################################################
-  #################################################################################################
-  five_yr_avg_diff <- annual_summaries[length(annual_summaries[,1]),]$five_yr_avg_diff
-  five_yr_avg_diff_rating <- annual_summaries[length(annual_summaries[,1]),]$five_yr_avg_diff_rating
-   
-  one_yr_diff <- annual_summaries[length(annual_summaries[,1]),]$one_yr_diff
-  one_yr_diff_rating <- annual_summaries[length(annual_summaries[,1]),]$one_yr_diff_rating 
-   
-  min_depth_ft <- annual_summaries[length(annual_summaries[,1]),]$min_depth_ft
-  max_depth_ft <- annual_summaries[length(annual_summaries[,1]),]$max_depth_ft
-  median_depth_ft <- annual_summaries[length(annual_summaries[,1]),]$median_depth_ft
-  #################################################################################################
-  #################################################################################################
-       
-  #################################################################################################
-  #################################################################################################
-  #------five_yr_avg_diff
-  five_yr_avg_diff.pbody = list(
-    featureid = indicator_rating.tsid,
-    varkey = 'five_yr_avg_diff',
-    entity_type = 'dh_timeseries',
-    propvalue = five_yr_avg_diff,
-    propcode = five_yr_avg_diff_rating,
-    limit = 100
-  );
-  post.five_yr_avg_diff <- postProperty(five_yr_avg_diff.pbody, base_url)
-  #################################################################################################
-  #------one_yr_diff
-  one_yr_diff.pbody = list(
-    featureid = indicator_rating.tsid,
-    varkey = 'one_yr_diff',
-    entity_type = 'dh_timeseries',
-    propvalue = one_yr_diff,
-    propcode = one_yr_diff_rating,
-    limit = 100
-  );
-  post.one_yr_avg_diff <- postProperty(one_yr_diff.pbody, base_url)
-  #################################################################################################
-  #------min_depth_ft
-  min_depth_ft.pbody = list(
-    featureid = indicator_rating.tsid,
-    varkey = 'min_depth_ft',
-    entity_type = 'dh_timeseries',
-    propvalue = min_depth_ft,
-    propcode = "min_depth_ft",
-    limit = 100
-  );
-  post.min_depth_ft <- postProperty(min_depth_ft.pbody, base_url)
-  #################################################################################################
-  #------max_depth_ft
-  max_depth_ft.pbody = list(
-    featureid = indicator_rating.tsid,
-    varkey = 'max_depth_ft',
-    entity_type = 'dh_timeseries',
-    propvalue = max_depth_ft,
-    propcode = "max_depth_ft",
-    limit = 100
-  );
-  post.max_depth_ft <- postProperty(max_depth_ft.pbody, base_url)
-  #################################################################################################
-  #------med_depth_ft
-  median_depth_ft.pbody = list(
-    featureid = indicator_rating.tsid,
-    varkey = 'median_depth_ft',
-    entity_type = 'dh_timeseries',
-    propvalue = median_depth_ft,
-    propcode = "median_depth_ft",
-    limit = 100
-  );
-  post.median_depth_ft <- postProperty(median_depth_ft.pbody, base_url)
-  
-  
-  
-  
-  
-  #################################################################################################    
-       
 } #end of well feature loop
 
  write.xlsx(annual_summary_list, file = paste(export_path,'POTOMAC_WELL_SUMMARIES_',as.character(as.numeric(format(Sys.Date(), "%Y"))),'.xlsx',sep=''),

@@ -173,7 +173,7 @@ for (j in 1:length(hydrocodes)) {
          # tstime = as.numeric(as.POSIXct("2020-01-01",origin = "1970-01-01", tz = "GMT")),
          # tsendtime = as.numeric(as.POSIXct("2020-12-31",origin = "1970-01-01", tz = "GMT")),
          tstime = as.numeric(as.POSIXct(paste(startyear,"-01-02",sep=""),origin = "1970-01-01", tz = "GMT")),
-         tsendtime = as.numeric(as.POSIXct(paste(format(Sys.Date(), "%Y"),"-01-01",sep=""),origin = "1970-01-01", tz = "GMT")),
+         tsendtime = as.numeric(as.POSIXct(paste(format(Sys.Date(), "%Y"),"-12-31",sep=""),origin = "1970-01-01", tz = "GMT")),
          tscode = tscode,
          limit = 100
        );
@@ -203,7 +203,7 @@ for (j in 1:length(hydrocodes)) {
   #################################################################################################
   #------five_yr_avg_diff
   five_yr_avg_diff.pbody = list(
-    featureid = indicator_rating.tsid,
+    featureid = indicator_rating.pid,
     varkey = 'five_yr_avg_diff',
     entity_type = 'dh_timeseries',
     propvalue = five_yr_avg_diff,
@@ -214,7 +214,7 @@ for (j in 1:length(hydrocodes)) {
   #################################################################################################
   #------one_yr_diff
   one_yr_diff.pbody = list(
-    featureid = indicator_rating.tsid,
+    featureid = indicator_rating.pid,
     varkey = 'one_yr_diff',
     entity_type = 'dh_timeseries',
     propvalue = one_yr_diff,
