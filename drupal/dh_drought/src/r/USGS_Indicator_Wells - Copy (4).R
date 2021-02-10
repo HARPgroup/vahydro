@@ -279,7 +279,7 @@ for (j in 1:length(hydrocodes)) {
       limit = 100
     );
     post.median_depth_ft <- postProperty(median_depth_ft.pbody, base_url)
-  } #LOOP THROUGH EACH HISTORIC YEAR
+  } #LOOP THROUGH EACH YEAR
   
   
   
