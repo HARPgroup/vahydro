@@ -8,7 +8,7 @@ library(openxlsx) #required  for exporting data to excel file, each well as sepa
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 
-#base_url <- "http://deq2.bse.vt.edu/d.alpha"
+#base_url <- "http://deq2.bse.vt.edu/d.alpha" #USED FOR TESTING PURPOSES ONLY
 
 # load libraries
 source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
@@ -154,18 +154,26 @@ for (j in 1:length(hydrocodes)) {
  
   
   
-  #t<-1
-  #LOOP THROUGH EACH YEAR
-  for (t in 1:length(annual_summaries[,1])) {
-    year_t <- as.character(annual_summaries$year[t])
-    print(paste("ITERATING THROUGH YEAR ",t," of ",length(annual_summaries[,1]),": ",year_t,sep=""))
+  
+  #################################################################################################
+  # REST
+  #################################################################################################
+  
+  #THE LOOP BELOW CAN BE USED FOR SETTING DATA FROM HISTORIC YEARS
+  # #t<-1
+  # #LOOP THROUGH EACH YEAR
+  # for (t in 1:length(annual_summaries[,1])) {
+  #   year_t <- as.character(annual_summaries$year[t])
+  #   print(paste("ITERATING THROUGH YEAR ",t," of ",length(annual_summaries[,1]),": ",year_t,sep=""))
+  #   
+  #   annual_summaries_t <- annual_summaries[t,]
     
-    annual_summaries_t <- annual_summaries[t,]
+
+    annual_summaries_t <- annual_summaries
+    year_t <- as.character(annual_summaries_t[length(annual_summaries_t[,1]),]$year)
     
-    #################################################################################################
-    # REST (TO BE REVISED)
-    #################################################################################################
-    tscode <- annual_summaries_t[length(annual_summaries_t[,1]),]$five_yr_avg_diff_rating
+    tscode <- annual_summaries_t[length(annual_summaries_t[,1]),]$one_yr_diff_rating #USING ONE YEAR DIFFERENCE IN ANNUAL MEDIAN DEPTH
+    #tscode <- annual_summaries_t[length(annual_summaries_t[,1]),]$five_yr_avg_diff_rating #USING FIVE YEAR AVERAGE CHANGE IN ANNUAL MEDIAN DEPTH
     hydrocode <- hydrocodes[j]
   
     #Retrieve dH usgsgage feature from vahydro
@@ -279,7 +287,7 @@ for (j in 1:length(hydrocodes)) {
       limit = 100
     );
     post.median_depth_ft <- postProperty(median_depth_ft.pbody, base_url)
-  } #LOOP THROUGH EACH HISTORIC YEAR
+  # } #LOOP THROUGH EACH HISTORIC YEAR
   
   
   
