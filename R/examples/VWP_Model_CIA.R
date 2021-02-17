@@ -53,6 +53,28 @@ boxplot(as.numeric(rseg.dat$Runit) ~ rseg.dat$year, ylim=c(0,20),
 )
 dev.off()
 ################################################################################################
+#CONVERT ROW NAMES TO DATE COLUMN
+rseg.dat.df <- cbind("date" = rownames(rseg.dat.df),rseg.dat.df)
+
+png(paste(save_directory,"/rseg_Qout_hydrograph_",rseg.elid,"_",runid,".png",sep=""))
+# ymn <- 1
+# ymx <- 100
+ymn <- 0
+ymx <- 20
+xmn <- as.Date('2000-06-01')
+xmx <- as.Date('2000-11-15')
+par(mar = c(5,5,2,5))
+
+plot(as.numeric(rseg.dat.df$Qout)~as.Date(rseg.dat.df$date),type = "l",
+     col = 'blue',
+     ylim=c(ymn,ymx),xlim=c(xmn,xmx),
+     ###ylab="available_mgd (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx))
+     ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
+     main=paste("elid: ",rseg.elid,"; runid: ",runid,sep=""))
+
+ legend(xmn,ymx,legend=c("Qout"),
+        col=c("blue"), lty=1, cex=1)
+dev.off()
 ################################################################################################
 ################################################################################################
 ################################################################################################
@@ -83,7 +105,8 @@ par(mar = c(5,5,2,5))
 plot((as.numeric(fac.dat.df$available_mgd) * 1.547)~as.Date(fac.dat.df$thisdate),type = "l",
      ylim=c(ymn,ymx),xlim=c(xmn,xmx),
      ###ylab="available_mgd (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx))
-     ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx))
+     ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
+     main=paste("elid: ",fac.elid,"; runid: ",runid,sep=""))
 
 par(new = TRUE)
 # ymx2 <- max(as.numeric(fac.dat.df$Qintake))
