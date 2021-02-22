@@ -14,10 +14,10 @@ source(paste(hydro_tools_location,'/R/om_vahydro_metric_grid.R', sep = ''));
 folder <- "C:/Workspace/tmp/"
 
 df <- data.frame(
-  'model_version' = c('vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0'),
-  'runid' = c('runid_11', 'runid_13','runid_11', 'runid_13','runid_11', 'runid_13','runid_11', 'runid_13'),
-  'metric' = c('wd_mgd', 'wd_mgd', 'unmet7_mgd', 'unmet7_mgd', 'unmet30_mgd', 'unmet30_mgd', 'unmet90_mgd', 'unmet90_mgd'),
-  'runlabel' = c('wd_2020', 'wd_2040', 'unmet7_mgd_2020', 'unmet7_mgd_2040', 'unmet30_mgd_2020', 'unmet30_mgd_2040', 'unmet90_mgd_2020', 'unmet90_mgd_2040')
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_11', 'runid_13','runid_11', 'runid_13','runid_11', 'runid_13','runid_11', 'runid_13', 'runid_18'),
+  'metric' = c('wd_mgd', 'wd_mgd', 'unmet7_mgd', 'unmet7_mgd', 'unmet30_mgd', 'unmet30_mgd', 'unmet90_mgd', 'unmet90_mgd', 'unmet90_mgd'),
+  'runlabel' = c('wd_2020', 'wd_2040', 'unmet7_mgd_2020', 'unmet7_mgd_2040', 'unmet30_mgd_2020', 'unmet30_mgd_2040', 'unmet90_mgd_2020', 'unmet90_mgd_2040', 'unmet90_mgd_ex')
 )
 fac_data <- om_vahydro_metric_grid( metric, df, 'all', 'dh_feature', 'facility','all')
 fac_case <- sqldf(
