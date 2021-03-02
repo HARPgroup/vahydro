@@ -3,17 +3,19 @@ library(httr)
 #----------------------------------------------
 # USER INPUTS
 site <- "http://deq2.bse.vt.edu/d.dh"
-datafile <- "U:/OWS/VWWR_Annual Reporting/Annual Reporting/2019/aqua_2019.csv"
-reporting_year <- "2019"
+datafile <- "C:/Users/jklei/Desktop/aqua_2021/aqua_2020.csv"
+reporting_year <- "2020"
 
-#----------------------------------------------
-source("/var/www/R/config.local.private")
+
+basepath <- "/var/www/R/"
+source(paste(basepath,"config.local.private",sep = '/'))
+
 # load libraries
 source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
-source(paste(hydro_tools,"auth.private", sep = "/"));#load rest username and password, contained in auth.private file
+source(paste(basepath,"auth.private",sep = '/'))
 token <- rest_token (site, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
-token <- str_remove(token, '\n')
 
+options(scipen = 999) #disable scientific notation data format
 
 #---Load file
 data <- read.csv(file = datafile, header = TRUE, sep = ",")
@@ -22,14 +24,13 @@ data <- read.csv(file = datafile, header = TRUE, sep = ",")
 run_started <- Sys.time()
 num_recs <- length(data[, 1])
 
-# i <- 1
-
+#i <- 1
 #---Begin MP Feature Loop
 for (i in 1:num_recs) {
   print(paste("Processing MP ", i, " of ", num_recs, sep = ""))
   
   
-  hydroid <- paste(data[i,]$hydroid)
+  hydroid <- paste(data[i,]$mp_hydroid)
     # IF STATEMENT TO ONLY IMPORT DATA FOR EXISTING VAHYDRO WELLS
     if (hydroid == "NA") {
         print(paste("MP Does Not Exist In VAHydro OR Reports Quarterly - Skipping MP ", i, " of ", num_recs, sep = ""))
@@ -38,20 +39,18 @@ for (i in 1:num_recs) {
     
   print(paste("Processing  MP Feature ", i, " of ", num_recs, sep = ""))
   
-  options(scipen = 999) #disable scientific notation data format
-  
-  JAN <- as.numeric(as.character(data[i,]$JAN))
-  FEB <- as.numeric(as.character(data[i,]$FEB))
-  MAR <- as.numeric(as.character(data[i,]$MAR))
-  APR <- as.numeric(as.character(data[i,]$APR))
-  MAY <- as.numeric(as.character(data[i,]$MAY))
-  JUN <- as.numeric(as.character(data[i,]$JUN))
-  JUL <- as.numeric(as.character(data[i,]$JUL))
-  AUG <- as.numeric(as.character(data[i,]$AUG))
-  SEP <- as.numeric(as.character(data[i,]$SEP))
-  OCT <- as.numeric(as.character(data[i,]$OCT))
-  NOV <- as.numeric(as.character(data[i,]$NOV))
-  DEC <- as.numeric(as.character(data[i,]$DEC))
+  JAN <- as.numeric(as.character(data[i,]$jan_mgm))
+  FEB <- as.numeric(as.character(data[i,]$feb_mgm))
+  MAR <- as.numeric(as.character(data[i,]$mar_mgm))
+  APR <- as.numeric(as.character(data[i,]$apr_mgm))
+  MAY <- as.numeric(as.character(data[i,]$may_mgm))
+  JUN <- as.numeric(as.character(data[i,]$jun_mgm))
+  JUL <- as.numeric(as.character(data[i,]$jul_mgm))
+  AUG <- as.numeric(as.character(data[i,]$aug_mgm))
+  SEP <- as.numeric(as.character(data[i,]$sep_mgm))
+  OCT <- as.numeric(as.character(data[i,]$oct_mgm))
+  NOV <- as.numeric(as.character(data[i,]$nov_mgm))
+  DEC <- as.numeric(as.character(data[i,]$dec_mgm))
   
   timeseries_values <- c(JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC)
   dates <- c(paste(reporting_year, "-01-01", sep = ""),
@@ -68,8 +67,8 @@ for (i in 1:num_recs) {
              paste(reporting_year, "-12-01", sep = ""))
   timeseries_values <- data.frame(timeseries_values, dates)
     
-    # j <- 5
-    #---Begin MP Timeseries Loop
+  # j <- 8
+  #---Begin MP Timeseries Loop
   num_timeseries_values <- length(timeseries_values$timeseries_values)
   for (j in 1:num_timeseries_values) {
       
@@ -89,7 +88,7 @@ for (i in 1:num_recs) {
       featureid = hydroid,
       varkey = varkey,
       entity_type = "dh_feature",
-      tsvalue = tsvalue,
+      tsvalue = as.numeric(format(tsvalue, scientific=F)),
       tstime = tstime
     )
     ts <- postTimeseries(inputs, site)
@@ -124,4 +123,3 @@ for (i in 1:num_recs) {
 
 ################################
 ################################
-
