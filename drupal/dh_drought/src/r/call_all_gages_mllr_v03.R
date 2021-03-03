@@ -6,8 +6,9 @@ library('zoo')
 library('IHA')
 library('stringr')
 library('lubridate')
+library('hydrotools')
 source("/var/www/R/config.local.private");
-source(paste(fxn_locations,"fn_vahydro-2.0/rest_functions.R", sep = "/")); 
+source(paste(fxn_vahydro,"VAHydro-2.0/rest_functions.R", sep = "/")); 
 
 calyear <- 2018;
 
