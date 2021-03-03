@@ -8,8 +8,8 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 
 # Now do the stuff 343332 210327 Occ: 229569
-elid = 251349       	
-runid = 13
+elid = 252305        	
+runid = 12
 tyear = '1997'
 
 dat <- om_get_rundata(elid,11)
