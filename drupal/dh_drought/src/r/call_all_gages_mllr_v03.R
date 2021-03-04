@@ -6,12 +6,18 @@ library('zoo')
 library('IHA')
 library('stringr')
 library('lubridate')
-source("/var/www/R/config.local.private");
-source(paste(fxn_locations,"fn_vahydro-2.0/rest_functions.R", sep = "/")); 
+library('hydrotools')
+#source("/var/www/R/config.local.private");
+#source(paste(fxn_vahydro,"VAHydro-2.0/rest_functions.R", sep = "/")); 
+site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+save_url <- paste(str_remove(site, 'd.dh'), "data/proj3/out", sep='');
+#----------------------------------------------
+# Load Libraries
+basepath='/var/www/R';
+source(paste(basepath,'config.R',sep='/'))
+calyear <- 2020;
 
-calyear <- 2018;
-
-file_directory <- "/var/www/html/files/dh/mllr/out/";
+file_directory <- export_path;
 #file_directory <- "C:\\WorkSpace\\tmp\\";
 file_name <- paste("mllr_drought_probs_", calyear, ".tsv", sep="");
 file_path <- paste(file_directory, file_name, sep="");
@@ -49,13 +55,13 @@ for (j in 1:length(month)) {
 }
 
 # retrieve all with un-set sept 10 probabilities for the current year
-uri <- "http://deq1.bse.vt.edu/d.dh/usgs-mllr-sept10-gages-all"
-gagelist = read.csv(uri, header = TRUE, sep = "\t");
+uri <- paste0(site,"/usgs-mllr-sept10-gages-all")
+gagelist = om_auth_read(uri, token, "text/csv")
 gage <- gagelist$staid
 # un-comment to test a small set
 #gage <- c(01636316)
 #gage <- as.numeric(gage)
-gage <- sprintf("%08d", gage)
+gage <- sprintf("%08s", gage)
 
 ## MLLR calculation ##
 
@@ -104,10 +110,11 @@ for (i in 1:length(gage)) {
 	# Combine beta0s and beta1s 
 	varkeys <- c(beta_0, beta_1)
 	# Write get_modelData URL to get ALL 24 beta values
-	beta_url <- paste("http://deq1.bse.vt.edu/d.dh/?q=export-properties-om/usgs_", gage[i], "/drought_model", sep="");
+	beta_url <- paste(site,"/?q=export-properties-om/usgs_", gage[i], "/drought_model", sep="");
   print(paste("getting betas: ", beta_url, sep=""));
 	# Read beta values and names from URL
-	rawtable <- try(read.table(beta_url, header=TRUE, sep=","))
+	#rawtable <- try(read.table(beta_url, header=TRUE, sep=","))
+	rawtable <- try(om_auth_read(beta_url, token, "text/csv"))
 	if (class(rawtable)=="try-error") { 	
 		next
 	} else { 
