@@ -16,6 +16,7 @@ save_url <- paste(str_remove(site, 'd.dh'), "data/proj3/out", sep='');
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 calyear <- 2020;
+token <- om_vahydro_token()
 
 file_directory <- export_path;
 #file_directory <- "C:\\WorkSpace\\tmp\\";
