@@ -72,16 +72,16 @@ bp + labs(
   #subtitle = subverbiage,
   x = 'Year',
   y = 'Rainfall (inches)'
-) +  ylim(0,40) +
+) +  ylim(0,80) +
   geom_smooth(method='lm') + 
   geom_smooth(
-    aes(y = precip),
+    aes(y = prcp),
     method='lm',
     fill = 'red',
     alpha = 0.2
   )
 
-# Use CC which has alternate evap method -- or does the base we are using alrady include this method?
+# Use CC which has alternate evap method -- or does the base we are using already include this method?
 # this only goes to 2005 which may be problematic?
 eylm <- lm(evap ~ yindex, dat=as.data.frame(p10_all_ann))
 summary(eylm) 
