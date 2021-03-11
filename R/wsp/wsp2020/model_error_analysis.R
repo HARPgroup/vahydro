@@ -188,6 +188,8 @@ row.names(alt_quants) <- c('Modeled Alterations', 'Adjusted Alterations')
 colnames(alt_quants) <- c("Highest 1%", "Highest 5%", "Highest 10%")
 alt_quants
 
+wshed_adj$l90_uint_pct <-(wshed_adj$flow_alt_pct - wshed_adj$adj_alt_pct)
+
 alt_delta_quants <- quantile(
   (wshed_adj$flow_alt_pct - wshed_adj$adj_alt_pct), 
   na.rm=TRUE, 
