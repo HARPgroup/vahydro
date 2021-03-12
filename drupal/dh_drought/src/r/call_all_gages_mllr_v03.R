@@ -17,7 +17,7 @@ ds$get_token()
 # Load Libraries
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
-calyear <- 2020;
+calyear <- 2021; # what summer year is this assessment for?
 token <- om_vahydro_token()
 
 file_directory <- export_path;
@@ -65,7 +65,7 @@ uri <- paste0(site,"/usgs-mllr-sept10-gages-all")
 gagelist <- ds$auth_read(uri, "text/csv", ",")
 gagelist$staid <- sprintf("%08s", gagelist$staid) # insure correct usgs gage ID
 # un-comment to test a small set
-#gagelist <- data.frame(gagelist[which(gagelist$staid == '01636316'),])
+#gagelist <- data.frame(gagelist[which(gagelist$staid == '01626850'),])
 
 ## MLLR calculation ##
 
@@ -166,12 +166,14 @@ for (i in 1:nrow(gagelist)) {
           "tsvalue" = P_est
           )
         )
+        ts$save()
       } else {
         print(paste(variables[z], " = NULL for gage", gage, " varkeys ", varkey_beta_0, varkey_beta_1, sep=" "));
       }
       z <- z + 1 # count for which mllr value this gage is on
     } # Ends percentile loop		
   } # Ends month loop
+	# todo: put calculation for max percentile and set property too
 	
   print(paste("Finished gage", gage, sep=" "))
 
