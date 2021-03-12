@@ -11,11 +11,13 @@ library('hydrotools')
 #source(paste(fxn_vahydro,"VAHydro-2.0/rest_functions.R", sep = "/")); 
 site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 save_url <- paste(str_remove(site, 'd.dh'), "data/proj3/out", sep='');
+ds <- RomDataSource$new(site)
+ds$get_token()
 #----------------------------------------------
 # Load Libraries
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
-calyear <- 2020;
+calyear <- 2021; # what summer year is this assessment for?
 token <- om_vahydro_token()
 
 file_directory <- export_path;
@@ -31,6 +33,7 @@ percentile <- c("05", "10", "25", "50")
 e <- 1
 c <- 1 
 variables <- c()
+varids <- c()
 
 m <- 0
 errors <- c()
@@ -51,22 +54,24 @@ gage_probs = data.frame(
 for (j in 1:length(month)) {
 	for (k in 1:length(percentile)) {
 		variables[e] <- paste("mllr", month[j], percentile[k], sep="_")
+		varids[e] <- ds$get_vardef(variables[e])
 		e <- e + 1
 	}
 }
 
 # retrieve all with un-set sept 10 probabilities for the current year
 uri <- paste0(site,"/usgs-mllr-sept10-gages-all")
-gagelist = om_auth_read(uri, token, "text/csv")
-gage <- gagelist$staid
+#gagelist = om_auth_read(uri, token, "text/csv")
+gagelist <- ds$auth_read(uri, "text/csv", ",")
+gagelist$staid <- sprintf("%08s", gagelist$staid) # insure correct usgs gage ID
 # un-comment to test a small set
-#gage <- c(01636316)
-#gage <- as.numeric(gage)
-gage <- sprintf("%08s", gage)
+#gagelist <- data.frame(gagelist[which(gagelist$staid == '01626850'),])
 
 ## MLLR calculation ##
 
-for (i in 1:length(gage)) {   
+for (i in 1:nrow(gagelist)) {
+  gageinfo <- gagelist[i,]
+  gage <- gageinfo$staid
 	# reset variables	
 	z <- 1 
 	P_est <- c()
@@ -75,11 +80,11 @@ for (i in 1:length(gage)) {
 	# Extract flow data for the current year from Nov - Feb
 	StartDate <- as.Date(paste((calyear-1), "-11-01", sep=""))
 	EndDate <- as.Date(paste(calyear, "-02-28", sep=""))
-	hydrocode <- paste("usgs", gage[i], sep="_")
+	hydrocode <- paste("usgs", gage, sep="_")
 	
 	# Extracting winter flow data
 	url_base <- "https://waterservices.usgs.gov/nwis/dv/?variable=00060&format=rdb&startDT="
-	url <- paste(url_base, StartDate, "&endDT=", EndDate, "&site=", gage[i], sep="")	
+	url <- paste(url_base, StartDate, "&endDT=", EndDate, "&site=", gage, sep="")	
   print(paste("Trying ", url, sep=''));
 	winterflow <- try(read.table(url, skip = 2, comment.char = "#"))
 
@@ -111,7 +116,7 @@ for (i in 1:length(gage)) {
 	# Combine beta0s and beta1s 
 	varkeys <- c(beta_0, beta_1)
 	# Write get_modelData URL to get ALL 24 beta values
-	beta_url <- paste(site,"/?q=export-properties-om/usgs_", gage[i], "/drought_model", sep="");
+	beta_url <- paste(site,"/?q=export-properties-om/usgs_", gage, "/drought_model", sep="");
   print(paste("getting betas: ", beta_url, sep=""));
 	# Read beta values and names from URL
 	#rawtable <- try(read.table(beta_url, header=TRUE, sep=","))
@@ -148,17 +153,29 @@ for (i in 1:length(gage)) {
           "tsvalue" = P_est, 
           "varkey" = variables[z], 
           "tstime" =  as.numeric(as.POSIXct(paste(paste(calyear, "-03-01", sep=""),"EST"))), 
-          "hcode" = paste("usgs", gage[i], sep="_")
+          "hcode" = paste("usgs", gage, sep="_")
         );
         gage_probs <- rbind(gage_probs, newline);
+        ts <- RomTS$new(
+          ds,
+          list( 
+          "featureid" = gageinfo$hydroid, 
+          "entity_type" = 'dh_feature', 
+          "varid" = varids[z], 
+          "tstime" =  as.numeric(as.POSIXct(paste(paste(calyear, "-03-01", sep=""),"EST"))), 
+          "tsvalue" = P_est
+          )
+        )
+        ts$save()
       } else {
-        print(paste(variables[z], " = NULL for gage", gage[i], " varkeys ", varkey_beta_0, varkey_beta_1, sep=" "));
+        print(paste(variables[z], " = NULL for gage", gage, " varkeys ", varkey_beta_0, varkey_beta_1, sep=" "));
       }
       z <- z + 1 # count for which mllr value this gage is on
     } # Ends percentile loop		
   } # Ends month loop
+	# todo: put calculation for max percentile and set property too
 	
-  print(paste("Finished gage", gage[i], sep=" "))
+  print(paste("Finished gage", gage, sep=" "))
 
 } # Ends gage loop
 
