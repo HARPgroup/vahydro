@@ -107,15 +107,15 @@ if (paste0(s,"_table") == "runid_17_table") {
     #Header row is row 0
     row_spec(0, bold=T, font_size = 11) %>%
     footnote(general_title = "Note: ",
-             general = "Explain", 
-             symbol = "CC")
+             general = "Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.", 
+             symbol = " Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.")
   
-  table1_tex <- gsub(pattern = "\\multicolumn{3}{l}{\\textit{Note: }}\\\\
-\\multicolumn{3}{l}{Explain}\\\\
-\\multicolumn{3}{l}{\\textsuperscript{*} CC}\\\\",
-                     repl    =  "\\addlinespace \\multicolumn{3}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.}\\\\ \\addlinespace 
-\\multicolumn{3}{l}{ \\multirow{}{}{\\parbox{15cm}{\\textit{Note:} Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.}}}\\\\",
-                     x       = table1_tex, fixed = T )
+#   table1_tex <- gsub(pattern = "\\multicolumn{3}{l}{\\textit{Note: }}\\\\
+# \\multicolumn{3}{l}{Explain}\\\\
+# \\multicolumn{3}{l}{\\textsuperscript{*} CC}\\\\",
+#                      repl    =  "\\addlinespace \\multicolumn{3}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.}\\\\ \\addlinespace 
+# \\multicolumn{3}{l}{ \\multirow{}{}{\\parbox{15cm}{\\textit{Note:} Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.}}}\\\\",
+#                      x       = table1_tex, fixed = T )
   
 } else {
 
@@ -137,13 +137,13 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
   column_spec(5, width = "7em") %>%
   #Header row is row 0
   row_spec(0, bold=T, font_size = 11) %>%
-  footnote(general_title = "Note: ",general = "Explain",symbol = "CC")
+  footnote(general_title = "Note: ",general = "Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.")
   
-  table1_tex <- gsub(pattern = "\\multicolumn{5}{l}{\\textit{Note: }}\\\\
-\\multicolumn{5}{l}{Explain}\\\\
-\\multicolumn{5}{l}{\\textsuperscript{*} CC}\\\\",
-                     repl    = "\\multicolumn{5}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.}\\\\",
-                     x       = table1_tex, fixed = T )
+#   table1_tex <- gsub(pattern = "\\multicolumn{5}{l}{\\textit{Note: }}\\\\
+# \\multicolumn{5}{l}{Explain}\\\\
+# \\multicolumn{5}{l}{\\textsuperscript{*} CC}\\\\",
+#                      repl    = "\\multicolumn{5}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.}\\\\",
+#                      x       = table1_tex, fixed = T )
 }
 
 #CUSTOM LATEX CHANGES
