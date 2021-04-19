@@ -6,7 +6,8 @@ library(hydrotools);
 library(plotly);
 # save_directory <- "/var/www/html/files/fe/plots"
 # save_directory <- "/Users/jklei/Desktop/GitHub/plots"
-save_directory <- "/Users/jklei/Desktop/Big Stone Gap WTP"
+#save_directory <- "/Users/jklei/Desktop/Big Stone Gap WTP"
+save_directory <- "/Users/nrf46657/Desktop/VAHydro Development/GitHub/plots"
 site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 omsite = site
 
@@ -18,7 +19,7 @@ options(timeout=1200); # set timeout to twice default level to avoid abort due t
 ################################################################################################
 rseg.elid = 352078     #Riverseg Model: South Fork Powell River - Big Cherry Reservoir
 fac.elid = 247415      #Facility:Riverseg Model: BIG STONE GAP WTP:Powell River
-runid = 601
+runid =6012
 ################################################################################################
 
 ################################################################################################
@@ -35,6 +36,29 @@ rseg.dat.df <- data.frame(rseg.dat)
 write.csv(rseg.dat.df, paste(save_directory,"/rseg.dat.df_",rseg.elid,"_",runid,".csv",sep=""))
 # Qout_max <- max(as.numeric(rseg.dat.df$Qout))
 # Runit_max <- max(as.numeric(rseg.dat.df$Runit))
+
+
+################################################################################################
+# QA:
+
+# VIEW QUANTILE DATA ---------------------------------------------------------------------------
+quantile(rseg.dat.df$bc_release_cfs, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+
+colnames(rseg.dat.df)
+
+# SQL QA ---------------------------------------------------------------------------------------
+rseg_qa <- sqldf("select * from 'rseg.dat.df' where release > impoundment_Qin")
+
+rseg_qa <- sqldf("select year,month,day, release, impoundment_Qin, days_remaining 
+                 from 'rseg.dat.df' where release > 10")
+
+rseg_qa <- sqldf("select year,month,day, release, impoundment_Qin, impoundment_days_remaining, impoundment_Storage 
+                 from 'rseg.dat.df' WHERE year = 2002 AND month = 3")
+
+rseg_qa <- sqldf("select year,month,day, release, impoundment_Qin, impoundment_days_remaining, impoundment_Storage 
+                 from 'rseg.dat.df' WHERE release > impoundment_Qin")
+################################################################################################
+
 
 # PLOT DATA ------------------------------------------------------------------------------------
 # Qout
@@ -126,15 +150,3 @@ dev.off()
 
 
 #f2 <- fig %>% add_trace(y = ~as.numeric(fac.dat.df$Qintake), name = 'Qintake',type = 'scatter')
-
-
-
-
-
-
-
-
-
-
-
-
