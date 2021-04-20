@@ -28,7 +28,7 @@ fac.hydroid = 72672
 
 fac.metric.list <- c('unmet1_mgd','unmet7_mgd','unmet30_mgd','unmet90_mgd','wd_mgd','ps_mgd')
 rseg.metric.list <- c('remaining_days_p0','remaining_days_p10','remaining_days_p50','l30_Qout',
-                      'l90_Qout','consumptive_use_frac','wd_cumulative_mgd','ps_cumulative_mgd')
+                      'l90_Qout','consumptive_use_frac','wd_cumulative_mgd','ps_cumulative_mgd','Qbaseline','Qout')
 ################################################################################################
 
 
