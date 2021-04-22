@@ -47,22 +47,25 @@ gage.ts <- clean_historic(gage.ts)
 
 # NEED TO AREA WEIGHT GAGE FLOW TO WITHDRAWAL LOCATION
 # SOUTH FORK POWELL RIVER Intake DA = 8.182 square miles (From containing nhdplus segment)
-gage.ts$Flow_Adj <- (8.182/112)*gage.ts$Flow
+#gage.ts$Flow_Adj <- (8.182/112)*gage.ts$Flow
+gage.ts$Flow_Adj <- (2.66/112)*gage.ts$Flow
 #-----------------------------------------------------------------------------------------------
 
 #png(paste(save_directory,"/rseg_Qout_GAGE_",rseg.elid,"_",runid,".png",sep=""))
-png(paste(save_directory,"/rseg_Qout_GAGE_",gageid,"_",rseg.elid,"_",runid,".png",sep=""), width = 1000, height = 600)
+#png(paste(save_directory,"/rseg_Qout_GAGE_",gageid,"_",rseg.elid,"_",runid,".png",sep=""), width = 1000, height = 600)
+png(paste(save_directory,"/rseg_Qlocal_above_bc_GAGE_",gageid,"_",rseg.elid,"_",runid,".png",sep=""), width = 600, height = 600)
 
 ymn <- 0
 ymx <- 50
 # xmn <- as.Date('2001-06-01')
 # xmx <- as.Date('2001-11-15')
-xmn <- as.Date('1998-10-01')
+xmn <- as.Date('2001-10-01')
 ###xmn <- as.Date('2001-10-01')
 xmx <- as.Date('2002-9-30')
 par(mar = c(5,5,2,5))
 
-plot(as.numeric(rseg.dat.df$Qout)~as.Date(rseg.dat.df$date),type = "l",
+#plot(as.numeric(rseg.dat.df$Qout)~as.Date(rseg.dat.df$date),type = "l",
+plot(as.numeric(rseg.dat.df$Qlocal_above_bc)~as.Date(rseg.dat.df$date),type = "l",
      col = 'blue',
      #log="y",
      ylim=c(ymn,ymx),xlim=c(xmn,xmx),
@@ -70,7 +73,12 @@ plot(as.numeric(rseg.dat.df$Qout)~as.Date(rseg.dat.df$date),type = "l",
      main=paste(rseg.name," (elid: ",rseg.elid,"; runid: ",runid,")",sep="")
      )
 lines(as.numeric(gage.ts$Flow_Adj)~as.Date(gage.ts$Date), pch=22, lty=2, col="red")
-legend(xmn,ymx,legend=c("Qout","USGS 03529500 POWELL RIVER AT BIG STONE GAP, VA"),
+
+#lines(as.numeric(rseg.dat.df$Qin)~as.Date(rseg.dat.df$Date), pch=22, lty=2, col="green")
+#lines(as.numeric(rseg.dat.df$local_channel_Qout)~as.Date(rseg.dat.df$date), pch=22, lty=2, col="black")
+
+
+legend(xmn,ymx,legend=c("Qlocal_above_bc","USGS 03529500 POWELL RIVER AT BIG STONE GAP, VA"),
        col=c("blue","red"), lty=c(1,2), cex=c(1,1))
 dev.off()
 ################################################################################################
