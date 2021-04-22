@@ -10,10 +10,8 @@ options(timeout=1200)
 ################################################################################################
 rseg.hydroid = 462757   #South Fork Powell River - Big Cherry Reservoir
 fac.hydroid = 72672     #BIG STONE GAP WTP
-rseg.elid = 352078      #Riverseg Model: South Fork Powell River - Big Cherry Reservoir
 
 runid.list <- c('runid_401','runid_6011','runid_6012')
-
 fac.metric.list <- c('unmet1_mgd','unmet7_mgd','unmet30_mgd','unmet90_mgd','wd_mgd','ps_mgd')
 rseg.metric.list <- c('remaining_days_p0','remaining_days_p10','remaining_days_p50','l30_Qout',
                       'l90_Qout','consumptive_use_frac','wd_cumulative_mgd','ps_cumulative_mgd','Qbaseline','Qout')
@@ -21,6 +19,9 @@ rseg.metric.list <- c('remaining_days_p0','remaining_days_p10','remaining_days_p
 ################################################################################################
 # RETRIEVE FAC & RSEG MODEL STATS
 ################################################################################################
+rseg.model <- om_get_model(site, rseg.hydroid)
+rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
 fac_summary <- data.frame()
 rseg_summary <- data.frame()
 #i <- 1
