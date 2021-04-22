@@ -5,6 +5,10 @@ library('zoo')
 datcc401 <- om_get_rundata(210201, 401)
 datcc601 <- om_get_rundata(210201, 601)
 
+# CC needs to have modernization
+datjrcc401 <- om_get_rundata(219565 , 401)
+datjrcc601 <- om_get_rundata(219565 , 601)
+
 datjr401 <- om_get_rundata(209975, 401)
 datjr601 <- om_get_rundata(209975, 601)
 
@@ -16,13 +20,31 @@ datbc[0:15,c('wd_channel_cfs', 'Qlocal_channel', 'bc_release_cfs', 'impoundment_
 
 # Facility analysis
 dff <- data.frame(runid='runid_401', metric='wd_mgd',
-             runlabel='wd_pmax', 
+             runlabel='wd_401', 
              model_version = 'vahydro-1.0'
 )
 dff <- rbind(
   dff, 
   data.frame(runid='runid_601', metric='wd_mgd',
-             runlabel='wd_pmax_pp', 
+             runlabel='wd_601', 
+             model_version = 'vahydro-1.0')
+)
+dff <- rbind(
+  dff, 
+  data.frame(runid='runid_401', metric='unmet30_mgd',
+             runlabel='unmet30_401', 
+             model_version = 'vahydro-1.0')
+)
+dff <- rbind(
+  dff, 
+  data.frame(runid='runid_601', metric='unmet30_mgd',
+             runlabel='unmet30_601', 
+             model_version = 'vahydro-1.0')
+)
+dff <- rbind(
+  dff, 
+  data.frame(runid='runid_13', metric='wd_mgd',
+             runlabel='wd_13', 
              model_version = 'vahydro-1.0')
 )
 
@@ -37,32 +59,39 @@ fac_case <- sqldf(
    and hydrocode not in ('vwuds_0231', 'Dickerson_Generating_Station')
   "
 )
-sqldf("select * from fac_case where wd_pmax_pp > wd_pmax")
-sqldf("select * from fac_case where wd_pmax_pp < wd_pmax")
+sqldf("select * from fac_case where wd_601 > wd_401")
+sqldf("select * from fac_case where wd_601 < wd_401")
 sqldf("select * from fac_case where riverseg = 'JU1_7750_7560'")
+sqldf("select * from fac_case where unmet30_601 > 0")
 
 # choose one to test
 #df <- as.data.frame(df[3,])
 
 
 dfw <- data.frame(runid='runid_401', metric='wd_mgd',
-             runlabel='wd_mgd_pmax', model_version = 'vahydro-1.0'
+             runlabel='wd_401', model_version = 'vahydro-1.0'
 )
 dfw <- rbind(
   dfw,
-  data.frame(runid='runid_701', metric='wd_mgd',
-             runlabel='wd_mgd_pmax_pp', model_version = 'vahydro-1.0')
+  data.frame(runid='runid_601', metric='wd_mgd',
+             runlabel='wd_601', model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
   data.frame(runid='runid_401', metric='wd_cumulative_mgd',
-             runlabel='wdcum_pmax', 
+             runlabel='wdcum_401', 
              model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
   data.frame(runid='runid_601', metric='wd_cumulative_mgd',
-             runlabel='wdcum_pmax_pp', 
+             runlabel='wdcum_601', 
+             model_version = 'vahydro-1.0')
+)
+dfw <- rbind(
+  dfw, 
+  data.frame(runid='runid_13', metric='wd_cumulative_mgd',
+             runlabel='wdcum_13', 
              model_version = 'vahydro-1.0')
 )
 wshed_data <- om_vahydro_metric_grid(metric, dfw)
@@ -73,10 +102,26 @@ wshed_case <- sqldf(
   "
 )
 sqldf(
-  "select riverseg, wdcum_pmax_pp, wdcum_pmax from wshed_case 
-   where wdcum_pmax_pp < wdcum_pmax
+  "select riverseg, wdcum_601, wdcum_401, wdcum_131 from wshed_case 
+   where wd_601 < wdcum_401
   ")
 sqldf(
-  "select * from wshed_case 
-   where riverseg = 'JU1_7750_7560'
+  "select riverseg, wd_601, wd_401, wdcum_131 from wshed_case 
+   where wd_601 < wd_401
   ")
+sqldf(
+  "select riverseg, wdcum_601, wdcum_401, wdcum_131 from wshed_case 
+   where wdcum_601 > wdcum_401
+  ")
+
+sqldf(
+  "select riverseg, round(wdcum_601) as vwp, round(wdcum_401) as vwp_proposed, round(wdcum_131) as wsp_2040 from wshed_case 
+   order by wdcum_131 DESC LIMIT 1"
+)
+
+sqldf(
+  "select * from wshed_case 
+   where riverseg = 'JL6_7150_6890'
+  ")
+
+
