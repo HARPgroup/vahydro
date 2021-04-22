@@ -3,13 +3,14 @@
 
 library("sqldf")
 library("stringr") #for str_remove()
+library("hydrotools")
 
 # Load Libraries
-basepath='/var/www/R';
-site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
-source("/var/www/R/config.local.private"); 
-source(paste(basepath,'config.R',sep='/'))
-source(paste(hydro_tools_location,'/R/om_vahydro_metric_grid.R', sep = ''));
+#basepath='/var/www/R';
+#site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+#source("/var/www/R/config.local.private"); 
+#source(paste(basepath,'config.R',sep='/'))
+#source(paste(hydro_tools_location,'/R/om_vahydro_metric_grid.R', sep = ''));
 folder <- "C:/Workspace/tmp/"
 
 # get the DA, need to grab a model output first in order to insure segments with a channel subcomp
@@ -50,14 +51,16 @@ wshed_data <- sqldf(
 # where hydrocode like 'vahydrosw_wshed_P%'
 # and hydrocode not like 'vahydrosw_wshed_PL%'
 
-wshed_data$dl90 <- (wshed_data$L90_2040 - wshed_data$L90_2020) / wshed_data$L90_2020
-wshed_case <- sqldf(
+wshed_data$dl90 <- 100.0 * (wshed_data$L90_2040 - wshed_data$L90_2020) / wshed_data$L90_2020
+wshed_data <- sqldf(
   "select * from 
    wshed_data 
    where 
      hydrocode not like '%0000'
   "
 )
+plot(dl90 ~ da, data=sqldf("select * from wshed_data where da < 200"))
+
 quantile(wshed_case$dl90, probs = c(0, 0.01,0.05, 0.1, 0.25, 0.5), na.rm=TRUE)
 wshed_case <- sqldf(
   "select * from 

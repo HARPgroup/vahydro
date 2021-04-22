@@ -1,0 +1,47 @@
+---
+title: "Drought Assessment - Spring 2017"
+output: word_document
+---
+
+This is a summary of conditions evaluated in early March 2017. For watersheds with probability of drought warning flow > 35%, a detailed summary will be provided.  Including: 
+
+* Retrieve property variables with varkey = 
+* Current total mean daily SW withdrawal in watershed
+* 7Q10 estimate in watershed, ALF estimate in watershed, 2002 mean daily flow in September
+* Table of users in watershed,
+* * current mean daily SW withdrawal
+* * Known reservoir storage total by watershed
+
+```{r include = FALSE, warning = FALSE}
+library(knitr)
+# install.packages('knitr')
+# install.packages('rmarkdown')
+
+uri <-'http://deq2.bse.vt.edu/files/drought/mllr_max_2021.csv'
+data = read.csv(uri, header = TRUE, sep = ",")
+
+library("hydrotools")
+ds <- RomDataSource$new("http://deq2.bse.vt.edu/d.dh/")
+ds$get_token()
+dvar <- ds$get_vardef("drought_status_mllr")
+dvals <- ds$get_props(list(varid=dvar$varid, limit=500))
+
+
+l90vals <- ds$get_props(list(propname="l90_Qout", limit=500))
+
+```
+
+
+
+```{r echo = FALSE}
+kable(data[1:10,], digits=2)
+```
+
+```{r echo = FALSE}
+n <- 100
+x <- rnorm(n)
+y <- 2*x + rnorm(n)
+out <- lm(y ~ x)
+kable(summary(out)$coef, digits=2)
+```
+
