@@ -94,6 +94,18 @@ dfw <- rbind(
              runlabel='wdcum_13', 
              model_version = 'vahydro-1.0')
 )
+dfw <- rbind(
+  dfw, 
+  data.frame(runid='runid_401', metric='l30_Qout',
+             runlabel='l30_401', 
+             model_version = 'vahydro-1.0')
+)
+dfw <- rbind(
+  dfw, 
+  data.frame(runid='runid_601', metric='l30_Qout',
+             runlabel='l30_601', 
+             model_version = 'vahydro-1.0')
+)
 wshed_data <- om_vahydro_metric_grid(metric, dfw)
 wshed_case <- sqldf(
   "select * from wshed_data 
@@ -101,27 +113,89 @@ wshed_case <- sqldf(
    and riverseg not like '%0000%' 
   "
 )
+
 sqldf(
-  "select riverseg, wdcum_601, wdcum_401, wdcum_131 from wshed_case 
-   where wd_601 < wdcum_401
-  ")
-sqldf(
-  "select riverseg, wd_601, wd_401, wdcum_131 from wshed_case 
+  "select riverseg, wd_601, wd_401, wdcum_13, l30_401, l30_601 from wshed_case 
    where wd_601 < wd_401
   ")
+# since 601 is total permitted + proposed
+# and 401 is just total permitted
+# 401 flows should almost always > 60 (unless we have an 
+#  impoundment with flow augmentation)
 sqldf(
-  "select riverseg, wdcum_601, wdcum_401, wdcum_131 from wshed_case 
-   where wdcum_601 > wdcum_401
+  "select riverseg, wd_601, wd_401, wdcum_13, l30_401, l30_601 from wshed_case 
+   where l30_601 < l30_401
+   order by l30_601
+  ")
+# the first watershed with large difference shuld be the source of 
+# the new impacts, and likely location of a proposed permit
+# in this case: JL6_7440_7430
+#         riverseg      wd_601      wd_401  wdcum_13   l30_401   l30_601
+#    JL6_7440_7430  0.53051932  0.53051932  94.27137 376.97783 372.80251
+sqldf(
+  "select * from fac_data where 
+   riverseg = 'JL6_7440_7430'
+   order by riverseg
+  ")
+# But no obvious demand changes, why? Look at tribs
+sqldf("select * from wshed_case where riverseg like '%_7440%'")
+
+
+sqldf(
+  "select riverseg, wd_601, wd_401, wdcum_13, l30_401, l30_601 from wshed_case 
+   where l30_401 < l30_601
+   order by l30_601
   ")
 
 sqldf(
-  "select riverseg, round(wdcum_601) as vwp, round(wdcum_401) as vwp_proposed, round(wdcum_131) as wsp_2040 from wshed_case 
-   order by wdcum_131 DESC LIMIT 1"
-)
-
-sqldf(
-  "select * from wshed_case 
-   where riverseg = 'JL6_7150_6890'
+  "select riverseg, wd_601, wd_401, wdcum_13, l30_401, l30_601 from wshed_case 
+   where l30_601 < l30_401
+   order by l30_601
   ")
 
+sqldf(
+  "select * from fac_data 
+   where  (1.005 * wd_601) < wd_401
+   order by riverseg
+  ")
+
+sqldf(
+  "select * from fac_data where 
+   riverseg in (
+     select riverseg from wshed_case 
+   where wd_601 < wd_401
+   )
+   and wd_601 < wd_401
+   order by riverseg
+  ")
+
+
+sqldf(
+  "select * from fac_data where 
+   riverseg in (
+     select riverseg from wshed_case 
+   where wd_601 < wd_401
+   )
+   and wd_401 < wd_601
+   order by riverseg
+  ")
+
+
+datjr401 <- om_get_rundata(212527 , 401)
+datjr601 <- om_get_rundata(212527 , 601)
+
+quantile(datjr401$Qout)
+quantile(datjr601$Qout)
+
+quantile(datjr401$Qin)
+quantile(datjr601$Qin)
+
+quantile(datjr401$Qup)
+quantile(datjr601$Qup)
+
+quantile(datjr401$Runit)
+quantile(datjr601$Runit)
+
+quantile(datjr401$Qtrib)
+quantile(datjr601$Qtrib)
 

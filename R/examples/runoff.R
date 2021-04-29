@@ -21,12 +21,21 @@ source(paste(hydro_tools,"auth.private", sep = "/"));#load rest username and pas
 token <- rest_token(site, token, rest_uname, rest_pw);
 options(timeout=1200); # set timeout to twice default level to avoid abort due to high traffic
 
-
+# Local Runoff Inflows container
 elid = 258615
-runid = 120
+runid = 601
 
 omsite = site <- "http://deq2.bse.vt.edu"
-dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE);
-
-dat <- window(dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
+dat <-  om_get_rundata(elid, runid)
 boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
+quantile(dat$Runit)
+
+# Individual land river seg
+elid = 343864 # 258615
+runid = 401
+
+omsite = site <- "http://deq2.bse.vt.edu"
+dat <-  om_get_rundata(elid, runid)
+dat$Runit <- dat$Qout / dat$area_sqmi
+boxplot(as.numeric(dat$Runit) ~ dat$year, ylim=c(0,3))
+quantile(dat$Runit)
