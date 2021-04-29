@@ -1,0 +1,18 @@
+#!/bin/sh
+
+#### sudo not allowed inscripts...
+### copy all html  dir to deq2
+### - except drupal alpha, and beta, and the OM model, 
+###   primary for these is on deq2 which pushes here daily
+sudo -u rob rsync -aLv /var/www/html/d.dh/ deq2:/var/www/html/d.dh/
+sudo -u rob rsync -aLv /var/www/html/d.dh/ deq3:/var/www/html/d.dh/
+sudo -u rob rsync -av /var/www/html/files/ deq2:/var/www/html/files/
+sudo -u rob rsync -av /var/www/html/files/ deq3:/var/www/html/files/
+sudo -u rob rsync -av /var/www/html/drought/ deq3:/var/www/html/drought/
+sudo -u rob rsync -av /var/www/html/misc/ deq2:/var/www/html/misc/
+sudo -u rob rsync -av /var/www/html/misc/ deq3:/var/www/html/misc/
+sudo -u rob rsync -av /var/www/html/sifnwiki/ deq2:/var/www/html/sifnwiki/
+sudo -u rob rsync -av /var/www/html/sifnwiki/ deq3:/var/www/html/sifnwiki/
+sudo -u rob rsync -av /var/www/html/mapserv/ deq2:/var/www/html/mapserv/
+sudo -u rob rsync -av /var/www/html/mapserv/ deq3:/var/www/html/mapserv/
+

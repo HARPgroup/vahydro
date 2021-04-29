@@ -1,0 +1,12 @@
+#/bin/sh
+# trigger cron on d.dh
+curl -s http://deq1.bse.vt.edu/d.dh/cron.php?cron_key=jb9i1ikMQG7kUpwcoWKC6XSseWwjEqMYTIZFpHkbqjU
+curl -s http://deq1.bse.vt.edu/d.bet/cron.php?cron_key=jb9i1ikMQG7kUpwcoWKC6XSseWwjEqMYTIZFpHkbqjU
+curl -s http://deq1.bse.vt.edu/d.alpha/cron.php?cron_key=jb9i1ikMQG7kUpwcoWKC6XSseWwjEqMYTIZFpHkbqjU
+
+date > /home/denton/mydate
+mail -s "DEQ1 drupal run " denton@vt.edu < /home/denton/mydate
+
+echo "5 of 9 deq-drupal cron" >> /media/NAS/deq1daily.log
+date >> /media/NAS/deq1daily.log
+

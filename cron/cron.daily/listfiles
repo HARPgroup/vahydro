@@ -1,0 +1,9 @@
+#!/bin/sh
+
+dirs="dev home proc bin etc lib usr boot external lib64 misc opt sbin
+sys var"
+rm /files.dir
+for i in $dirs; do
+   find /$i/* >> /files.dir
+done
+

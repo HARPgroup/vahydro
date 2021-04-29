@@ -1,0 +1,356 @@
+#!/bin/sh
+
+# postgres backup routine
+# Must change these variables to reflect your system configuration
+pguser='robertwb'
+pgpasswd='reim@nn'
+bakfile='/backup/who_backup.sql'
+db='model'
+host='192.168.0.20'
+# set up tables, need all data:
+# set the password so that we don;t have to log in
+PGPASSWORD=$pgpasswd
+export PGPASSWORD
+
+rm $bakfile
+# get all data for necessary setup tables
+echo "pg_dump --username=$pguser $db > $bakfile"
+pg_dump -h $host --username=$pguser $db > $bakfile
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+rm "$wkfile.gz"
+cp -f $bakfile $wkfile
+gzip $wkfile
+
+rm "$dafile.gz"
+cp -f $bakfile $dafile
+gzip $dafile
+
+rm "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm $bakfile
+
+
+
+########################################
+########## noaa database p/f ###########
+########################################
+dbname='noaa'
+bakfile='/backup/noaa.sql'
+rm $bakfile
+# get all data for all tables
+echo "pg_dump --username=$pguser $dbname > $bakfile"
+pg_dump -h $host --username=$pguser $dbname > $bakfile
+
+month=`date +%m`
+ml="mo$month"
+mofile="$bakfile$ml"
+
+rm "$mofile.gz"
+cp -f $bakfile $mofile
+
+gzip $mofile
+gzip $bakfile
+
+
+
+########################################
+########## va_hydro database ###########
+########################################
+# just take a snapshot of this guy 
+# since it is so large.
+# maybe later we will do a couple snapshots
+# now, do any maintenance that is required
+sqlfile='/backup/db_va_hydro.sql'
+gzfile="$sqlfile.gz"
+dbname='va_hydro'
+
+#echo "vacuum full ;" | psql $dbname --username=$pguser 
+rm $gzfile
+pg_dump -h $host --username=$pguser $dbname > $sqlfile
+gzip $sqlfile
+
+
+########################################
+########## vwuds database ###########
+########################################
+dbname='vwuds'
+bakfile='/backup/vwuds_backup.sql'
+
+rm $bakfile
+pg_dump -h $host --username=$pguser $dbname > $bakfile
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+rm "$wkfile.gz"
+cp -f $bakfile $wkfile
+gzip $wkfile
+
+rm "$dafile.gz"
+cp -f $bakfile $dafile
+gzip $dafile
+
+rm "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm $bakfile
+
+
+########################################
+########## model_sessiondata ###########
+########################################
+dbname='model_sessiondata'
+bakfile='/backup/model_sessiondata.sql'
+# set up tables, need all data:
+sutabs='data_scenario map_element_scenario run_log session_tbl_log sessions geometry_columns'
+
+rm $bakfile
+# get all data for necessary setup tables
+for i in `echo $sutabs` ; do
+   echo "pg_dump --username=$pguser $dbname --table=$i >> $bakfile"
+   pg_dump --username=$pguser --table=$i $dbname >> $bakfile
+done
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+rm "$wkfile.gz"
+cp -f $bakfile $wkfile
+gzip $wkfile
+
+rm "$dafile.gz"
+cp -f $bakfile $dafile
+gzip $dafile
+
+rm "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm $bakfile
+
+########################################
+########## vpdes/icprb data  ###########
+########################################
+dbname='vpdes'
+bakfile='/backup/vpdes.sql'
+
+rm $bakfile
+echo "pg_dump --username=$pguser $dbname >> $bakfile"
+pg_dump -h $host --username=$pguser $dbname >> $bakfile
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+#rm "$wkfile.gz"
+#cp -f $bakfile $wkfile
+#gzip $wkfile
+
+#rm "$dafile.gz"
+#cp -f $bakfile $dafile
+#gzip $dafile
+
+rm "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm $bakfile
+
+########################################
+######### SIFN Wiki Database  ##########
+########################################
+dbname='wikidb'
+bakfile='/backup/wikidb.sql'
+
+rm $bakfile
+echo "pg_dump --username=$pguser $dbname >> $bakfile"
+pg_dump -h $host --username=$pguser $dbname >> $bakfile
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+rm "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm $bakfile
+
+
+########################################
+######### WSP Drupal Database  #########
+########################################
+dbname='drupal715'
+bakfile='/backup/wsp_drupaldb.sql'
+
+rm $bakfile
+echo "pg_dump --username=$pguser $dbname >> $bakfile"
+pg_dump -h $host --username=$pguser $dbname >> $bakfile
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+rm "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm $bakfile
+
+
+########################################
+########## gwpermit database ###########
+########################################
+dbname='VA2'
+bakfile='/backup/gwpermit_backup.sql'
+port=8080
+ghost='deq3.bse.vt.edu'
+
+rm $bakfile
+pg_dump -h $ghost -p $port --username=$pguser "$dbname" > $bakfile
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+rm -f "$wkfile.gz"
+cp -f $bakfile $wkfile
+gzip $wkfile
+
+rm -f "$dafile.gz"
+cp -f $bakfile $dafile
+gzip $dafile
+
+rm -f "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm -f $bakfile
+
+########################################
+####### gwpermit dev database ##########
+########################################
+dbname='gwp_dev'
+bakfile='/backup/gwpermit_dev_backup.sql'
+port=8080
+
+rm $bakfile
+pg_dump -h $ghost -p $port --username=$pguser "$dbname" > $bakfile
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+rm -f "$wkfile.gz"
+cp -f $bakfile $wkfile
+gzip $wkfile
+
+rm -f "$dafile.gz"
+cp -f $bakfile $dafile
+gzip $dafile
+
+rm -f "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm -f $bakfile
+
+
+########################################
+#######  Drupal dev database  ##########
+########################################
+dbname='drupal.dev'
+bakfile='/backup/drupal.dev_backup.sql'
+port=5432
+ghost='192.168.0.20'
+
+rm $bakfile
+pg_dump -h $ghost -p $port --username=$pguser "$dbname" > $bakfile
+
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$bakfile$wl"
+dafile="$bakfile$dl"
+mofile="$bakfile$ml"
+
+rm -f "$wkfile.gz"
+cp -f $bakfile $wkfile
+gzip $wkfile
+
+rm -f "$dafile.gz"
+cp -f $bakfile $dafile
+gzip $dafile
+
+rm -f "$mofile.gz"
+cp -f $bakfile $mofile
+gzip $mofile
+
+rm -f $bakfile
+
+date > /home/denton/mydate
+mail -s "DEQ1 db_backup.sh ran" denton@vt.edu < /home/denton/mydate
+
+echo "3 of 9 deq-db-backup" >> /media/NAS/deq1daily.log
+date >> /media/NAS/deq1daily.log
+

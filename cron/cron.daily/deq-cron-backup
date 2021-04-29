@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# daily cron files
+prodbakfile='/backup/cron.daily.tar'
+prodsrcdirs='/etc/cron.daily/*'
+
+rm "$prodbakfile.gz"
+tar -cf $prodbakfile $prodsrcdirs
+gzip $prodbakfile
+
+# monthly cron files
+prodbakfile='/backup/cron.monthly.tar'
+prodsrcdirs='/etc/cron.monthly/*'
+
+rm "$prodbakfile.gz"
+tar -cf $prodbakfile $prodsrcdirs
+gzip $prodbakfile
+
+echo "2 of 9 deq-cron-backup" >> /media/NAS/deq1daily.log
+date >> /media/NAS/deq1daily.log
+

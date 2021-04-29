@@ -1,0 +1,32 @@
+#!/bin/sh
+
+# Process Scripts in Drupal Root
+cd /var/www/html/d.dh
+# retrieve precip to date
+drush scr modules/dh_weather/src/php/noaa_daily_precip_retrieval.php --date=today --single=FALSE
+# Manually trigger feeds importer (cron is busted?) of precip summary
+drush scr modules/dh_drought/src/import.dmtf.php
+
+# legacy code no longer used as of 8/31/2017
+#cd /var/www/html/drought
+#./daily.sh
+# manual preip retrieval for new system
+#/usr/bin/php vahydro-daily_precip_retrieval.php today FALSE FALSE 
+# store updated precip summaries in VAHydro
+#cd /var/www/html/d.dh
+
+# Run R USGS Retrieval Scripts - gets SW and GW 7-day avg, cals %ile, then updates regions via REST
+cd /var/www/R
+sudo -u www-data Rscript drought/USGS_drought_flow.R
+sudo -u www-data Rscript drought/USGS_drought_gwl.R
+
+#cd /var/www/html/drought
+#cd ./state
+#./daily.sh
+
+date > /home/denton/mydate
+mail -s "DEQ1 drought.sh ran" denton@vt.edu < /home/denton/mydate
+
+echo "4 of 9 deq-drought" >> /media/NAS/deq1daily.log
+date >> /media/NAS/deq1daily.log
+

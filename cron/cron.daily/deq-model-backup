@@ -1,0 +1,110 @@
+#!/bin/sh
+
+# code and model data backup routine
+# Must change these variables to reflect your system configuration
+# prodction files and code
+prodbakfile='/backup/wooomm_code-data.tar'
+prodsrcdirs='/var/www/html/om/*.php /var/www/html/lib/*.php /var/www/html/om/remote/*.php /var/www/html/om/summary/*.php'
+
+rm "$prodbakfile.gz"
+tar -cf $prodbakfile $prodsrcdirs
+gzip $prodbakfile
+
+# developmental files and code
+
+devbakfile='/backup/wooommdev_code-data.tar'
+devsrcdirs='/var/www/html/wooommdev/*.php /var/www/html/wooommdev/summary/*.php /var/www/html/vdeq-libs/trunk/*.php /var/www/html/vwuds/*.php'
+# do lots of backups of this
+week=`date +%U`
+month=`date +%m`
+day=`date +%w`
+wl="wk$week"
+ml="mo$month"
+dl="day$day"
+wkfile="$devbakfile$wl.gz"
+dafile="$devbakfile$dl.gz"
+mofile="$devbakfile$ml.gz"
+
+
+rm "$devbakfile.gz"
+echo "tar -cf $devbakfile $devsrcdirs"
+tar -cf $devbakfile $devsrcdirs
+gzip $devbakfile
+
+rm "$wkfile.gz"
+cp -f "$devbakfile.gz" $wkfile
+rm "$dafile.gz"
+cp -f "$devbakfile" $dafile
+rm "$mofile.gz"
+cp -f "$devbakfile" $mofile
+
+# maintenance and batch files and code
+adminbakfile='/backup/wooomm_admin.tar'
+adminsrcdirs='/opt/model/apache/batch_updates/*.php /opt/model/apache/maintenance/*.php /opt/model/apache/batch_updates/cova/*.php'
+
+rm "$adminbakfile.gz"
+tar -cf $adminbakfile $adminsrcdirs
+gzip $adminbakfile
+
+
+# drought files and code
+droughtbakfile='/backup/drought-code.tar'
+droughtsrcdirs='/var/www/html/drought/scripts /var/www/html/drought/*.php /var/www/html/drought/state/*.php /var/www/html/drought/*.map /var/www/html/drought/state/*.map'
+
+rm "$droughtbakfile.gz"
+tar -cf $droughtbakfile $droughtsrcdirs
+gzip $droughtbakfile
+
+
+# model batch operations
+bakfile='/backup/batchmodel.tar'
+srcdirs='/opt/model/apache/batch_updates/*.php /opt/model/apache/batch_updates/cova/*.php'
+
+rm "$bakfile.gz"
+tar -cf $bakfile $srcdirs
+gzip $bakfile
+
+
+# drupal install
+bakfile='/backup/drupal.tar'
+srcdirs='/var/www/html/d /var/www/html/u'
+
+# drupal install
+bakfile='/backup/drupal.dh.tar'
+srcdirs='/var/www/html/d.dh'
+rm "$bakfile.gz"
+tar -cf $bakfile $srcdirs
+gzip $bakfile
+
+# drupal install
+bakfile='/backup/drupal.bet.tar'
+srcdirs='/var/www/html/d.bet'
+rm "$bakfile.gz"
+tar -cf $bakfile $srcdirs
+gzip $bakfile
+
+# drupal install
+bakfile='/backup/drupal.alpha.tar'
+srcdirs='/var/www/html/d.alpha'
+rm "$bakfile.gz"
+tar -cf $bakfile $srcdirs
+gzip $bakfile
+
+rm "$bakfile.gz"
+tar -cf $bakfile $srcdirs
+gzip $bakfile
+
+# wiki install
+bakfile='/backup/wiki.tar'
+srcdirs='/var/www/html/sifnwiki'
+
+rm "$bakfile.gz"
+tar -cf $bakfile $srcdirs
+gzip $bakfile
+
+date > /home/denton/mydate
+mail -s "DEQ1 model_backup run" denton@vt.edu < /home/denton/mydate
+
+echo "6 of 9 deq-model-backup" >> /media/NAS/deq1daily.log
+date >> /media/NAS/deq1daily.log
+
