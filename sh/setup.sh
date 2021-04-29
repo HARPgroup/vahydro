@@ -12,3 +12,4 @@ ln -s /opt/model/vahydro/drupal/dh_wsp/ /var/www/html/d.alpha/modules/dh_wsp
 rm -Rf /var/www/html/d.alpha/modules/dh_drought
 ln -s /opt/model/vahydro/drupal/dh_drought/ /var/www/html/d.alpha/modules/dh_drought
 
+ln -s /opt/model/vahydro/drupal/dh_drought/src/r/ /var/www/R/drought
