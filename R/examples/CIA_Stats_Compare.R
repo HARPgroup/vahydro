@@ -1,3 +1,4 @@
+rm(list = ls())
 library(httr)
 library(hydrotools)
 site <- "http://deq2.bse.vt.edu/d.dh"   
@@ -11,7 +12,7 @@ options(timeout=1200)
 rseg.hydroid = 462757   #South Fork Powell River - Big Cherry Reservoir
 fac.hydroid = 72672     #BIG STONE GAP WTP
 
-runid.list <- c('runid_401','runid_6011','runid_6012')
+runid.list <- c('runid_201','runid_401','runid_6011','runid_6012')
 fac.metric.list <- c('unmet1_mgd','unmet7_mgd','unmet30_mgd','unmet90_mgd','wd_mgd','ps_mgd')
 rseg.metric.list <- c('remaining_days_p0','remaining_days_p10','remaining_days_p50','l30_Qout',
                       'l90_Qout','consumptive_use_frac','wd_cumulative_mgd','ps_cumulative_mgd','Qbaseline','Qout')
@@ -49,7 +50,7 @@ for (i in 1:length(runid.list)){
 ################################################################################################
 rseg.met.list <- paste(rseg.metric.list, collapse = ",")
 fac.met.list <- paste(fac.metric.list, collapse = ",")
-fac_rseg_stats <- sqldf(paste("SELECT a.runid, a.run_date, a.starttime, a.endtime, a.riverseg,", rseg.met.list,",'-' AS SPACE,",fac.met.list,"
+fac_rseg_stats <- sqldf(paste("SELECT a.runid, a.run_date, a.starttime, a.endtime, a.riverseg,' ' AS Rseg_Stats,", rseg.met.list,",' ' AS Facility_Stats,",fac.met.list,"
                               FROM rseg_summary AS a 
                               LEFT OUTER JOIN fac_summary AS b 
                               ON a.runid = b.runid",sep=""))
@@ -58,5 +59,7 @@ fac_rseg_stats <- sqldf(paste("SELECT a.runid, a.run_date, a.starttime, a.endtim
 fac_rseg_stats.T <- as.data.frame(t(fac_rseg_stats[,-1]))
 colnames(fac_rseg_stats.T) <- fac_rseg_stats[,1]
 View(fac_rseg_stats.T)
+
+#write.csv(fac_rseg_stats.T,paste(export_path,'fac_rseg_stats.T.',gsub(":","",Sys.time()),'.csv',sep=''))
 ################################################################################################
 ################################################################################################
