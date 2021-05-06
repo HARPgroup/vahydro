@@ -4,8 +4,15 @@
 cd /var/www/html/d.dh
 # retrieve precip to date
 drush scr modules/dh_weather/src/php/noaa_daily_precip_retrieval.php --date=today --single=FALSE
+
 # Manually trigger feeds importer (cron is busted?) of precip summary
 drush scr modules/dh_drought/src/import.dmtf.php
+# New Method because cert does not work
+# Download the file 
+cd /var/www/html/drought/state/images/maps
+wget -O va-dmtf-precip --no-check-certificate  http://localhost/d.dh/va-dmtf-precip
+cd /var/www/html/d.dh
+drush scr modules/om/src/om_setprop.php file /var/www/html/drought/state/images/maps/va-dmtf-precip
 
 # legacy code no longer used as of 8/31/2017
 #cd /var/www/html/drought
