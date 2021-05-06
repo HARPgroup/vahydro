@@ -6,7 +6,7 @@ cd /var/www/html/d.dh
 drush scr modules/dh_weather/src/php/noaa_daily_precip_retrieval.php --date=today --single=FALSE
 
 # Manually trigger feeds importer (cron is busted?) of precip summary
-drush scr modules/dh_drought/src/import.dmtf.php
+# drush scr modules/dh_drought/src/import.dmtf.php
 # New Method because cert does not work
 # Download the file 
 cd /var/www/html/drought/state/images/maps
