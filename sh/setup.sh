@@ -13,3 +13,9 @@ rm -Rf /var/www/html/d.alpha/modules/dh_drought
 ln -s /opt/model/vahydro/drupal/dh_drought/ /var/www/html/d.alpha/modules/dh_drought
 
 ln -s /opt/model/vahydro/drupal/dh_drought/src/r/ /var/www/R/drought
+
+ln -s /usr/local/src/drush/drush /usr/bin/drush
+
+chown www-data -Rf /var/www/html/d.dh/sites/default/files
+chown www-data -Rf /var/www/html/d.bet/sites/default/files
+chown www-data -Rf /var/www/html/d.alpha/sites/default/files

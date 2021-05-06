@@ -9,6 +9,35 @@ datcc601 <- om_get_rundata(210201, 601)
 datjrcc401 <- om_get_rundata(219565 , 401)
 datjrcc601 <- om_get_rundata(219565 , 601)
 
+df2sum = as.data.frame(datjrcc401)
+
+intake_summary_tbl = data.frame(
+  "Month" = character(), 
+  'Min' = numeric(),
+  '5%' = numeric(),
+  '10%' = numeric(),
+  '25%' = numeric(), 
+  '30%' = numeric(),
+  '50%' = numeric(),
+  stringsAsFactors = FALSE) ;
+for (i in index(month.abb)) {
+  moname <- month.abb[i]
+  drows <- sqldf(paste("select * from df2sum where month = ", i))
+  q_drows <- quantile(drows$Qintake, probs=c(0,0.05,0.1,0.25, 0.3, 0.5), na.rm=TRUE)
+  newline = data.frame(
+    "Month" = moname,
+    'Min' = round(as.numeric(q_drows["0%"]),1),
+    '5%' = round(as.numeric(q_drows["5%"]),1),
+    '10%' = round(as.numeric(q_drows["10%"]),1),
+    '25%' = round(as.numeric(q_drows["25%"]),1), 
+    '30%' = round(as.numeric(q_drows["30%"]),1),
+    '50%' = round(as.numeric(q_drows["50%"]),1),
+    stringsAsFactors = FALSE
+  )
+  intake_summary_tbl <- rbind(intake_summary_tbl, newline)
+}
+names(intake_summary_tbl) <- c('Month', 'Min', '5%', '10%', '25%', '30%', '50%')
+
 datjr401 <- om_get_rundata(209975, 401)
 datjr601 <- om_get_rundata(209975, 601)
 
@@ -142,6 +171,7 @@ sqldf(
 sqldf("select * from wshed_case where riverseg like '%_7440%'")
 sqldf("select * from fac_data where riverseg like '%_7440%'")
 sqldf("select * from wshed_case where riverseg like '%harris%'")
+sqldf("select * from wshed_case where riverseg like '%black%'")
 
 
 sqldf(
