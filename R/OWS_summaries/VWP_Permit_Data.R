@@ -22,7 +22,10 @@ facility_mp_fracs_sum <- aggregate(facility_mp_fracs$facility_use_fraction,by=li
 vwp_permits <-sqldf("SELECT *
                      FROM vwp_permits AS a
                      LEFT OUTER JOIN facility_mp_fracs_sum AS b
-                     ON (a.Facility_hydroid = b.Facility_hydroid )")    
+                     ON (a.Facility_hydroid = b.Facility_hydroid )")
+
+#remove duplicate hydroid column
+vwp_permits <- vwp_permits[,-max(which(colnames(vwp_permits)=="Facility_hydroid"))]
 #-----------------------------------------------------------------------------------
 # LOOP THROUGH EACH YEAR ADDING ANNUAL REPORTED USE TO VWP DATAFRAME
 #i <- 1
@@ -55,6 +58,8 @@ for (i in 1:length(years)){
                             FROM vwp_permits AS a
                             LEFT OUTER JOIN fac_mp_sum AS b
                             ON (a.Facility_hydroid = b.Facility_hydroid)")
+  #remove duplicate hydroid column
+  vwp_permits <- vwp_permits[,-max(which(colnames(vwp_permits)=="Facility_hydroid"))]
 }
 
 
