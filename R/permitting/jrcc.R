@@ -8,38 +8,16 @@ datcc601 <- om_get_rundata(210201, 601)
 # CC needs to have modernization
 datjrcc401 <- om_get_rundata(219565 , 401)
 datjrcc601 <- om_get_rundata(219565 , 601)
-
-df2sum = as.data.frame(datjrcc401)
-
-intake_summary_tbl = data.frame(
-  "Month" = character(), 
-  'Min' = numeric(),
-  '5%' = numeric(),
-  '10%' = numeric(),
-  '25%' = numeric(), 
-  '30%' = numeric(),
-  '50%' = numeric(),
-  stringsAsFactors = FALSE) ;
-for (i in index(month.abb)) {
-  moname <- month.abb[i]
-  drows <- sqldf(paste("select * from df2sum where month = ", i))
-  q_drows <- quantile(drows$Qintake, probs=c(0,0.05,0.1,0.25, 0.3, 0.5), na.rm=TRUE)
-  newline = data.frame(
-    "Month" = moname,
-    'Min' = round(as.numeric(q_drows["0%"]),1),
-    '5%' = round(as.numeric(q_drows["5%"]),1),
-    '10%' = round(as.numeric(q_drows["10%"]),1),
-    '25%' = round(as.numeric(q_drows["25%"]),1), 
-    '30%' = round(as.numeric(q_drows["30%"]),1),
-    '50%' = round(as.numeric(q_drows["50%"]),1),
-    stringsAsFactors = FALSE
-  )
-  intake_summary_tbl <- rbind(intake_summary_tbl, newline)
-}
-names(intake_summary_tbl) <- c('Month', 'Min', '5%', '10%', '25%', '30%', '50%')
+datjrcc601 <- om_get_rundata(219565 , 600)
+intake_sum_401 <- om_flow_table(datjrcc401, "Qintake")
+wd_sum_401 <- om_flow_table(datjrcc401, "wd_mgd")
+intake_sum_601 <- om_flow_table(datjrcc601, "Qintake")
+wd_sum_601 <- om_flow_table(datjrcc601, "wd_mgd")
 
 datjr401 <- om_get_rundata(209975, 401)
 datjr601 <- om_get_rundata(209975, 601)
+river_sum_401 <- om_flow_table(datjr401, "Qout")
+river_sum_601 <- om_flow_table(datjr601, "Qout")
 
 datrva401 <- om_get_rundata(219639, 401)
 datrva601 <- om_get_rundata(219639, 601)
@@ -119,12 +97,6 @@ dfw <- rbind(
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_13', metric='wd_cumulative_mgd',
-             runlabel='wdcum_13', 
-             model_version = 'vahydro-1.0')
-)
-dfw <- rbind(
-  dfw, 
   data.frame(runid='runid_13', metric='wd_mgd',
              runlabel='wd_13', 
              model_version = 'vahydro-1.0')
@@ -143,14 +115,14 @@ dfw <- rbind(
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_401', metric='l90_Qout',
-             runlabel='l90_401', 
+  data.frame(runid='runid_601', metric='l90_Qout',
+             runlabel='l90_601', 
              model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_601', metric='l90_Qout',
-             runlabel='l90_601', 
+  data.frame(runid='runid_401', metric='l90_Qout',
+             runlabel='l90_401', 
              model_version = 'vahydro-1.0')
 )
 wshed_data <- om_vahydro_metric_grid(metric, dfw)
@@ -160,8 +132,6 @@ wshed_case <- sqldf(
    and riverseg not like '%0000%' 
   "
 )
-# Now, target segments where wd601 < wd401 and l90601 > l90401
-  
 sqldf(
   "select riverseg, wd_601, wd_401, wd_13, l90_401, l90_601 from wshed_case 
    where l90_601 < l90_401
@@ -182,6 +152,30 @@ sqldf(
    where l30_601 < l30_401
    order by l30_601
   ")
+sqldf("select * from wshed_case where riverseg like '%_0001'")
+sqldf("select * from wshed_case where riverseg = 'JL6_6740_7100'")
+# Tribs to 6749 ^
+sqldf("select * from wshed_case where riverseg like '%_6740'")
+
+cd601 <- om_get_rundata(211097, 601)
+quantile(cd601$Qup)
+quantile(cd601$Qout)
+# James Above Rivanna conf
+jar601 <- om_get_rundata(211047, 601)
+# James below Rivanna conf 
+jbr601 <- om_get_rundata(211097, 601)
+# James at Cartersville 210731
+jc601 <- om_get_rundata(210731, 601)
+# James Below Cartersville 212451
+jbc601 <- om_get_rundata(212451, 601)
+quantile(jar601$Qout)
+quantile(jbr601$Qout)
+quantile(jc601$Qout)
+quantile(jbc601$Qout)
+
+jrwa601 <- om_get_rundata(339706, 601)
+om_flow_table(jrwa601, "Qintake")
+
 # the first watershed with large difference shuld be the source of 
 # the new impacts, and likely location of a proposed permit
 # in this case: JL6_7440_7430
@@ -199,17 +193,7 @@ sqldf("select * from wshed_case where riverseg like '%harris%'")
 sqldf("select * from wshed_case where riverseg like '%black%'")
 
 
-sqldf(
-  "select riverseg, wd_601, wd_401, wdcum_13, l30_401, l30_601 from wshed_case 
-   where l30_401 < l30_601
-   order by l30_601
-  ")
 
-sqldf(
-  "select riverseg, wd_601, wd_401, wdcum_13, l30_401, l30_601 from wshed_case 
-   where l30_601 < l30_401
-   order by l30_601
-  ")
 
 sqldf(
   "select * from fac_data 
@@ -278,3 +262,9 @@ dathcro401 <- om_get_rundata(220197, 401)
 dathcro601 <- om_get_rundata(220197, 601)
 quantile(dathcro401$impoundment_Qout)
 quantile(dathcro601$impoundment_Qout)
+
+
+# Black Creek reservoir
+datbcrf401 <- om_get_rundata(176192, 401)
+quantile(datbcrf401$base_demand_mgd)
+
