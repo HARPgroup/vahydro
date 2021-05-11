@@ -12,6 +12,7 @@ source(paste("https://raw.githubusercontent.com/HARPgroup/r-dh-ecohydro",'master
 # INPUTS #######################################################################################
 ifim_featureid <- 476536 #James RVA (approx Loc)
 wshed_featureid <- 67866 #James River at Fall Line
+pprunid <- 600 # will have this set to 6 once draft run is confirmed
 
 ################################################################################################
 # RETRIEVE RSEG MODEL
@@ -46,7 +47,6 @@ if (weighting_factor == 0) {
 
 ################################################################################################
 # RETRIEVE RUN 600 MODEL FLOW TIMESERIES, Full PErmitted + Proposed
-pprunid <- 600 # will have this set to 6 once draft run is confirmed
 model_flows_6 <- om_get_rundata(elid, pprunid)
 model_flows_6$Qbaseline <- model_flows_6$Qout + (model_flows_6$wd_cumulative_mgd - model_flows_13$ps_cumulative_mgd ) * 1.547
 ts3 <- as.data.frame(model_flows_6[,c('thisdate', 'Qout')])
