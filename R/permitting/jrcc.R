@@ -97,14 +97,32 @@ dfw <- rbind(
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_401', metric='l90_Qout',
-             runlabel='l90_401', 
+  data.frame(runid='runid_13', metric='wd_mgd',
+             runlabel='wd_13', 
+             model_version = 'vahydro-1.0')
+)
+dfw <- rbind(
+  dfw, 
+  data.frame(runid='runid_401', metric='l30_Qout',
+             runlabel='l30_401', 
+             model_version = 'vahydro-1.0')
+)
+dfw <- rbind(
+  dfw, 
+  data.frame(runid='runid_601', metric='l30_Qout',
+             runlabel='l30_601', 
              model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
   data.frame(runid='runid_601', metric='l90_Qout',
              runlabel='l90_601', 
+             model_version = 'vahydro-1.0')
+)
+dfw <- rbind(
+  dfw, 
+  data.frame(runid='runid_401', metric='l90_Qout',
+             runlabel='l90_401', 
              model_version = 'vahydro-1.0')
 )
 wshed_data <- om_vahydro_metric_grid(metric, dfw)
@@ -115,15 +133,24 @@ wshed_case <- sqldf(
   "
 )
 sqldf(
-  "select riverseg, wd_601, wd_401, l90_401, l90_601 from wshed_case 
-   where l90_401 < l90_601
-   order by l90_601
+  "select riverseg, wd_601, wd_401, wd_13, l90_401, l90_601 from wshed_case 
+   where l90_601 < l90_401
+   order by l90_401
+  ")
+sqldf(
+  "select riverseg, wd_601, wd_401, wd_13, l90_401, l90_601 from wshed_case 
+   where l90_601 > l90_401
+   order by l90_401
   ")
 
+# since 601 is total permitted + proposed
+# and 401 is just total permitted
+# 401 flows should almost always > 60 (unless we have an 
+#  impoundment with flow augmentation)
 sqldf(
-  "select riverseg, wd_601, wd_401, l90_401, l90_601 from wshed_case 
-   where l90_601 < l90_401
-   order by l90_601
+  "select riverseg, wd_601, wd_401, wd_13, l30_401, l30_601 from wshed_case 
+   where l30_601 < l30_401
+   order by l30_601
   ")
 sqldf("select * from wshed_case where riverseg like '%_0001'")
 sqldf("select * from wshed_case where riverseg = 'JL6_6740_7100'")
