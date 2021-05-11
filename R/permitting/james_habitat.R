@@ -66,11 +66,14 @@ ifim_plot6_20 <- ifim_wua_change_plot(ts3base, ts3, WUA.df, 0.2,"ifim_da_sqmi" =
 ifim_plot6_20 +
   labs(title = "Habitat Change, Full Permitted + Proposed") + 
   ylim(c(-50,50))
+# TBD: this could be part of the analysis script since it could produce a nicely formatted summary
+#      that would be returned in the single ggplot object without penalty
 ifim_plot6_20$data$pctchg <- round(ifim_plot6_20$data$pctchg, 2)
 ifim_sumdata_6 <- xtabs(pctchg ~ metric + flow, data = ifim_plot6_20$data)
 ifim_mat <- as.data.frame.matrix(ifim_sumdata_6)
 ifim_mat <- cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
 ifim_plot6_20$data.formatted <-  cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
+ifim_plot6_20$data.formatted
 
 ggsave(paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_20_',elid,'.png',sep=""), width = 7, height = 4)
 
