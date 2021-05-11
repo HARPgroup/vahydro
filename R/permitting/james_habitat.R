@@ -12,7 +12,8 @@ source(paste("https://raw.githubusercontent.com/HARPgroup/r-dh-ecohydro",'master
 # INPUTS #######################################################################################
 ifim_featureid <- 476536 #James RVA (approx Loc)
 wshed_featureid <- 67866 #James River at Fall Line
-pprunid <- 600 # will have this set to 6 once draft run is confirmed
+pprunid <- 11 # will have this set to 6 once draft run is confirmed
+pctile <- 0.1
 
 ################################################################################################
 # RETRIEVE RSEG MODEL
@@ -43,12 +44,13 @@ rseg_da_sqmi <- as.numeric(rseg_da_sqmi$propvalue)
 weighting_factor <- ifim_da_sqmi/rseg_da_sqmi
 if (weighting_factor == 0) {
   weighting_factor = 1.0
+  ifim_da_sqmi <- rseg_da_sqmi
 }
 
 ################################################################################################
 # RETRIEVE RUN 600 MODEL FLOW TIMESERIES, Full PErmitted + Proposed
 model_flows_6 <- om_get_rundata(elid, pprunid)
-model_flows_6$Qbaseline <- model_flows_6$Qout + (model_flows_6$wd_cumulative_mgd - model_flows_13$ps_cumulative_mgd ) * 1.547
+model_flows_6$Qbaseline <- model_flows_6$Qout + (model_flows_6$wd_cumulative_mgd - model_flows_6$ps_cumulative_mgd ) * 1.547
 ts3 <- as.data.frame(model_flows_6[,c('thisdate', 'Qout')])
 ts3$thisdate <- as.character(as.Date(index(model_flows_6))) 
 names(ts3) <- c('Date', 'Flow')
@@ -62,7 +64,7 @@ ts3base$Flow <- (as.numeric(ts3base$Flow)*weighting_factor)
 
 
 # Plot the changes for the 20% since it is not a short run
-ifim_plot6_20 <- ifim_wua_change_plot(ts3base, ts3, WUA.df, 0.2,"ifim_da_sqmi" = ifim_da_sqmi,runid_a = "6",metric_a = "Qbaseline",runid_b = "6",metric_b = "Qout")
+ifim_plot6_20 <- ifim_wua_change_plot(ts3base, ts3, WUA.df, pctile,"ifim_da_sqmi" = ifim_da_sqmi,runid_a = "6",metric_a = "Qbaseline",runid_b = "6",metric_b = "Qout")
 ifim_plot6_20 +
   labs(title = "Habitat Change, Full Permitted + Proposed") + 
   ylim(c(-50,50))
