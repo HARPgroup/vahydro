@@ -2,14 +2,15 @@ library('hydrotools')
 library('zoo')
 # catawba creek watershed is 210175, WD&PS is 210201
 # CC needs to have modernization
-datcc401 <- om_get_rundata(210201, 401)
-datcc601 <- om_get_rundata(210201, 601)
+datcc400 <- om_get_rundata(210201, 400)
+datcc600 <- om_get_rundata(210201, 600)
 
 # CC needs to have modernization
-datjrcc401 <- om_get_rundata(219565 , 401)
-datjrcc601 <- om_get_rundata(219565 , 601)
+datjrcc400 <- om_get_rundata(219565 , 400)
+datjrcc600 <- om_get_rundata(219565 , 600)
+om_flow_table(datjrcc600, "Qintake")
 
-df2sum = as.data.frame(datjrcc401)
+df2sum = as.data.frame(datjrcc400)
 
 intake_summary_tbl = data.frame(
   "Month" = character(), 
@@ -38,36 +39,36 @@ for (i in index(month.abb)) {
 }
 names(intake_summary_tbl) <- c('Month', 'Min', '5%', '10%', '25%', '30%', '50%')
 
-datjr401 <- om_get_rundata(209975, 401)
-datjr601 <- om_get_rundata(209975, 601)
+datjr400 <- om_get_rundata(209975, 400)
+datjr600 <- om_get_rundata(209975, 600)
 
-datrva401 <- om_get_rundata(219639, 401)
-datrva601 <- om_get_rundata(219639, 601)
+datrva400 <- om_get_rundata(219639, 400)
+datrva600 <- om_get_rundata(219639, 600)
 
 datbc[200:250,c('wd_channel_cfs', 'Qlocal_channel', 'bc_release_cfs', 'impoundment_Qout')]
 datbc[0:15,c('wd_channel_cfs', 'Qlocal_channel', 'bc_release_cfs', 'impoundment_Qout')]
 
 # Facility analysis
-dff <- data.frame(runid='runid_401', metric='wd_mgd',
-                  runlabel='wd_401', 
+dff <- data.frame(runid='runid_400', metric='wd_mgd',
+                  runlabel='wd_400', 
                   model_version = 'vahydro-1.0'
 )
 dff <- rbind(
   dff, 
-  data.frame(runid='runid_601', metric='wd_mgd',
-             runlabel='wd_601', 
+  data.frame(runid='runid_600', metric='wd_mgd',
+             runlabel='wd_600', 
              model_version = 'vahydro-1.0')
 )
 dff <- rbind(
   dff, 
-  data.frame(runid='runid_401', metric='unmet30_mgd',
-             runlabel='unmet30_401', 
+  data.frame(runid='runid_400', metric='unmet30_mgd',
+             runlabel='unmet30_400', 
              model_version = 'vahydro-1.0')
 )
 dff <- rbind(
   dff, 
-  data.frame(runid='runid_601', metric='unmet30_mgd',
-             runlabel='unmet30_601', 
+  data.frame(runid='runid_600', metric='unmet30_mgd',
+             runlabel='unmet30_600', 
              model_version = 'vahydro-1.0')
 )
 dff <- rbind(
@@ -88,33 +89,33 @@ fac_case <- sqldf(
    and hydrocode not in ('vwuds_0231', 'Dickerson_Generating_Station')
   "
 )
-sqldf("select * from fac_case where wd_601 > wd_401")
-sqldf("select * from fac_case where wd_601 < wd_401")
-sqldf("select * from fac_case where riverseg = 'JU1_7750_7560'")
-sqldf("select * from fac_case where unmet30_601 > 0")
+sqldf("select * from fac_case where wd_600 > wd_400")
+sqldf("select * from fac_case where wd_600 < wd_400")
+sqldf("select * from fac_case where riverseg in ('JL3_7020_7100', 'JL3_7090_7150')")
+sqldf("select * from fac_case where unmet30_600 > 0")
 
 # choose one to test
 #df <- as.data.frame(df[3,])
 
 
-dfw <- data.frame(runid='runid_401', metric='wd_mgd',
-                  runlabel='wd_401', model_version = 'vahydro-1.0'
+dfw <- data.frame(runid='runid_400', metric='wd_mgd',
+                  runlabel='wd_400', model_version = 'vahydro-1.0'
 )
 dfw <- rbind(
   dfw,
-  data.frame(runid='runid_601', metric='wd_mgd',
-             runlabel='wd_601', model_version = 'vahydro-1.0')
+  data.frame(runid='runid_600', metric='wd_mgd',
+             runlabel='wd_600', model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_401', metric='wd_cumulative_mgd',
-             runlabel='wdcum_401', 
+  data.frame(runid='runid_400', metric='wd_cumulative_mgd',
+             runlabel='wdcum_400', 
              model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_601', metric='wd_cumulative_mgd',
-             runlabel='wdcum_601', 
+  data.frame(runid='runid_600', metric='wd_cumulative_mgd',
+             runlabel='wdcum_600', 
              model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
@@ -131,26 +132,26 @@ dfw <- rbind(
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_401', metric='l30_Qout',
-             runlabel='l30_401', 
+  data.frame(runid='runid_400', metric='l30_Qout',
+             runlabel='l30_400', 
              model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_601', metric='l30_Qout',
-             runlabel='l30_601', 
+  data.frame(runid='runid_600', metric='l30_Qout',
+             runlabel='l30_600', 
              model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_401', metric='l90_Qout',
-             runlabel='l90_401', 
+  data.frame(runid='runid_400', metric='l90_Qout',
+             runlabel='l90_400', 
              model_version = 'vahydro-1.0')
 )
 dfw <- rbind(
   dfw, 
-  data.frame(runid='runid_601', metric='l90_Qout',
-             runlabel='l90_601', 
+  data.frame(runid='runid_600', metric='l90_Qout',
+             runlabel='l90_600', 
              model_version = 'vahydro-1.0')
 )
 wshed_data <- om_vahydro_metric_grid(metric, dfw)
@@ -160,32 +161,32 @@ wshed_case <- sqldf(
    and riverseg not like '%0000%' 
   "
 )
-# Now, target segments where wd601 < wd401 and l90601 > l90401
+# Now, target segments where wd600 < wd400 and l90600 > l90400
   
 sqldf(
-  "select riverseg, wd_601, wd_401, wd_13, l90_401, l90_601 from wshed_case 
-   where l90_601 < l90_401
-   order by l90_401
+  "select riverseg, wd_600, wd_400, wd_13, l90_400, l90_600 from wshed_case 
+   where l90_600 < l90_400
+   order by l90_400
   ")
 sqldf(
-  "select riverseg, wd_601, wd_401, wd_13, l90_401, l90_601 from wshed_case 
-   where l90_601 > l90_401
-   order by l90_401
+  "select riverseg, wd_600, wd_400, wd_13, l90_400, l90_600 from wshed_case 
+   where l90_600 > l90_400
+   order by l90_400
   ")
 
-# since 601 is total permitted + proposed
-# and 401 is just total permitted
-# 401 flows should almost always > 60 (unless we have an 
+# since 600 is total permitted + proposed
+# and 400 is just total permitted
+# 400 flows should almost always > 60 (unless we have an 
 #  impoundment with flow augmentation)
 sqldf(
-  "select riverseg, wd_601, wd_401, wd_13, l30_401, l30_601 from wshed_case 
-   where l30_601 < l30_401
-   order by l30_601
+  "select riverseg, wd_600, wd_400, wd_13, l30_400, l30_600 from wshed_case 
+   where l30_600 < l30_400
+   order by l30_600
   ")
 # the first watershed with large difference shuld be the source of 
 # the new impacts, and likely location of a proposed permit
 # in this case: JL6_7440_7430
-#         riverseg      wd_601      wd_401  wdcum_13   l30_401   l30_601
+#         riverseg      wd_600      wd_400  wdcum_13   l30_400   l30_600
 #    JL6_7440_7430  0.53051932  0.53051932  94.27137 376.97783 372.80251
 sqldf(
   "select * from fac_data where 
@@ -193,27 +194,33 @@ sqldf(
    order by riverseg
   ")
 # But no obvious demand changes, why? Look at tribs
-sqldf("select * from wshed_case where riverseg like '%_7440%'")
+# trib container for willis 214481 listens to children for "wd_cumulative_mgd", b
+#  but, children send wd_uptream_mgd
+# Convention on main segments is to pass "wd_upstream_mgd", which is sensible.
+# it is not necessarily bad to keep track of "wd_trib_mgd" separately, but for the 
+# purpose of having a full cumulative accounting, this is not ideal.
+sqldf("select * from wshed_case where riverseg in ('JL3_7020_7100', 'JL3_7090_7150')")
+sqldf("select * from wshed_case where wdcum_400 = 0.36")
 sqldf("select * from fac_data where riverseg like '%_7440%'")
 sqldf("select * from wshed_case where riverseg like '%harris%'")
 sqldf("select * from wshed_case where riverseg like '%black%'")
 
 
 sqldf(
-  "select riverseg, wd_601, wd_401, wdcum_13, l30_401, l30_601 from wshed_case 
-   where l30_401 < l30_601
-   order by l30_601
+  "select riverseg, wd_600, wd_400, wdcum_13, l30_400, l30_600 from wshed_case 
+   where l30_400 < l30_600
+   order by l30_600
   ")
 
 sqldf(
-  "select riverseg, wd_601, wd_401, wdcum_13, l30_401, l30_601 from wshed_case 
-   where l30_601 < l30_401
-   order by l30_601
+  "select riverseg, wd_600, wd_400, wdcum_13, l30_400, l30_600 from wshed_case 
+   where l30_600 < l30_400
+   order by l30_600
   ")
 
 sqldf(
   "select * from fac_data 
-   where  (1.005 * wd_601) < wd_401
+   where  (1.005 * wd_600) < wd_400
    order by riverseg
   ")
 
@@ -221,9 +228,9 @@ sqldf(
   "select * from fac_data where 
    riverseg in (
      select riverseg from wshed_case 
-   where wd_601 < wd_401
+   where wd_600 < wd_400
    )
-   and wd_601 < wd_401
+   and wd_600 < wd_400
    order by riverseg
   ")
 
@@ -232,49 +239,49 @@ sqldf(
   "select * from fac_data where 
    riverseg in (
      select riverseg from wshed_case 
-   where wd_601 < wd_401
+   where wd_600 < wd_400
    )
-   and wd_401 < wd_601
+   and wd_400 < wd_600
    order by riverseg
   ")
 
 
-datjr401 <- om_get_rundata(212527, 401)
-datjr601 <- om_get_rundata(212527, 601)
+datjr400 <- om_get_rundata(212527, 400)
+datjr600 <- om_get_rundata(212527, 600)
 
 
-quantile(datjr401$Qout)
-quantile(datjr601$Qout)
+quantile(datjr400$Qout)
+quantile(datjr600$Qout)
 
-quantile(datjr401$Qin)
-quantile(datjr601$Qin)
+quantile(datjr400$Qin)
+quantile(datjr600$Qin)
 
-quantile(datjr401$Qup)
-quantile(datjr601$Qup)
+quantile(datjr400$Qup)
+quantile(datjr600$Qup)
 
-quantile(datjr401$Runit)
-quantile(datjr601$Runit)
+quantile(datjr400$Runit)
+quantile(datjr600$Runit)
 
-quantile(datjr401$Qtrib)
-quantile(datjr601$Qtrib)
+quantile(datjr400$Qtrib)
+quantile(datjr600$Qtrib)
 
 
 # harris creek
-dathc401 <- om_get_rundata(326970, 401)
-dathc601 <- om_get_rundata(326970, 601)
-quantile(dathc401$Runit)
-quantile(dathc601$Runit)
+dathc400 <- om_get_rundata(326970, 400)
+dathc600 <- om_get_rundata(326970, 600)
+quantile(dathc400$Runit)
+quantile(dathc600$Runit)
 
 
 # harris creek channel object
-dathcc401 <- om_get_rundata(326976, 401)
-dathcc601 <- om_get_rundata(326976, 601)
-quantile(dathcc401$Runit)
-quantile(dathcc601$Runit)
+dathcc400 <- om_get_rundata(326976, 400)
+dathcc600 <- om_get_rundata(326976, 600)
+quantile(dathcc400$Runit)
+quantile(dathcc600$Runit)
 
 
 # harris creek Fac/Imp object
-dathcro401 <- om_get_rundata(220197, 401)
-dathcro601 <- om_get_rundata(220197, 601)
-quantile(dathcro401$impoundment_Qout)
-quantile(dathcro601$impoundment_Qout)
+dathcro400 <- om_get_rundata(220197, 400)
+dathcro600 <- om_get_rundata(220197, 600)
+quantile(dathcro400$impoundment_Qout)
+quantile(dathcro600$impoundment_Qout)
