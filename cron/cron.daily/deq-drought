@@ -32,6 +32,7 @@ wget -O va-dmtf-precip --no-check-certificate  https://localhost/d.dh/va-dmtf-pr
 cd /var/www/html/d.dh
 drush scr modules/om/src/om_setprop.php file /var/www/html/drought/state/images/maps/va-dmtf-precip
 # Create a static version of the map for each day.
+cd /var/www/html/drought/state/images/maps
 wget -O virginia_drought.png "https://localhost/cgi-bin/mapserv?map=/var/www/html/mapserv/vahydro_drought_status-4-metrics-live.map&layers=usgs_mllr&layers=poli_bounds&layers=proj_seggroups&mode=map&format=image/png" --no-check-certificate
 
 date > /home/denton/mydate
