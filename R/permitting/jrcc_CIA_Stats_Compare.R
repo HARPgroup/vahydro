@@ -9,10 +9,10 @@ options(timeout=1200)
 ################################################################################################
 # USER INPUTS
 ################################################################################################
-rseg.hydroid = 462757   #South Fork Powell River - Big Cherry Reservoir
-fac.hydroid = 72672     #BIG STONE GAP WTP
+rseg.hydroid = 67909   #James at Hugenot
+fac.hydroid = 71810     #JRCC
 
-runid.list <- c('runid_201','runid_401','runid_6011','runid_6012')
+runid.list <- c('runid_11','runid_13','runid_400','runid_600')
 fac.metric.list <- c('wd_mgd','ps_mgd','unmet1_mgd','unmet7_mgd','unmet30_mgd','unmet90_mgd')
 rseg.metric.list <- c('Qout','Qbaseline','remaining_days_p0','remaining_days_p10','remaining_days_p50','l30_Qout',
                       'l90_Qout','consumptive_use_frac','wd_cumulative_mgd','ps_cumulative_mgd')
@@ -29,7 +29,7 @@ rseg_summary <- data.frame()
 for (i in 1:length(runid.list)){
   runid.i <- runid.list[i]
   run.i <- sub("runid_", "", runid.i)
-  
+     
   # RETRIEVE FAC MODEL STATS 
   fac.metrics.i <- data.frame('model_version' = c('vahydro-1.0'),'runid' = c(runid.i),'runlabel' = fac.metric.list,'metric' = fac.metric.list)
   fac_summary.i <- om_vahydro_metric_grid(metric, 'bundle' = 'facility','ftype' = 'all',fac.metrics.i)

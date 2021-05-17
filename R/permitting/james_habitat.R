@@ -12,7 +12,7 @@ source(paste("https://raw.githubusercontent.com/HARPgroup/r-dh-ecohydro",'master
 # INPUTS #######################################################################################
 ifim_featureid <- 476536 #James RVA (approx Loc)
 wshed_featureid <- 67866 #James River at Fall Line
-pprunid <- 11 # will have this set to 6 once draft run is confirmed
+pprunid <- 600 # will have this set to 6 once draft run is confirmed
 pctile <- 0.1
 
 ################################################################################################
