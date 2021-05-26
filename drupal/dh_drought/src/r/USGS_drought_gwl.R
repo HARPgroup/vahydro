@@ -17,7 +17,7 @@ library(lubridate) #required for year()
 library(sqldf)
 
 basepath <- "/var/www/R/"
-source(paste(basepath,"config.local.private",sep = '/'))
+source(paste(basepath,"config.local.private",sep = ''))
 
 # load libraries
 source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
