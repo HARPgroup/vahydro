@@ -1043,7 +1043,7 @@ function dh_wsp_gwp_monthly_form($form, &$form_state, $annual_ts = null, $op = '
   } else {
     dsm("Could not load $class for plugin $plugin");
   }
-  dpm($annual_ts,"passed in annual_ts");
+  //dpm($annual_ts,"passed in annual_ts");
   $form['permit_id'] = array(
     '#type' => 'hidden',
     '#default_value' => $annual_ts->permit_id
@@ -1213,8 +1213,9 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
         if ($form_state['values']['permit_id'] == NULL) {
           $permit_id = dh_adminreg_get_admin_location($facilityid, FALSE, FALSE, $gwpid);
         } else {
+          // we were called with the a permit id 
           $permit_id = $form_state['values']['permit_id'];
-          dpm($permit_id,"passed in permitid");
+          //dpm($permit_id,"passed in permitid");
         }
         $url = implode('/', array('ows-wwpr-permit-info', $permit_id));
         if (!$permit_id) {
@@ -1237,9 +1238,11 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
           'entity_type' => 'dh_adminreg_feature',
           'tscode' => 'submitted',
         );
+        // we should only save this if it does *not* exist, otherwise, the initial receipt will be overwritten
+        // but since the requirements ask for this audit trail every time we save, se la vie
         $receipt = dh_update_timeseries($info, 'tsendtime_singular');
         //dpm($info,'receipt info');
-        //dpm($receipt,'receipt');
+        //dpm($receipt,'created receipt');
         $fac = entity_load_single('dh_feature', $facilityid);
         drupal_set_message("Withdrawal Report for $fac->name.");
       }
