@@ -1043,6 +1043,10 @@ function dh_wsp_gwp_monthly_form($form, &$form_state, $annual_ts = null, $op = '
   } else {
     dsm("Could not load $class for plugin $plugin");
   }
+  $form['permit_id'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $annual_ts->permit_id
+  );
   
   $form['actions'] = array('#type' => 'actions');
   $next = dh_monthly_get_next_mp($annual_ts->featureid, 'active', 'well');
@@ -1205,13 +1209,18 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
         $authid = dh_adminreg_get_adminreg_entity('vdeq_gwp');
         $gwpid = array_shift($authid);
         $facilityid = dh_getMpFacilityHydroId($wellid);
-        $permitid = dh_adminreg_get_admin_location($facilityid, FALSE, FALSE, $gwpid);
-        $url = implode('/', array('ows-wwpr-permit-info', $permitid));
-        if (!$permitid) {
+        if ($form_state['values']['permit_id'] == NULL) {
+          $permit_id = dh_adminreg_get_admin_location($facilityid, FALSE, FALSE, $gwpid);
+        } else {
+          $permit_id = $form_state['values']['permit_id'];
+          dpm($permit_id,"passed in permitid");
+        }
+        $url = implode('/', array('ows-wwpr-permit-info', $permit_id));
+        if (!$permit_id) {
           // not a permit, try a vwuds registration, else bail.
           $url = implode('/', array('ows-vwuds-facility-info', $facilityid));
         }
-        //dpm($permitid, "Permitid for well $wellid fac $facilityid");
+        //dpm($permit_id, "permit_id for well $wellid fac $facilityid");
         // now set a vadeq_report_wd on the permit-info
         // due date = 
         $year = date('Y', $dh_timeseries->tstime);
@@ -1222,7 +1231,7 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
           'varkey' => 'vadeq_report_wd',
           'tsendtime' => dh_handletimestamp(date('Y-m-d')),
           'tstime' => dh_handletimestamp("$year-$mo-$day"),
-          'featureid' => $permitid,
+          'featureid' => $permit_id,
           'tsvalue' => 0,
           'entity_type' => 'dh_adminreg_feature',
           'tscode' => 'submitted',
