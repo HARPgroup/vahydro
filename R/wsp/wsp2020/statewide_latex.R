@@ -320,6 +320,9 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table1_tex <- gsub(pattern = "\\textbf{System Type}", 
                        repl    = "\\vspace{0.3em}\\textbf{System Type}", 
                        x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "Small SSU & 0", 
+                       repl    = "Small SSU & N/A", 
+                       x       = table1_tex, fixed = T )
     table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
     
@@ -416,6 +419,9 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
     table1_tex <- gsub(pattern = "\\textbf{System Type}", 
                        repl    = "\\vspace{0.3em}\\textbf{System Type}", 
                        x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "Small SSU & 0", 
+                       repl    = "Small SSU & N/A", 
+                       x       = table1_tex, fixed = T )
     table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
     
@@ -474,6 +480,9 @@ round(((sum(mp_2040_mgy/365.25) - sum(mp_2020_mgy/365.25)) / sum(mp_2020_mgy/365
                        x       = table1_tex, fixed = T )
     table1_tex <- gsub(pattern = "Virginia", 
                        repl    = "\\textbf{Virginia}", 
+                       x       = table1_tex, fixed = T )
+    table1_tex <- gsub(pattern = "Small SSU & 0", 
+                       repl    = "Small SSU & N/A", 
                        x       = table1_tex, fixed = T )
     table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_table",file_ext,sep=""))
