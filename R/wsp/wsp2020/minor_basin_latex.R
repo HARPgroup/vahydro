@@ -342,6 +342,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table1_tex <- gsub(pattern = "\\textbf{System Type}", 
                       repl    = "\\vspace{0.3em}\\textbf{System Type}", 
                       x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "Small SSU & 0", 
+                      repl    = "Small SSU & N/A", 
+                      x       = table1_tex, fixed = T )
    table1_tex %>%
    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
    
@@ -566,6 +569,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table1_tex <- gsub(pattern = "\\textbf{System Type}", 
                       repl    = "\\vspace{0.3em}\\textbf{System Type}", 
                       x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "Small SSU & 0", 
+                      repl    = "Small SSU & N/A", 
+                      x       = table1_tex, fixed = T )
    table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
    
@@ -665,6 +671,9 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                       x       = table1_tex, fixed = T )
    table1_tex <- gsub(pattern = "\\textbf{System Type}", 
                       repl    = "\\vspace{0.3em}\\textbf{System Type}", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "Small SSU & 0", 
+                      repl    = "Small SSU & N/A", 
                       x       = table1_tex, fixed = T )
    table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
