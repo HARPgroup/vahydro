@@ -1,0 +1,48 @@
+{
+    "0. Lake Anna: Dominion Power": {
+        "host": "deq2.bse.vt.edu",
+        "id": "5031577",
+        "name": "0. Lake Anna: Dominion Power",
+        "scenario": {
+            "name": "scenario",
+            "object_class": "textField",
+            "value": ""
+        },
+        "whtf_diff": {
+            "id": "5387257",
+            "name": "whtf_diff",
+            "default": {
+                "name": "default",
+                "object_class": "textField",
+                "value": null
+            },
+            "equation": {
+                "name": "equation",
+                "object_class": "textField",
+                "value": "whtf123_reg_mgd - whtf_reg_mgd"
+            },
+            "engine": {
+                "id": "5387262",
+                "name": "engine",
+                "value": "mathExpression2"
+            },
+            "minvalue": {
+                "id": "5387261",
+                "name": "minvalue",
+                "value": null
+            },
+            "nonnegative": {
+                "id": "5387260",
+                "name": "nonnegative",
+                "value": "0"
+            },
+            "defaultval": {
+                "id": "5387259",
+                "name": "defaultval",
+                "value": "0"
+            },
+            "object_class": "Equation"
+        },
+        "object_class": "hydroImpoundment"
+    }
+}

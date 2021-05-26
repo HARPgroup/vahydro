@@ -11,7 +11,7 @@ library('hydrotools')
 #source(paste(fxn_vahydro,"VAHydro-2.0/rest_functions.R", sep = "/")); 
 site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 save_url <- paste(str_remove(site, 'd.dh'), "data/proj3/out", sep='');
-ds <- RomDataSource$new(site)
+ds <- RomDataSource$new(site, 'restws_admin')
 ds$get_token()
 #----------------------------------------------
 # Load Libraries
@@ -54,7 +54,8 @@ gage_probs = data.frame(
 for (j in 1:length(month)) {
 	for (k in 1:length(percentile)) {
 		variables[e] <- paste("mllr", month[j], percentile[k], sep="_")
-		varids[e] <- ds$get_vardef(variables[e])
+		vardef <- ds$get_vardef(variables[e])
+		varids[e] <- vardef$varid
 		e <- e + 1
 	}
 }
@@ -76,7 +77,7 @@ for (i in 1:nrow(gagelist)) {
 	z <- 1 
 	P_est <- c()
 	winterflow <- c()	
-
+  this_gage_probs = gage_probs[0,]
 	# Extract flow data for the current year from Nov - Feb
 	StartDate <- as.Date(paste((calyear-1), "-11-01", sep=""))
 	EndDate <- as.Date(paste(calyear, "-02-28", sep=""))
@@ -105,12 +106,12 @@ for (i in 1:nrow(gagelist)) {
 	beta_0 <- c()
 	beta_1 <- c()
 	beta_table <- c()
-	for (J in 1:length(month)) {
-		for (K in 1:length(percentile)) {
+	for (thismo in 1:length(month)) {
+		for (thisp in 1:length(percentile)) {
 			# Write beta variable names
 			b <- b+1
-			beta_0[b] <- paste("mllr_beta0", month[J], percentile[K], sep="_")
-			beta_1[b] <- paste("mllr_beta1", month[J], percentile[K], sep="_")
+			beta_0[b] <- paste("mllr_beta0", month[thismo], percentile[thisp], sep="_")
+			beta_1[b] <- paste("mllr_beta1", month[thismo], percentile[thisp], sep="_")
 		} 
 	} 
 	# Combine beta0s and beta1s 
@@ -156,24 +157,31 @@ for (i in 1:nrow(gagelist)) {
           "hcode" = paste("usgs", gage, sep="_")
         );
         gage_probs <- rbind(gage_probs, newline);
-        ts <- RomTS$new(
-          ds,
-          list( 
+        this_gage_probs <- rbind(gage_probs, newline);
+        config_list = list( 
           "featureid" = gageinfo$hydroid, 
           "entity_type" = 'dh_feature', 
           "varid" = varids[z], 
           "tstime" =  as.numeric(as.POSIXct(paste(paste(calyear, "-03-01", sep=""),"EST"))), 
-          "tsvalue" = P_est
-          )
+          "tsvalue" = P_est, 
+          "tscode" = P_est
         )
-        ts$save()
+        ts <- RomTS$new(
+          ds,
+          config_list,
+          TRUE
+        )
+        ts$save(TRUE)
       } else {
         print(paste(variables[z], " = NULL for gage", gage, " varkeys ", varkey_beta_0, varkey_beta_1, sep=" "));
       }
       z <- z + 1 # count for which mllr value this gage is on
-    } # Ends percentile loop		
+    } # Ends percentile loop
   } # Ends month loop
 	# todo: put calculation for max percentile and set property too
+	if (set_mllr_status) {
+	  
+	}
 	
   print(paste("Finished gage", gage, sep=" "))
 

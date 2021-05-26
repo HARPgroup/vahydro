@@ -3,13 +3,12 @@
 
 library("sqldf")
 library("stringr") #for str_remove()
+library("hydrotools") #for str_remove()
 
 # Load Libraries
 basepath='/var/www/R';
 site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 source("/var/www/R/config.local.private"); 
-source(paste(basepath,'config.R',sep='/'))
-source(paste(hydro_tools_location,'/R/om_vahydro_metric_grid.R', sep = ''));
 folder <- "C:/Workspace/tmp/"
 
 # get the DA, need to grab a model output first in order to insure segments with a channel subcomp
@@ -49,6 +48,13 @@ wshed_data <- sqldf(
   order by da
   ")
 
+wshed_cu <- sqldf(
+  "select propname, riverseg, WD_2020, PS_2020, (WD_2020 - PS_2020)*1.547 as CU_2020_cfs, 
+  WD_2040, PS_2040, (WD_2040 - PS_2040)*1.547 as CU_2040_cfs
+  from wshed_data 
+  where riverseg in ('PM7_4200_4410', 'PM7_4410_4620', 'PM7_4620_4580', 'PM7_4580_4820', 'PM7_4820_0001')
+  "
+)
 wshed_case <- sqldf(
   "select * from 
   wshed_data 
