@@ -6,6 +6,7 @@ module_load_include('module', 'dh_wsp');
 module_load_include('inc', 'dh_wsp', 'dh_wsp.custom_forms');
 $ann_varkey = 'wd_gpy';
 $a = arg();
+$params = drupal_get_query_parameters();
 if (isset($a[1])) {
   $wellid = $a[1];
   //dpm($a,'args');
@@ -20,6 +21,8 @@ if (isset($a[1])) {
     $quarter = date('n');
     $quarter = ceil($quarter / 4);
   }
+  $permit_id = isset($params['permit_id'] ? $params['permit_id'] : NULL;
+    
   $tstime = dh_handletimestamp("$year-01-01");
   $values = array(
     'varkey' => dh_varkey2varid($ann_varkey, TRUE),
@@ -36,6 +39,7 @@ if (isset($a[1])) {
   if (is_object($annual_ts)) {
     $annual_ts->varkey = $ann_varkey;
     $annual_ts->quarter = $quarter;
+    $annual_ts->permit_id = $permit_id;
     $form_state = array();
     $form_state['wrapper_callback'] = 'entity_ui_main_form_defaults';
     $form_state['entity_type'] = 'dh_timeseries';
