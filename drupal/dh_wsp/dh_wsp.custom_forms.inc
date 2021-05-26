@@ -1175,7 +1175,7 @@ function dh_wsp_gwp_monthly_form_rebuild(&$form, &$form_state) {
 function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
   //error_log("$$$$$$$$$$$$$$$$$$$$$$$ Called dh_wsp_gwp_monthly_form_submit ");
   #error_log('form state:' . print_r($form_state,1));
-  //dpm($form_state,'form_state');
+  dpm($form_state,'form_state');
   $dh_timeseries = dh_wsp_gwp_monthly_form_save($form, $form_state);
   $parms = drupal_get_query_parameters();
   $wellid = $dh_timeseries->featureid;
