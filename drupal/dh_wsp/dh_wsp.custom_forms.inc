@@ -1043,6 +1043,7 @@ function dh_wsp_gwp_monthly_form($form, &$form_state, $annual_ts = null, $op = '
   } else {
     dsm("Could not load $class for plugin $plugin");
   }
+  dpm($annual_ts,"passed in annual_ts");
   $form['permit_id'] = array(
     '#type' => 'hidden',
     '#default_value' => $annual_ts->permit_id
