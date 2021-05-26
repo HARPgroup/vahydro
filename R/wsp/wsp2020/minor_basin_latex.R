@@ -320,7 +320,10 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(5, bold=T, extra_latex_after = ) %>%
       row_spec(10, bold=T) %>%
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) 
+      row_spec(15, bold=T) %>%
+      footnote(general_title = "Note: ",
+               general = "Explain", 
+               symbol = "CC")
       
    #CUSTOM LATEX CHANGES
    #insert hold position header
@@ -344,6 +347,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                       x       = table1_tex, fixed = T )
    table1_tex <- gsub(pattern = "Small SSU & 0", 
                       repl    = "Small SSU & N/A", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\multicolumn{6}{l}{\\textit{Note: }}\\\\
+\\multicolumn{6}{l}{Explain}\\\\
+\\multicolumn{6}{l}{\\textsuperscript{*} CC}\\\\",
+                      repl    = "\\addlinespace
+\\multicolumn{6}{l}{ \\multirow{}{}{\\parbox{14cm}{\\textsuperscript{*} Small SSU demands are county-wide estimates of private well usage below 300,000 gallons a month. The number of private wells is not known.}}}\\\\",
                       x       = table1_tex, fixed = T )
    table1_tex %>%
    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
@@ -547,7 +556,10 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(5, bold=T, extra_latex_after = ) %>%
       row_spec(10, bold=T) %>%
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) 
+      row_spec(15, bold=T) %>%
+   footnote(general_title = "Note: ",
+            general = "Explain", 
+            symbol = "CC")
    
    #CUSTOM LATEX CHANGES
    #insert hold position header
@@ -572,6 +584,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    table1_tex <- gsub(pattern = "Small SSU & 0", 
                       repl    = "Small SSU & N/A", 
                       x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\multicolumn{6}{l}{\\textit{Note: }}\\\\
+\\multicolumn{6}{l}{Explain}\\\\
+\\multicolumn{6}{l}{\\textsuperscript{*} CC}\\\\",
+                     repl    = "\\addlinespace
+\\multicolumn{6}{l}{ \\multirow{}{}{\\parbox{14cm}{\\textsuperscript{*} Small SSU demands are county-wide estimates of private well usage below 300,000 gallons a month. The number of private wells is not known.}}}\\\\",
+                     x       = table1_tex, fixed = T )
    table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_yes_power_table",file_ext,sep=""))
    
@@ -650,7 +668,10 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
       row_spec(5, bold=T, extra_latex_after = ) %>%
       row_spec(10, bold=T) %>%
       row_spec(14, bold=F, hline_after = T, extra_css = "border-bottom: 1px solid") %>%
-      row_spec(15, bold=T) 
+      row_spec(15, bold=T) %>%
+      footnote(general_title = "Note: ",
+               general = "Explain", 
+               symbol = "CC")
    
    #CUSTOM LATEX CHANGES
    #insert hold position header
@@ -674,6 +695,12 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
                       x       = table1_tex, fixed = T )
    table1_tex <- gsub(pattern = "Small SSU & 0", 
                       repl    = "Small SSU & N/A", 
+                      x       = table1_tex, fixed = T )
+   table1_tex <- gsub(pattern = "\\multicolumn{6}{l}{\\textit{Note: }}\\\\
+\\multicolumn{6}{l}{Explain}\\\\
+\\multicolumn{6}{l}{\\textsuperscript{*} CC}\\\\",
+                      repl    = "\\addlinespace
+\\multicolumn{6}{l}{ \\multirow{}{}{\\parbox{14cm}{\\textsuperscript{*} Small SSU demands are county-wide estimates of private well usage below 300,000 gallons a month. The number of private wells is not known.}}}\\\\",
                       x       = table1_tex, fixed = T )
    table1_tex %>%
       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
