@@ -358,130 +358,130 @@ if (str_contains(mb_mps$facility_ftype, "power") == FALSE) {
    cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_summary_no_power_table",file_ext,sep=""))
    
    
-   #-------------- TOP 5 USERS (NO POWER detected) ---------------------
-#SURFACE WATER
-   top_sw_no <- sqldf('SELECT facility_name, system_type,
-                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
-                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
-                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
-                        fips_name 
-               FROM mb_mps 
-               WHERE MP_bundle = "intake"
-                  AND facility_ftype NOT LIKE "%power"
-                  AND facility_ftype NOT LIKE "wsp_plan%"
-               GROUP BY Facility_hydroid')
-   
-   top_5_sw_no <- sqldf('SELECT facility_name, 
-                           system_type,
-                           fips_name,
-                           MGD_2020,
-                           MGD_2030,
-                           MGD_2040,
-                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
-                  FROM top_sw_no
-                  ORDER BY MGD_2040 DESC
-                  limit 5')
-   
-   top_5_sw_no <- append_totals(top_5_sw_no, "Total SW")
-   
-   top_5_sw_no$pct_total_use <- round((top_5_sw_no$MGD_2040 / A$MGD_2040[5]) * 100,2)
-#GROUNDWATER   
-   top_gw_no <- sqldf('SELECT facility_name, system_type,
-                        round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
-                        round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
-                        round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
-                        fips_name 
-               FROM mb_mps 
-               WHERE MP_bundle = "well"
-                  AND facility_ftype NOT LIKE "%power"
-                  AND facility_ftype NOT LIKE "wsp_plan%"
-               GROUP BY Facility_hydroid')
-   
-   top_5_gw_no <- sqldf('SELECT facility_name, 
-                           system_type,
-                           fips_name,
-                           MGD_2020,
-                           MGD_2030,
-                           MGD_2040,
-                           round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
-                  FROM top_gw_no
-                  ORDER BY MGD_2040 DESC
-                  limit 5')
-
-#APPEND TOTALS to TOP 5 Surface Water Users table   
-   top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
-   
-   top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
-   
-   gw_header <- data.frame("facility_name" = 'Groundwater',
-                           "system_type" = '',
-                           "fips_name" = '',
-                           "MGD_2020" = '',
-                           "MGD_2030" ='',
-                           "MGD_2040" ='',
-                           "pct_change" = '',
-                           "pct_total_use" = '% of Total Groundwater')
-   
-   top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
-   
-   top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
-   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
-   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
-   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
-   top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
-   
-   top_5_no[is.na(top_5_no)] <- "0.00"
-   top_5_no[top_5_no == 0] <- "0.00"
-   top_5_no[top_5_no == "Agriculture"] <- "AG"
-   
-   # if (nrow(top_5_sw_no) < 6) {
-   #    a <- "yes"
-   # } else {
-   #    
-   # }
-   # OUTPUT TABLE IN KABLE FORMAT
-   table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
-         caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name," Minor Basin",sep=""),
-         label = paste("top_5_no_power_",mb_code,sep=""),
-         col.names = c("Facility Name",
-                       "System Type",
-                       "Locality",
-                       kable_col_names[3:6],
-                       "% of Total Surface Water")) %>%
-      kable_styling(latex_options = latexoptions) %>%
-      column_spec(1, width = "9em") %>%
-      column_spec(2, width = "3em") %>%
-      column_spec(3, width = "4em") %>%
-      column_spec(4, width = "4em") %>%
-      column_spec(5, width = "4em") %>%
-      column_spec(6, width = "4em") %>%
-      column_spec(7, width = "4em") %>%
-      column_spec(8, width = "7em") %>%
-      row_spec(0, bold=T, font_size = 9) %>%
-      pack_rows("Surface Water", 1, nrow(top_5_sw_no)) %>%
-      row_spec(nrow(top_5_sw_no), extra_latex_after = "\\hline") %>%
-      row_spec(nrow(top_5_sw_no)+1, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
-      
-   #CUSTOM LATEX CHANGES
-   #insert hold position header
-   table5_tex <- gsub(pattern = "{table}[t]", 
-                      repl    = "{table}[H]", 
-                      x       = table5_tex, fixed = T )
-   table5_tex <- gsub(pattern = "\\hspace{1em}", 
-                      repl    = "", 
-                      x       = table5_tex, fixed = T )
-   table5_tex <- gsub(pattern = "\\hline", 
-                      repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
-                      x       = table5_tex, fixed = T )
-   table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
-                      repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
-                      x       = table5_tex, fixed = T )
-   table5_tex <- gsub(pattern = "\\textbf{Locality}", 
-                      repl    = "\\vspace{0.3em}\\textbf{Locality}", 
-                      x       = table5_tex, fixed = T )
-   table5_tex %>%
-      cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
-   
+#    #-------------- TOP 5 USERS (NO POWER detected) ---------------------
+# #SURFACE WATER
+#    top_sw_no <- sqldf('SELECT facility_name, system_type,
+#                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+#                         round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+#                         round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+#                         fips_name 
+#                FROM mb_mps 
+#                WHERE MP_bundle = "intake"
+#                   AND facility_ftype NOT LIKE "%power"
+#                   AND facility_ftype NOT LIKE "wsp_plan%"
+#                GROUP BY Facility_hydroid')
+#    
+#    top_5_sw_no <- sqldf('SELECT facility_name, 
+#                            system_type,
+#                            fips_name,
+#                            MGD_2020,
+#                            MGD_2030,
+#                            MGD_2040,
+#                            round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+#                   FROM top_sw_no
+#                   ORDER BY MGD_2040 DESC
+#                   limit 5')
+#    
+#    top_5_sw_no <- append_totals(top_5_sw_no, "Total SW")
+#    
+#    top_5_sw_no$pct_total_use <- round((top_5_sw_no$MGD_2040 / A$MGD_2040[5]) * 100,2)
+# #GROUNDWATER   
+#    top_gw_no <- sqldf('SELECT facility_name, system_type,
+#                         round(sum(mp_2020_mgy)/365.25,2) AS MGD_2020,
+#                         round(sum(mp_2030_mgy)/365.25,2) AS MGD_2030, 
+#                         round(sum(mp_2040_mgy)/365.25,2) AS MGD_2040, 
+#                         fips_name 
+#                FROM mb_mps 
+#                WHERE MP_bundle = "well"
+#                   AND facility_ftype NOT LIKE "%power"
+#                   AND facility_ftype NOT LIKE "wsp_plan%"
+#                GROUP BY Facility_hydroid')
+#    
+#    top_5_gw_no <- sqldf('SELECT facility_name, 
+#                            system_type,
+#                            fips_name,
+#                            MGD_2020,
+#                            MGD_2030,
+#                            MGD_2040,
+#                            round(((MGD_2040 - MGD_2020) / MGD_2020) * 100, 2) as pct_change
+#                   FROM top_gw_no
+#                   ORDER BY MGD_2040 DESC
+#                   limit 5')
+# 
+# #APPEND TOTALS to TOP 5 Surface Water Users table   
+#    top_5_gw_no <- append_totals(top_5_gw_no, "Total GW")
+#    
+#    top_5_gw_no$pct_total_use <- round((top_5_gw_no$MGD_2040 / B$MGD_2040[5]) * 100,2)
+#    
+#    gw_header <- data.frame("facility_name" = 'Groundwater',
+#                            "system_type" = '',
+#                            "fips_name" = '',
+#                            "MGD_2020" = '',
+#                            "MGD_2030" ='',
+#                            "MGD_2040" ='',
+#                            "pct_change" = '',
+#                            "pct_total_use" = '% of Total Groundwater')
+#    
+#    top_5_no <- rbind(top_5_sw_no, gw_header, top_5_gw_no)
+#    
+#    top_5_no$facility_name <- str_to_title(top_5_no$facility_name)
+#    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "wtp", replacement = "WTP", ignore.case = T)
+#    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Water Treatment Plant", replacement = "WTP", ignore.case = T)
+#    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total sw", replacement = "Total SW", ignore.case = T)
+#    top_5_no$facility_name <- gsub(x = top_5_no$facility_name, pattern = "Total gw", replacement = "Total GW", ignore.case = T)
+#    
+#    top_5_no[is.na(top_5_no)] <- "0.00"
+#    top_5_no[top_5_no == 0] <- "0.00"
+#    top_5_no[top_5_no == "Agriculture"] <- "AG"
+#    
+#    # if (nrow(top_5_sw_no) < 6) {
+#    #    a <- "yes"
+#    # } else {
+#    #    
+#    # }
+#    # OUTPUT TABLE IN KABLE FORMAT
+#    table5_tex <- kable(top_5_no,align = c('l','l','l','c','c','c','c','c','l'),  booktabs = T,
+#          caption = paste("Top 5 Users in 2040 by Source Type in the ",mb_name," Minor Basin",sep=""),
+#          label = paste("top_5_no_power_",mb_code,sep=""),
+#          col.names = c("Facility Name",
+#                        "System Type",
+#                        "Locality",
+#                        kable_col_names[3:6],
+#                        "% of Total Surface Water")) %>%
+#       kable_styling(latex_options = latexoptions) %>%
+#       column_spec(1, width = "9em") %>%
+#       column_spec(2, width = "3em") %>%
+#       column_spec(3, width = "4em") %>%
+#       column_spec(4, width = "4em") %>%
+#       column_spec(5, width = "4em") %>%
+#       column_spec(6, width = "4em") %>%
+#       column_spec(7, width = "4em") %>%
+#       column_spec(8, width = "7em") %>%
+#       row_spec(0, bold=T, font_size = 9) %>%
+#       pack_rows("Surface Water", 1, nrow(top_5_sw_no)) %>%
+#       row_spec(nrow(top_5_sw_no), extra_latex_after = "\\hline") %>%
+#       row_spec(nrow(top_5_sw_no)+1, bold=T, hline_after = F, extra_css = "border-top: 1px solid") 
+#       
+#    #CUSTOM LATEX CHANGES
+#    #insert hold position header
+#    table5_tex <- gsub(pattern = "{table}[t]", 
+#                       repl    = "{table}[H]", 
+#                       x       = table5_tex, fixed = T )
+#    table5_tex <- gsub(pattern = "\\hspace{1em}", 
+#                       repl    = "", 
+#                       x       = table5_tex, fixed = T )
+#    table5_tex <- gsub(pattern = "\\hline", 
+#                       repl    = "\\addlinespace[0.3em] \\hline \\addlinespace[0.4em]", 
+#                       x       = table5_tex, fixed = T )
+#    table5_tex <- gsub(pattern = "\\textbf{Facility Name}", 
+#                       repl    = "\\vspace{0.3em}\\textbf{Facility Name}", 
+#                       x       = table5_tex, fixed = T )
+#    table5_tex <- gsub(pattern = "\\textbf{Locality}", 
+#                       repl    = "\\vspace{0.3em}\\textbf{Locality}", 
+#                       x       = table5_tex, fixed = T )
+#    table5_tex %>%
+#       cat(., file = paste(folder,"tables_maps/Xtables/",mb_code,"_top5_no_power_table",file_ext,sep=""))
+#    
 } else {
 
    ### when 'power' IS detected in facility ftype column, then generate 2 separate summary tables for yes/no power
