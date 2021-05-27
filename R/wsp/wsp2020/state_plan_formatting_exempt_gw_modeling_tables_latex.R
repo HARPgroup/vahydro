@@ -1,7 +1,8 @@
 #FORMATTING EXEMPT & GW MODELING TABLES
 ## EXEMPT #########################################################################################################
 #TABLE 11 NON-TIDAL EXEMPT DATA SOURCES
-nontidal_exempt <- read.csv("C:/Users/maf95834/Documents/wsp2020/table_11_non_tidal_exempt.csv")
+nontidal_exempt <- read.csv(paste(folder,"table_11_non_tidal_exempt.csv",sep=""))
+
 ##KABLE
 nontidal_exempt_tex <- kable(nontidal_exempt,align = c('l','c','c'),  booktabs = T, format = "latex",
                     caption = "Summary of Exempt Data Sources for Non-tidal Intakes",
@@ -33,7 +34,7 @@ nontidal_exempt_tex <- kable(nontidal_exempt,align = c('l','c','c'),  booktabs =
   nontidal_exempt_tex
   
 #TABLE 12 TIDAL EXEMPT DATA SOURCES
-tidal_exempt <- read.csv("C:/Users/maf95834/Documents/wsp2020/table_12_tidal_exempt.csv")
+tidal_exempt <- read.csv(paste(folder,"table_12_tidal_exempt.csv"))
 ##KABLE
 tidal_exempt_tex <- kable(tidal_exempt,align = c('l','c','c'),  booktabs = T, format = "latex",
                              caption = "Summary of Exempt Data Sources for Tidal Intakes",
@@ -68,7 +69,7 @@ tidal_exempt_tex
 
 #FIG 48 Eastern Virginia GW Modeling
 
-EV_GW <- read.csv("C:/Users/maf95834/Documents/wsp2020/table_fig48_VAHydro_EV_GW_model_scenarios.csv")
+EV_GW <- read.csv(paste(folder,"table_fig48_VAHydro_EV_GW_model_scenarios.csv"))
 
 ##KABLE
 EV_GW_tex <- kable(EV_GW,align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
@@ -94,7 +95,7 @@ EV_GW_tex
 
 #FIG 49 Eastern Shore GW Modeling
 
-ES_GW <- read.csv("C:/Users/maf95834/Documents/wsp2020/table_fig49_VAHydro_ES_GW_model_scenarios.csv")
+ES_GW <- read.csv(paste(folder,"table_fig49_VAHydro_ES_GW_model_scenarios.csv"))
 ##KABLE
 ES_GW_tex <- kable(ES_GW,align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
                    caption = "VAHydro Virginia Eastern Shore Model Scenarios Pumping Rates (MGD)",
