@@ -5,6 +5,8 @@
 options(knitr.kable.NA = '0.00')
 
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
+
+folder2 <- "C:/Users/maf95834/Documents/wsp2020/"
 major_basin <- read.csv(paste0(folder, "major_basin_names.csv"))
 
 scenario <- c("runid_13","runid_17","runid_18")
@@ -85,50 +87,48 @@ assign(paste0(s,"_table"), sqldf(paste0('SELECT b.Major_Basin_Name, a.',s,'_l30,
 ##recode NA to - for the Basins that are outside of the chesapeake bay drainage
 if (paste0(s,"_table") == "runid_17_table") {
 
-  runid_17_table <- sqldf('SELECT Major_Basin_Name, runid_17_l30, runid_17_l90, runid_17_7q10
+  runid_17_table <- sqldf('SELECT Major_Basin_Name, runid_17_l30, runid_17_l90
         FROM runid_17_table')
   runid_17_table[is.na(runid_17_table)] <- "-"
   
   
   ##KABLE
   table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
-                      caption = paste("Percentage of Major Basins with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario",sep=""),
+                      caption = paste("Percentage of River Segments in Each Major Basin with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario using 2040 Demands",sep=""),
                       label = paste("streamflow_reduction_",s,"_VA"),
                       col.names = c("Major Basin",
                                     "Lowest 30 Day Low Flow",
-                                    "Lowest 90 Day Low Flow",
-                                    "7q10")) %>%
-    #kable_styling(latex_options = "scale_down") %>%
+                                    "Lowest 90 Day Low Flow")) %>%
+    kable_styling(latex_options = "scale_down") %>%
     kable_styling(font_size = 11) %>%
     column_spec(1, width = "9em") %>%
     column_spec(2, width = "9em") %>%
     column_spec(3, width = "9em") %>%
-    column_spec(4, width = "8em") %>%
     #Header row is row 0
     row_spec(0, bold=T, font_size = 11) %>%
     footnote(general_title = "Note: ",
-             general = "Explain", 
-             symbol = "CC")
+             general = "Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.", 
+             symbol = " Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.")
   
-  table1_tex <- gsub(pattern = "\\multicolumn{4}{l}{\\textit{Note: }}\\\\
-\\multicolumn{4}{l}{Explain}\\\\
-\\multicolumn{4}{l}{\\textsuperscript{*} CC}\\\\",
-                     repl    =  "\\addlinespace \\multicolumn{4}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand Scenario.}\\\\ \\addlinespace 
-\\multicolumn{4}{l}{ \\multirow{}{}{\\parbox{15cm}{\\textit{Note:} Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.}}}\\\\",
-                     x       = table1_tex, fixed = T )
+#   table1_tex <- gsub(pattern = "\\multicolumn{3}{l}{\\textit{Note: }}\\\\
+# \\multicolumn{3}{l}{Explain}\\\\
+# \\multicolumn{3}{l}{\\textsuperscript{*} CC}\\\\",
+#                      repl    =  "\\addlinespace \\multicolumn{3}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.}\\\\ \\addlinespace 
+# \\multicolumn{3}{l}{ \\multirow{}{}{\\parbox{15cm}{\\textit{Note:} Climate scenarios were not completed in areas located outside of the Chesapeake Bay Basin.}}}\\\\",
+#                      x       = table1_tex, fixed = T )
   
 } else {
 
 ##KABLE
 table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  booktabs = T, format = "latex",
-                    caption = paste("Percentage of Major Basins with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario",sep=""),
+                    caption = paste("Percentage of River Segments in Each Major Basin with a $>$10\\% Stream Flow Reduction in the ",scen," Scenario",sep=""),
                     label = paste("streamflow_reduction_",s,"_VA"),
                     col.names = c("Major Basin",
                       "Lowest 30 Day Low Flow",
                       "Lowest 90 Day Low Flow",
                       "7q10",
                       "Overall Change in Flow")) %>%
-  #kable_styling(latex_options = "scale_down") %>%
+  kable_styling(latex_options = "scale_down") %>%
   kable_styling(font_size = 11) %>%
   column_spec(1, width = "8em") %>%
   column_spec(2, width = "7em") %>%
@@ -137,13 +137,13 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
   column_spec(5, width = "7em") %>%
   #Header row is row 0
   row_spec(0, bold=T, font_size = 11) %>%
-  footnote(general_title = "Note: ",general = "Explain",symbol = "CC")
+  footnote(general_title = "Note: ",general = "Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.")
   
-  table1_tex <- gsub(pattern = "\\multicolumn{5}{l}{\\textit{Note: }}\\\\
-\\multicolumn{5}{l}{Explain}\\\\
-\\multicolumn{5}{l}{\\textsuperscript{*} CC}\\\\",
-                     repl    = "\\multicolumn{5}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand Scenario.}\\\\",
-                     x       = table1_tex, fixed = T )
+#   table1_tex <- gsub(pattern = "\\multicolumn{5}{l}{\\textit{Note: }}\\\\
+# \\multicolumn{5}{l}{Explain}\\\\
+# \\multicolumn{5}{l}{\\textsuperscript{*} CC}\\\\",
+#                      repl    = "\\multicolumn{5}{l}{\\textsuperscript{*} Calculations for these metrics are based on comparison to the 2020 Demand/Current Climate Scenario.}\\\\",
+#                      x       = table1_tex, fixed = T )
 }
 
 #CUSTOM LATEX CHANGES
@@ -154,12 +154,18 @@ table1_tex <- gsub(pattern = "{table}[t]",
 table1_tex <- gsub(pattern = "\\addlinespace",
                    repl    = "",
                    x       = table1_tex, fixed = T )
-table1_tex <- gsub(pattern = "Lowest 30 Day Low Flow}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{Lowest 90 Day Low Flow}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{7q10",
-                   repl    = "Lowest 30 Day Low Flow*}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{Lowest 90 Day Low Flow*}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{7q10*",
+table1_tex <- gsub(pattern = "Low Flow",
+                   repl    = "Low Flow*",
+                   x       = table1_tex, fixed = T )
+table1_tex <- gsub(pattern = "7q10",
+                   repl    = "7q10*",
                    x       = table1_tex, fixed = T )
 
+
+#table1_tex <- gsub(pattern = "Lowest 30 Day Low Flow}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{Lowest 90 Day Low Flow}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{7q10", repl    = "Lowest 30 Day Low Flow*}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{Lowest 90 Day Low Flow*}\\endgroup & \\begingroup\\fontsize{11}{13}\\selectfont \\textbf{7q10*",x       = table1_tex, fixed = T )
+
 table1_tex %>%
-  cat(., file = paste(folder,"tables_maps/Xtables/VA_streamflow_redux_",s,"__table.tex",sep=""))
+  cat(., file = paste(folder2,"tables_maps/Xtables/VA_streamflow_redux_",s,"__table.tex",sep=""))
 
 print(paste0("COMPLETE: ",scen," Scenario Streamflow Reduction Table"))
 }
