@@ -99,7 +99,7 @@ if (paste0(s,"_table") == "runid_17_table") {
                       col.names = c("Major Basin",
                                     "Lowest 30 Day Low Flow",
                                     "Lowest 90 Day Low Flow")) %>%
-    #kable_styling(latex_options = "scale_down") %>%
+    kable_styling(latex_options = "scale_down") %>%
     kable_styling(font_size = 11) %>%
     column_spec(1, width = "9em") %>%
     column_spec(2, width = "9em") %>%
@@ -128,7 +128,7 @@ table1_tex <- kable(get(paste0(s,"_table")),align = c('l','c','c','c','c'),  boo
                       "Lowest 90 Day Low Flow",
                       "7q10",
                       "Overall Change in Flow")) %>%
-  #kable_styling(latex_options = "scale_down") %>%
+  kable_styling(latex_options = "scale_down") %>%
   kable_styling(font_size = 11) %>%
   column_spec(1, width = "8em") %>%
   column_spec(2, width = "7em") %>%
