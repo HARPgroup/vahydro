@@ -16,6 +16,8 @@ library(lubridate) #required for year()
 #library(doBy) #required for summaryBy()
 library(sqldf)
 
+push_to_rest <- TRUE
+
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = ''))
 
@@ -27,11 +29,19 @@ site <- base_url
 
 
 #Pull in list of all drought USGS well dH Features 
-URL <- paste(site,"drought-wells-export", sep = "/");
-well_list <- read.table(URL,header = TRUE, sep = ",")
+URL <- paste(site,"drought-wells-export", sep = "/")
+#well_list <- read.table(URL,header = TRUE, sep = ",")
+well_list <- read.csv(URL, sep = ",")
+
+#########
+#This can be removed later, view pulling in bad line
+well_sql <- paste("SELECT * FROM well_list WHERE Bundle = 'Well'",sep="")
+well_list <- sqldf(well_sql)
+#########
 hydrocodes <- well_list$hydrocode
 
-#j <-9
+#j<-9
+#j<-1
 
 #Begin loop to run through each USGS gage 
 for (j in 1:length(hydrocodes)) {
@@ -56,14 +66,15 @@ for (j in 1:length(hydrocodes)) {
   print(paste("Retrieving Data from NWIS using:",url))
   data <- read.table(url,header = TRUE, sep = "\t")
   
-  print(head(data))
+  #print(head(data))
   
   data$max <- as.numeric(as.character(data[,5])) #COPY MAX (Depth to water level) COLUMN AND FORCE 'NA's WHERE THERE IS MISSING DATA
   data$periodic <- as.numeric(as.character(data[,9])) #CREATE COLUMN OF PERIODIC MEASUREMENTS
 
   #most recent max gwl reading 
-  latest_row <- length(data$max)
-  latest_row <- data[latest_row,]
+  #latest_row <- length(data$max)
+  #latest_row <- data[latest_row,]
+  latest_row <- tail(data, n = 1)
   gw_lvl <- latest_row$max
   gw_lvl <- as.numeric(as.character(gw_lvl)) 
   #need to handle 'EDT' for most recent value (use the day before)
@@ -83,7 +94,8 @@ for (j in 1:length(hydrocodes)) {
   months_all <- data.frame(months,months_num)
   
   #Determine Current month name and numeric value
-  month_row <- which(months_all$months == format(Sys.time(),"%b"))
+  # month_row <- which(months_all$months == format(Sys.time(),"%b"))
+  month_row <- which(months_all$months == format(Sys.time()-86400,"%b")) #MONTH OF YESTERDAY
   month_num <- months_all[month_row,]
   month <- month_num$months
   month <- toString(month)
@@ -178,80 +190,83 @@ for (j in 1:length(hydrocodes)) {
   if ((rolling_percentile  < 5) == 'TRUE') {nonex_propcode <- 3}
   print(paste("The Drought Status Propcode for ",siteNumber," is ",nonex_propcode,sep=""))
   
+ 
+  if (push_to_rest == TRUE) {   
+      #################################################################################################
+      #--STORE WITH REST 'drought_status_well', 'gwl_7day_ft', and 'nonex_pct'
+      #################################################################################################
+    
+      #Set values to dH variables
+      gwl_7day_ft <- gw_lvl
+      nonex_propcode <- as.numeric(as.character(nonex_propcode))
+      nonex_propvalue <- round(as.numeric(as.character(rolling_percentile)),2)
+    
+      #Convert USGS well No. to dH Hydrocode
+      hydrocode <- paste("usgs_",siteNumber, sep="")
+    
+      #Retrieve dH usgsgage feature from vahydro
+      well_inputs <- list(hydrocode=hydrocode)
+      well_feature <- getFeature(well_inputs,token,base_url)
+      hydroid <- as.character(well_feature$hydroid[1])
+    
+    
+          #------CREATE/UPDATE 'gwl_7day_ft' TIMESERIES
+           tsbody = list(
+             featureid = hydroid,
+             varkey = 'gwl_7day_ft',
+             entity_type = 'dh_feature',
+             tsvalue = gwl_7day_ft,
+             tstime = as.numeric(as.POSIXct(Sys.Date()-6,origin = "1970-01-01", tz = "GMT")),
+             tsendtime = as.numeric(as.POSIXct(Sys.Date(),origin = "1970-01-01", tz = "GMT")),
+             tscode = NULL,
+             limit = 100
+           );
+    
+    
+    
+          post_ts <- postTimeseries(tsbody, base_url)
+    
+           # #FOR TESTING ONLY:
+           # source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/"));
+          get_ts <- getTimeseries(inputs = tsbody, base_url = base_url)
+          tid <- get_ts$tid
+    
+          #------CREATE/UPDATE 'nonex_pct' PROPERTY ATTACHED TO 'gwl_7day_ft' TIMESERIES
+          pbody = list(
+            bundle = 'dh_properties',
+            featureid = tid,
+            varkey = 'nonex_pct',
+            entity_type = 'dh_timeseries',
+            propname = 'nonex_pct'
+          );
+    
+          get_nonex_pct_prop <- getProperty(inputs = pbody, base_url = base_url)
+          #update property if it exists
+          if (length(get_nonex_pct_prop) != 1){
+            pbody$pid <- get_nonex_pct_prop$pid
+          }
+          pbody$propvalue <- nonex_propvalue
+          pbody$propcode <- nonex_propcode
+          post_prop <- postProperty(inputs = pbody, base_url = base_url)
+    
+    
+          #------UPDATE 'drought_status_well' PROPERTY ATTACHED TO WELL
+          status_pbody = list(
+            bundle = 'dh_properties',
+            featureid = hydroid,
+            varkey = 'drought_status_well',
+            entity_type = 'dh_feature',
+            propname = 'drought_status_well'
+          );
+          get_status_prop <- getProperty(inputs = status_pbody, base_url = base_url)
+    
+          status_pbody$pid <- get_status_prop$pid
+          status_pbody$propvalue <- nonex_propvalue
+          status_pbody$propcode <- nonex_propcode
+    
+          post_status_prop <- postProperty(inputs = status_pbody, base_url = base_url)
+  } #end push_to_rest IF block 
   
-  #################################################################################################
-  #--STORE WITH REST 'drought_status_well', 'gwl_7day_ft', and 'nonex_pct'
-  #################################################################################################
-
-  #Set values to dH variables
-  gwl_7day_ft <- gw_lvl
-  nonex_propcode <- as.numeric(as.character(nonex_propcode))
-  nonex_propvalue <- round(as.numeric(as.character(rolling_percentile)),2)
-
-  #Convert USGS well No. to dH Hydrocode
-  hydrocode <- paste("usgs_",siteNumber, sep="")
-
-  #Retrieve dH usgsgage feature from vahydro
-  well_inputs <- list(hydrocode=hydrocode)
-  well_feature <- getFeature(well_inputs,token,base_url)
-  hydroid <- as.character(well_feature$hydroid[1])
-
-
-      #------CREATE/UPDATE 'gwl_7day_ft' TIMESERIES
-       tsbody = list(
-         featureid = hydroid,
-         varkey = 'gwl_7day_ft',
-         entity_type = 'dh_feature',
-         tsvalue = gwl_7day_ft,
-         tstime = as.numeric(as.POSIXct(Sys.Date()-6,origin = "1970-01-01", tz = "GMT")),
-         tsendtime = as.numeric(as.POSIXct(Sys.Date(),origin = "1970-01-01", tz = "GMT")),
-         tscode = NULL,
-         limit = 100
-       );
-
-
-
-      post_ts <- postTimeseries(tsbody, base_url)
-
-       # #FOR TESTING ONLY:
-       # source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/"));
-      get_ts <- getTimeseries(inputs = tsbody, base_url = base_url)
-      tid <- get_ts$tid
-
-      #------CREATE/UPDATE 'nonex_pct' PROPERTY ATTACHED TO 'gwl_7day_ft' TIMESERIES
-      pbody = list(
-        bundle = 'dh_properties',
-        featureid = tid,
-        varkey = 'nonex_pct',
-        entity_type = 'dh_timeseries',
-        propname = 'nonex_pct'
-      );
-
-      get_nonex_pct_prop <- getProperty(inputs = pbody, base_url = base_url)
-      #update property if it exists
-      if (length(get_nonex_pct_prop) != 1){
-        pbody$pid <- get_nonex_pct_prop$pid
-      }
-      pbody$propvalue <- nonex_propvalue
-      pbody$propcode <- nonex_propcode
-      post_prop <- postProperty(inputs = pbody, base_url = base_url)
-
-
-      #------UPDATE 'drought_status_well' PROPERTY ATTACHED TO WELL
-      status_pbody = list(
-        bundle = 'dh_properties',
-        featureid = hydroid,
-        varkey = 'drought_status_well',
-        entity_type = 'dh_feature',
-        propname = 'drought_status_well'
-      );
-      get_status_prop <- getProperty(inputs = status_pbody, base_url = base_url)
-
-      status_pbody$pid <- get_status_prop$pid
-      status_pbody$propvalue <- nonex_propvalue
-      status_pbody$propcode <- nonex_propcode
-
-      post_status_prop <- postProperty(inputs = status_pbody, base_url = base_url)
-
+  
 } #end of well feature loop
 
