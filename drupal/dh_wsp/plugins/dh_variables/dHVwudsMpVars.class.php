@@ -797,7 +797,14 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
       $quantity->tsvalue = $entity->tsvalue - $last_reading->tsvalue;
     } else {
       //dpm($entity->net_wd, 'Setting value to manual');
-      $quantity->tsvalue = $entity->net_wd;
+      if (property_exists($entity, 'net_wd')) {
+        $quantity->tsvalue = $entity->net_wd;
+      } else {
+        // this has not been submitted via a form, 
+        // so it is expected that the net WD data is submitted elsewhere
+        // like during a data transfer 
+        $quantity = FALSE; 
+      }
     }
     if ($quantity) {
       //dpm($quantity,'updating linked quantity');
