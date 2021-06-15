@@ -5,33 +5,33 @@ library(zoo);
 library(hydrotools);
 library(plotly);
 # save_directory <- "/var/www/html/files/fe/plots"
-# save_directory <- "/Users/jklei/Desktop/GitHub/plots"
-#save_directory <- "/Users/jklei/Desktop/Big Stone Gap WTP"
 save_directory <- "/Users/nrf46657/Desktop/VAHydro Development/GitHub/plots"
-site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+#site <- "http://deq2.bse.vt.edu/d.dh"
+site <- "http://deq1.bse.vt.edu/d.dh"
 omsite = site
-
-# Load Libraries
 basepath='/var/www/R';
 source('/var/www/R/config.R');
 options(timeout=1200); # set timeout to twice default level to avoid abort due to high traffic
 
+site <- "http://deq1.bse.vt.edu:81"
+
+
 ################################################################################################
 rseg.elid = 352078     #Riverseg Model: South Fork Powell River - Big Cherry Reservoir
 fac.elid = 247415      #Facility:Riverseg Model: BIG STONE GAP WTP:Powell River
-runid =6012
+runid = 6015
 ################################################################################################
 
 ################################################################################################
 # Riverseg MODEL:
 ################################################################################################
-rseg.info <- fn_get_runfile_info(rseg.elid,runid)
+rseg.info <- fn_get_runfile_info(elementid=rseg.elid,runid=runid,site=site)
 print(rseg.info$elemname)
 
 # RETRIEVE DATA --------------------------------------------------------------------------------
 # rseg.dat <- fn_get_runfile(rseg.elid, runid, site= omsite,  cached = FALSE);
 # rseg.dat <- window(rseg.dat, start = as.Date("1984-10-01"), end = as.Date("2014-09-30"));
-rseg.dat <- om_get_rundata(rseg.elid,runid) #automatically cuts out model warm-up periods 
+rseg.dat <- om_get_rundata(elid=rseg.elid,runid=runid,site=site) #automatically cuts out model warm-up periods 
 rseg.dat.df <- data.frame(rseg.dat)
 write.csv(rseg.dat.df, paste(save_directory,"/rseg.dat.df_",rseg.elid,"_",runid,".csv",sep=""))
 # Qout_max <- max(as.numeric(rseg.dat.df$Qout))
