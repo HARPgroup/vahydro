@@ -1,0 +1,36 @@
+---
+title: "VWP CIA Summary (TEMPLATE)"
+author: "JK"
+date: "`r format(Sys.time(), '%m/%d/%Y')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown:
+
+This is an R Markdown document. This will serve as the template for VWP Project Model Summaries moving forward. For related GitHub issue see <https://github.com/HARPgroup/vahydro/issues/317>.
+
+## Stats Comparison Table:
+
+```{r LoadChunk, include=FALSE}
+library(hydrotools)
+
+site <- "http://deq1.bse.vt.edu/d.dh"
+basepath='/var/www/R'
+source('/var/www/R/config.R')
+
+########################################################
+stats.df <- hydrotools::om_cia_table(rseg.hydroid = 462757,
+                                     fac.hydroid = 72672,
+                                     runid.list = c('runid_6013','runid_6015')
+)
+########################################################
+```
+
+```{r StatsTable, echo=FALSE}
+knitr::kable(stats.df, "pipe")
+```
+
