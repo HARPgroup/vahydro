@@ -7,7 +7,7 @@ library("hydrotools") #for str_remove()
 
 # Load Libraries
 basepath='/var/www/R';
-site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 source("/var/www/R/config.local.private"); 
 folder <- "C:/Workspace/tmp/"
 
@@ -20,7 +20,14 @@ df <- data.frame(
   'runlabel' = c('QBaseline_2020', 'comp_da', 'subcomp_da'),
   'metric' = c('Qbaseline', 'drainage_area', 'drainage_area')
 )
-da_data <- om_vahydro_metric_grid(metric, df)
+da_data <- om_vahydro_metric_grid(
+  metric, df,'all',
+   entity_type = 'dh_feature',
+  bundle = 'watershed',
+  ftype = 'vahydro',
+  model_version = 'vahydro-1.0',
+  base_url = paste(site,"entity-model-prop-level-export", sep="/")
+)
 da_data <- sqldf(
   "select pid, comp_da, subcomp_da,
    CASE

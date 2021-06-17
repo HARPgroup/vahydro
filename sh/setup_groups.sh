@@ -1,3 +1,6 @@
+#!/bin/sh
 groupadd modelers
-  294  usermod -a -G modelers rob
-  295  usermod -a -G modelers jkleiner
+usermod -a -G modelers rob
+usermod -a -G modelers jkleiner
+groupadd harpmodelers
+usermod -a -G harpmodelers rob
