@@ -1,36 +1,141 @@
 ---
-title: "VWP CIA Summary (TEMPLATE)"
-author: "JK"
 date: "`r format(Sys.time(), '%m/%d/%Y')`"
-output: word_document
+author: "JK"
+title: "VWP CIA Summary (TEMPLATE)"
+output: 
+  officedown::rdocx_document:
+    mapstyles:
+      Normal: ['First Paragraph']
+    page_margins:
+      bottom: 0.5
+      top: 0.5
+      right: 1
+      left: 0.5
+      header: 0.0
+      footer: 0.0
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+#https://cran.r-project.org/web/packages/officedown/officedown.pdf
+#https://ardata-fr.github.io/officeverse/officedown-for-word.html#insert-sections
+knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
+library(officedown)
+library(officer)
+library(flextable)
+
+fp <- fp_par(
+  text.align = "center", 
+  padding.bottom = 20, padding.top = 120, 
+  border.bottom = fp_border())
+
+ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 ```
 
-## R Markdown:
+\_
+
+# R Markdown:
 
 This is an R Markdown document. This will serve as the template for VWP Project Model Summaries moving forward. For related GitHub issue see <https://github.com/HARPgroup/vahydro/issues/317>.
 
-## Stats Comparison Table:
+## VAHydro Model Boilerplate (to be added):
+
+<!---BLOCK_MULTICOL_START--->
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. 
+
+Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+`r run_columnbreak()`Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+<!---BLOCK_MULTICOL_STOP{widths: [3,3], space: 0.2, sep: true}--->
+
+\newpage
 
 ```{r LoadChunk, include=FALSE}
 library(hydrotools)
-
 site <- "http://deq1.bse.vt.edu/d.dh"
+site.plots <- "http://deq1.bse.vt.edu:81"
 basepath='/var/www/R'
 source('/var/www/R/config.R')
 
+#SPECIFY MODELS AND RUNIDS OF INTEREST
+rseg.hydroid <- 462757
+fac.hydroid <- 72672
+#runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
+runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
+
+#RSEG MODEL INFO
+rseg.model <- om_get_model(site, rseg.hydroid)
+rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
 ########################################################
-stats.df <- hydrotools::om_cia_table(rseg.hydroid = 462757,
-                                     fac.hydroid = 72672,
-                                     runid.list = c('runid_6013','runid_6015')
+statsdf <- hydrotools::om_cia_table(rseg.hydroid = rseg.hydroid,
+                                     fac.hydroid = fac.hydroid,
+                                     runid.list = runid.list, 
+                                    fac.metric.list = c('wd_mgd','ps_mgd','unmet30_mgd'),
+                                    rseg.metric.list = c("Qout", 
+    "Qbaseline", "remaining_days_p0", "l30_Qout", "l90_Qout", 
+    "consumptive_use_frac", "wd_cumulative_mgd", 
+    "ps_cumulative_mgd")
 )
+statsdf <- cbind(rownames(statsdf),statsdf)
+names(statsdf)[names(statsdf) == 'rownames(statsdf)'] <- 'Desc'
+ 
+statsdf_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "Rseg_Stats" THEN "River Segment Model Statistics:"
+                    WHEN "Desc" = "Qout" THEN "Flow Out (cfs)"
+                    WHEN "Desc" = "Qbaseline" THEN "Flow Baseline (cfs)"
+                    WHEN "Desc" = "remaining_days_p0" THEN "Minimum Days of Storage Remaining"
+                    WHEN "Desc" = "l30_Qout" THEN "30 Day Low Flow (cfs)"
+                    WHEN "Desc" = "l90_Qout" THEN "90 Day Low Flow (cfs)"
+                    WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
+                    WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (mgd)"
+                    WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (mgd)" 
+                    WHEN "Desc" = "Facility_Stats" THEN "Facility Model Statistics:"
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal (mgd)"  
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (mgd)"  
+                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (mgd)"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM statsdf
+                 WHERE Desc NOT IN ("riverseg", "run_date")
+                 ',sep='')
+statsdf <- sqldf(statsdf_sql)
+statsdf <- statsdf[,-2]
 ########################################################
 ```
 
+<!---BLOCK_LANDSCAPE_START--->
+# Stats Comparison Table:
 ```{r StatsTable, echo=FALSE}
-knitr::kable(stats.df, "pipe")
+ft <- qflextable(statsdf)
+# Add header row -----------------------------------------------------------------------------------
+ft <- add_header_row(x = ft, values = c("", "Scenario Alternatives"),colwidths = c(3, 4))
+ft <- theme_box(ft)
+# Set background color of select rows --------------------------------------------------------------
+ft <- bg(ft, bg = "#EFEFEF", part = "header")
+ft <- bg(ft, i = ~ Description == "River Segment Model Statistics:", bg = "#EFEFEF", part = "body")
+ft <- bg(ft, i = ~ Description == "Facility Model Statistics:", bg = "#EFEFEF", part = "body")
+fontsize(ft, size = 12)
+```
+<!---BLOCK_LANDSCAPE_STOP--->
+
+# Reservoir storage plots:
+```{r ResPlots, echo=FALSE}
+rlist <- gsub('runid_', '', runid.list)
+figs.list <- paste0(site.plots,"/data/proj3/out/fig.imp_storage.all.",rseg.elid,".", rlist, ".png")
+#knitr::include_graphics(path = figs.list)
+
+
 ```
 
+
+![alt text here](http://deq1.bse.vt.edu:81/data/proj3/out/fig.imp_storage.all.352078.6013.png)
+
+\newpage
+
+
+# Next Sections
