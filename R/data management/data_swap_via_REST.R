@@ -5,9 +5,9 @@ library("zoo")
 library('httr')
 options(scipen = 999)
 # SPECIFY THE DRUPAL DEVELOPMENT SITE: d.dh, d.alpha, d.beta
-dev_site <- "d.alpha"
+dev_site <- "d.alpha/"
 
-ds1 <- RomDataSource$new("http://deq1.bse.vt.edu/",dev_site, "restws_admin")
+ds1 <- RomDataSource$new(paste0("http://deq1.bse.vt.edu/",dev_site), "restws_admin")
 ds1$get_token()
 
 feat_1092 <- RomFeature$new(ds1,list(hydroid=1092),TRUE)
