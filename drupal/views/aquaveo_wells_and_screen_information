@@ -1,0 +1,1379 @@
+$view = new view();
+$view->name = 'aquaveo_wells_and_screen_information';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'dh_feature';
+$view->human_name = 'Aquaveo - Wells and Screen Information';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'Aquaveo - Wells and Screen Information';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'none';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '100';
+$handler->display->display_options['style_plugin'] = 'table';
+/* Header: Global: Result summary */
+$handler->display->display_options['header']['result']['id'] = 'result';
+$handler->display->display_options['header']['result']['table'] = 'views';
+$handler->display->display_options['header']['result']['field'] = 'result';
+/* Relationship: MPID */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'MPID';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'MPID';
+/* Relationship: Borehole */
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['id'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['field'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['ui_name'] = 'Borehole';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['label'] = 'Borehole';
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility link';
+/* Relationship: DEQ Well Number */
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['id'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['label'] = 'DEQ Well Number';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = 'VAHydro ID';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['label'] = 'MPID';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['label'] = 'Interval Type';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'Fromdepth (ft)';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['label'] = 'Todepth (ft)';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['label'] = 'Land Surface Elevation (ft)';
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['label'] = 'Well Depth (ft)';
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_1']['id'] = 'propcode_1';
+$handler->display->display_options['fields']['propcode_1']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_1']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['fields']['propcode_1']['label'] = 'DEQ Well Number';
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['value'] = 'screen';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: DH Feature: fstatus */
+$handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['operator'] = '!=';
+$handler->display->display_options['filters']['fstatus']['value'] = 'duplicate';
+$handler->display->display_options['filters']['fstatus']['op_location'] = 'where';
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'vadeq_mpid' => 'vadeq_mpid',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['filters']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['hydroid']['expose']['operator_id'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['label'] = 'VA HydroID';
+$handler->display->display_options['filters']['hydroid']['expose']['operator'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['identifier'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+/* Filter criterion: DH Properties: propcode */
+$handler->display->display_options['filters']['propcode']['id'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['propcode']['field'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['propcode']['exposed'] = TRUE;
+$handler->display->display_options['filters']['propcode']['expose']['operator_id'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['label'] = 'MPID';
+$handler->display->display_options['filters']['propcode']['expose']['operator'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['identifier'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+$handler->display->display_options['filters']['propcode']['op_location'] = 'where';
+/* Filter criterion: DH Feature: Bundle */
+$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['value'] = array(
+  'well' => 'well',
+);
+/* Filter criterion: dH Feature: Link Facility to usafips (dh_link_admin_fa_usafips) */
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator_id'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['label'] = 'Locality';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['identifier'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_1']['id'] = 'varidid_1';
+$handler->display->display_options['filters']['varidid_1']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_1']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['filters']['varidid_1']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid_1']['op_location'] = 'ON';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['path'] = 'aquaveo-wells-and-screen-information';
+
+/* Display: Data export */
+$handler = $view->new_display('views_data_export', 'Data export', 'views_data_export_1');
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+$handler->display->display_options['style_options']['provide_file'] = 1;
+$handler->display->display_options['style_options']['parent_sort'] = 0;
+$handler->display->display_options['style_options']['quote'] = 1;
+$handler->display->display_options['style_options']['trim'] = 0;
+$handler->display->display_options['style_options']['replace_newlines'] = 0;
+$handler->display->display_options['style_options']['header'] = 1;
+$handler->display->display_options['style_options']['keep_html'] = 0;
+$handler->display->display_options['path'] = 'aquaveo-well-screen-intervals-export';
+$handler->display->display_options['displays'] = array(
+  'page' => 'page',
+  'default' => 0,
+);
+
+/* Display: well, screen, permit info */
+$handler = $view->new_display('page', 'well, screen, permit info', 'page_1');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'Wells and Screen Information w/ Permit Info';
+$handler->display->display_options['defaults']['group_by'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: MPID */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'MPID';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'MPID';
+/* Relationship: Borehole */
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['id'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['field'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['ui_name'] = 'Borehole';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['label'] = 'Borehole';
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility link';
+/* Relationship: DEQ Well Number */
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['id'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['label'] = 'DEQ Well Number';
+/* Relationship: permit */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['ui_name'] = 'permit';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'permit';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = 'VAHydro ID';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['label'] = 'MPID';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'Fromdepth (ft)';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+$handler->display->display_options['fields']['fromdepth']['separator'] = '';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['label'] = 'Todepth (ft)';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+$handler->display->display_options['fields']['todepth']['separator'] = '';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['label'] = 'Screen Interval Depth';
+$handler->display->display_options['fields']['ftype']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['ftype']['alter']['text'] = '[fromdepth] ft to [todepth] ft';
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['label'] = 'Land Surface Elevation (ft)';
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['label'] = 'Well Depth (ft)';
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_1']['id'] = 'propcode_1';
+$handler->display->display_options['fields']['propcode_1']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_1']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['fields']['propcode_1']['label'] = 'DEQ Well Number';
+/* Field: dH AdminReg Feature: Permit/Registration Issuing Authority */
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['id'] = 'dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['field'] = 'dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['delta_offset'] = '0';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['value'] = 'screen';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'on';
+/* Filter criterion: DH Feature: fstatus */
+$handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['operator'] = '!=';
+$handler->display->display_options['filters']['fstatus']['value'] = 'duplicate';
+$handler->display->display_options['filters']['fstatus']['op_location'] = 'where';
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'vadeq_mpid' => 'vadeq_mpid',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['filters']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['hydroid']['expose']['operator_id'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['label'] = 'VA HydroID';
+$handler->display->display_options['filters']['hydroid']['expose']['operator'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['identifier'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+/* Filter criterion: DH Properties: propcode */
+$handler->display->display_options['filters']['propcode']['id'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['propcode']['field'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['propcode']['exposed'] = TRUE;
+$handler->display->display_options['filters']['propcode']['expose']['operator_id'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['label'] = 'MPID';
+$handler->display->display_options['filters']['propcode']['expose']['operator'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['identifier'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+$handler->display->display_options['filters']['propcode']['op_location'] = 'where';
+/* Filter criterion: DH Feature: Bundle */
+$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['value'] = array(
+  'well' => 'well',
+);
+/* Filter criterion: dH Feature: Link Facility to usafips (dh_link_admin_fa_usafips) */
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator_id'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['label'] = 'Locality';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['identifier'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_1']['id'] = 'varidid_1';
+$handler->display->display_options['filters']['varidid_1']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_1']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['filters']['varidid_1']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid_1']['op_location'] = 'ON';
+/* Filter criterion: dH AdminReg Feature: Permit/Registration Issuing Authority (dh_link_admin_reg_issuer) */
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['id'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['field'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['value'] = array(
+  65668 => '65668',
+);
+/* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['filters']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['permit_id_value']['operator'] = 'not_starts';
+$handler->display->display_options['filters']['permit_id_value']['value'] = 'null';
+$handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'wells-and-screen-information-permit-info';
+
+/* Display: well, screen, permit info Data export */
+$handler = $view->new_display('views_data_export', 'well, screen, permit info Data export', 'views_data_export_2');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'Well, Screen, Permit Info Data Export';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+$handler->display->display_options['style_options']['provide_file'] = 1;
+$handler->display->display_options['style_options']['filename'] = 'well_screen_permit_info_export.csv';
+$handler->display->display_options['style_options']['parent_sort'] = 0;
+$handler->display->display_options['style_options']['quote'] = 1;
+$handler->display->display_options['style_options']['trim'] = 0;
+$handler->display->display_options['style_options']['replace_newlines'] = 0;
+$handler->display->display_options['style_options']['header'] = 1;
+$handler->display->display_options['style_options']['keep_html'] = 0;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: MPID */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'MPID';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'MPID';
+/* Relationship: Borehole */
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['id'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['field'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['ui_name'] = 'Borehole';
+$handler->display->display_options['relationships']['reverse_wellid_dh_boreholelog']['label'] = 'Borehole';
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility link';
+/* Relationship: DEQ Well Number */
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['id'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['label'] = 'DEQ Well Number';
+/* Relationship: permit */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['ui_name'] = 'permit';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'permit';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = 'well_hydroid';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['label'] = 'MPID';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['label'] = 'Interval Type';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'Fromdepth_ft';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['label'] = 'Todepth_ft';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['label'] = 'Land_Surface_Elevation_ft';
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['label'] = 'Well_Depth_ft';
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_1']['id'] = 'propcode_1';
+$handler->display->display_options['fields']['propcode_1']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_1']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['fields']['propcode_1']['label'] = 'DEQ_Well_Number';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['permit_id']['label'] = 'Permit_ID';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_wellid_dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['value'] = 'screen';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'on';
+/* Filter criterion: DH Feature: fstatus */
+$handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['operator'] = '!=';
+$handler->display->display_options['filters']['fstatus']['value'] = 'duplicate';
+$handler->display->display_options['filters']['fstatus']['op_location'] = 'where';
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'vadeq_mpid' => 'vadeq_mpid',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['filters']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['hydroid']['expose']['operator_id'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['label'] = 'VA HydroID';
+$handler->display->display_options['filters']['hydroid']['expose']['operator'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['identifier'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+/* Filter criterion: DH Properties: propcode */
+$handler->display->display_options['filters']['propcode']['id'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['propcode']['field'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['propcode']['exposed'] = TRUE;
+$handler->display->display_options['filters']['propcode']['expose']['operator_id'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['label'] = 'MPID';
+$handler->display->display_options['filters']['propcode']['expose']['operator'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['identifier'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+$handler->display->display_options['filters']['propcode']['op_location'] = 'where';
+/* Filter criterion: DH Feature: Bundle */
+$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['value'] = array(
+  'well' => 'well',
+);
+/* Filter criterion: dH Feature: Link Facility to usafips (dh_link_admin_fa_usafips) */
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator_id'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['label'] = 'Locality';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['identifier'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_1']['id'] = 'varidid_1';
+$handler->display->display_options['filters']['varidid_1']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_1']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['filters']['varidid_1']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid_1']['op_location'] = 'ON';
+/* Filter criterion: dH AdminReg Feature: Permit/Registration Issuing Authority (dh_link_admin_reg_issuer) */
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['id'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['field'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['value'] = array(
+  65668 => '65668',
+);
+/* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['filters']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['permit_id_value']['operator'] = 'not_starts';
+$handler->display->display_options['filters']['permit_id_value']['value'] = 'null';
+$handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'well-screen-intervals-permit-info-export';
+$handler->display->display_options['displays'] = array(
+  'page_1' => 'page_1',
+  'default' => 0,
+  'page' => 0,
+);
+$handler->display->display_options['sitename_title'] = 0;
+
+/* Display: well depth and permit info */
+$handler = $view->new_display('page', 'well depth and permit info', 'page_2');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'well depth and permit info';
+$handler->display->display_options['defaults']['group_by'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: MPID */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'MPID';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'MPID';
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility link';
+/* Relationship: DEQ Well Number */
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['id'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['label'] = 'DEQ Well Number';
+/* Relationship: permit */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['ui_name'] = 'permit';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'permit';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = 'VAHydro ID';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['label'] = 'MPID';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['label'] = 'Well Depth (ft)';
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_1']['id'] = 'propcode_1';
+$handler->display->display_options['fields']['propcode_1']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_1']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['fields']['propcode_1']['label'] = 'DEQ Well Number';
+/* Field: dH AdminReg Feature: Permit/Registration Issuing Authority */
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['id'] = 'dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['field'] = 'dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['delta_offset'] = '0';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['sorts']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['sorts']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['sorts']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['sorts']['permit_id_value']['relationship'] = 'dh_link_admin_location_target_id';
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Feature: fstatus */
+$handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['operator'] = '!=';
+$handler->display->display_options['filters']['fstatus']['value'] = 'duplicate';
+$handler->display->display_options['filters']['fstatus']['op_location'] = 'where';
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'vadeq_mpid' => 'vadeq_mpid',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['filters']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['hydroid']['expose']['operator_id'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['label'] = 'VA HydroID';
+$handler->display->display_options['filters']['hydroid']['expose']['operator'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['identifier'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+/* Filter criterion: DH Properties: propcode */
+$handler->display->display_options['filters']['propcode']['id'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['propcode']['field'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['propcode']['exposed'] = TRUE;
+$handler->display->display_options['filters']['propcode']['expose']['operator_id'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['label'] = 'MPID';
+$handler->display->display_options['filters']['propcode']['expose']['operator'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['identifier'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+$handler->display->display_options['filters']['propcode']['op_location'] = 'where';
+/* Filter criterion: DH Feature: Bundle */
+$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['value'] = array(
+  'well' => 'well',
+);
+/* Filter criterion: dH Feature: Link Facility to usafips (dh_link_admin_fa_usafips) */
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator_id'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['label'] = 'Locality';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['identifier'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_1']['id'] = 'varidid_1';
+$handler->display->display_options['filters']['varidid_1']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_1']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['filters']['varidid_1']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid_1']['op_location'] = 'ON';
+/* Filter criterion: dH AdminReg Feature: Permit/Registration Issuing Authority (dh_link_admin_reg_issuer) */
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['id'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['field'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['value'] = array(
+  65668 => '65668',
+);
+/* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['filters']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['permit_id_value']['operator'] = 'not_starts';
+$handler->display->display_options['filters']['permit_id_value']['value'] = 'null';
+$handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
+/* Filter criterion: DH AdminReg Feature: fstatus */
+$handler->display->display_options['filters']['fstatus_1']['id'] = 'fstatus_1';
+$handler->display->display_options['filters']['fstatus_1']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['fstatus_1']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_1']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['fstatus_1']['value'] = 'active';
+$handler->display->display_options['filters']['fstatus_1']['exposed'] = TRUE;
+$handler->display->display_options['filters']['fstatus_1']['expose']['operator_id'] = 'fstatus_1_op';
+$handler->display->display_options['filters']['fstatus_1']['expose']['label'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_1']['expose']['operator'] = 'fstatus_1_op';
+$handler->display->display_options['filters']['fstatus_1']['expose']['identifier'] = 'fstatus_1';
+$handler->display->display_options['filters']['fstatus_1']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['fstatus_1']['is_grouped'] = TRUE;
+$handler->display->display_options['filters']['fstatus_1']['group_info']['label'] = 'Permit Status';
+$handler->display->display_options['filters']['fstatus_1']['group_info']['identifier'] = 'fstatus_1';
+$handler->display->display_options['filters']['fstatus_1']['group_info']['widget'] = 'radios';
+$handler->display->display_options['filters']['fstatus_1']['group_info']['default_group_multiple'] = array(
+  1 => '1',
+);
+$handler->display->display_options['filters']['fstatus_1']['group_info']['group_items'] = array(
+  1 => array(
+    'title' => 'Active',
+    'operator' => '=',
+    'value' => 'active',
+  ),
+  2 => array(
+    'title' => 'Expired',
+    'operator' => '=',
+    'value' => 'expired',
+  ),
+);
+$handler->display->display_options['filters']['fstatus_1']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'well-depth-and-permit-info';
+
+/* Display: Well Depth and Permit Info Data Export */
+$handler = $view->new_display('views_data_export', 'Well Depth and Permit Info Data Export', 'views_data_export_3');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'Well Depth and Permit Info Data Export';
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+$handler->display->display_options['style_options']['provide_file'] = 1;
+$handler->display->display_options['style_options']['filename'] = 'well_depth_permit_info_export.csv';
+$handler->display->display_options['style_options']['parent_sort'] = 0;
+$handler->display->display_options['style_options']['quote'] = 1;
+$handler->display->display_options['style_options']['trim'] = 0;
+$handler->display->display_options['style_options']['replace_newlines'] = 0;
+$handler->display->display_options['style_options']['header'] = 1;
+$handler->display->display_options['style_options']['keep_html'] = 0;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: MPID */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'MPID';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'MPID';
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility link';
+/* Relationship: DEQ Well Number */
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['id'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['label'] = 'DEQ Well Number';
+/* Relationship: permit */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['ui_name'] = 'permit';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'permit';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = 'well_hydroid';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['label'] = 'MPID';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['label'] = 'Well_Depth_ft';
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_1']['id'] = 'propcode_1';
+$handler->display->display_options['fields']['propcode_1']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_1']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['fields']['propcode_1']['label'] = 'DEQ_Well_Number';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['permit_id']['label'] = 'Permit_ID';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Feature: fstatus */
+$handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['operator'] = '!=';
+$handler->display->display_options['filters']['fstatus']['value'] = 'duplicate';
+$handler->display->display_options['filters']['fstatus']['op_location'] = 'where';
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'vadeq_mpid' => 'vadeq_mpid',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['filters']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['hydroid']['expose']['operator_id'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['label'] = 'VA HydroID';
+$handler->display->display_options['filters']['hydroid']['expose']['operator'] = 'hydroid_op';
+$handler->display->display_options['filters']['hydroid']['expose']['identifier'] = 'hydroid';
+$handler->display->display_options['filters']['hydroid']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+/* Filter criterion: DH Properties: propcode */
+$handler->display->display_options['filters']['propcode']['id'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['propcode']['field'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['propcode']['exposed'] = TRUE;
+$handler->display->display_options['filters']['propcode']['expose']['operator_id'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['label'] = 'MPID';
+$handler->display->display_options['filters']['propcode']['expose']['operator'] = 'propcode_op';
+$handler->display->display_options['filters']['propcode']['expose']['identifier'] = 'propcode';
+$handler->display->display_options['filters']['propcode']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+$handler->display->display_options['filters']['propcode']['op_location'] = 'where';
+/* Filter criterion: DH Feature: Bundle */
+$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['value'] = array(
+  'well' => 'well',
+);
+/* Filter criterion: dH Feature: Link Facility to usafips (dh_link_admin_fa_usafips) */
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator_id'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['label'] = 'Locality';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['identifier'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_1']['id'] = 'varidid_1';
+$handler->display->display_options['filters']['varidid_1']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_1']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['filters']['varidid_1']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid_1']['op_location'] = 'ON';
+/* Filter criterion: dH AdminReg Feature: Permit/Registration Issuing Authority (dh_link_admin_reg_issuer) */
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['id'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['field'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['value'] = array(
+  65668 => '65668',
+);
+/* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['filters']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['permit_id_value']['operator'] = 'not_starts';
+$handler->display->display_options['filters']['permit_id_value']['value'] = 'null';
+$handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
+/* Filter criterion: DH AdminReg Feature: fstatus */
+$handler->display->display_options['filters']['fstatus_1']['id'] = 'fstatus_1';
+$handler->display->display_options['filters']['fstatus_1']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['fstatus_1']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_1']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['filters']['fstatus_1']['exposed'] = TRUE;
+$handler->display->display_options['filters']['fstatus_1']['expose']['operator_id'] = 'fstatus_1_op';
+$handler->display->display_options['filters']['fstatus_1']['expose']['label'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_1']['expose']['operator'] = 'fstatus_1_op';
+$handler->display->display_options['filters']['fstatus_1']['expose']['identifier'] = 'fstatus_1';
+$handler->display->display_options['filters']['fstatus_1']['is_grouped'] = TRUE;
+$handler->display->display_options['filters']['fstatus_1']['group_info']['label'] = 'Permit Status';
+$handler->display->display_options['filters']['fstatus_1']['group_info']['identifier'] = 'fstatus_1';
+$handler->display->display_options['filters']['fstatus_1']['group_info']['widget'] = 'radios';
+$handler->display->display_options['filters']['fstatus_1']['group_info']['group_items'] = array(
+  1 => array(
+    'title' => 'Active',
+    'operator' => '=',
+    'value' => 'active',
+  ),
+  2 => array(
+    'title' => 'Expired',
+    'operator' => '=',
+    'value' => 'expired',
+  ),
+  3 => array(
+    'title' => '',
+    'operator' => '=',
+    'value' => '',
+  ),
+);
+$handler->display->display_options['filters']['fstatus_1']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'well-depth-permit-info-export';
+$handler->display->display_options['displays'] = array(
+  'page_2' => 'page_2',
+  'default' => 0,
+  'page' => 0,
+  'page_1' => 0,
+);
+$handler->display->display_options['sitename_title'] = 0;
