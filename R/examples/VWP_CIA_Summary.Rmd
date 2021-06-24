@@ -55,23 +55,26 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
 
 ```{r LoadChunk, include=FALSE}
 library(hydrotools)
-site <- "http://deq1.bse.vt.edu/d.dh"
-site.plots <- "http://deq1.bse.vt.edu:81"
+library(rjson)
+site <- "https://deq1.bse.vt.edu/d.dh"
+site.plots <- "https://deq1.bse.vt.edu:81"
 basepath='/var/www/R'
 source('/var/www/R/config.R')
+#source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep=""))
 
 #SPECIFY MODELS AND RUNIDS OF INTEREST
 rseg.hydroid <- 462757
 fac.hydroid <- 72672
 #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
 runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
+#runid.list <- c('runid_201')
 
 #RSEG MODEL INFO
 rseg.model <- om_get_model(site, rseg.hydroid)
 rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
 
 ########################################################
-statsdf <- hydrotools::om_cia_table(rseg.hydroid = rseg.hydroid,
+statsdf <- om_cia_table(rseg.hydroid = rseg.hydroid,
                                      fac.hydroid = fac.hydroid,
                                      runid.list = runid.list, 
                                     fac.metric.list = c('wd_mgd','ps_mgd','unmet30_mgd'),
@@ -112,14 +115,22 @@ statsdf <- statsdf[,-2]
 # Stats Comparison Table:
 ```{r StatsTable, echo=FALSE}
 ft <- qflextable(statsdf)
+
+# Set column widths
+ft <- width(ft, j = 2:length(statsdf[1,]), width = 1.5)
+ft <- width(ft, j = 1, width = 2)
+
 # Add header row -----------------------------------------------------------------------------------
-ft <- add_header_row(x = ft, values = c("", "Scenario Alternatives"),colwidths = c(3, 4))
+# ft <- add_header_row(x = ft, values = c("", "Scenario Alternatives"),colwidths = c(3, 4))
+
+# Set theme
 ft <- theme_box(ft)
+
 # Set background color of select rows --------------------------------------------------------------
 ft <- bg(ft, bg = "#EFEFEF", part = "header")
 ft <- bg(ft, i = ~ Description == "River Segment Model Statistics:", bg = "#EFEFEF", part = "body")
 ft <- bg(ft, i = ~ Description == "Facility Model Statistics:", bg = "#EFEFEF", part = "body")
-fontsize(ft, size = 12)
+fontsize(ft, size = 9)
 ```
 <!---BLOCK_LANDSCAPE_STOP--->
 
