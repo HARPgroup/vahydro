@@ -4,10 +4,10 @@ library('sqldf')
 library("zoo")
 library('httr')
 options(scipen = 999)
-# SPECIFY THE DRUPAL DEVELOPMENT SITE: d.dh, d.alpha, d.beta
-dev_site <- "d.alpha/"
+# SPECIFY THE DRUPAL DEVELOPMENT SITE: d.dh, d.alpha, d.bet
+dev_site <- "d.bet"
 
-ds1 <- RomDataSource$new(paste0("http://deq1.bse.vt.edu/",dev_site), "restws_admin")
+ds1 <- RomDataSource$new(paste0("http://deq1.bse.vt.edu/",dev_site,"/"), "restws_admin")
 ds1$get_token()
 
 feat_1092 <- RomFeature$new(ds1,list(hydroid=1092),TRUE)
@@ -17,7 +17,7 @@ sqldf('SELECT varid, count(*)
       from tsv_feat_1092
       group by varid')
 
-write.csv(tsv_feat_1092, paste0("C:/Users/maf95834/Documents/feature_ts_1092",dev_site,".csv"))
+write.csv(tsv_feat_1092, paste0("C:/Users/maf95834/Documents/feature_ts_1092_",dev_site,".csv"))
 
 #all ts between July 2012 and December 2020
 stime <- as.numeric(as.POSIXct("2012-07-01"))
@@ -56,7 +56,7 @@ tsv_feat_1096 <- feat_1096$tsvalues()
 sqldf('SELECT varid, count(*)
       from tsv_feat_1096
       group by varid')
-write.csv(tsv_feat_1096, paste0("C:/Users/maf95834/Documents/feature_ts_1096",dev_site,".csv"))
+write.csv(tsv_feat_1096, paste0("C:/Users/maf95834/Documents/feature_ts_1096_",dev_site,".csv"))
 
 #all ts between July 2012 and December 2020
 stime <- as.numeric(as.POSIXct("2012-07-01"))
@@ -85,11 +85,18 @@ tsv_1096 <- sqldf(paste0('SELECT *
 #                  FROM tsv
 #                  WHERE tstime <=', etime,' 
 #                  AND tstime >= ',stime,''))
-
+sqldf('SELECT varid, count(*)
+      from tsv_1092
+      group by varid')
+sqldf('SELECT varid, count(*)
+      from tsv_1096
+      group by varid')
 ##################################################################################
 #AFTER PULLING DATA FROM **BOTH** FEATURES 
 
+# Hydroid # of the feature that is being updated (TO this feature)
 hid2 <- 1096
+# TS dataframe of the data being transferred (FROM this feature)
 ts1 <- tsv_1092
 for (i in 1:nrow(ts1)) {
   tsrow <- ts1[i,]
@@ -104,9 +111,9 @@ for (i in 1:nrow(ts1)) {
 
 #VERIFY NEW FEATUREID
 #returns timeseries object
-tcheck <- RomTS$new(ds1,list(tid=758297),TRUE)
+#tcheck <- RomTS$new(ds1,list(tid=758297),TRUE)
 #returns list for that tid
-ds1$get_ts(list(tid=758297))
+ds1$get_ts(list(tid=t2$tid), return_type = 'data.frame', force_refresh = TRUE)
 
 
 hid2 <- 1092
@@ -115,7 +122,7 @@ for (i in 1:nrow(ts1)) {
   tsrow <- ts1[i,]
   tsl <- as.list(tsrow)
   #NOTE: because the tids exist under one of the features already, when the featureid is switched, the data will *disappear* from the source feature
-  tsl$tid = NULL  #commented out to keep the existing tid
+  tsl$tid = NULL  #INTENTIONALLY UNcommented - cannot supply a tid that does not exist - system needs to determine its own tid 
   #tsl$featureid = hid2
   t2 <- RomTS$new(ds1, tsl)
   t2$featureid = hid2 
