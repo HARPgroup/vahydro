@@ -123,7 +123,7 @@ metric <- c("l30_Qout","l90_Qout","7q10","l30_cc_Qout", "l90_cc_Qout")
 for (met in metric) {
   print(paste("...PROCESSING METRIC: ",met,sep=""))
   RSeg_data <- metrics_wshed_focus.gen(met, folder) 
-  write.csv(RSeg_data, paste(folder,"tables_maps/narrative_focus/metrics_watershed_",metric,"_focus.csv",sep=""), row.names = F)
+  write.csv(RSeg_data, paste(folder,"tables_maps/narrative_focus/metrics_watershed_",met,"_focus.csv",sep=""), row.names = F)
       
 }
 
