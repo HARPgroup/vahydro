@@ -5,7 +5,7 @@ library("zoo")
 library('httr')
 options(scipen = 999)
 # SPECIFY THE DRUPAL DEVELOPMENT SITE: d.dh, d.alpha, d.bet
-dev_site <- "d.bet"
+dev_site <- "d.dh"
 
 ds1 <- RomDataSource$new(paste0("http://deq1.bse.vt.edu/",dev_site,"/"), "restws_admin")
 ds1$get_token()
