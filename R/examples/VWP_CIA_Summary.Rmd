@@ -13,6 +13,7 @@ output:
       left: 0.5
       header: 0.0
       footer: 0.0
+
 ---
 
 ```{r setup, include=FALSE}
@@ -29,6 +30,7 @@ fp <- fp_par(
   border.bottom = fp_border())
 
 ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
+
 ```
 
 \_
@@ -37,21 +39,48 @@ ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 
 This is an R Markdown document. This will serve as the template for VWP Project Model Summaries moving forward. For related GitHub issue see <https://github.com/HARPgroup/vahydro/issues/317>.
 
-## VAHydro Model Boilerplate (to be added):
+## VAHydro Model Boilerplate:
 
-<!---BLOCK_MULTICOL_START--->
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. 
+### VAHydro
+The comprehensive VAHydro hydrologic model is used to evaluate surface water supply availability for permitting projects throughout Virginia. The VAHydro model simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through DEQ water supply planning and reporting programs including all known withdrawals and discharges, as well as operational rules of VWP permits and major hydrologic features such as reservoirs. 
 
-Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+The VAHydro model is built on rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6 which runs from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed, aka the "southern rivers." The VAHydro model features high-resolution hydrologic subsections called "river segments" (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
 
-`r run_columnbreak()`Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+### CIA
+DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA) modeling. CIA is a modeling and analysis approach that takes into account the varied hydrologic process occurring throughout a river network (including meteorology and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential "cumulative impact" of all streamflow changes occurring upstream of any location within the river network, as well as the downstream impact of individual permitted withdrawal operations.
+
+The goal of the folloing analysis was to estimate the potential impacts of the requested water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses.
+
+\newpage
+# Project Introduction
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
 
-<!---BLOCK_MULTICOL_STOP{widths: [3,3], space: 0.2, sep: true}--->
+Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
 
 \newpage
+# Model Summary Points
+
+* Safe yield of the intake is listed as 3.2 mgd from a study published in 2001 (3.2 mgd is equivalent to the permit annual withdrawal limit of 1168 mg/yr).
+    + The data for the study was collected in 1997, which predates the drought period of 1999-2002.
+* Under the current scenario (withdrawing around 2 mgd/day on average based on current reported withdrawals) they are okay in terms of storage days remaining (132 days) during the drought of record.
+* Under the current maximum permitted scenario (withdrawing up to 3.2 mgd) storage days remaining drops to 0, and the model shows they are unable to meet all demand during the drought of record.
+* Reducing the annual withdrawal limit from 1168 mg/yr to 949 mg/yr (3.2 mgd to 2.6 mgd) would likely be sufficient to increase the storage days remaining from 0 to 64 or more days during the drought of record.
+    + Note that demand is projected to decline according to water supply plan.
+    + The max daily withdrawal limit would remain 4.0 mgd
+* DWR standard guidance for an intake not withdrawing more than 10% instantaneous flow (90% flowby) likely wouldn't work for this project (reservoir chronically drawn down). 
+    + In order to meet a 90% flowby, the annual withdrawal limit may need to be reduced from 3.2 mgd to around 0.68 mgd in order to preserve 47 days remaining storage in the reservoir during the drought of record.
+* However a 40% flowby would likely be effective at maintaining storage levels and ensuring they can sustainably meet demand while better preserving the natural flow regime.
+    + Changing the flowby from a static 0.5 mgd to a 40% of flow approach when combined with a 2.6 mgd annual withdrawal limit results in around 29 days of storage remaining and no days in which they're unable to meet demands at the intake during the drought of record.
+    + Although the 40% flowby we tested results in fewer than 60 days remaining storage, emergency connections with neighboring towns would likely be sufficient to maintain supply during times of extreme drought. Additionally, this permit doesn't currently have drought triggers in place which could help maintain storage levels during dry periods.
+    + Provided that conservation measures can be formulated that permit 60 days remaining storage, the 40% flowby would result in the same 2.6 mgd safe yield as the current 0.5 mgd flowby.
+
+\newpage
+
+
 
 ```{r LoadChunk, include=FALSE}
 library(hydrotools)
@@ -150,3 +179,10 @@ figs.list <- paste0(site.plots,"/data/proj3/out/fig.imp_storage.all.",rseg.elid,
 
 
 # Next Sections
+<!---BLOCK_MULTICOL_START--->
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+`r run_columnbreak()`Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+<!---BLOCK_MULTICOL_STOP{widths: [3,3], space: 0.2, sep: true}--->
