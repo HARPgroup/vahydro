@@ -86,7 +86,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
 library(hydrotools)
 library(rjson)
 site <- "https://deq1.bse.vt.edu/d.dh"
-site.plots <- "https://deq1.bse.vt.edu:81"
+site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
 basepath='/var/www/R'
 source('/var/www/R/config.R')
 #source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep=""))
@@ -96,7 +96,7 @@ rseg.hydroid <- 462757
 fac.hydroid <- 72672
 #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
 runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
-#runid.list <- c('runid_201')
+#runid.list <- c('runid_201','runid_401','runid_6011')
 
 #RSEG MODEL INFO
 rseg.model <- om_get_model(site, rseg.hydroid)
@@ -163,20 +163,37 @@ fontsize(ft, size = 9)
 ```
 <!---BLOCK_LANDSCAPE_STOP--->
 
+
 # Reservoir storage plots:
-```{r ResPlots, echo=FALSE}
+
+```{r loadPLOTS, echo=FALSE}
 rlist <- gsub('runid_', '', runid.list)
 figs.list <- paste0(site.plots,"/data/proj3/out/fig.imp_storage.all.",rseg.elid,".", rlist, ".png")
-#knitr::include_graphics(path = figs.list)
+
+localpath = tempdir()
+fig_paths <- character()
+for(p in 1:length(figs.list)){
+    PNG_item <- figs.list[p]
+    PNG_filename <- paste0("fig.imp_storage.all.",rseg.elid,".", rlist[p], ".png")
+    fig_paths <- append(fig_paths, paste(localpath,PNG_filename,sep="\\"))
+    if (file.exists(paste(localpath, PNG_filename, sep = '/')) == FALSE) {
+      destfile <- paste(localpath,PNG_filename,sep="\\")
+      download.file(PNG_item, destfile = destfile, method = "curl")
+    }
+}      
+``` 
 
 
+```{r displayPLOTS, echo=FALSE, results = "asis"}
+for(i in 1:length(figs.list)){
+  fig_path <- fig_paths[i]
+  cat("\n\n## Reservoir storage: run ",rlist[i],"\n\n")
+  cat(paste0("![](",fig_path,")"),"\n")
+  cat("\n\n\\pagebreak\n")
+}  
 ```
 
-
-![alt text here](http://deq1.bse.vt.edu:81/data/proj3/out/fig.imp_storage.all.352078.6013.png)
-
 \newpage
-
 
 # Next Sections
 <!---BLOCK_MULTICOL_START--->
