@@ -108,6 +108,10 @@ source('/var/www/R/config.R')
 rseg.model <- om_get_model(site, rseg.hydroid)
 rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
 
+#FAC MODEL INFO
+fac.model <- om_get_model(site, fac.hydroid, model_varkey = 'om_water_system_element')
+fac.elid <- om_get_prop(site, fac.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
 ########################################################
 statsdf <- om_cia_table(rseg.hydroid = rseg.hydroid,
                                      fac.hydroid = fac.hydroid,
