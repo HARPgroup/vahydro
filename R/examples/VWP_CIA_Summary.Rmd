@@ -44,7 +44,7 @@ rseg.hydroid <- 462757
 fac.hydroid <- 72672
 #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
 runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
-#runid.list <- c('runid_201','runid_401','runid_6011')
+#runid.list <- c('runid_201','runid_401')
 
 ```
 
@@ -77,7 +77,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
 ## Location Map (To be included)
 
 \newpage
-# Model Summary Points
+# Model Summary Results - Conclusion/Recommendation
 
 * Safe yield of the intake is listed as 3.2 mgd from a study published in 2001 (3.2 mgd is equivalent to the permit annual withdrawal limit of 1168 mg/yr).
     + The data for the study was collected in 1997, which predates the drought period of 1999-2002.
@@ -140,6 +140,8 @@ statsdf_sql <- paste('SELECT
                     WHEN "Desc" = "wd_mgd" THEN "Withdrawal (mgd)"  
                     WHEN "Desc" = "ps_mgd" THEN "Point Source (mgd)"  
                     WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (mgd)"
+                    WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
+                    WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
                     ELSE Desc
                   END AS Description, *
                  FROM statsdf
