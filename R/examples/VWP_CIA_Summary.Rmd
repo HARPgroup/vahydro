@@ -35,6 +35,19 @@ ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 
 \_
 
+```{r UserInputs, include=FALSE}
+site <- "https://deq1.bse.vt.edu/d.dh"
+site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
+
+#SPECIFY MODELS AND RUNIDS OF INTEREST
+rseg.hydroid <- 462757
+fac.hydroid <- 72672
+#runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
+runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
+#runid.list <- c('runid_201','runid_401','runid_6011')
+
+```
+
 # R Markdown:
 
 This is an R Markdown document. This will serve as the template for VWP Project Model Summaries moving forward. For related GitHub issue see <https://github.com/HARPgroup/vahydro/issues/317>.
@@ -53,13 +66,15 @@ DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA
 The goal of the folloing analysis was to estimate the potential impacts of the requested water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses.
 
 \newpage
-# Project Introduction
+# Project Introduction (To be provided by permit writer)
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
 
 Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+## Location Map (To be included)
 
 \newpage
 # Model Summary Points
@@ -85,18 +100,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
 ```{r LoadChunk, include=FALSE}
 library(hydrotools)
 library(rjson)
-site <- "https://deq1.bse.vt.edu/d.dh"
-site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
 basepath='/var/www/R'
 source('/var/www/R/config.R')
-#source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep=""))
-
-#SPECIFY MODELS AND RUNIDS OF INTEREST
-rseg.hydroid <- 462757
-fac.hydroid <- 72672
-#runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
-runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
-#runid.list <- c('runid_201','runid_401','runid_6011')
+#source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
 
 #RSEG MODEL INFO
 rseg.model <- om_get_model(site, rseg.hydroid)
@@ -166,36 +172,30 @@ fontsize(ft, size = 9)
 
 # Reservoir storage plots:
 
-```{r loadPLOTS, echo=FALSE}
+```{r ResPLOTS, echo=FALSE, results = "asis"}
 rlist <- gsub('runid_', '', runid.list)
 figs.list <- paste0(site.plots,"/data/proj3/out/fig.imp_storage.all.",rseg.elid,".", rlist, ".png")
 
-localpath = tempdir()
-fig_paths <- character()
-for(p in 1:length(figs.list)){
-    PNG_item <- figs.list[p]
-    PNG_filename <- paste0("fig.imp_storage.all.",rseg.elid,".", rlist[p], ".png")
-    fig_paths <- append(fig_paths, paste(localpath,PNG_filename,sep="\\"))
-    if (file.exists(paste(localpath, PNG_filename, sep = '/')) == FALSE) {
-      destfile <- paste(localpath,PNG_filename,sep="\\")
-      download.file(PNG_item, destfile = destfile, method = "curl")
-    }
-}      
-``` 
-
-
-```{r displayPLOTS, echo=FALSE, results = "asis"}
 for(i in 1:length(figs.list)){
-  fig_path <- fig_paths[i]
+  fig_path <- figs.list[i]
   cat("\n\n## Reservoir storage: run ",rlist[i],"\n\n")
   cat(paste0("![](",fig_path,")"),"\n")
   cat("\n\n\\pagebreak\n")
-}  
-```
+}    
+``` 
+
+
+# Unmet Demand Heatmaps:
+![](http://deq1.bse.vt.edu:81/data/proj3/out/fig.unmet_heatmap.247415.6013.png)
 
 \newpage
 
-# Next Sections
+# Ecology:
+![](http://deq1.bse.vt.edu:81/data/proj3/out/fig.elfgen.6499785.png)
+
+\newpage
+
+# Additional Sections
 <!---BLOCK_MULTICOL_START--->
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
 
