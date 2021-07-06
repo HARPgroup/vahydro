@@ -13,7 +13,6 @@ output:
       left: 0.5
       header: 0.0
       footer: 0.0
-
 ---
 
 ```{r setup, include=FALSE}
@@ -41,9 +40,20 @@ site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
 #SPECIFY MODELS AND RUNIDS OF INTEREST
 rseg.hydroid <- 462757
 fac.hydroid <- 72672
-#runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
+# #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
 runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
 #runid.list <- c('runid_201','runid_401')
+fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
+rseg.metric.list <- c("Qout","Qbaseline","remaining_days_p0","l30_Qout",
+                      "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd")
+
+# SALEM WTP
+# rseg.hydroid <- 68327
+# fac.hydroid <- 73112
+# runid.list <- c('runid_11','runid_12','runid_13')
+# 
+# fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
+# rseg.metric.list <- c("Qout","Qbaseline","l30_Qout","l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd")
 
 ```
 
@@ -119,12 +129,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
 statsdf <- om_cia_table(rseg.hydroid = rseg.hydroid,
                                      fac.hydroid = fac.hydroid,
                                      runid.list = runid.list, 
-                                    fac.metric.list = c('wd_mgd','ps_mgd','unmet30_mgd'),
-                                    rseg.metric.list = c("Qout", 
-    "Qbaseline", "remaining_days_p0", "l30_Qout", "l90_Qout", 
-    "consumptive_use_frac", "wd_cumulative_mgd", 
-    "ps_cumulative_mgd")
-)
+                                    fac.metric.list = fac.metric.list,
+                                    rseg.metric.list = rseg.metric.list
+                        )
 statsdf <- cbind(rownames(statsdf),statsdf)
 names(statsdf)[names(statsdf) == 'rownames(statsdf)'] <- 'Desc'
  
@@ -148,7 +155,7 @@ statsdf_sql <- paste('SELECT
                     ELSE Desc
                   END AS Description, *
                  FROM statsdf
-                 WHERE Desc NOT IN ("riverseg", "run_date")
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime")
                  ',sep='')
 statsdf <- sqldf(statsdf_sql)
 statsdf <- statsdf[,-2]
@@ -178,7 +185,7 @@ fontsize(ft, size = 9)
 <!---BLOCK_LANDSCAPE_STOP--->
 
 
-# Reservoir storage plots:
+# Reservoir Storage Plots:
 
 ```{r ResPLOTS, echo=FALSE, results = "asis"}
 rlist <- gsub('runid_', '', runid.list)
@@ -186,7 +193,7 @@ figs.list <- paste0(site.plots,"/data/proj3/out/fig.imp_storage.all.",rseg.elid,
 
 for(i in 1:length(figs.list)){
   fig_path <- figs.list[i]
-  cat("\n\n## Reservoir storage: run ",rlist[i],"\n\n")
+  cat("\n\n## Reservoir Storage: run ",rlist[i],"\n\n")
   cat(paste0("![](",fig_path,")"),"\n")
   cat("\n\n\\pagebreak\n")
 }    
@@ -194,12 +201,38 @@ for(i in 1:length(figs.list)){
 
 
 # Unmet Demand Heatmaps:
-![](http://deq1.bse.vt.edu:81/data/proj3/out/fig.unmet_heatmap.247415.6013.png)
 
-\newpage
+```{r UnmetDemandPLOTS, echo=FALSE, results = "asis"}
+figs.list <- paste0(site.plots,"/data/proj3/out/fig.unmet_heatmap_amt.",fac.elid,".", rlist, ".png")
+figs.list.30daymax <- paste0(site.plots,"/data/proj3/out/fig.30daymax_unmet.",fac.elid,".", rlist, ".png")
 
-# Ecology:
-![](http://deq1.bse.vt.edu:81/data/proj3/out/fig.elfgen.6499785.png)
+for(u in 1:length(figs.list)){
+  fig_path <- figs.list[u]
+  fig_path_30daymax <- figs.list.30daymax[u]
+  cat("\n\n## Unmet Demand: run ",rlist[u],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+  cat("\n\n## 30 Day Max Unmet Demand: run ",rlist[u],"\n\n")  
+    cat(paste0("![](",fig_path_30daymax,")"),"\n")
+  cat("\n\n\\pagebreak\n")
+}
+``` 
+
+# Ecological Impacts Assessment:
+
+## Elfgen:
+
+```{r GrabELFPlot, include=FALSE, echo=FALSE}
+run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
+elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
+fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
+fig_path <- fig.elfgen$propcode
+``` 
+
+```{r elfPlot, echo=FALSE, results = "asis"}
+cat(paste0("![](",fig_path,")"),"\n")
+``` 
+
+## Habitat (If Applicable):
 
 \newpage
 
