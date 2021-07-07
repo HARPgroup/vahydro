@@ -38,10 +38,10 @@ site <- "https://deq1.bse.vt.edu/d.dh"
 site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
 
 #SPECIFY MODELS AND RUNIDS OF INTEREST
-rseg.hydroid <- 462757
-fac.hydroid <- 72672
+rseg.hydroid <- 476998
+fac.hydroid <- 71977
 # #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
-runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
+runid.list <- c('runid_401','runid_601')
 #runid.list <- c('runid_201','runid_401')
 fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
 rseg.metric.list <- c("Qout","Qbaseline","remaining_days_p0","l30_Qout",
