@@ -10,10 +10,10 @@ source(paste(basepath,'config.R',sep='/'))
 #cbp6_link <- paste0(github_link, "/cbp6/code");
 #source(paste0(cbp6_link,"/cbp6_functions.R"))
 #source(paste(cbp6_link, "/fn_vahydro-1.0.R", sep = ''))
-bechtel_url = 'http://deq2.bse.vt.edu/data/proj3/components/lake_anna/lake_anna_evap_wkly1.csv'
+bechtel_url = 'http://deq1.bse.vt.edu:81/data/proj3/components/lake_anna/lake_anna_evap_wkly1.csv'
 bechtel_raw_dat = read.csv(bechtel_url)
 
-la_hist_url =  'http://deq2.bse.vt.edu/data/proj3/components/lake_anna/lake_anna_bechtel.csv'
+la_hist_url =  'http://deq1.bse.vt.edu:81/data/proj3/components/lake_anna/lake_anna_bechtel.csv'
 la_hist_dat = read.csv(la_hist_url)
 # Bechtel model
 elid = 279185
