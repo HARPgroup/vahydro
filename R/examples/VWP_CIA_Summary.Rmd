@@ -99,9 +99,17 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
 
 ## Location Map
 
+```{r GrabLocationMap, include=FALSE, echo=FALSE}
+fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
+```
+
 ```{r LocationMap, echo=FALSE, results = "asis"}
-  fig_path <- paste0(site.plots,"/data/proj3/out/fig.location_map.",fac.model$pid,".png")
-  cat(paste0("![](",fig_path,")"),"\n")
+if (!is.logical(fig_prop)) {
+  map_path <- fig_prop$propcode
+  cat(paste0("![](",map_path,")"),"\n")
+} else {
+  cat(paste0("*No location map available for this facility model*"))
+}
 ``` 
 
 \newpage
@@ -223,21 +231,22 @@ for(u in 1:length(figs.list)){
 
 ```{r GrabELFPlot, include=FALSE, echo=FALSE}
 run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
+fig_path = FALSE
 elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
 
-if (!isFALSE(elfgen_EDAS_huc8)){
+if (!is.logical(elfgen_EDAS_huc8)) {
   fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
   fig_path <- fig.elfgen$propcode
-} else {
-  fig_path <- NULL
 }
 ``` 
 
 ```{r elfPlot, echo=FALSE, results = "asis"}
-if (!is.null(fig_path)){
+if (!is.logical(fig_path)) {
   cat(paste0("![](",fig_path,")"),"\n")
+} else {
+  cat(paste0("*No elfgen plot available for this model*"))
 }
-``` 
+```
 
 ## Habitat (If Applicable):
 
