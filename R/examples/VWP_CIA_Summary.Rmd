@@ -44,8 +44,10 @@ fac.hydroid <- 71977
 runid.list <- c('runid_401','runid_601')
 #runid.list <- c('runid_201','runid_401')
 fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
-rseg.metric.list <- c("Qout","Qbaseline","remaining_days_p0","l30_Qout",
-                      "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd")
+rseg.metric.list <- c(
+  "Qout","Qbaseline","remaining_days_p0","l30_Qout",
+  "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd"
+)
 
 # SALEM WTP
 # rseg.hydroid <- 68327
@@ -62,7 +64,7 @@ library(hydrotools)
 library(rjson)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
-#source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
+source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
 
 #RSEG MODEL INFO
 rseg.model <- om_get_model(site, rseg.hydroid)
@@ -100,8 +102,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
 ## Location Map
 
 ```{r LocationMap, echo=FALSE, results = "asis"}
-  fig_path <- paste0(site.plots,"/data/proj3/out/fig.location_map.",fac.model$pid,".png")
-  cat(paste0("![](",fig_path,")"),"\n")
+fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
+if (!is.logical(fig_prop)) {
+  map_path <- fig_prop$propcode
+  cat(paste0("![](",map_path,")"),"\n")
+}
 ``` 
 
 \newpage
@@ -126,12 +131,16 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu,
 
 
 ```{r LoadStatsTable, include=FALSE}
-statsdf <- om_cia_table(rseg.hydroid = rseg.hydroid,
-                                     fac.hydroid = fac.hydroid,
-                                     runid.list = runid.list, 
-                                    fac.metric.list = fac.metric.list,
-                                    rseg.metric.list = rseg.metric.list
-                        )
+statsdf <- om_cia_table(
+  rseg.hydroid = rseg.hydroid,
+  fac.hydroid = fac.hydroid,
+  runid.list = runid.list, 
+  fac.metric.list = fac.metric.list,
+  rseg.metric.list = rseg.metric.list,
+  site,
+  omsite
+)
+
 statsdf <- cbind(rownames(statsdf),statsdf)
 names(statsdf)[names(statsdf) == 'rownames(statsdf)'] <- 'Desc'
  
@@ -223,13 +232,19 @@ for(u in 1:length(figs.list)){
 
 ```{r GrabELFPlot, include=FALSE, echo=FALSE}
 run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
+fig_path = FALSE
 elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
-fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
-fig_path <- fig.elfgen$propcode
+if (!is.logical(elfgen_EDAS_huc8)) {
+  fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
+  fig_path <- fig.elfgen$propcode
+}
 ``` 
 
 ```{r elfPlot, echo=FALSE, results = "asis"}
-cat(paste0("![](",fig_path,")"),"\n")
+if (!is.logical(fig_path)) {
+  cat(paste0("![](",fig_path,")"),"\n")
+}
+  
 ``` 
 
 ## Habitat (If Applicable):
