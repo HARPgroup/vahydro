@@ -224,12 +224,19 @@ for(u in 1:length(figs.list)){
 ```{r GrabELFPlot, include=FALSE, echo=FALSE}
 run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
 elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
-fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
-fig_path <- fig.elfgen$propcode
+
+if (!isFALSE(elfgen_EDAS_huc8)){
+  fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
+  fig_path <- fig.elfgen$propcode
+} else {
+  fig_path <- NULL
+}
 ``` 
 
 ```{r elfPlot, echo=FALSE, results = "asis"}
-cat(paste0("![](",fig_path,")"),"\n")
+if (!is.null(fig_path)){
+  cat(paste0("![](",fig_path,")"),"\n")
+}
 ``` 
 
 ## Habitat (If Applicable):
