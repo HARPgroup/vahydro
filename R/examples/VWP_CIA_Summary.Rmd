@@ -152,7 +152,7 @@ if (!is.logical(fig_prop)) {
 # Scenario Descriptions
 The following model scenarios were simulated in order to determine the most effective means of meeting the project need and all other in-stream beneficial uses:
 
-```{r LoadStatsTable, include=FALSE}
+```{r LoadRunInfo, include=FALSE}
 for (i in 1:length(runid.list)){
   # get fac model run prop
   # get river model run prop 
