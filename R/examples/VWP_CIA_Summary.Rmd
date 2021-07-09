@@ -47,11 +47,11 @@ ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
 
 #SPECIFY MODELS AND RUNIDS OF INTEREST
-rseg.hydroid <- 476998
-fac.hydroid <- 71977
+rseg.hydroid <- 462757 # Ex: Crooked Run = 476998, South Fork Powell River below BSG = 477140, SF Powell at dam: 462757
+fac.hydroid <- 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672
 # #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
 runid.list <- c('runid_401','runid_601')
-#runid.list <- c('runid_201','runid_401')
+runid.list <- c('runid_201','runid_401')
 fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
 rseg.metric.list <- c(
   "Qout","Qbaseline","remaining_days_p0","l30_Qout",
@@ -150,7 +150,17 @@ if (!is.logical(fig_prop)) {
 ``` 
 
 \newpage
-# Scenario Descriptions
+# Model Overview and Scenario Descriptions
+
+```{r ModelOverview, echo=FALSE, results = "asis"}
+model_info <- find_name(fac_model_info,"reports")
+if (is.null(model_info$model_overview)) {
+  cat("Model overview not provided.")
+} else {
+  cat(paste(model_info$model_overview$value,"\n"))
+}
+```
+
 The following model scenarios were simulated in order to determine the most effective means of meeting the project need and all other in-stream beneficial uses:
 
 ```{r LoadRunInfo, echo=FALSE, results = "asis"}
@@ -200,6 +210,9 @@ for (i in 1:length(runid.list)){
 
 
 ```{r LoadStatsTable, include=FALSE}
+# todo: pass in fac_model_info and rseg_model_info to:
+#       - eliminate redundant data retrieval, since all data that is pulled inside om_cia_table via om_vahydro_metric_grid is already inside fac_model_info and rseg_model_info data structures
+#       - eliminate having data retrieval and data formatting/analysis in the same function (best practice)
 statsdf <- om_cia_table(
   rseg.hydroid = rseg.hydroid,
   fac.hydroid = fac.hydroid,
