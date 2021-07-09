@@ -75,6 +75,10 @@ rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om
 fac.model <- om_get_model(site, fac.hydroid, model_varkey = 'om_water_system_element')
 fac.elid <- om_get_prop(site, fac.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
 
+json_obj_url <- paste(json_obj_url, fac.model$pid, sep="/")
+fac_model_info <- om_auth_read(json_obj_url, token,  "text/json", "")
+fac_model_info <- fromJSON(fac_model_info)
+
 # Pre load the output runs so we have them available for later use
 fac_runs = FALSE
 rseg_runs = FALSE
@@ -131,7 +135,26 @@ if (!is.logical(fig_prop)) {
   cat(paste0("![](",map_path,")"),"\n")
 }
 ``` 
+\newpage
+# Scenario Descriptions
+The following model scenarios were simulated in order to determine the most effective means of meeting the project need and all other in-stream beneficial uses:
 
+```{r LoadStatsTable, include=FALSE}
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  run_info <- find_name(fac_model_info,runid.i)
+  if (is.null(run_info$reports)) {
+    print(paste("*", run_info$name,"-","Run report information not provided."))
+  } else {
+    print(paste("*", run_info$reports$scenario_name$value,"-",run_info$reports$scenario_intro$value))
+  }
+  
+}
+```
+  
 \newpage
 # Model Summary Results - Conclusion/Recommendation
 
