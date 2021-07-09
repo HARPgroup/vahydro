@@ -29,8 +29,8 @@ source('/var/www/R/config.R')
 source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
 # Could also use:
-#source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
 #source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/run_text.R") #Used during development
 
 fp <- fp_par(
