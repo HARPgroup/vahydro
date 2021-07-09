@@ -148,11 +148,12 @@ if (!is.logical(fig_prop)) {
   cat(paste0("*No location map available for this facility model*"))
 }
 ``` 
+
 \newpage
 # Scenario Descriptions
 The following model scenarios were simulated in order to determine the most effective means of meeting the project need and all other in-stream beneficial uses:
 
-```{r LoadRunInfo, include=FALSE}
+```{r LoadRunInfo, echo=FALSE, results = "asis"}
 for (i in 1:length(runid.list)){
   # get fac model run prop
   # get river model run prop 
@@ -160,9 +161,18 @@ for (i in 1:length(runid.list)){
   run.i <- sub("runid_", "", runid.i)
   run_info <- find_name(fac_model_info,runid.i)
   if (is.null(run_info$reports)) {
-    print(paste("*", run_info$name,"-","Run report information not provided."))
+    cat(paste("*", paste0("__",run_info$name,"__"),"-","Run report information not provided.","\n"))
   } else {
-    print(paste("*", run_info$reports$scenario_name$value,"-",run_info$reports$scenario_intro$value))
+    ri <- run_info$reports
+    cat(
+      paste(
+        "*", 
+        paste0(
+          "__",ri$scenario_name$value,"__", 
+        " (", ri$scenario_short_name$value, ")"
+        ),
+        "-",run_info$reports$scenario_intro$value,"\n")
+      )
   }
   
 }
