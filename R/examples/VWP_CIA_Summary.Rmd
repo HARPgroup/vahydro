@@ -22,6 +22,16 @@ knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
 library(officedown)
 library(officer)
 library(flextable)
+library(hydrotools)
+library(rjson)
+basepath='/var/www/R'
+source('/var/www/R/config.R')
+source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
+# Could also use:
+#source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
+#source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/run_text.R") #Used during development
 
 fp <- fp_par(
   text.align = "center", 
@@ -34,7 +44,6 @@ ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 
 
 ```{r UserInputs, include=FALSE}
-site <- "https://deq1.bse.vt.edu/d.dh"
 site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
 
 #SPECIFY MODELS AND RUNIDS OF INTEREST
@@ -57,22 +66,36 @@ rseg.metric.list <- c(
 # fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
 # rseg.metric.list <- c("Qout","Qbaseline","l30_Qout","l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd")
 
-```
-
-```{r LoadChunk, include=FALSE}
-library(hydrotools)
-library(rjson)
-basepath='/var/www/R'
-source('/var/www/R/config.R')
-source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
-
 #RSEG MODEL INFO
+print(paste("searching", site,"for river segment id", rseg.hydroid))
 rseg.model <- om_get_model(site, rseg.hydroid)
 rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
 
 #FAC MODEL INFO
 fac.model <- om_get_model(site, fac.hydroid, model_varkey = 'om_water_system_element')
 fac.elid <- om_get_prop(site, fac.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
+# Pre load the output runs so we have them available for later use
+fac_runs = FALSE
+rseg_runs = FALSE
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  fac_run <- om_get_prop(site,fac.model$pid, "dh_properties", runid.i)
+  if (is.logical(fac_runs)) {
+    fac_runs <- as.data.frame(fac_run)
+  } else {
+    fac_runs <- rbind(fac_runs, fac_run)
+  }
+  rseg_run <- om_get_prop(site,rseg.model$pid, "dh_properties", runid.i)
+  if (is.logical(rseg_runs)) {
+    rseg_runs <- as.data.frame(rseg_run)
+  } else {
+    rseg_runs <- rbind(rseg_runs, rseg_run)
+  }
+}
 ```
 
 This is an R Markdown document. This will serve as the template for VWP Project Model Summaries moving forward. For related GitHub issue see <https://github.com/HARPgroup/vahydro/issues/317>.
@@ -200,12 +223,30 @@ fontsize(ft, size = 9)
 rlist <- gsub('runid_', '', runid.list)
 figs.list <- paste0(site.plots,"/data/proj3/out/fig.imp_storage.all.",rseg.elid,".", rlist, ".png")
 
-for(i in 1:length(figs.list)){
-  fig_path <- figs.list[i]
-  cat("\n\n## Reservoir Storage: run ",rlist[i],"\n\n")
-  cat(paste0("![](",fig_path,")"),"\n")
-  cat("\n\n\\pagebreak\n")
-}    
+# check river model for plots
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  rseg_prop <- om_get_prop(site,rseg_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
+  if (!is.logical(rseg_prop)) {
+    fig_path <- rseg_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: run ",rlist[i],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+    cat("\n\n\\pagebreak\n")
+  } else {
+    print(paste("No riverseg impoundment for run id",run.i))
+  }
+}
+
+#for(i in 1:length(figs.list)){
+#  fig_path <- figs.list[i]
+#  cat("\n\n## Reservoir Storage: run ",rlist[i],"\n\n")
+#  cat(paste0("![](",fig_path,")"),"\n")
+#  cat("\n\n\\pagebreak\n")
+#}    
 ``` 
 
 
@@ -215,15 +256,43 @@ for(i in 1:length(figs.list)){
 figs.list <- paste0(site.plots,"/data/proj3/out/fig.unmet_heatmap_amt.",fac.elid,".", rlist, ".png")
 figs.list.30daymax <- paste0(site.plots,"/data/proj3/out/fig.30daymax_unmet.",fac.elid,".", rlist, ".png")
 
-for(u in 1:length(figs.list)){
-  fig_path <- figs.list[u]
-  fig_path_30daymax <- figs.list.30daymax[u]
-  cat("\n\n## Unmet Demand: run ",rlist[u],"\n\n")
+# check facility model for plots
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  # 
+  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.unmet_heatmap_amt")
+  if (!is.logical(fig_prop)) {
+    fig_path <- fig_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: run ",run.i,"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
-  cat("\n\n## 30 Day Max Unmet Demand: run ",rlist[u],"\n\n")  
-    cat(paste0("![](",fig_path_30daymax,")"),"\n")
+  }
+  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.30daymax_unmet")
+  if (!is.logical(fig_prop)) {
+    fig_path <- fig_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Unmet Demand: run ",rlist[i],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+    cat("\n\n\\pagebreak\n")
+  }
+  
+  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
+  if (!is.logical(fig_prop)) {
+    fig_path <- fig_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: run ",run.i,"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+  } else {
+    # JK - do we want to simply supress in order to have better formatting? or maybe keep a count
+    # of missing images so we can alert the user to which entities lack impoundments?
+    print(paste("No local facility impoundment for run id",run.i))
+  }
   cat("\n\n\\pagebreak\n")
 }
+
 ``` 
 
 # Ecological Impacts Assessment:
