@@ -213,6 +213,8 @@ for (i in 1:length(runid.list)){
 # todo: pass in fac_model_info and rseg_model_info to:
 #       - eliminate redundant data retrieval, since all data that is pulled inside om_cia_table via om_vahydro_metric_grid is already inside fac_model_info and rseg_model_info data structures
 #       - eliminate having data retrieval and data formatting/analysis in the same function (best practice)
+# this could now, I think, be simplified as:
+# om_cia_table(fac_model_info, rseg_model_info)
 statsdf <- om_cia_table(
   rseg.hydroid = rseg.hydroid,
   fac.hydroid = fac.hydroid,
