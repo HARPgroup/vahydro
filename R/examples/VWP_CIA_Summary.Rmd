@@ -75,10 +75,17 @@ rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om
 fac.model <- om_get_model(site, fac.hydroid, model_varkey = 'om_water_system_element')
 fac.elid <- om_get_prop(site, fac.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
 
-json_obj_url <- paste(json_obj_url, fac.model$pid, sep="/")
-fac_model_info <- om_auth_read(json_obj_url, token,  "text/json", "")
-fac_model_info <- fromJSON(fac_model_info)
-
+if (exists("json_obj_url")) {
+  fac_obj_url <- paste(json_obj_url, fac.model$pid, sep="/")
+  fac_model_info <- om_auth_read(fac_obj_url, token,  "text/json", "")
+  fac_model_info <- fromJSON(fac_model_info)
+  rseg_obj_url <- paste(json_obj_url, rseg.model$pid, sep="/")
+  rseg_model_info <- om_auth_read(rseg_obj_url, token,  "text/json", "")
+  rseg_model_info <- fromJSON(rseg_model_info)
+} else {
+  message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
+  fac_model_info <- list()
+}
 # Pre load the output runs so we have them available for later use
 fac_runs = FALSE
 rseg_runs = FALSE
