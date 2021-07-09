@@ -47,11 +47,12 @@ ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
 
 #SPECIFY MODELS AND RUNIDS OF INTEREST
-rseg.hydroid <- 462757 # Ex: Crooked Run = 476998, South Fork Powell River below BSG = 477140, SF Powell at dam: 462757
-fac.hydroid <- 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672
+rseg.hydroid <- 476998 # Ex: Crooked Run = 476998, South Fork Powell River below BSG = 477140, SF Powell at dam: 462757
+fac.hydroid <- 71977 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672
 # #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
-runid.list <- c('runid_401','runid_601')
-runid.list <- c('runid_201','runid_401')
+runid.list <- c('runid_400','runid_600')
+#runid.list <- c('runid_201','runid_401')
+rlist <- gsub('runid_', '', runid.list)
 fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
 rseg.metric.list <- c(
   "Qout","Qbaseline","remaining_days_p0","l30_Qout",
@@ -191,19 +192,44 @@ for (i in 1:length(runid.list)){
 \newpage
 # Model Summary Results - Conclusion/Recommendation
 
-* Safe yield of the intake is listed as 3.2 mgd from a study published in 2001 (3.2 mgd is equivalent to the permit annual withdrawal limit of 1168 mg/yr).
-    + The data for the study was collected in 1997, which predates the drought period of 1999-2002.
-* Under the current scenario (withdrawing around 2 mgd/day on average based on current reported withdrawals) they are okay in terms of storage days remaining (132 days) during the drought of record.
-* Under the current maximum permitted scenario (withdrawing up to 3.2 mgd) storage days remaining drops to 0, and the model shows they are unable to meet all demand during the drought of record.
-* Reducing the annual withdrawal limit from 1168 mg/yr to 949 mg/yr (3.2 mgd to 2.6 mgd) would likely be sufficient to increase the storage days remaining from 0 to 64 or more days during the drought of record.
-    + Note that demand is projected to decline according to water supply plan.
-    + The max daily withdrawal limit would remain 4.0 mgd
-* DWR standard guidance for an intake not withdrawing more than 10% instantaneous flow (90% flowby) likely wouldn't work for this project (reservoir chronically drawn down). 
-    + In order to meet a 90% flowby, the annual withdrawal limit may need to be reduced from 3.2 mgd to around 0.68 mgd in order to preserve 47 days remaining storage in the reservoir during the drought of record.
-* However a 40% flowby would likely be effective at maintaining storage levels and ensuring they can sustainably meet demand while better preserving the natural flow regime.
-    + Changing the flowby from a static 0.5 mgd to a 40% of flow approach when combined with a 2.6 mgd annual withdrawal limit results in around 29 days of storage remaining and no days in which they're unable to meet demands at the intake during the drought of record.
-    + Although the 40% flowby we tested results in fewer than 60 days remaining storage, emergency connections with neighboring towns would likely be sufficient to maintain supply during times of extreme drought. Additionally, this permit doesn't currently have drought triggers in place which could help maintain storage levels during dry periods.
-    + Provided that conservation measures can be formulated that permit 60 days remaining storage, the 40% flowby would result in the same 2.6 mgd safe yield as the current 0.5 mgd flowby.
+
+```{r LoadRunResults, echo=FALSE, results = "asis"}
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  run_info <- find_name(fac_model_info,runid.i)
+  if (is.null(run_info$reports)) {
+    cat(paste("*", paste0("__",run_info$name,"__"),"-","Run analysis not provided.","\n"))
+  } else {
+    ri <- run_info$reports
+    cat(
+      paste(
+        "*", 
+        paste0(
+          "__",ri$scenario_name$value,"__"
+        ),
+        "-",run_info$reports$scenario_analysis$value,"\n")
+      )
+  }
+  
+}
+```
+<!-- TEXT STASHED for Joey -->
+<!-- * Safe yield of the intake is listed as 3.2 mgd from a study published in 2001 (3.2 mgd is equivalent to the permit annual withdrawal limit of 1168 mg/yr). -->
+<!--     + The data for the study was collected in 1997, which predates the drought period of 1999-2002. -->
+<!-- * Under the current scenario (withdrawing around 2 mgd/day on average based on current reported withdrawals) they are okay in terms of storage days remaining (132 days) during the drought of record. -->
+<!-- * Under the current maximum permitted scenario (withdrawing up to 3.2 mgd) storage days remaining drops to 0, and the model shows they are unable to meet all demand during the drought of record. -->
+<!-- * Reducing the annual withdrawal limit from 1168 mg/yr to 949 mg/yr (3.2 mgd to 2.6 mgd) would likely be sufficient to increase the storage days remaining from 0 to 64 or more days during the drought of record. -->
+<!--     + Note that demand is projected to decline according to water supply plan. -->
+<!--     + The max daily withdrawal limit would remain 4.0 mgd -->
+<!-- * DWR standard guidance for an intake not withdrawing more than 10% instantaneous flow (90% flowby) likely wouldn't work for this project (reservoir chronically drawn down). -->
+<!--     + In order to meet a 90% flowby, the annual withdrawal limit may need to be reduced from 3.2 mgd to around 0.68 mgd in order to preserve 47 days remaining storage in the reservoir during the drought of record. -->
+<!-- * However a 40% flowby would likely be effective at maintaining storage levels and ensuring they can sustainably meet demand while better preserving the natural flow regime. -->
+<!--     + Changing the flowby from a static 0.5 mgd to a 40% of flow approach when combined with a 2.6 mgd annual withdrawal limit results in around 29 days of storage remaining and no days in which they're unable to meet demands at the intake during the drought of record. -->
+<!--     + Although the 40% flowby we tested results in fewer than 60 days remaining storage, emergency connections with neighboring towns would likely be sufficient to maintain supply during times of extreme drought. Additionally, this permit doesn't currently have drought triggers in place which could help maintain storage levels during dry periods. -->
+<!--     + Provided that conservation measures can be formulated that permit 60 days remaining storage, the 40% flowby would result in the same 2.6 mgd safe yield as the current 0.5 mgd flowby. -->
 
 \newpage
 
@@ -281,8 +307,6 @@ fontsize(ft, size = 9)
 # Reservoir Storage Plots:
 
 ```{r ResPLOTS, echo=FALSE, results = "asis"}
-rlist <- gsub('runid_', '', runid.list)
-figs.list <- paste0(site.plots,"/data/proj3/out/fig.imp_storage.all.",rseg.elid,".", rlist, ".png")
 
 # check river model for plots
 for (i in 1:length(runid.list)){
@@ -302,20 +326,12 @@ for (i in 1:length(runid.list)){
   }
 }
 
-#for(i in 1:length(figs.list)){
-#  fig_path <- figs.list[i]
-#  cat("\n\n## Reservoir Storage: run ",rlist[i],"\n\n")
-#  cat(paste0("![](",fig_path,")"),"\n")
-#  cat("\n\n\\pagebreak\n")
-#}    
 ``` 
 
 
 # Unmet Demand Heatmaps:
 
 ```{r UnmetDemandPLOTS, echo=FALSE, results = "asis"}
-figs.list <- paste0(site.plots,"/data/proj3/out/fig.unmet_heatmap_amt.",fac.elid,".", rlist, ".png")
-figs.list.30daymax <- paste0(site.plots,"/data/proj3/out/fig.30daymax_unmet.",fac.elid,".", rlist, ".png")
 
 # check facility model for plots
 for (i in 1:length(runid.list)){
