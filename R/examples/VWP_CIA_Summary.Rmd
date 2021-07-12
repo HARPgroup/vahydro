@@ -30,6 +30,7 @@ source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used duri
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
 # Could also use:
 #source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/run_text.R") #Used during development
 
@@ -83,10 +84,32 @@ if (exists("json_obj_url")) {
   rseg_obj_url <- paste(json_obj_url, rseg.model$pid, sep="/")
   rseg_model_info <- om_auth_read(rseg_obj_url, token,  "text/json", "")
   rseg_model_info <- fromJSON(rseg_model_info)
+  # get report cusomtizations
+  fac_report_info = find_name(fac_model_info, "reports")
+  rseg_report_info = find_name(rseg_model_info, "reports")
 } else {
   message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
   fac_model_info <- list()
+  rseg_model_info <- list()
 }
+
+fac_default_info = list(
+  model_overview = list(
+    "value" = "Facility intake model overview not provided."
+  ),
+  intake_name = list(
+    "value"  = "un-named intake"
+  )
+)
+rseg_default_info = list(
+  model_overview = list(
+    "value" = "River segment model overview not provided."
+  )
+)
+
+fac_report_info <- merge.list(fac_report_info, fac_default_info)
+rseg_report_info <- merge.list(rseg_report_info, rseg_default_info)   
+    
 # Pre load the output runs so we have them available for later use
 fac_runs = FALSE
 rseg_runs = FALSE
@@ -154,12 +177,11 @@ if (!is.logical(fig_prop)) {
 # Model Overview and Scenario Descriptions
 
 ```{r ModelOverview, echo=FALSE, results = "asis"}
-model_info <- find_name(fac_model_info,"reports")
-if (is.null(model_info$model_overview)) {
-  cat("Model overview not provided.")
-} else {
-  cat(paste(model_info$model_overview$value,"\n"))
-}
+
+cat("__River Model Description\n")
+cat(paste(rseg_model_info$model_overview$value,"\n"))
+cat("__Facility & Intake Model Description\n")
+cat(paste(fac_model_info$model_overview$value,"\n"))
 ```
 
 The following model scenarios were simulated in order to determine the most effective means of meeting the project need and all other in-stream beneficial uses:
@@ -187,7 +209,26 @@ for (i in 1:length(runid.list)){
   }
   
 }
+
 ```
+# Intake Site Description & Current Estimated Stream Flows
+
+```{r LoadSiteInfo, echo=FALSE, results = "asis"}
+dat_current <- om_get_rundata(fac.elid, 11, omsite, FALSE)
+intake_sum_current <- om_flow_table(dat_current, "Qintake")
+# Format table
+ft <- qflextable(intake_sum_current)
+# Set column widths
+#ft <- width(ft, j = 2:length(statsdf[1,]), width = 1.5)
+#ft <- width(ft, j = 1, width = 2)
+# Set theme
+ft <- theme_box(ft)
+# Set background color of select rows --------------------------------------------------------------
+ft <- bg(ft, bg = "#EFEFEF", part = "header")
+cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show non-exceedence flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the \"10%\" states that only 10% of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.") )
+ft
+```
+
   
 \newpage
 # Model Summary Results - Conclusion/Recommendation
