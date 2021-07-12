@@ -111,6 +111,7 @@ fac_report_info <- merge.list(fac_report_info, fac_default_info)
 rseg_report_info <- merge.list(rseg_report_info, rseg_default_info)   
     
 # Pre load the output runs so we have them available for later use
+# I think the om_get_prop here is no longer needed, rather, we 
 fac_runs = FALSE
 rseg_runs = FALSE
 for (i in 1:length(runid.list)){
@@ -179,9 +180,9 @@ if (!is.logical(fig_prop)) {
 ```{r ModelOverview, echo=FALSE, results = "asis"}
 
 cat("__River Model Description__\n")
-cat(paste(rseg_report_info$model_overview$value,"\n"))
+cat(paste(rseg_report_info$model_overview$value,"\n\n"))
 cat("__Facility & Intake Model Description__\n")
-cat(paste(fac_report_info$model_overview$value,"\n"))
+cat(paste(fac_report_info$model_overview$value,"\n\n"))
 ```
 
 The following model scenarios were simulated in order to determine the most effective means of meeting the project need and all other in-stream beneficial uses:
