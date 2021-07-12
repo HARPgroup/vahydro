@@ -212,14 +212,15 @@ for (i in 1:length(runid.list)){
 }
 
 ```
+
+\newpage
+
 # Intake Site Description & Current Estimated Stream Flows
 
 ```{r LoadSiteInfo, include=FALSE}
 dat_current <- om_get_rundata(fac.elid, 11, omsite, FALSE)
 intake_sum_current <- om_flow_table(dat_current, "Qintake")
 ```
-
-\newpage
 
 ```{r SiteTable, echo=FALSE, results = "asis"}
 # Format table
