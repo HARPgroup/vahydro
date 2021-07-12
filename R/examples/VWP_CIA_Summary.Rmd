@@ -214,22 +214,21 @@ for (i in 1:length(runid.list)){
 ```
 # Intake Site Description & Current Estimated Stream Flows
 
-```{r LoadSiteInfo, echo=FALSE, results = "asis"}
+```{r LoadSiteInfo, include=FALSE}
 dat_current <- om_get_rundata(fac.elid, 11, omsite, FALSE)
 intake_sum_current <- om_flow_table(dat_current, "Qintake")
+```
+
+\newpage
+
+```{r SiteTable, echo=FALSE, results = "asis"}
 # Format table
 ft <- qflextable(intake_sum_current)
-# Set column widths
-#ft <- width(ft, j = 2:length(statsdf[1,]), width = 1.5)
-#ft <- width(ft, j = 1, width = 2)
-# Set theme
 ft <- theme_box(ft)
-# Set background color of select rows --------------------------------------------------------------
 ft <- bg(ft, bg = "#EFEFEF", part = "header")
 cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show non-exceedence flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the \"10%\" states that only 10% of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.") )
 ft
 ```
-
   
 \newpage
 # Model Summary Results - Conclusion/Recommendation
