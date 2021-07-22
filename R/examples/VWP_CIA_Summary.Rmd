@@ -13,6 +13,13 @@ output:
       left: 0.5
       header: 0.0
       footer: 0.0
+params: 
+  rseg.hydroid: 476998 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
+  fac.hydroid: 71977 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672
+  runid.list: [ "runid_401", "runid_601" ]
+  fac.metric.list: [ "wd_mgd","ps_mgd","unmet30_mgd" ]
+  rseg.metric.list: [ "Qout","Qbaseline","remaining_days_p0","l30_Qout",
+    "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
 ---
 
 ```{r setup, include=FALSE}
@@ -45,20 +52,19 @@ ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 
 
 ```{r UserInputs, include=FALSE}
-site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
+site.plots <- omsite #image files use http
 
 #SPECIFY MODELS AND RUNIDS OF INTEREST
-rseg.hydroid <- 476998 # Ex: Crooked Run = 476998, South Fork Powell River below BSG = 477140, SF Powell at dam: 462757
-fac.hydroid <- 71977 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672
-# #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
-runid.list <- c('runid_400','runid_600')
+
+rseg.hydroid <- params$rseg.hydroid
+fac.hydroid <- params$fac.hydroid
+runid.list <- params$runid.list
+fac.metric.list <- params$fac.metric.list
+rseg.metric.list <- params$rseg.metric.list
+    
+#runid.list <- c('runid_400','runid_600')
 #runid.list <- c('runid_201','runid_401')
 rlist <- gsub('runid_', '', runid.list)
-fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
-rseg.metric.list <- c(
-  "Qout","Qbaseline","remaining_days_p0","l30_Qout",
-  "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd"
-)
 
 # SALEM WTP
 # rseg.hydroid <- 68327
