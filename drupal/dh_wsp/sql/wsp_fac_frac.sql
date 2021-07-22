@@ -155,7 +155,7 @@ create or replace temp view tmp_sys_pw_frac as (
   )
 );
   
-create or replace view tmp_wsp_fac_net as (
+create or replace temp view tmp_wsp_fac_net as (
   select foo.*, bar.sys_wd, bar.sys_future_wd, 
     round(bar.sys_fac_frac::numeric,6) as sys_fac_frac, 
     round(bar.sys_pw_frac::numeric,6) sys_pw_frac, 
