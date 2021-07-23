@@ -20,6 +20,7 @@ params:
   fac.metric.list: [ "wd_mgd","ps_mgd","unmet30_mgd" ]
   rseg.metric.list: [ "Qout","Qbaseline","remaining_days_p0","l30_Qout",
     "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
+  intake_stats_runid: 11
 ---
 
 ```{r setup, include=FALSE}
@@ -61,7 +62,8 @@ fac.hydroid <- params$fac.hydroid
 runid.list <- params$runid.list
 fac.metric.list <- params$fac.metric.list
 rseg.metric.list <- params$rseg.metric.list
-    
+intake_stats_runid <- params$intake_stats_runid
+
 #runid.list <- c('runid_400','runid_600')
 #runid.list <- c('runid_201','runid_401')
 rlist <- gsub('runid_', '', runid.list)
@@ -146,14 +148,14 @@ This is an R Markdown document. This will serve as the template for VWP Project 
 
 
 ## VAHydro
-The comprehensive VAHydro hydrologic model is used to evaluate surface water supply availability for permitting projects throughout Virginia. The VAHydro model simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through DEQ water supply planning and reporting programs including all known withdrawals and discharges, as well as operational rules of VWP permits and major hydrologic features such as reservoirs. 
+The comprehensive VAHydro hydrologic model is used to evaluate instream and off-stream beneficial uses for surface water withdrawals throughout Virginia. The VAHydro model simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through DEQ water supply planning and reporting programs including all known withdrawals and discharges, as well as operational rules of VWP permits and major hydrologic features such as reservoirs. 
 
 The VAHydro model is built on rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6 which runs from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed, aka the "southern rivers." The VAHydro model features high-resolution hydrologic subsections called "river segments" (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
 
 ## CIA
 DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA) modeling. CIA is a modeling and analysis approach that takes into account the varied hydrologic process occurring throughout a river network (including meteorology and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential "cumulative impact" of all streamflow changes occurring upstream of any location within the river network, as well as the downstream impact of individual permitted withdrawal operations.
 
-The goal of the folloing analysis was to estimate the potential impacts of the requested water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses.
+The goal of the folloing analysis was to estimate the cumulative impacts of all existing water users in addition to the requested water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses.
 
 \newpage
 # Project Introduction (To be provided by permit writer)
@@ -224,8 +226,15 @@ for (i in 1:length(runid.list)){
 # Intake Site Description & Current Estimated Stream Flows
 
 ```{r LoadSiteInfo, include=FALSE}
-dat_current <- om_get_rundata(fac.elid, 11, omsite, FALSE)
+dat_current <- om_get_rundata(fac.elid, intake_stats_runid, omsite, FALSE)
 intake_sum_current <- om_flow_table(dat_current, "Qintake")
+ex_col = "10%"
+jan_ex <- intake_sum_current[1,ex_col]
+if (jan_ex == 0) {
+  ex_col = "25%"
+}
+jan_ex <- intake_sum_current[1,ex_col]
+non_ex_text <- paste0("For example, in the table below the ",ex_col," column states that ",ex_col," of flows within the month of January would be less than ", jan_ex, "cfs.")
 ```
 
 ```{r SiteTable, echo=FALSE, results = "asis"}
@@ -233,7 +242,7 @@ intake_sum_current <- om_flow_table(dat_current, "Qintake")
 ft <- qflextable(intake_sum_current)
 ft <- theme_box(ft)
 ft <- bg(ft, bg = "#EFEFEF", part = "header")
-cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show non-exceedence flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the \"10%\" states that only 10% of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.") )
+cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show the minimum (Min) and average (Mean) modeled flow, and a range of non-exceedence flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the", paste0("\"",ex_col, "\""), "states that only", ex_col, "of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.", non_ex_text) )
 ft
 ```
   
