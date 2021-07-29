@@ -1191,6 +1191,13 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
   $authid = dh_adminreg_get_adminreg_entity('vdeq_gwp');
   $gwpid = array_shift($authid);
   $facilityid = dh_getMpFacilityHydroId($wellid);
+  if ($form_state['values']['permit_id'] == NULL) {
+    $permit_id = dh_adminreg_get_admin_location($facilityid, FALSE, FALSE, $gwpid);
+  } else {
+    // we were called with the a permit id 
+    $permit_id = $form_state['values']['permit_id'];
+    //dpm($permit_id,"passed in permitid");
+  }
   //dpm($permit_id, "permit_id for well $wellid fac $facilityid");
   // now set a vadeq_report_wd on the permit-info
   // due date = 
@@ -1222,13 +1229,6 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
   //dpm($receipt,'created receipt');
   // ****************
   // Now handle the specific save type requested.
-  if ($form_state['values']['permit_id'] == NULL) {
-    $permit_id = dh_adminreg_get_admin_location($facilityid, FALSE, FALSE, $gwpid);
-  } else {
-    // we were called with the a permit id 
-    $permit_id = $form_state['values']['permit_id'];
-    //dpm($permit_id,"passed in permitid");
-  }
   // handle save_and_next if requested
   // if add, we route to set properties, then to monthly data entry
   // if edit we just honor the destination that already is set
