@@ -1240,7 +1240,12 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
         );
         // we should only save this if it does *not* exist, otherwise, the initial receipt will be overwritten
         // but since the requirements ask for this audit trail every time we save, se la vie
-        $receipt = dh_update_timeseries($info, 'tsendtime_singular');
+
+        $receipt = dh_get_timeseries($info , 'tstime_singular', TRUE);
+        $receipt = array_shift($receipt);
+        if (!is_object($receipt)) {
+          $receipt = dh_update_timeseries($info, 'tsendtime_singular');
+        }
         //dpm($info,'receipt info');
         //dpm($receipt,'created receipt');
         $fac = entity_load_single('dh_feature', $facilityid);
