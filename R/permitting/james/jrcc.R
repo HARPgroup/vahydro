@@ -1,34 +1,6 @@
 library('hydrotools')
 library('zoo')
 
-# functions
-om_ts_diff <- function(df1, df2, col1, col2, op = "<>") {
-  # use "all" for op if just want the df
-  df1 <- as.data.frame(df1)
-  df2 <- as.data.frame(df2)
-  dsql <- paste0(
-    "select a.year,a.month,a.day, ",
-    "a.", col1, " as v1, b.", col2, " as v2",
-    " from df1 as a " ,
-    "left outer join df2 as b ",
-    " on ( ",
-    "a.year = b.year
-   and a.month = b.month 
-   and a.day = b.day
-  ) "
-  )
-  if (!(op == "all")) {
-    dsql <- paste0(
-      dsql, " where a.",col1," ", op, " b.", col2
-    )
-  }
-  message(dsql)
-  rets <- sqldf(
-    dsql
-  )
-  return(rets)
-}
-
 # catawba creek watershed is 210175, WD&PS is 210201
 # CC needs to have modernization
 datcc400 <- om_get_rundata(210201, 400)
@@ -83,10 +55,27 @@ om_ts_diff(datbc400, datbc600, "wd_cumulative_mgd", "wd_cumulative_mgd", "<>")
 
 datjrva400 <- om_get_rundata(209975, 400, site = omsite)
 datjrva600 <- om_get_rundata(209975, 600, site = omsite)
+datjrva13 <- om_get_rundata(209975, 13, site = omsite)
+om_flow_table(datjrva13, "Qout")
+mean(datjrva13$wd_cumulative_mgd)
+om_flow_table(datjrva400, "Qout")
+mean(datjrva400$wd_cumulative_mgd)
+
 om_ts_diff(datjrva400, datjrva600, "Qout", "Qout", "<>")
 om_ts_diff(datjrva400, datjrva600, "Qout", "Qout", "> 10 + ")
 quantile(datjrva400$wd_cumulative_mgd)
 quantile(datjrva600$wd_cumulative_mgd)
+
+# soom in on 2007
+
+c413 <- om_ts_diff(datjrva400, datjrva13, "Qout", "Qout", "all")
+sqldf("select * from c413 where year = 2007")
+
+datjbr400 <- om_get_rundata(211097, 400, site = omsite)
+datjbr600 <- om_get_rundata(211097, 600, site = omsite)
+quantile(datjbr400$Q)
+
+datmr400 <- om_get_rundata(352109, 400, site = omsite)
 
 datjrh400 <- om_get_rundata(212617, 400, site = omsite)
 datjrh600 <- om_get_rundata(212617, 600, site = omsite)
@@ -95,17 +84,14 @@ om_ts_diff(datjrh400, datjrh600, "Qout", "Qout", "all")
 datccr400 <- om_get_rundata(337692, 400, site = omsite)
 datccr600 <- om_get_rundata(337692, 600, site = omsite)
 om_ts_diff(datccr400, datccr600, "ps_refill_pump_mgd", "ps_refill_pump_mgd", "all")
- 
+quantile(datccr400$refill_pump_mgd)
+quantile(datccr400$impoundment_release, na.rm = TRUE)
+quantile(datccr600$refill_pump_mgd)
 
 datrva400 <- om_get_rundata(219639, 400, site = omsite)
 datrva600 <- om_get_rundata(219639, 600, site = omsite)
 
 r600 <- as.data.frame(datrva600)
-
-datjack400 <- om_get_rundata(214595, 400, site = omsite)
-datjack600 <- om_get_rundata(214595, 600, site = omsite)
-cov400 <- om_get_rundata(320768, 400, site = omsite)
-cov600 <- om_get_rundata(320768, 600, site = omsite)
 bc600 <- om_get_rundata(327124, 600, site = omsite)
 
 datbc[200:250,c('wd_channel_cfs', 'Qlocal_channel', 'bc_release_cfs', 'impoundment_Qout')]
@@ -233,6 +219,10 @@ wshed_case <- sqldf(
    and riverseg not like '%0000%' 
   "
 )
+
+# Look for suspect data
+sqldf("select * from wshed_case where l30_400 > 500 or l30_600 > 500")
+
 # Now, target segments where wd600 < wd400 and l90600 > l90400
   
 sqldf(
@@ -249,7 +239,12 @@ sqldf(
 
 sqldf(
   "select * from wshed_case
-   where  (1.005 * wd_400) < wd_600
+   where  (1.005 * wdcum_400) < wdcum_600
+   order by riverseg
+  ")
+sqldf(
+  "select * from wshed_case
+   where  wd_400 < wd_600
    order by riverseg
   ")
 # Find river seg facilities: JU3_6950_7330  
@@ -375,3 +370,99 @@ dathcro400 <- om_get_rundata(220197, 400)
 dathcro600 <- om_get_rundata(220197, 600)
 quantile(dathcro400$impoundment_Qout)
 quantile(dathcro600$impoundment_Qout)
+
+fn_from_node_format <- function(seglist, segcol = "riverseg") {
+  node_sql <- paste(
+    "select substring(", segcol, ",5,4) as from_node, ",
+    "  substring(", segcol, ",10,4) as to_node, ",
+    segcol, " as riverseg",
+    "from seglist "
+  )
+  message(node_sql)
+  ft_node <- sqldf(
+    node_sql
+  )
+  return(ft_node)
+}
+
+
+fn_upstream2 <- function(riverseg, seg_list, seg_col = "riverseg", debug = FALSE) {
+  node_id <- substr(riverseg,5,8)
+  up_sql <- paste0(
+    "select * from seg_list ",
+    "where substring(", seg_col, ",10,4) = '", node_id, "'",
+    " and length(riverseg) = 13"
+  )
+  if (debug) {
+    message(up_sql)
+  }
+  up_list <- sqldf(up_sql)
+  # handle non-conforming subwatersheds
+  trib_sql <- paste0(
+    "select * from seg_list ",
+    "where substring(", seg_col, ",1,13) = '", riverseg, "'",
+    " and length(riverseg) > 13"
+  )
+  if (debug) {
+    message(trib_sql)
+  }
+  trib_list <- sqldf(trib_sql)
+  if (nrow(trib_list) > 0) {
+    up_list <- rbind(up_list, trib_list)
+  }
+  return(up_list)
+}
+
+fn_check_wdc <- function(outlet, all_segments, wd_col, wdc_col) {
+  
+  riverseg <- as.character(outlet$riverseg)
+  if (str_length(riverseg) > 13) {
+    message(paste("Can not handle non-conforming riverseg ", riverseg))
+    return(FALSE)
+  }
+  outlet_wdc_mgd <- as.numeric(outlet[wdc_col])
+  outlet_wd_mgd <- as.numeric(outlet[wd_col])
+  upstream_segments <- fn_upstream2(riverseg, all_segments)
+  sum_ups <- as.numeric(
+    sqldf(
+      paste("select sum(", wdc_col, ") as sum_ups from upstream_segments" )
+    )$sum_ups
+  )
+  if (!is.na(sum_ups)) {
+    lhs <- round(outlet_wdc_mgd,2)
+    rhs <- round(outlet_wd_mgd + sum_ups,2)
+    if (lhs != rhs) {
+      message(paste("Problem with sums on ",riverseg))
+      message(
+        paste(
+          "Outlet wd_cumulative_mgd (", lhs,") 
+      = upstream wd_cumulative (  ", sum_ups, " ) 
+      + local wd (", outlet_wd_mgd,")",
+          " = ", rhs
+        )
+      )
+    } else {
+      message(paste(riverseg, "OK", lhs,"=",rhs))
+    }
+  } else {
+    #message(paste(riverseg, "is a headwater"))
+  }
+}
+
+
+# find segments whose upstream wd_cumulative_mgd + their local wd_mgd <> the local wd_cumulative_mgd
+wdc_col <- "wdcum_400"
+wd_col <- "wd_400"
+outlets <- sqldf("select * from wshed_case where substring(riverseg,10,4) = '0001' ")
+# Test
+outlets <- sqldf("select * from wshed_case where riverseg = 'JL6_7160_7440'")
+outlets <- wshed_case[which(wshed_case$riverseg == 'JL2_6440_6441_buck_mtn_creek'),]
+outlets <- wshed_case 
+for(i in 1:nrow(outlets)) {
+  fn_check_wdc(outlets[i,], wshed_case, wd_col, wdc_col)
+}
+
+fn_check_wdc(
+  wshed_case[which(wshed_case$riverseg == 'JL7_7100_7030'),],
+  wshed_case, wd_col, wdc_col)
+fn_upstream2('JL7_7100_7030', all_segments)

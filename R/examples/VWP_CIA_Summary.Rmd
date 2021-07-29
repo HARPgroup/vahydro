@@ -145,13 +145,18 @@ for (i in 1:length(runid.list)){
   # TODO: prepopulate runid_XXX$report$facility_default_reports and riverseg_default_reports on the om_model_scenario variable to load as a default for these.  For example, runid11 is *always* the current WSP run, so there should be no need to give it a short name, or scenario name at the individual facility level.
   # stash short names since they are used frequently
   fac_run_info <- find_name(fac_model_info,runid.i)
-  short_names[[runid.i]] = as.character(find_name(fac_run_info,'reports')$scenario_short_name$value)
-  if (is.null(short_names[[runid.i]])) {
+  f_rep <- find_name(fac_run_info,'reports')
+  # get the short name
+  if (is.null(f_rep$scenario_short_name$value)) {
     short_names[[runid.i]] <- runid.i
+  } else {
+    short_names[[runid.i]] = as.character(f_rep$scenario_short_name$value)
   }
-  run_names[runid.i] = as.character(find_name(fac_run_info,'reports')$scenario_name$value)
-  if (is.null(run_names[runid.i])) {
-    run_names[runid.i] <- runid.i
+  # get the long name
+  if (is.null(f_rep$scenario_name$value)) {
+    run_names[[runid.i]] <- runid.i
+  } else {
+    run_names[[runid.i]] = as.character(f_rep$scenario_name$value)
   }
 }
 
@@ -244,6 +249,12 @@ for (i in 1:length(runid.list)){
 
 ```{r LoadSiteInfo, include=FALSE}
 dat_current <- om_get_rundata(fac.elid, intake_stats_runid, omsite, FALSE)
+# catch instances where older models did not have Qintake
+# does this have an impoundment sub-comp and is imp_off = 0?
+cols <- names(dat_current)
+if(!("Qintake" %in% cols)) {
+  dat_current$Qintake <- dat_current$Qriver
+}
 intake_sum_current <- om_flow_table(dat_current, "Qintake")
 ex_col = "10%"
 jan_ex <- intake_sum_current[1,ex_col]
