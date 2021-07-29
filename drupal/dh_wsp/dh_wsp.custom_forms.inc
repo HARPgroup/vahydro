@@ -1198,33 +1198,6 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
     $permit_id = $form_state['values']['permit_id'];
     //dpm($permit_id,"passed in permitid");
   }
-  //dpm($permit_id, "permit_id for well $wellid fac $facilityid");
-  // now set a vadeq_report_wd on the permit-info
-  // due date = 
-  $year = date('Y', $dh_timeseries->tstime);
-  $year = ($dh_timeseries->quarter == 4) ? $year + 1 : $year;
-  $mo = ($dh_timeseries->quarter == 4) ? 1 : $dh_timeseries->quarter * 3 + 1;
-  $day = 10;
-  $info = array(
-    'varkey' => 'vadeq_report_wd',
-    'tsendtime' => dh_handletimestamp(date('Y-m-d')),
-    'tstime' => dh_handletimestamp("$year-$mo-$day"),
-    'featureid' => $permit_id,
-    'tsvalue' => 0,
-    'entity_type' => 'dh_adminreg_feature',
-    'tscode' => 'submitted',
-  );
-  // we should only save this if it does *not* exist, otherwise, the initial receipt will be overwritten
-  // but since the requirements ask for this audit trail every time we save, se la vie
-
-  $receipt = dh_get_timeseries($info , 'tstime_singular', TRUE);
-  $receipt = array_shift($receipt);
-  if (!is_object($receipt)) {
-    dsm("Adding receipt record.");
-    $receipt = dh_update_timeseries($info, 'tsendtime_singular');
-  } else {
-    dsm("Receipt record already exists.");
-  }
   //dpm($info,'receipt info');
   //dpm($receipt,'created receipt');
   // ****************
@@ -1255,6 +1228,33 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
         }
         $fac = entity_load_single('dh_feature', $facilityid);
         drupal_set_message("Withdrawal Report for $fac->name.");
+      }
+      //dpm($permit_id, "permit_id for well $wellid fac $facilityid");
+      // now set a vadeq_report_wd on the permit-info
+      // due date = 
+      $year = date('Y', $dh_timeseries->tstime);
+      $year = ($dh_timeseries->quarter == 4) ? $year + 1 : $year;
+      $mo = ($dh_timeseries->quarter == 4) ? 1 : $dh_timeseries->quarter * 3 + 1;
+      $day = 10;
+      $info = array(
+        'varkey' => 'vadeq_report_wd',
+        'tsendtime' => dh_handletimestamp(date('Y-m-d')),
+        'tstime' => dh_handletimestamp("$year-$mo-$day"),
+        'featureid' => $permit_id,
+        'tsvalue' => 0,
+        'entity_type' => 'dh_adminreg_feature',
+        'tscode' => 'submitted',
+      );
+      // we should only save this if it does *not* exist, otherwise, the initial receipt will be overwritten
+      // but since the requirements ask for this audit trail every time we save, se la vie
+
+      $receipt = dh_get_timeseries($info , 'tstime_singular', TRUE);
+      $receipt = array_shift($receipt);
+      if (!is_object($receipt)) {
+        dsm("Adding receipt record.");
+        $receipt = dh_update_timeseries($info, 'tsendtime_singular');
+      } else {
+        //dsm("Receipt record already exists.");
       }
     } else {
       // regular save here and we should reload this same form page
