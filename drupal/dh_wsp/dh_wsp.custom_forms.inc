@@ -1244,7 +1244,10 @@ function dh_wsp_gwp_monthly_form_submit(&$form, &$form_state) {
         $receipt = dh_get_timeseries($info , 'tstime_singular', TRUE);
         $receipt = array_shift($receipt);
         if (!is_object($receipt)) {
+          dsm("Adding receipt record.");
           $receipt = dh_update_timeseries($info, 'tsendtime_singular');
+        } else {
+          dsm("Receipt record already exists.");
         }
         //dpm($info,'receipt info');
         //dpm($receipt,'created receipt');
