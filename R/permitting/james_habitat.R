@@ -1,5 +1,5 @@
 #----------------------------------------------
-site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 #----------------------------------------------
 # Load Libraries
 library(hydrotools)
@@ -49,7 +49,7 @@ if (weighting_factor == 0) {
 
 ################################################################################################
 # RETRIEVE RUN 600 MODEL FLOW TIMESERIES, Full PErmitted + Proposed
-model_flows_6 <- om_get_rundata(elid, pprunid)
+model_flows_6 <- om_get_rundata(elid, pprunid, omsite)
 model_flows_6$Qbaseline <- model_flows_6$Qout + (model_flows_6$wd_cumulative_mgd - model_flows_6$ps_cumulative_mgd ) * 1.547
 ts3 <- as.data.frame(model_flows_6[,c('thisdate', 'Qout')])
 ts3$thisdate <- as.character(as.Date(index(model_flows_6))) 
@@ -76,6 +76,13 @@ ifim_mat <- as.data.frame.matrix(ifim_sumdata_6)
 ifim_mat <- cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
 ifim_plot6_20$data.formatted <-  cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
 ifim_plot6_20$data.formatted
+names(ifim_plot6_20$data.formatted)
+# Note: must manually edit this to add the "Species" column label.
+write.table(
+  ifim_plot6_20$data.formatted, 
+  file = paste(export_path,'ifim_table_6Qbaseline_6Qout_20_',elid,'.csv',sep=""),
+  sep = ","
+)
 
 ggsave(paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_20_',elid,'.png',sep=""), width = 7, height = 4)
 

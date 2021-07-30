@@ -34,7 +34,7 @@ library(hydrotools)
 library(rjson)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
-source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
+#source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
@@ -364,6 +364,8 @@ statsdf_sql <- paste('SELECT
 statsdf <- sqldf(statsdf_sql)
 statsdf <- statsdf[,-2]
 ```
+## CIA
+This table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project.  The section entitled "River Segment Model Statistics" contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated percent total consumptive use as a resutl of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed.  The section entitled "Facility Model Statistics" shows the withdrawals, return flows (Point Source), and the mnodefl estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect.  There will be one or more columns in this table representing each scenario considered for this analysis.
 
 <!---BLOCK_LANDSCAPE_START--->
 # Stats Comparison Table:
@@ -463,6 +465,10 @@ for (i in 1:length(runid.list)){
 ## Elfgen:
 
 ```{r GrabELFPlot, include=FALSE, echo=FALSE}
+# Need to have a switch based on draiange area with text such as:
+# Ecological Limit Functions are not available for this location because the drainage area exceeds 800 square miles, which is beyond the applicable range of current mean flow based ecological limit functions.
+
+
 run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
 fig_path = FALSE
 elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
