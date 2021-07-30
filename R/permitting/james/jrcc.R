@@ -463,6 +463,6 @@ for(i in 1:nrow(outlets)) {
 }
 
 fn_check_wdc(
-  wshed_case[which(wshed_case$riverseg == 'JL7_7100_7030'),],
+  wshed_case[which(wshed_case$riverseg == 'JL2_6440_6441'),],
   wshed_case, wd_col, wdc_col)
-fn_upstream2('JL7_7100_7030', all_segments)
+fn_upstream2('JL2_6440_6441', all_segments)

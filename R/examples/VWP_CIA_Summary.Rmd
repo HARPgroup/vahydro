@@ -483,6 +483,12 @@ if (!is.logical(fig_path)) {
 
 ## Habitat (If Applicable):
 
+```{r IFIMPlot, include=FALSE, echo=FALSE}
+# get habitat object from riverseg
+# if it exists, and plots exist, go for it.
+# if it exists and plots don't exist, messaage user.
+``` 
+
 \newpage
 
 # Additional Sections
