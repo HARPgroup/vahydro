@@ -49,13 +49,14 @@ USGS_GAGES <- str_split_fixed(gagelist$hydrocode, "usgs_", 2)
 gagelist$USGS_GAGES <- USGS_GAGES[,2]
 USGS_GAGES <- gagelist$USGS_GAGES 
 
-#j<-1
+#j<-131
 #j<-3
 
 #Begin loop to run through each USGS gage 
 for (j in 1:length(USGS_GAGES)) {
+  print(paste("-----PROCESSING GAGE ",j," OF ",length(USGS_GAGES), sep=''))
   USGS_GAGE_ID <- USGS_GAGES[j]
-  print(paste("USGS_GAGE_ID ", USGS_GAGE_ID, sep=''))
+  print(paste("-------USGS_GAGE_ID ", USGS_GAGE_ID, sep=''))
 
   
 #--RETRIEVE FLOW DATA AND CALCULATE 'drought_status_stream' and 'q_7day_cfs'
@@ -66,6 +67,8 @@ staid <- gage_info$site_no
 staname <- gage_info$station_nm
 gage <- readNWISdv(USGS_GAGE_ID,'00060')
 gage <- renameNWISColumns(gage)
+
+if (length(gage) == 0) {next}
 
 #Calculate 7-Day Average Streamflow for every day of the historic record
 # THIS HAS BEEN ABANDONED IN FAVOR OF THE SQL METHOD BELOW
