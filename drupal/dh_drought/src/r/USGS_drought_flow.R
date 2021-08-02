@@ -18,14 +18,14 @@ library(sqldf)
 push_to_rest <- TRUE
 
 basepath <- "/var/www/R/"
-#source(paste(basepath,"config.local.private",sep = '/'))
-source('/var/www/R/config.R')
+source(paste(basepath,"config.local.private",sep = '/'))
+#source('/var/www/R/config.R')
 
-# load libraries
-# source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
-# source(paste(basepath,"auth.private",sep = '/'))
-# token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
-# site <- base_url
+#load libraries
+source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/"));
+source(paste(basepath,"auth.private",sep = '/'))
+token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
+site <- base_url
 
 
 #https://cran.r-project.org/web/packages/waterData/waterData.pdf
