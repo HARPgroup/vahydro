@@ -1,0 +1,547 @@
+---
+date: "`r format(Sys.time(), '%m/%d/%Y')`"
+author: "JK"
+title: "VWP CIA Summary (TEMPLATE)"
+output: 
+  officedown::rdocx_document:
+    page_margins:
+      bottom: 0.5
+      top: 0.5
+      right: 1
+      left: 0.5
+      header: 0.0
+      footer: 0.0
+---
+
+```{r setup, include=FALSE}
+#https://cran.r-project.org/web/packages/officedown/officedown.pdf
+#https://ardata-fr.github.io/officeverse/officedown-for-word.html#insert-sections
+knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
+library(officedown)
+library(officer)
+library(flextable)
+library(hydrotools)
+library(rjson)
+basepath='/var/www/R'
+source('/var/www/R/config.R')
+source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
+# Could also use:
+#source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/run_text.R") #Used during development
+
+fp <- fp_par(
+  text.align = "center", 
+  padding.bottom = 20, padding.top = 120, 
+  border.bottom = fp_border())
+
+ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
+
+```
+
+
+```{r UserInputs, include=FALSE}
+site.plots <- "http://deq1.bse.vt.edu:81" #image files use http
+
+#SPECIFY MODELS AND RUNIDS OF INTEREST
+#rseg.hydroid <- 462757 # Ex: Crooked Run = 476998, South Fork Powell River below BSG = 477140, SF Powell at dam: 462757
+#fac.hydroid <- 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672
+# #runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013','runid_621')
+#runid.list <- c('runid_400','runid_600')
+
+#runid.list <- c('runid_201','runid_401')
+# runid.list <- c('runid_201','runid_401','runid_6011','runid_6015','runid_6014','runid_6013')
+
+rseg.hydroid <- 477140
+fac.hydroid <- 72672
+
+runid.list <- c('runid_201','runid_401')
+rlist <- gsub('runid_', '', runid.list)
+fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
+rseg.metric.list <- c("Qout","Qbaseline","l30_Qout",
+                      "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd")
+
+BigCherry.rseg.hydroid <- 462757
+BigCherry.rseg.metric.list <- c("remaining_days_p0")
+
+# SALEM WTP
+# rseg.hydroid <- 68327
+# fac.hydroid <- 73112
+# runid.list <- c('runid_11','runid_12','runid_13')
+# 
+# fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
+# rseg.metric.list <- c("Qout","Qbaseline","l30_Qout","l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd")
+
+#RSEG MODEL INFO
+print(paste("searching", site,"for river segment id", rseg.hydroid))
+rseg.model <- om_get_model(site, rseg.hydroid)
+rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
+#Big Cherry Reservoir RSEG MODEL INFO
+print(paste("searching", site,"for river segment id", BigCherry.rseg.hydroid))
+BigCherry.rseg.model <- om_get_model(site, BigCherry.rseg.hydroid)
+BigCherry.rseg.elid <- om_get_prop(site, BigCherry.rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
+#FAC MODEL INFO
+fac.model <- om_get_model(site, fac.hydroid, model_varkey = 'om_water_system_element')
+fac.elid <- om_get_prop(site, fac.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
+if (exists("json_obj_url")) {
+  fac_obj_url <- paste(json_obj_url, fac.model$pid, sep="/")
+  fac_model_info <- om_auth_read(fac_obj_url, token,  "text/json", "")
+  fac_model_info <- fromJSON(fac_model_info)
+  rseg_obj_url <- paste(json_obj_url, rseg.model$pid, sep="/")
+  rseg_model_info <- om_auth_read(rseg_obj_url, token,  "text/json", "")
+  rseg_model_info <- fromJSON(rseg_model_info)
+  
+  BigCherry.rseg_obj_url <- paste(json_obj_url, BigCherry.rseg.model$pid, sep="/")
+  BigCherry.rseg_model_info <- om_auth_read(BigCherry.rseg_obj_url, token,  "text/json", "")
+  BigCherry.rseg_model_info <- fromJSON(BigCherry.rseg_model_info)
+  # get report cusomtizations
+  fac_report_info = find_name(fac_model_info, "reports")
+  rseg_report_info = find_name(rseg_model_info, "reports")
+  BigCherry.rseg_report_info = find_name(BigCherry.rseg_model_info, "reports")
+} else {
+  message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
+  fac_model_info <- list()
+  rseg_model_info <- list()
+  BigCherry.rseg_model_info <- list()
+}
+
+fac_default_info = list(
+  model_overview = list(
+    "value" = "Facility intake model overview not provided."
+  ),
+  intake_name = list(
+    "value"  = "un-named intake"
+  )
+)
+rseg_default_info = list(
+  model_overview = list(
+    "value" = "River segment model overview not provided."
+  )
+)
+BigCherry.rseg_default_info = list(
+  model_overview = list(
+    "value" = "River segment model overview not provided."
+  )
+)
+
+
+fac_report_info <- merge.list(fac_report_info, fac_default_info)
+rseg_report_info <- merge.list(rseg_report_info, rseg_default_info)   
+BigCherry.rseg_report_info <- merge.list(BigCherry.rseg_report_info, BigCherry.rseg_default_info)   
+   
+   
+# Pre load the output runs so we have them available for later use
+# I think the om_get_prop here is no longer needed, rather, we 
+fac_runs = FALSE
+rseg_runs = FALSE
+BigCherry.rseg_runs = FALSE
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  fac_run <- om_get_prop(site,fac.model$pid, "dh_properties", runid.i)
+  if (is.logical(fac_runs)) {
+    fac_runs <- as.data.frame(fac_run)
+  } else {
+    fac_runs <- rbind(fac_runs, fac_run)
+  }
+  rseg_run <- om_get_prop(site,rseg.model$pid, "dh_properties", runid.i)
+  if (is.logical(rseg_runs)) {
+    rseg_runs <- as.data.frame(rseg_run)
+  } else {
+    rseg_runs <- rbind(rseg_runs, rseg_run)
+  }
+  BigCherry.rseg_run <- om_get_prop(site,BigCherry.rseg.model$pid, "dh_properties", runid.i)
+  if (is.logical(BigCherry.rseg_runs)) {
+    BigCherry.rseg_runs <- as.data.frame(BigCherry.rseg_run)
+  } else {
+    BigCherry.rseg_runs <- rbind(BigCherry.rseg_runs, BigCherry.rseg_run)
+  }
+}
+```
+
+This is an R Markdown document. This will serve as the template for VWP Project Model Summaries moving forward. For related GitHub issue see <https://github.com/HARPgroup/vahydro/issues/317>.
+
+# VAHydro Model Boilerplate:
+
+
+## VAHydro
+The comprehensive VAHydro hydrologic model is used to evaluate surface water supply availability for permitting projects throughout Virginia. The VAHydro model simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through DEQ water supply planning and reporting programs including all known withdrawals and discharges, as well as operational rules of VWP permits and major hydrologic features such as reservoirs. 
+
+The VAHydro model is built on rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6 which runs from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed, aka the "southern rivers." The VAHydro model features high-resolution hydrologic subsections called "river segments" (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
+
+## CIA
+DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA) modeling. CIA is a modeling and analysis approach that takes into account the varied hydrologic process occurring throughout a river network (including meteorology and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential "cumulative impact" of all streamflow changes occurring upstream of any location within the river network, as well as the downstream impact of individual permitted withdrawal operations.
+
+The goal of the folloing analysis was to estimate the potential impacts of the requested water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses.
+
+\newpage
+# Project Introduction (To be provided by permit writer)
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+## Location Map
+
+```{r GrabLocationMap, include=FALSE, echo=FALSE}
+fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
+```
+
+```{r LocationMap, echo=FALSE, results = "asis"}
+
+if (!is.logical(fig_prop)) {
+  map_path <- fig_prop$propcode
+  cat(paste0("![](",map_path,")"),"\n")
+} else {
+  cat(paste0("*No location map available for this facility model*"))
+}
+``` 
+
+\newpage
+# Model Overview and Scenario Descriptions
+
+```{r ModelOverview, echo=FALSE, results = "asis"}
+
+cat("__River Model Description__\n")
+cat(paste(rseg_report_info$model_overview$value,"\n\n"))
+cat("__Facility & Intake Model Description__\n")
+cat(paste(fac_report_info$model_overview$value,"\n\n"))
+```
+
+The following model scenarios were simulated in order to determine the most effective means of meeting the project need and all other in-stream beneficial uses:
+
+```{r LoadRunInfo, echo=FALSE, results = "asis"}
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  run_info <- find_name(fac_model_info,runid.i)
+  if (is.null(run_info$reports)) {
+    cat(paste("*", paste0("__",run_info$name,"__"),"-","Run report information not provided.","\n"))
+  } else {
+    ri <- run_info$reports
+    cat(
+      paste(
+        "*", 
+        paste0(
+          "__",ri$scenario_name$value,"__", 
+        " (", ri$scenario_short_name$value, ")"
+        ),
+        "-",run_info$reports$scenario_intro$value,"\n")
+      )
+  }
+  
+}
+
+```
+
+\newpage
+
+# Intake Site Description & Current Estimated Stream Flows
+
+```{r LoadSiteInfo, include=FALSE}
+dat_current <- om_get_rundata(fac.elid, 11, omsite, FALSE)
+intake_sum_current <- om_flow_table(dat_current, "Qintake")
+```
+
+```{r SiteTable, echo=FALSE, results = "asis"}
+# Format table
+ft <- qflextable(intake_sum_current)
+ft <- theme_box(ft)
+ft <- bg(ft, bg = "#EFEFEF", part = "header")
+cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show non-exceedence flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the \"10%\" states that only 10% of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.") )
+ft
+```
+  
+\newpage
+# Model Summary Results - Conclusion/Recommendation
+
+
+```{r LoadRunResults, echo=FALSE, results = "asis"}
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  run_info <- find_name(fac_model_info,runid.i)
+  if (is.null(run_info$reports)) {
+    cat(paste("*", paste0("__",run_info$name,"__"),"-","Run analysis not provided.","\n"))
+  } else {
+    ri <- run_info$reports
+    cat(
+      paste(
+        "*", 
+        paste0(
+          "__",ri$scenario_name$value,"__"
+        ),
+        "-",run_info$reports$scenario_analysis$value,"\n")
+      )
+  }
+  
+}
+```
+<!-- TEXT STASHED for Joey -->
+<!-- * Safe yield of the intake is listed as 3.2 mgd from a study published in 2001 (3.2 mgd is equivalent to the permit annual withdrawal limit of 1168 mg/yr). -->
+<!--     + The data for the study was collected in 1997, which predates the drought period of 1999-2002. -->
+<!-- * Under the current scenario (withdrawing around 2 mgd/day on average based on current reported withdrawals) they are okay in terms of storage days remaining (132 days) during the drought of record. -->
+<!-- * Under the current maximum permitted scenario (withdrawing up to 3.2 mgd) storage days remaining drops to 0, and the model shows they are unable to meet all demand during the drought of record. -->
+<!-- * Reducing the annual withdrawal limit from 1168 mg/yr to 949 mg/yr (3.2 mgd to 2.6 mgd) would likely be sufficient to increase the storage days remaining from 0 to 64 or more days during the drought of record. -->
+<!--     + Note that demand is projected to decline according to water supply plan. -->
+<!--     + The max daily withdrawal limit would remain 4.0 mgd -->
+<!-- * DWR standard guidance for an intake not withdrawing more than 10% instantaneous flow (90% flowby) likely wouldn't work for this project (reservoir chronically drawn down). -->
+<!--     + In order to meet a 90% flowby, the annual withdrawal limit may need to be reduced from 3.2 mgd to around 0.68 mgd in order to preserve 47 days remaining storage in the reservoir during the drought of record. -->
+<!-- * However a 40% flowby would likely be effective at maintaining storage levels and ensuring they can sustainably meet demand while better preserving the natural flow regime. -->
+<!--     + Changing the flowby from a static 0.5 mgd to a 40% of flow approach when combined with a 2.6 mgd annual withdrawal limit results in around 29 days of storage remaining and no days in which they're unable to meet demands at the intake during the drought of record. -->
+<!--     + Although the 40% flowby we tested results in fewer than 60 days remaining storage, emergency connections with neighboring towns would likely be sufficient to maintain supply during times of extreme drought. Additionally, this permit doesn't currently have drought triggers in place which could help maintain storage levels during dry periods. -->
+<!--     + Provided that conservation measures can be formulated that permit 60 days remaining storage, the 40% flowby would result in the same 2.6 mgd safe yield as the current 0.5 mgd flowby. -->
+
+\newpage
+
+
+
+```{r LoadStatsTable, include=FALSE}
+# todo: pass in fac_model_info and rseg_model_info to:
+#       - eliminate redundant data retrieval, since all data that is pulled inside om_cia_table via om_vahydro_metric_grid is already inside fac_model_info and rseg_model_info data structures
+#       - eliminate having data retrieval and data formatting/analysis in the same function (best practice)
+# this could now, I think, be simplified as:
+# om_cia_table(fac_model_info, rseg_model_info)
+statsdf <- om_cia_table(
+  rseg.hydroid = rseg.hydroid,
+  fac.hydroid = fac.hydroid,
+  runid.list = runid.list, 
+  fac.metric.list = fac.metric.list,
+  rseg.metric.list = rseg.metric.list,
+  site,
+  omsite
+)
+
+statsdf <- cbind(rownames(statsdf),statsdf)
+names(statsdf)[names(statsdf) == 'rownames(statsdf)'] <- 'Desc'
+ 
+statsdf_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "riverseg" THEN "River Segment"
+                    WHEN "Desc" = "Rseg_Stats" THEN "River Segment Model Statistics:"
+                    WHEN "Desc" = "Qout" THEN "Flow Out (cfs)"
+                    WHEN "Desc" = "Qbaseline" THEN "Flow Baseline (cfs)"
+                    WHEN "Desc" = "remaining_days_p0" THEN "Minimum Days of Storage Remaining"
+                    WHEN "Desc" = "l30_Qout" THEN "30 Day Low Flow (cfs)"
+                    WHEN "Desc" = "l90_Qout" THEN "90 Day Low Flow (cfs)"
+                    WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
+                    WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (mgd)"
+                    WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (mgd)" 
+                    WHEN "Desc" = "Facility_Stats" THEN "Facility Model Statistics:"
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal (mgd)"  
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (mgd)"  
+                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (mgd)"
+                    WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
+                    WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM statsdf
+                 WHERE Desc NOT IN ("run_date","starttime","endtime")
+                 ',sep='')
+statsdf <- sqldf(statsdf_sql)
+statsdf <- statsdf[,-2]
+
+#--------------------------------------------------------------------------
+#BigCherry
+# BigCherry.statsdf <- om_cia_table(
+#   rseg.hydroid = BigCherry.rseg.hydroid,
+#   fac.hydroid = fac.hydroid,
+#   runid.list = runid.list, 
+#   fac.metric.list = c('unmet30_mgd'),
+#   rseg.metric.list = BigCherry.rseg.metric.list,
+#   site,
+#   omsite
+# )
+
+BigCherry.rseg_summary <- data.frame()
+#i <- 1
+  for (i in 1:length(runid.list)){
+    runid.i <- runid.list[i]
+    run.i <- sub("runid_", "", runid.i)
+
+    rseg.info.i <- fn_get_runfile_info(BigCherry.rseg.elid,run.i,site=omsite)
+    rseg.metrics.i <- data.frame('model_version' = c('vahydro-1.0'),'runid' = c(runid.i),'runlabel' = BigCherry.rseg.metric.list,'metric' = BigCherry.rseg.metric.list)
+    rseg_summary.i <- om_vahydro_metric_grid(metric, rseg.metrics.i,base_url = paste(site,"/entity-model-prop-level-export",sep=""))
+    rseg_summary.i <- sqldf(paste("SELECT * FROM 'rseg_summary.i' WHERE featureid = ",BigCherry.rseg.hydroid,sep=""))
+
+    if (nrow(rseg_summary.i) > 0) {
+      rseg_summary.i <- cbind("runid" = run.i,"run_date" = rseg.info.i$run_date,
+                              "starttime" = str_remove(rseg.info.i$starttime," 00:00:00"),
+                              "endtime" = str_remove(rseg.info.i$endtime," 00:00:00"),rseg_summary.i)
+      BigCherry.rseg_summary <- rbind(BigCherry.rseg_summary,rseg_summary.i)
+    }
+  }
+BigCherry.rseg_summary <- BigCherry.rseg_summary %>% mutate_if(is.numeric, round, digits=2)
+BigCherry.rseg_summary.T <- as.data.frame(t(BigCherry.rseg_summary[,-1]))
+colnames(BigCherry.rseg_summary.T) <- BigCherry.rseg_summary[,1]
+BigCherry_statsdf <- BigCherry.rseg_summary.T
+BigCherry_statsdf <- cbind(rownames(BigCherry_statsdf),BigCherry_statsdf)
+names(BigCherry_statsdf)[names(BigCherry_statsdf) == 'rownames(BigCherry_statsdf)'] <- 'Desc'  
+
+BigCherry_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "propname" THEN "River Segment"
+                    WHEN "Desc" = "remaining_days_p0" THEN "Minimum Days of Storage Remaining"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM BigCherry_statsdf
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","hydrocode","pid","featureid")
+                 ',sep='')
+BigCherrydf <- sqldf(BigCherry_sql)
+BigCherrydf <- BigCherrydf[,-2]
+```
+
+<!---BLOCK_LANDSCAPE_START--->
+# Stats Comparison Table:
+```{r StatsTable, echo=FALSE}
+ft <- qflextable(statsdf)
+
+# Set column widths
+ft <- width(ft, j = 2:length(statsdf[1,]), width = 1.5)
+ft <- width(ft, j = 1, width = 2)
+
+# Add header row -----------------------------------------------------------------------------------
+# ft <- add_header_row(x = ft, values = c("", "Scenario Alternatives"),colwidths = c(3, 4))
+
+# Set theme
+ft <- theme_box(ft)
+
+# Set background color of select rows --------------------------------------------------------------
+ft <- bg(ft, bg = "#EFEFEF", part = "header")
+ft <- bg(ft, i = ~ Description == "River Segment Model Statistics:", bg = "#EFEFEF", part = "body")
+ft <- bg(ft, i = ~ Description == "Facility Model Statistics:", bg = "#EFEFEF", part = "body")
+fontsize(ft, size = 9)
+```
+
+
+```{r BigCherryStatsTable, echo=FALSE}
+BigCherry.ft <- qflextable(BigCherrydf)
+
+# Set column widths
+BigCherry.ft <- width(BigCherry.ft, j = 2:length(BigCherrydf[1,]), width = 1.5)
+BigCherry.ft <- width(BigCherry.ft, j = 1, width = 2)
+BigCherry.ft <- theme_box(BigCherry.ft)
+BigCherry.ft <- bg(BigCherry.ft, bg = "#EFEFEF", part = "header")
+fontsize(BigCherry.ft, size = 9)
+```
+<!---BLOCK_LANDSCAPE_STOP--->
+
+
+# Reservoir Storage Plots:
+
+```{r ResPLOTS, echo=FALSE, results = "asis"}
+
+# check river model for plots
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  #rseg_prop <- om_get_prop(site,rseg_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
+  rseg_prop <- om_get_prop(site,BigCherry.rseg_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
+  if (!is.logical(rseg_prop)) {
+    fig_path <- rseg_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: run ",rlist[i],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+    cat("\n\n\\pagebreak\n")
+  } else {
+    print(paste("No riverseg impoundment for run id",run.i))
+  }
+}
+
+``` 
+
+\newpage
+
+# Unmet Demand Heatmaps:
+
+```{r UnmetDemandPLOTS, echo=FALSE, results = "asis"}
+
+# check facility model for plots
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  # 
+  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.unmet_heatmap_amt")
+  if (!is.logical(fig_prop)) {
+    fig_path <- fig_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: run ",run.i,"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+  }
+  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.30daymax_unmet")
+  if (!is.logical(fig_prop)) {
+    fig_path <- fig_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Unmet Demand: run ",rlist[i],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+    cat("\n\n\\pagebreak\n")
+  }
+  
+  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
+  if (!is.logical(fig_prop)) {
+    fig_path <- fig_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: run ",run.i,"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+  } else {
+    # JK - do we want to simply supress in order to have better formatting? or maybe keep a count
+    # of missing images so we can alert the user to which entities lack impoundments?
+    print(paste("No local facility impoundment for run id",run.i))
+  }
+  cat("\n\n\\pagebreak\n")
+}
+
+``` 
+
+# Ecological Impacts Assessment:
+
+## Elfgen:
+
+```{r GrabELFPlot, include=FALSE, echo=FALSE}
+run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
+fig_path = FALSE
+elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
+if (!is.logical(elfgen_EDAS_huc8)) {
+  fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
+  fig_path <- fig.elfgen$propcode
+}
+``` 
+
+```{r elfPlot, echo=FALSE, results = "asis"}
+if (!is.logical(fig_path)) {
+  cat(paste0("![](",fig_path,")"),"\n")
+
+} else {
+  cat(paste0("*No elfgen plot available for this model*"))
+}
+```
+
+## Habitat (If Applicable):
+
+\newpage
+
+# Additional Sections
+<!---BLOCK_MULTICOL_START--->
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+`r run_columnbreak()`Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+<!---BLOCK_MULTICOL_STOP{widths: [3,3], space: 0.2, sep: true}--->

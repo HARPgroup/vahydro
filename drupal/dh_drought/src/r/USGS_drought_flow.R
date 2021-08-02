@@ -15,16 +15,17 @@ library(httr)
 library(stringr)
 library(sqldf)
 
-push_to_rest <- TRUE
+push_to_rest <- FALSE
 
 basepath <- "/var/www/R/"
-source(paste(basepath,"config.local.private",sep = '/'))
+# source(paste(basepath,"config.local.private",sep = '/'))
+source('/var/www/R/config.R')
 
-# load libraries
-source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
-source(paste(basepath,"auth.private",sep = '/'))
-token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
-site <- base_url
+# # load libraries
+# source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
+# source(paste(basepath,"auth.private",sep = '/'))
+# token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
+# site <- base_url
 
 
 #https://cran.r-project.org/web/packages/waterData/waterData.pdf
@@ -32,7 +33,11 @@ site <- base_url
 
 #Pull in list of all drought USGS gage dH Features 
 #URL <- paste(site,"ows-cova-usgs-drought-site-list-export", sep = "/");
-URL <- paste(site,"drought-gages-export", sep = "/");
+
+#URL <- paste(site,"drought-gages-export", sep = "/");
+URL <- paste(site,"drought-gages-export-all", sep = "/");
+
+
 #gagelist <- read.table(URL,header = TRUE, sep = ",")
 gagelist <- read.csv(URL, sep = ",")
 #########
@@ -46,10 +51,11 @@ gagelist$USGS_GAGES <- USGS_GAGES[,2]
 USGS_GAGES <- gagelist$USGS_GAGES 
 
 #j<-1
-#j<-3
+#j<-131
 
 #Begin loop to run through each USGS gage 
-for (j in 1:length(USGS_GAGES)) {
+for (j in 131:length(USGS_GAGES)) {
+  print(paste("-----PROCESSING ", j," OF ",length(USGS_GAGES), sep=''))
   USGS_GAGE_ID <- USGS_GAGES[j]
   print(paste("USGS_GAGE_ID ", USGS_GAGE_ID, sep=''))
 

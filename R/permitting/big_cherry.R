@@ -1,18 +1,29 @@
 library('hydrotools')
 library('zoo')
+basepath='/var/www/R'
+source('/var/www/R/config.R')
+###############################################################################################
 
-datbc201 <- om_get_rundata(352078, 201)
-datbc301 <- om_get_rundata(352078, 301)
-datbc401 <- om_get_rundata(352078, 401)
-datbc601 <- om_get_rundata(352078, 601)
-datbc6011 <- om_get_rundata(352078, 6011)
+runid <- 401
+runid <- 201
+runid <- 6011
+runid <- 6012
 
-datbcfac201 <- om_get_rundata(247415, 201)
-datbcfac301 <- om_get_rundata(247415, 301)
-datbcfac401 <- om_get_rundata(247415, 401)
-datbcfac6011 <- om_get_rundata(247415, 6011)
- 
+#FACILITY MODEL
+dat.fac <- om_get_rundata(elid = 247415, runid = runid, site = omsite)
+dat.fac <- data.frame(dat.fac)
+# dat.fac[0:200,c('available_mgd','Qintake','impoundment_release','Qlocal_below_bc')]
+# dat.fac[0:200,c('vwp_prop_base_mgd')]
+# dat.fac[0:200,c('wd_mgd','adj_demand_mgd','Qintake','flowby','impoundment_release','Qlocal_below_bc','bc_release_cfs')]
 
-datbc[200:250,c(wd_channel_cfs', 'Qlocal_channel', 'bc_release_cfs', 'impoundment_Qout')]
-datbc[0:15,c('wd_channel_cfs', 'Qlocal_channel', 'bc_release_cfs', 'impoundment_Qout')]
+dat.fac[0:200,c('bc_release_cfs','adj_demand_mgd','flowby','Qlocal_below_bc')]
+tail(dat.fac[0:200,c('bc_release_cfs','adj_demand_mgd','flowby','Qlocal_below_bc')])
+dat.fac[0:length(dat.fac[,1]),c('wd_mgd')]
+
+#BIG CHERRY MODEL
+dat.rseg.BC <- om_get_rundata(352078, runid, site = omsite)
+dat.rseg.BC <- data.frame(dat.rseg.BC)
+# dat.rseg.BC[0:200,c('impoundment_Qout','bc_release_cfs','impoundment_days_remaining','bc_demand_mgd','Qlocal_below_bc')]
+
+
 
