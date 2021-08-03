@@ -86,3 +86,28 @@ write.table(
 
 ggsave(paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_20_',elid,'.png',sep=""), width = 7, height = 4)
 
+
+
+
+# Plot the changes for the 20% since it is not a short run
+ifim_plot6_20 <- ifim_wua_change_plot(ts3base, ts3, WUA.df, 0.05,"ifim_da_sqmi" = ifim_da_sqmi,runid_a = "6",metric_a = "Qbaseline",runid_b = "6",metric_b = "Qout")
+ifim_plot6_20 +
+  labs(title = "Habitat Change, Full Permitted + Proposed") + 
+  ylim(c(-50,50))
+# TBD: this could be part of the analysis script since it could produce a nicely formatted summary
+#      that would be returned in the single ggplot object without penalty
+ifim_plot6_20$data$pctchg <- round(ifim_plot6_20$data$pctchg, 2)
+ifim_sumdata_6 <- xtabs(pctchg ~ metric + flow, data = ifim_plot6_20$data)
+ifim_mat <- as.data.frame.matrix(ifim_sumdata_6)
+ifim_mat <- cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
+ifim_plot6_20$data.formatted <-  cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
+tbls5pct <- as.data.frame(ifim_plot6_20$data.formatted)
+names(ifim_plot6_20$data.formatted)
+# Note: must manually edit this to add the "Species" column label.
+write.table(
+  ifim_plot6_20$data.formatted, 
+  file = paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_05_',elid,'.csv',sep=""),
+  sep = ","
+)
+
+ggsave(paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_05_',elid,'.png',sep=""), width = 7, height = 4)

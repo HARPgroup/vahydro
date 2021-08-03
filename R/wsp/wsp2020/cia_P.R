@@ -7,7 +7,7 @@ library("hydrotools") #for str_remove()
 
 # Load Libraries
 basepath='/var/www/R';
-site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+#site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 source("/var/www/R/config.local.private"); 
 folder <- "C:/Workspace/tmp/"
 
