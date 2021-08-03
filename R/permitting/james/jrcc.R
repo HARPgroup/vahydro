@@ -3,12 +3,12 @@ library('zoo')
 
 # catawba creek watershed is 210175, WD&PS is 210201
 # CC needs to have modernization
-datcc400 <- om_get_rundata(210201, 400)
-datcc600 <- om_get_rundata(210201, 600)
+datcc400 <- om_get_rundata(210201, 400, site = omsite)
+datcc600 <- om_get_rundata(210201, 600, site = omsite)
 
 # CC needs to have modernization
-datjrcc400 <- om_get_rundata(219565 , 400)
-datjrcc600 <- om_get_rundata(219565 , 600)
+datjrcc400 <- om_get_rundata(219565 , 400, site = omsite)
+datjrcc600 <- om_get_rundata(219565 , 600, site = omsite)
 om_flow_table(datjrcc600, "Qintake")
 
 df2sum = as.data.frame(datjrcc400)
@@ -252,7 +252,6 @@ sqldf("select * from fac_data where riverseg = 'JU3_6950_7330'")
 # Find river seg facilities: JU3_6950_7330  
 sqldf("select * from wshed_case where riverseg = 'JU3_6950_7330'")
 
-
 # since 600 is total permitted + proposed
 # and 400 is just total permitted
 # 400 flows should almost always > 60 (unless we have an 
@@ -416,10 +415,10 @@ fn_upstream2 <- function(riverseg, seg_list, seg_col = "riverseg", debug = FALSE
 fn_check_wdc <- function(outlet, all_segments, wd_col, wdc_col) {
   
   riverseg <- as.character(outlet$riverseg)
-  if (str_length(riverseg) > 13) {
-    message(paste("Can not handle non-conforming riverseg ", riverseg))
-    return(FALSE)
-  }
+  #if (str_length(riverseg) > 13) {
+  #  message(paste("Can not handle non-conforming riverseg ", riverseg))
+  #  return(FALSE)
+  #}
   outlet_wdc_mgd <- as.numeric(outlet[wdc_col])
   outlet_wd_mgd <- as.numeric(outlet[wd_col])
   upstream_segments <- fn_upstream2(riverseg, all_segments)
@@ -449,6 +448,18 @@ fn_check_wdc <- function(outlet, all_segments, wd_col, wdc_col) {
   }
 }
 
+# JL6_7160_7440
+sqldf(
+  "select * from fac_data 
+   where  (1.005 * wd_600) < wd_400
+   order by riverseg
+  ")
+# JL6_7160_7440
+sqldf(
+  "select * from wshed_case
+   where  (1.005 * wd_600) < wd_400
+   order by riverseg
+  ")
 
 # find segments whose upstream wd_cumulative_mgd + their local wd_mgd <> the local wd_cumulative_mgd
 wdc_col <- "wdcum_400"
@@ -457,12 +468,21 @@ outlets <- sqldf("select * from wshed_case where substring(riverseg,10,4) = '000
 # Test
 outlets <- sqldf("select * from wshed_case where riverseg = 'JL6_7160_7440'")
 outlets <- wshed_case[which(wshed_case$riverseg == 'JL2_6440_6441_buck_mtn_creek'),]
-outlets <- wshed_case 
+outlets <- sqldf("select * from wshed_case order by wdcum_600") 
 for(i in 1:nrow(outlets)) {
-  fn_check_wdc(outlets[i,], wshed_case, wd_col, wdc_col)
+  fn_check_wdc(outlets[i,], wshed_case, "wd_400", "wdcum_400")
+  #  fn_check_wdc(outlets[i,], wshed_case, "wd_600", "wdcum_600")
 }
 
 fn_check_wdc(
   wshed_case[which(wshed_case$riverseg == 'JL7_7100_7030'),],
   wshed_case, wd_col, wdc_col)
 fn_upstream2('JL7_7100_7030', all_segments)
+
+
+
+
+fct <- sqldf(
+  "select propname, riverseg, wd_400, wdcum_400, wd_600, wdcum_600, l30_400, l30_600 from wshed_case 
+   order by wdcum_600
+  ")

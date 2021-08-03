@@ -7,7 +7,7 @@ library("hydrotools") #for str_remove()
 
 # Load Libraries
 basepath='/var/www/R';
-site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+#site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 source("/var/www/R/config.local.private"); 
 folder <- "C:/Workspace/tmp/"
 
@@ -20,7 +20,11 @@ df <- data.frame(
   'runlabel' = c('QBaseline_2020', 'comp_da', 'subcomp_da'),
   'metric' = c('Qbaseline', 'drainage_area', 'drainage_area')
 )
-da_data <- om_vahydro_metric_grid(metric, df)
+da_data <- om_vahydro_metric_grid(
+  metric, df, "all", "dh_feature",
+  "watershed", "vahydro", "vahydro-1.0",
+  "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export"
+)
 da_data <- sqldf(
   "select pid, comp_da, subcomp_da,
    CASE
@@ -36,7 +40,11 @@ df <- data.frame(
   'metric' = c('Qbaseline', 'Qbaseline','l90_Qout','l90_Qout','wd_cumulative_mgd','wd_cumulative_mgd','ps_cumulative_mgd','ps_cumulative_mgd','ps_nextdown_mgd','ps_nextdown_mgd'),
   'runlabel' = c('Qbaseline_2020', 'QBaseline_2040', 'L90_2020', 'L90_2040', 'WD_2020', 'WD_2040', 'PS_2020', 'PS_2040', 'PSNX_2020', 'PSNX_2040')
 )
-wshed_data <- om_vahydro_metric_grid(metric, df)
+wshed_data <- om_vahydro_metric_grid(
+  metric, df, "all", "dh_feature",
+  "watershed", "vahydro", "vahydro-1.0",
+  "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export"
+)
 
 wshed_data <- sqldf(
   "select a.*, b.da 
@@ -48,6 +56,33 @@ wshed_data <- sqldf(
   order by da
   ")
 
+# CC Runs
+
+df <- data.frame(
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
+  'runid' = c('runid_11', 'runid_13', 'runid_17', 'runid_19', 'runid_20'),
+  'metric' = c('l90_Qout', 'l90_Qout','l90_Qout','l90_Qout','l90_Qout'),
+  'runlabel' = c('L90_2020', 'L90_2040', 'L90_dry', 'L90_median', 'L90_wet')
+)
+cc_data <- om_vahydro_metric_grid(
+  metric, df, "all", "dh_feature",
+  "watershed", "vahydro", "vahydro-1.0",
+  "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export"
+)
+
+cc_data <- sqldf(
+  "select a.*, b.da 
+   from cc_data as a 
+  left outer join da_data as b 
+  on (a.pid = b.pid)
+  where hydrocode like 'vahydrosw_wshed_PM%'
+  and hydrocode like '%0001'
+  order by da
+  ")
+print( (cc_data$L90_dry - cc_data$L90_2040 ) / cc_data$L90_2040) #[1] -0.3076877
+print((cc_data$L90_median - cc_data$L90_2040 ) / cc_data$L90_2040) #[1] 0.04450229
+print( (cc_data$L90_wet - cc_data$L90_2040 ) / cc_data$L90_2040) # [1] 0.8909848
+
 wshed_cu <- sqldf(
   "select propname, riverseg, WD_2020, PS_2020, (WD_2020 - PS_2020)*1.547 as CU_2020_cfs, 
   WD_2040, PS_2040, (WD_2040 - PS_2040)*1.547 as CU_2040_cfs
@@ -55,6 +90,15 @@ wshed_cu <- sqldf(
   where riverseg in ('PM7_4200_4410', 'PM7_4410_4620', 'PM7_4620_4580', 'PM7_4580_4820', 'PM7_4820_0001')
   "
 )
+wshed_case <- sqldf(
+  "select * from 
+  wshed_data 
+  where 
+    (abs(1.0 - (QBaseline_2020/QBaseline_2040)) > 0.001)
+    or riverseg = 'PM7_4200_4410' 
+    or riverseg = 'PM7_4410_4620'
+  ")
+
 wshed_case <- sqldf(
   "select * from 
   wshed_data 
