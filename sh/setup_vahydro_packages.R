@@ -1,3 +1,6 @@
+# Use custom libPaths ??
+.libPaths( c( .libPaths(), "/var/www/R") )
+
 # Set up R packages
 install.packages('ggplot2');
 install.packages('gtable');
