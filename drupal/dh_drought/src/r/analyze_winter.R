@@ -22,7 +22,7 @@ library('httr')
 # config.local.private sets: lib_directory, auth_directory, base_url, file_directory
 # if running in RStudio this will not work as it forces path to the "working directory"
 # Must open and run contents of config.local.private once per session
-source("/var/www/R/config.local.private"); 
+source("/var/www/R/config.R"); 
 # override the file save directory
 file_directory = '/var/www/html/images/dh';
 # load libraries
