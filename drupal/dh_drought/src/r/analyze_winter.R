@@ -26,10 +26,6 @@ library('httr')
 
 # override the file save directory
 file_directory = '/var/www/html/images/dh';
-# load libraries
-source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
-source(paste(hydro_tools,"auth.private", sep = "/"));#load rest username and password, contained in auth.private file
-token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
 
 for (i in 1:length(gage)) {
   
