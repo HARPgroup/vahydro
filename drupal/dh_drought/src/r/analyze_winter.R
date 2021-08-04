@@ -9,6 +9,7 @@
 # config.local.private sets: lib_directory, auth_directory, base_url, file_directory
 # if running in RStudio this will not work as it forces path to the "working directory"
 # Must open and run contents of config.local.private once per session
+basepath='/var/www/R';
 source("/var/www/R/config.R"); 
   
 gage <- sprintf("%08d", gage)
