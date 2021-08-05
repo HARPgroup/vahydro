@@ -85,3 +85,14 @@ up7330 <- om_get_rundata(213263 , 400, site = omsite)
 quantile(j6950$wd_cumulative_mgd)
 quantile(up7330$wd_upstream_mgd)
 quantile(j7330$wd_upstream_mgd)
+
+
+lh400 <- om_get_rundata(351678, 400, site = omsite)
+lh600 <- om_get_rundata(351678, 600, site = omsite)
+
+quantile(lh400$Qintake)
+quantile(lh600$Qintake)
+quantile(lh400$base_demand_mgd)
+quantile(lh600$base_demand_mgd)
+quantile(lh400$current_mgd)
+quantile(lh600$current_mgd)

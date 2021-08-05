@@ -1,5 +1,5 @@
 # Use custom libPaths ??
-.libPaths( c( .libPaths(), "/var/www/R") )
+#.libPaths( c( "/var/www/R/x86_64-pc-linux-gnu-library" , .libPaths() ) )
 
 # Set up R packages
 install.packages('ggplot2');
@@ -28,7 +28,11 @@ install.packages('dataRetrieval');
 install.packages('sqldf');
 install.packages('PearsonDF');
 install.packages("lfstat")
-
+install.packages("pander")
+# rlang seems to need to be updated if the R version is updated in an existing install?
+install.packages('rlang')
+# after installing rlang, which upgrades it, you have to quit R, then go back in and load rlang before installing devtools
+library('rlang')
 install.packages('devtools')
 library('devtools')
 install_github("HARPgroup/hydro-tools")

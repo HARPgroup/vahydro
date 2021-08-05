@@ -295,7 +295,30 @@ for (i in 1:length(gage)) {
   # END Plot 2
   # ******************************************************************************************
   # END plotting function
+  # get timeseries value 
   print(paste("Outputting ", filename, " in ", file_directory))
-  ggsave(file=filename, path = file_directory , width=6, height=6)	
+  ggsave(file=filename, path = file_directory , width=6, height=6)
+  # save this as a property 
+  furl <- paste(
+    save_url,
+    fname,
+    sep='/'
+  )
+  print(paste("Saved file: ", fname, "with URL", furl))
+  calyear = 2020 
+  config_list = list( 
+    "featureid" = gageinfo$hydroid, 
+    "entity_type" = 'dh_feature', 
+    "varkey" = 'drought_status_mllr', 
+    "tstime" =  as.numeric(as.POSIXct(paste(paste(calyear, "-11-01", sep=""),"EST"))), 
+  )
+  ds <- RomDataSource$new(site, rest_uname)
+  ds$get_token(rest_pw)
+  ts <- RomTS$new(
+    ds,
+    config_list,
+    TRUE
+  )
+  ts$save(TRUE)
 }
 
