@@ -26,7 +26,7 @@ install.packages('ggsn');
 install.packages('RCurl');
 install.packages('dataRetrieval');
 install.packages('sqldf');
-install.packages('PearsonDF');
+install.packages('PearsonDS');
 install.packages("lfstat")
 install.packages("pander")
 # rlang seems to need to be updated if the R version is updated in an existing install?
