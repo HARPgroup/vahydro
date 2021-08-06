@@ -31,22 +31,22 @@ ds$get_token(rest_pw)
 uri <- paste0(site,"/usgs-mllr-sept10-gages-all")
 if (exists("gage")) {
   # append the specific gage and just do this one
-  url <- paste(uri, gage, sep="/")
+  uri <- paste(uri, gage, sep="/")
   #gagelist = om_auth_read(uri, token, "text/csv")
 }
-gage <- as.data.frame(ds$auth_read(uri, "text/csv", "\t"))
+gages <- as.data.frame(ds$auth_read(uri, "text/csv", "\t"))
 if (!exists("target_year")) {
   target_year <- year(Sys.time())
 }
 
-gage$staid <- sprintf("%08s", gage$staid)
-gage$staid <- as.character(gage$staid)
+gages$staid <- sprintf("%08s", gages$staid)
+gages$staid <- as.character(gages$staid)
 
 # override the file save directory
 file_directory = '/var/www/html/images/dh';
 
-for (i in 1:length(gage)) {
-  gage_info <- gage[i,]
+for (i in 1:length(gages)) {
+  gage_info <- gages[i,]
   gage_id = gage_info$staid
   fid <- gage_info$hydroid
   # Saving file to the correct location
