@@ -34,6 +34,7 @@ if (exists("gage")) {
   uri <- paste(uri, gage, sep="/")
   #gagelist = om_auth_read(uri, token, "text/csv")
 }
+message(paste("Searching for MLLR gages at", uri))
 gages <- as.data.frame(ds$auth_read(uri, "text/csv", "\t"))
 if (!exists("target_year")) {
   target_year <- year(Sys.time())
