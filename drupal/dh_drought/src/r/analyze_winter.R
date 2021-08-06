@@ -195,11 +195,19 @@ for (i in 1:length(gages)) {
 	  #retrieve b0 property
 	  b0_inputs <- list(featureid = fid,varkey = paste('mllr_beta0_',month[m],'_10',sep=''),entity_type = 'dh_feature')
 	  b0 <- getProperty (b0_inputs, base_url, prop)
+	  if (is.logical(b0)) {
+	    message(paste("Gage", gage_id,"does not have valid b0 for", month(m)))
+	    b0 <- list(propvalue = NULL)
+	  }
 	  b0 <- as.numeric(as.character(b0$propvalue))
 	  
 	  #retrieve b1 property
 	  b1_inputs <- list(featureid = fid,varkey = paste('mllr_beta1_',month[m],'_10',sep=''),entity_type = 'dh_feature')
 	  b1 <- getProperty (b1_inputs, base_url, prop)
+	  if (is.logical(b1)) {
+	    message(paste("Gage", gage_id,"does not have valid b1 for", month(m)))
+	    b1 <- list(propvalue = NULL)
+	  }
 	  b1 <- as.numeric(as.character(b1$propvalue))
 	  
 	  if (length(b0) && length(b1)) {
