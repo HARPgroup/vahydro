@@ -25,7 +25,7 @@ ds$get_token(rest_pw)
 # Excpects:
 # gage: usgs id
 # target_year: recharge period ending year, i.e. 11/2020 to 3/2021 is 2021
-# fid: feature hydroid
+# (unused, retrieved from system) fid: feature hydroid 
 
 # Build info URI
 uri <- paste0(site,"/usgs-mllr-sept10-gages-all")
@@ -48,6 +48,7 @@ file_directory = '/var/www/html/images/dh';
 for (i in 1:length(gage)) {
   gage_info <- gage[i,]
   gage_id = gage_info$staid
+  fid <- gage_info$hydroid
   # Saving file to the correct location
   filename <- paste("usgs", gage_id, "mllr_bar_winterflows", target_year, ".png", sep="_")
   filepath <- paste(file_directory, filename, sep="/")
