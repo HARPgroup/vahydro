@@ -191,7 +191,7 @@ for (i in 1:length(gages)) {
 	  'september' = FALSE
 	)
 	for (m in 1:length(month)) {
-	  message(paste("Getting betas for", gage_id, month[m]))
+	  message(paste("Getting betas for", gage_id, "(hydroid=",fid,")", month[m]))
 	  #retrieve b0 property
 	  b0_inputs <- list(featureid = fid,varkey = paste('mllr_beta0_',month[m],'_10',sep=''),entity_type = 'dh_feature')
 	  b0 <- getProperty (b0_inputs, base_url, prop)
