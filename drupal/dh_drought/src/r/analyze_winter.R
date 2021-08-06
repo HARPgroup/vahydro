@@ -1,6 +1,14 @@
 ## Code to calculate the current drought condition estimates and create a graph to show all estimates by month and threshold 
 # This code will be updated using "chron" every March 1st
-
+# Load necessary libraries
+library('zoo')
+library('IHA')
+library('stringr')
+library('lubridate')
+library('ggplot2')
+library('scales')
+library('httr')
+library("hydrotools")
 #fid needed for retrieving beta properties via REST
 #fid <- 58567 
 #
@@ -11,26 +19,35 @@
 # Must open and run contents of config.local.private once per session
 basepath='/var/www/R';
 source("/var/www/R/config.R"); 
-  
-gage <- sprintf("%08d", gage)
-gage <- as.character(gage)
+# authenticate
+ds <- RomDataSource$new(site, rest_uname)
+ds$get_token(rest_pw)
+# Excpects:
+# gage: usgs id
+# target_year: recharge period ending year, i.e. 11/2020 to 3/2021 is 2021
+# fid: feature hydroid
 
-# Load necessary libraries
-library('zoo')
-library('IHA')
-library('stringr')
-library('lubridate')
-library('ggplot2')
-library('scales')
-library('httr')
+# Build info URI
+uri <- paste0(site,"/usgs-mllr-sept10-gages-all")
+if (exists(gage)) {
+  # append the specific gage and just do this one
+  url <- paste(uri, gage, sep="/")
+  #gagelist = om_auth_read(uri, token, "text/csv")
+}
+gage <- as.data.frame(ds$auth_read(uri, "text/csv", "\t"))
+
+
+gage$staid <- sprintf("%08s", gage$staid)
+gage$staid <- as.character(gage$staid)
 
 # override the file save directory
 file_directory = '/var/www/html/images/dh';
 
 for (i in 1:length(gage)) {
-  
+  gage_info <- gage[i,]
+  gage_id = gage_info$staid
   # Saving file to the correct location
-  filename <- paste("usgs", gage[i], "mllr_bar_winterflows", target_year, ".png", sep="_")
+  filename <- paste("usgs", gage_id, "mllr_bar_winterflows", target_year, ".png", sep="_")
   filepath <- paste(file_directory, filename, sep="/")
   if (file.exists(filepath)) {
     next 
@@ -41,33 +58,34 @@ for (i in 1:length(gage)) {
 	most_recent = -99999;
         # @todo: this looks like it is no longer used
 	# Find the element id for the USGS gage
-	#elem_url <- paste("http://deq1.bse.vt.edu/om/remote/get_modelData.php?variables=elementid,elemname&scenarioid=17&querytype=custom2&operation=7&custom1=usgs_stream_gage&params=", gage[i], sep="")
+	#elem_url <- paste("http://deq1.bse.vt.edu/om/remote/get_modelData.php?variables=elementid,elemname&scenarioid=17&querytype=custom2&operation=7&custom1=usgs_stream_gage&params=", gage_id, sep="")
 	#elem_info <- scan(elem_url, what="character", sep=",")
 	#elid <- elem_info[3]
 
 
 	# Read flow for entire record to gather all historical flow data
 	url_base <- "https://waterservices.usgs.gov/nwis/dv/?site=";
-	url <- paste(url_base, gage[i], "&variable=00060&format=rdb&startDT=1838-01-01", sep="")	
-	data <- try(read.table(url, skip = 2, comment.char = "#", header=TRUE))
+	url <- paste(url_base, gage_id, "&variable=00060&format=rdb&startDT=1838-01-01", sep="")	
+	historic <- dataRetrieval::readNWISdv(gage_id,'00060')
 
 	# Continuing with no data available
-	if (class(data)=="try-error") { 
+	if (class(historic)=="try-error") { 
                 print(paste("NWIS Responded NO DATA for", url, sep=''));
                 next
 	} 
 
 	# Remove gages that don't even have a column for flow data on USGS
-	if (ncol(data) < 4) {
+	if (ncol(historic) < 4) {
 		print(paste("NWIS Responded NO DATA for", url, sep=''));
 		next
 	}
 
-	historic <- data[-1,] # delete row that has no significance for this calculation
+	# dataRetrieval does not have this junk line
+	# historic <- historic[-1,] # delete row that has no significance for this calculation
 	
 	# Find first and last date on record
-	start.date <- as.Date(as.character(historic[2,3]))
-	end.date <- as.Date(as.character(tail(historic[,3],1))) 
+	start.date <- min(as.Date(as.character(historic$Date)))
+	end.date <- max(as.Date(as.character(historic$Date)))
 		
 	# Makes the StartDate the earliest year with November on record
 	if (start.date > as.Date(paste(year(start.date), '-11-01', sep=""))) {
@@ -82,7 +100,7 @@ for (i in 1:length(gage)) {
 		EndDate <- as.Date(paste((year+1), "-02-28", sep=""))
 	
 		# Extract flow data for the specified year from Nov - Feb (gathering all historic winter flows)	
-		f <- historic[,4][(as.Date(historic$datetime)>=StartDate) & (as.Date(historic$datetime)<=EndDate)]
+		f <- historic[,4][(as.Date(historic$Date)>=StartDate) & (as.Date(historic$Date)<=EndDate)]
 			
 		# Determine the average November through February mean daily flow                  
 		n_f_flow[z] <- mean(na.omit(as.numeric(as.vector(f))))
@@ -92,26 +110,28 @@ for (i in 1:length(gage)) {
 		year <- year + 1
 	}
 	
-	median <- round(median(na.omit(n_f_flow)), digits=0) # the median winter flow for the entire record	
+	Qmedian <- round(median(na.omit(n_f_flow)), digits=0) # the median winter flow for the entire record	
 	minwin <- round(min(na.omit(n_f_flow)), digits=0) 
 	if (is.numeric(minwin)) {
 	  # send to rest
 	  inputs = data.frame( 
 	    'featureid' = fid,
 	    'entity_type' = 'dh_feature',
-	    'varkey' = '',
+	    'varkey' = 'om_class_Constant',
+	    'propname' = 'mllr_min_q',
 	    'bundle' = 'dh_properties',
 	    'propvalue' = minwin
 	  );
+	  # tbd: do we need this? I think not
 	  #postProperty <- function(inputs,fxn_locations,base_url,prop)
 	}
-	print (paste("Found ", most_recent, " compared to long term median of ", median, sep=''));
+	print (paste("Found ", most_recent, " compared to long term median of ", Qmedian, sep=''));
 	# set up data frame for the most recent and median winter flow values
 	names <- c(paste(target_year," Winter Flow",sep=""), "Median Winter Flow")
 	if (most_recent != -99999) {
-	  values <- c(most_recent, median)
+	  values <- c(most_recent, Qmedian)
 	} else {
-	  values <- c(median, median)
+	  values <- c(Qmedian, Qmedian)
 	}
 	lines <- data.frame(names, values)
 	
@@ -137,14 +157,14 @@ for (i in 1:length(gage)) {
 	  # customize the legend
 	  scale_color_manual(
 	    values=c("#CC6666", "#666666"), 
-	    labels=c(paste(target_year, " Winter Flow =", most_recent, "cfs"), paste("Median Winter Flow =", median, "cfs")),
+	    labels=c(paste(target_year, " Winter Flow =", most_recent, "cfs"), paste("Median Winter Flow =", Qmedian, "cfs")),
 	    name="") +
 	  theme(legend.position="bottom") +	
 	  guides(color=guide_legend(ncol=2)) +	
 	  
 	  # specify labels and title for the graph 
 	  xlab(bquote(atop(.(plot_xtitle), italic(.(plot_xsubtitle), "")))) + ylab("Number of Winters") + 
-	  ggtitle(paste("Distribution of Historic Winter Flows for", gage[i]))
+	  ggtitle(paste("Distribution of Historic Winter Flows for", gage_id))
 	# ******************************************************************************************
 	# End Plot 1
 	# ******************************************************************************************
@@ -222,7 +242,7 @@ for (i in 1:length(gage)) {
 	# **************************************
 	labs = c(
 	  paste(target_year, " Winter Flow =", most_recent, "cfs"), 
-	  paste("Median Winter Flow =", median, "cfs"),
+	  paste("Median Winter Flow =", Qmedian, "cfs"),
 	  "July (undefined)",
 	  "August (undefined)",
 	  "September (undefined)"
@@ -292,29 +312,63 @@ for (i in 1:length(gage)) {
   # ******************************************************************************************
   # END plotting function
   # get timeseries value 
-  print(paste("Outputting ", filename, " in ", file_directory))
   ggsave(file=filename, path = file_directory , width=6, height=6)
   # save this as a property 
   furl <- paste(
-    save_url,
-    fname,
+    omsite,
+    'images/dh',
+    filename,
     sep='/'
   )
-  print(paste("Saved file: ", fname, "with URL", furl))
-  calyear = 2020 
+  print(paste("Saved file: ", filename, " in ", file_directory, "with URL", furl))
+  # todo: stash properties and timeseries
+  # get the current years 10% 
+  target_jul_10 <- P_est(
+    beta_table[which(beta_table$month.m == "july"),"b0"], 
+    beta_table[which(beta_table$month.m == "july"),"b1"], 
+    most_recent)
+  target_aug_10 <- P_est(
+    beta_table[which(beta_table$month.m == "august"),"b0"], 
+    beta_table[which(beta_table$month.m == "august"),"b1"], 
+    most_recent)
+  target_sep_10 <- P_est(
+    beta_table[which(beta_table$month.m == "september"),"b0"], 
+    beta_table[which(beta_table$month.m == "september"),"b1"], 
+    most_recent)
+  # find the month with the highest value
+  target_mllr <- max(c(target_jul_10, target_aug_10, target_sep_10))
+  tmo <- (c(target_jul_10, target_aug_10, target_sep_10) == target_mllr)
+  target_month <- as.character(c('mllr_july_10', 'mllr_august_10', 'mllr_september_10')[tmo])
+  
+  # - stash a timeseries for the year using generic drought_status_mllr
+  # - TBD: set tsvalue to max 10% val for site per dh_drought/src/sql/mllr-table.sql
+  # - attach a property to this timeseries rec to hold pointer to image
+  # q_nov_feb_mean_cfs, drought_status_mllr 
   config_list = list( 
-    "featureid" = gageinfo$hydroid, 
+    "featureid" = gage_info$hydroid, 
     "entity_type" = 'dh_feature', 
-    "varkey" = 'drought_status_mllr', 
-    "tstime" =  as.numeric(as.POSIXct(paste(paste(calyear, "-11-01", sep=""),"EST"))), 
+    "varkey" = 'mllr_annual_risk10',
+    "tsvalue" = target_mllr,
+    "tscode" = target_month,
+    "tstime" =  as.numeric(as.POSIXct(paste(paste(target_year, "-03-01", sep=""),"EST")))
   )
-  ds <- RomDataSource$new(site, rest_uname)
-  ds$get_token(rest_pw)
   ts <- RomTS$new(
     ds,
     config_list,
     TRUE
   )
   ts$save(TRUE)
+  # don't include the path here since rest properties may not always be singular by name
+  img_prop <- RomProperty$new(
+    ds, list(
+      propname="mllr_plot", entity_type="dh_timeseries",
+      featureid=ts$tid, varkey = 'dh_image_file',
+      bundle='dh_properties'
+    ),TRUE
+  )
+  # now add the image
+  img_prop$propcode <- furl
+  img_prop$save(TRUE)
+  
 }
 
