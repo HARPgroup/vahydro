@@ -35,7 +35,9 @@ if (exists("gage")) {
   #gagelist = om_auth_read(uri, token, "text/csv")
 }
 gage <- as.data.frame(ds$auth_read(uri, "text/csv", "\t"))
-
+if (!exists("target_year")) {
+  target_year <- year(Sys.time())
+}
 
 gage$staid <- sprintf("%08s", gage$staid)
 gage$staid <- as.character(gage$staid)
