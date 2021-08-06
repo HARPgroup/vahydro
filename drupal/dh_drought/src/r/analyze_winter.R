@@ -326,7 +326,7 @@ for (i in 1:length(gages)) {
   ggsave(file=filename, path = file_directory , width=6, height=6)
   # save this as a property 
   furl <- paste(
-    omsite,
+    ext_site,
     'images/dh',
     filename,
     sep='/'
