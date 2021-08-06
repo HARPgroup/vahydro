@@ -29,7 +29,7 @@ ds$get_token(rest_pw)
 
 # Build info URI
 uri <- paste0(site,"/usgs-mllr-sept10-gages-all")
-if (exists(gage)) {
+if (exists("gage")) {
   # append the specific gage and just do this one
   url <- paste(uri, gage, sep="/")
   #gagelist = om_auth_read(uri, token, "text/csv")
