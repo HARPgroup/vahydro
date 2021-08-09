@@ -45,7 +45,7 @@ if ($call_mllr) {
   $now = date('U');
   $darg_hash = sha1("$gageid,$year");
   $rcode = "darg_hash <- '$darg_hash';\n";
-  $rcode .= "[R]gage <- c($gageid);\n";
+  $rcode .= "[R]gage <- c(\"$gageid\");\n";
   $rcode .= "target_year <- '$year';\n";
   $rcode .= "overwrite_file <- TRUE;\n";
   $rcode .= "fid <- $fid; \n";
