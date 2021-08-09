@@ -20,18 +20,20 @@ $call_mllr = FALSE;
 // - if it is outdated, call the Rscript below 
 $m_ts_info = array('featureid' => $fid, 'entity_type' => 'dh_feature', 'tstime' => $mllr_date, 'varid' => 'mllr_annual_risk10');
 $mllr_annual_risk10_ts =  array_shift(dh_get_timeseries($m_ts_info, 'tstime_singular', TRUE));
+dpm($m_ts_info,'m_ts_info');
 dpm($mllr_annual_risk10_ts,'ts');
-//dpm($m_p_info,'m_p_info');
+
 if (!is_object($mllr_annual_risk10_ts)) {
   // definitely need to call it.
   $call_mllr = TRUE;
 } else {
-  $m_p_info = array('featureid' => $mllr_annual_risk10_ts->tid,  'entity_type' => 'dh_timeseries', 'propname' => 'mllr_plot');
   // check time on mllr timeseries and see if we need to regenerate 
   if ($mllr_annual_risk10_ts->modified < dh_handle_timestamp($mllr_date)) {
     $call_mllr = TRUE;
   }
+  //dpm($m_p_info,'m_p_info');
   // check if there is a plot,if not, try calling again
+  $m_p_info = array('featureid' => $mllr_annual_risk10_ts->tid,  'entity_type' => 'dh_timeseries', 'propname' => 'mllr_plot');
   $mllr_plot = dh_properties_enforce_singularity($m_p_info, 'name', FALSE);
   if (!is_object($mllr_plot)) {
     $call_mllr = TRUE;
