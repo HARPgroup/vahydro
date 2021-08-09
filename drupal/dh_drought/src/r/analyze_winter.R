@@ -28,6 +28,13 @@ ds$get_token(rest_pw)
 # target_year: recharge period ending year, i.e. 11/2020 to 3/2021 is 2021
 # (unused, retrieved from system) fid: feature hydroid 
 
+
+argst <- commandArgs(trailingOnly=T)
+if (length(argst) > 0) {
+  gage <- as.integer(argst[1])
+  overwrite_file <- as.integer(argst[2])
+}
+
 # Build info URI
 uri <- paste0(site,"/usgs-mllr-sept10-gages-all")
 if (exists("gage")) {
@@ -54,7 +61,7 @@ for (i in 1:nrow(gages)) {
   # Saving file to the correct location
   filename <- paste("usgs", gage_id, "mllr_bar_winterflows", target_year, ".png", sep="_")
   filepath <- paste(file_directory, filename, sep="/")
-  if (file.exists(filepath)) {
+  if (file.exists(filepath) & !overwrite_file) {
     next 
   }
 	# Initialize variables
