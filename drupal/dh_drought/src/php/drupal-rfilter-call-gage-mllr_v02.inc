@@ -45,6 +45,7 @@ if ($call_mllr) {
   $rcode = "darg_hash <- '$darg_hash';\n";
   $rcode .= "[R]gage <- c($gageid);\n";
   $rcode .= "target_year <- '$year';\n";
+  $rcode .= "overwrite_file <- TRUE;\n";
   $rcode .= "fid <- $fid; \n";
   //$rcode .= file_get_contents ('/var/www/html/files/dh/mllr/analyze_winter.R');
   $rcode .= file_get_contents ('/var/www/html/d.dh/modules/dh_drought/src/r/analyze_winter.R');
