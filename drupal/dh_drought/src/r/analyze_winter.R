@@ -12,6 +12,7 @@ library('IHA')
 library('stringr')
 library('lubridate')
 library('ggplot2')
+library('scales')
 library('httr')
 library("hydrotools")
 #fid needed for retrieving beta properties via REST

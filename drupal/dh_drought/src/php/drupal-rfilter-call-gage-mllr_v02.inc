@@ -39,7 +39,7 @@ if (!is_object($mllr_annual_risk10_ts)) {
 }
 
 if ($call_mllr) {
-  
+  dsm("Trying to generate MLLR chart for USGS gage $gageid for winter $year");
   $now = date('U');
   $darg_hash = sha1("$gageid,$year");
   $rcode = "darg_hash <- '$darg_hash';\n";
