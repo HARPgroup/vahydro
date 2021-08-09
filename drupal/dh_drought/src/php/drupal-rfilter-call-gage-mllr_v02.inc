@@ -28,9 +28,9 @@ if (!is_object($mllr_annual_risk10_ts)) {
   $call_mllr = TRUE;
 } else {
   // check time on mllr timeseries and see if we need to regenerate 
-  if ($mllr_annual_risk10_ts->modified < dh_handle_timestamp($mllr_date)) {
+  if ($mllr_annual_risk10_ts->modified < dh_handletimestamp($mllr_date)) {
     $call_mllr = TRUE;
-    dsm("MLLR out of date $mllr_annual_risk10_ts->modified < " . dh_handle_timestamp($mllr_date));
+    dsm("MLLR out of date $mllr_annual_risk10_ts->modified < " . dh_handletimestamp($mllr_date));
   }
   // check if there is a plot,if not, try calling again
   $m_p_info = array('featureid' => $mllr_annual_risk10_ts->tid,  'entity_type' => 'dh_timeseries', 'propname' => 'mllr_plot');
