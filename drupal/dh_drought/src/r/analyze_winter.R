@@ -1,3 +1,9 @@
+# config.local.private sets: lib_directory, auth_directory, base_url, file_directory
+# if running in RStudio this will not work as it forces path to the "working directory"
+# Must open and run contents of config.local.private once per session
+basepath='/var/www/R';
+source("/var/www/R/config.R"); 
+
 ## Code to calculate the current drought condition estimates and create a graph to show all estimates by month and threshold 
 # This code will be updated using "chron" every March 1st
 # Load necessary libraries
@@ -6,7 +12,6 @@ library('IHA')
 library('stringr')
 library('lubridate')
 library('ggplot2')
-library('scales')
 library('httr')
 library("hydrotools")
 #fid needed for retrieving beta properties via REST
@@ -14,11 +19,6 @@ library("hydrotools")
 #
 #target_year=2018
 #gage <- c(01636316) 
-# config.local.private sets: lib_directory, auth_directory, base_url, file_directory
-# if running in RStudio this will not work as it forces path to the "working directory"
-# Must open and run contents of config.local.private once per session
-basepath='/var/www/R';
-source("/var/www/R/config.R"); 
 # authenticate
 ds <- RomDataSource$new(site, rest_uname)
 ds$get_token(rest_pw)

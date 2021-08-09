@@ -33,6 +33,7 @@ install.packages('PearsonDS');
 install.packages('rlist');
 install.packages("lfstat")
 install.packages("pander")
+install.packages("dplyr")
 # rlang seems to need to be updated if the R version is updated in an existing install?
 install.packages('rlang')
 # after installing rlang, which upgrades it, you have to quit R, then go back in and load rlang before installing devtools
