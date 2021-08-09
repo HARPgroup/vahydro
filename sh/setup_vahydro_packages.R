@@ -1,4 +1,7 @@
 # Use custom libPaths ??
+# See setup info at https://github.com/HARPgroup/vahydro/wiki/R-setup 
+#  - if we set .Renviron in /var/www/R to have this path, we may not need this libPaths command here since it should automatically be set 
+#    when we run R from /var/www/R 
 #.libPaths( c( "/var/www/R/x86_64-pc-linux-gnu-library" , .libPaths() ) )
 
 # Set up R packages
@@ -10,7 +13,7 @@ install.packages('data.table');
 install.packages('zoo');
 install.packages('stringr');
 install.packages('lubridate');
-install.packages("R.rsp")
+#install.packages("R.rsp")
 # quantreg and hydroTSM failed at first on Ubuntu 20.04
 # even with added repository 
 # Note, conquer needs liblapack-dev, so need to:

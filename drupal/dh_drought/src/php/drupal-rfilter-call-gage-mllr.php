@@ -1,4 +1,5 @@
 <?php
+
 $a = arg();
 $fid = $a[1];
 if (isset($a[2])) {

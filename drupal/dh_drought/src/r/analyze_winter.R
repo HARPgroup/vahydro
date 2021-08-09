@@ -45,7 +45,7 @@ gages$staid <- as.character(gages$staid)
 
 # override the file save directory
 file_directory = '/var/www/html/images/dh';
-message(paste("Generating MLLR images for a set of", length(gages), "stream gages"))
+message(paste("Generating MLLR images for a set of", nrow(gages), "stream gages"))
 for (i in 1:nrow(gages)) {
   gage_info <- gages[i,]
   gage_id = gage_info$staid
