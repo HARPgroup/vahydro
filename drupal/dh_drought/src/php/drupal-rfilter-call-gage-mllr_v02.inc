@@ -21,12 +21,12 @@ $call_mllr = FALSE;
 $m_ts_info = array('featureid' => $fid, 'entity_type' => 'dh_feature', 'tstime' => $mllr_date, 'varid' => 'mllr_annual_risk10');
 $mllr_annual_risk10_ts =  array_shift(dh_get_timeseries($m_ts_info, 'tstime_singular', TRUE));
 dpm($mllr_annual_risk10_ts,'ts');
-$m_p_info = array('featureid' => $mllr_annual_risk10_ts->tid,  'entity_type' => 'dh_timeseries', 'propname' => 'mllr_plot');
 //dpm($m_p_info,'m_p_info');
 if (!is_object($mllr_annual_risk10_ts)) {
   // definitely need to call it.
   $call_mllr = TRUE;
 } else {
+  $m_p_info = array('featureid' => $mllr_annual_risk10_ts->tid,  'entity_type' => 'dh_timeseries', 'propname' => 'mllr_plot');
   // check time on mllr timeseries and see if we need to regenerate 
   if ($mllr_annual_risk10_ts->modified < dh_handle_timestamp($mllr_date)) {
     $call_mllr = TRUE;
@@ -56,14 +56,15 @@ if ($call_mllr) {
   
   // now load the TS again 
   $mllr_annual_risk10_ts =  array_shift(dh_get_timeseries($m_ts_info, 'tstime_singular', TRUE));
+  $m_p_info = array('featureid' => $mllr_annual_risk10_ts->tid,  'entity_type' => 'dh_timeseries', 'propname' => 'mllr_plot');
 }
-  $mllr_plot = dh_properties_enforce_singularity($m_p_info, 'name', FALSE);
-  //dpm($mllr_plot,'mllr_plot');
-  if (is_object($mllr_plot)) {
-    echo "Winter Flow analysis for $gageid: <br><img src='$mllr_plot->propcode'>";
-  } else {
-    echo "Could not locate plot for timeseries $mllr_annual_risk10_ts->tid ";
-  }
+// now try to show the plot
+$mllr_plot = dh_properties_enforce_singularity($m_p_info, 'name', FALSE);
+//dpm($mllr_plot,'mllr_plot');
+if (is_object($mllr_plot)) {
+  echo "Winter Flow analysis for $gageid: <br><img src='$mllr_plot->propcode'>";
+} else {
+  echo "Could not locate plot for timeseries $mllr_annual_risk10_ts->tid ";
 }
 
 ?>
