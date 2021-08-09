@@ -372,7 +372,7 @@ for (i in 1:nrow(gages)) {
     "varkey" = 'mllr_annual_risk10',
     "tsvalue" = target_mllr,
     "tscode" = target_month,
-    "tstime" =  as.numeric(as.POSIXct(paste(paste(target_year, "-03-01", sep=""),"EST")))
+    "tstime" =  as.numeric(as.POSIXct(paste(target_year, "-03-01", sep=""),tz="America/New_York"))
   )
   ts <- RomTS$new(
     ds,

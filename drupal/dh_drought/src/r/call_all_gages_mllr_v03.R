@@ -153,7 +153,7 @@ for (i in 1:nrow(gagelist)) {
           "hydrocode" = hydrocode, 
           "tsvalue" = P_est, 
           "varkey" = variables[z], 
-          "tstime" =  as.numeric(as.POSIXct(paste(paste(calyear, "-03-01", sep=""),"EST"))), 
+          "tstime" =  as.numeric(as.POSIXct(paste(calyear, "-03-01", sep=""),tz="America/New_York")), 
           "hcode" = paste("usgs", gage, sep="_")
         );
         gage_probs <- rbind(gage_probs, newline);
@@ -162,7 +162,7 @@ for (i in 1:nrow(gagelist)) {
           "featureid" = gageinfo$hydroid, 
           "entity_type" = 'dh_feature', 
           "varid" = varids[z], 
-          "tstime" =  as.numeric(as.POSIXct(paste(paste(calyear, "-03-01", sep=""),"EST"))), 
+          "tstime" =  as.numeric(as.POSIXct(paste(calyear, "-03-01", sep=""),tz="America/New_York")), 
           "tsvalue" = P_est, 
           "tscode" = P_est
         )
