@@ -30,6 +30,7 @@ ds$get_token(rest_pw)
 
 
 argst <- commandArgs(trailingOnly=T)
+message(paste("length of argst = ", length(argst)))
 if (length(argst) > 0) {
   gage <- as.integer(argst[1])
   overwrite_file <- as.integer(argst[2])
