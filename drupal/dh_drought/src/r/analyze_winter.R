@@ -74,7 +74,7 @@ for (i in 1:nrow(gages)) {
 	#elem_info <- scan(elem_url, what="character", sep=",")
 	#elid <- elem_info[3]
 
-
+  message(paste("TRying to retrieve data for gage", gage_id))
 	# Read flow for entire record to gather all historical flow data
 	url_base <- "https://waterservices.usgs.gov/nwis/dv/?site=";
 	url <- paste(url_base, gage_id, "&variable=00060&format=rdb&startDT=1838-01-01", sep="")	
