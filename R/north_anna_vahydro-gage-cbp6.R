@@ -8,7 +8,7 @@ source(paste(basepath,'config.R',sep='/'))
 # vahydro model at the gage
 dam_elid = 207923 
 lake_elid = 207925 
-elid = 207885 @ YP3_6700_6670
+elid = 207885#@ YP3_6700_6670
 runid = 11
 model_gage <- fn_get_runfile(elid, runid, site = omsite,  cached = FALSE, use_tz = 'UTC');
 mode(model_gage) <- 'numeric'
@@ -16,6 +16,24 @@ model_gage <- om_get_rundata(elid, runid, site = omsite, FALSE, FALSE)
 model_gage <- zoo(model_gage, order.by=as.Date(index(model_gage), format="%m/%d/%Y", tz ='UTC'))
 model_dam <- om_get_rundata(dam_elid, runid, site = omsite, FALSE, FALSE)
 model_dam <- zoo(model_dam, order.by=as.Date(index(model_dam), format="%m/%d/%Y", tz ='UTC'))
+nadat <- as.data.frame(model_dam)
+rbind(
+  quantile(nadat$Qin),
+  quantile(nadat$Qout)
+)
+nadat_summer <- sqldf("select * from nadat where month in (7,8,9)")
+hydroTSM::fdc(
+  cbind(nadat$Qin, nadat$Qout), 
+  ylab="Q (cfs)", 
+  main="Inflow vs. Outflow (all year)"
+)
+hydroTSM::fdc(
+  cbind(nadat_summer$Qin, nadat_summer$Qout), 
+  ylab="Q (cfs)",
+  main="Inflow vs. Outflow (summer)"
+)
+
+
 model_lake <- om_get_rundata(lake_elid, runid, site = omsite, FALSE, FALSE)
 model_lake <- zoo(model_lake, order.by=as.Date(index(model_lake), format="%m/%d/%Y", tz ='UTC'))
 model_lake$storage_pct <- as.numeric(model_lake$use_remain_mg) * 3.07 / as.numeric(model_lake$maxcapacity)
