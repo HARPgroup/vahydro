@@ -263,6 +263,8 @@ if (jan_ex == 0) {
 }
 jan_ex <- intake_sum_current[1,ex_col]
 non_ex_text <- paste0("For example, in the table below the ",ex_col," column states that ",ex_col," of flows within the month of January would be less than ", jan_ex, "cfs.")
+drun_info <- find_name(fac_model_info,paste0("runid_",intake_stats_runid))
+demand_url <- drun_info$fig.monthly_demand$code
 ```
 
 ```{r SiteTable, echo=FALSE, results = "asis"}
@@ -272,6 +274,11 @@ ft <- theme_box(ft)
 ft <- bg(ft, bg = "#EFEFEF", part = "header")
 cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show the minimum (Min) and average (Mean) modeled flow, and a range of non-exceedence flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the", paste0("\"",ex_col, "\""), "states that only", ex_col, "of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.", non_ex_text) )
 ft
+if (!is.null(demand_url)) {
+    cat("\n\n## Facility Base Demand Before Conservation: ", short_names[[runid.i]],"\n\n")
+    cat(paste0("![](",demand_url,")"),"\n")
+    cat("\n\n\\pagebreak\n")
+}
 ```
   
 \newpage
@@ -327,8 +334,8 @@ for (i in 1:length(runid.list)){
 # this could now, I think, be simplified as:
 # om_cia_table(fac_model_info, rseg_model_info)
 statsdf <- om_cia_table(
-  rseg.hydroid = rseg.hydroid,
-  fac.hydroid = fac.hydroid,
+  fac_model_info = fac_model_info,
+  rseg_model_info = rseg_model_info,
   runid.list = runid.list, 
   fac.metric.list = fac.metric.list,
   rseg.metric.list = rseg.metric.list,
@@ -410,6 +417,8 @@ for (i in 1:length(runid.list)){
     cat(paste0("![](",fig_path,")"),"\n")
     cat("\n\n\\pagebreak\n")
   } else {
+    # try facility and impoundment linked to river segment.
+    fac_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
     print(paste("No riverseg impoundment for run id",run.i))
   }
 }
