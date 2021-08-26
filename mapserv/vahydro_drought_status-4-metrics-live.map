@@ -13,7 +13,7 @@ FONTSET "/var/www/html/mapserv/fonts.txt"
 PROJECTION
     "init=epsg:4326"
 END
-DEBUG ON
+DEBUG 3
 CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
 
 #OUTPUTFORMAT
@@ -290,7 +290,7 @@ LAYER
      )
      where reg_feat.bundle = 'usafips'
        and reg_feat.hydrocode LIKE '51%'
-	   and reg_val.propcode > 0
+	   and reg_val.propcode IN ('1','2','3')
        and (
          reg_feat.hydroid = %hydroid%
          OR %hydroid% = -1
