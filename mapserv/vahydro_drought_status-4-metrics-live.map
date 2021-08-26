@@ -1,6 +1,6 @@
 MAP
 NAME imageMapFile 
-SIZE 480 320  
+SIZE 600 360    
 STATUS ON
 #SYMBOLSET "./sym_wateruse.sym"
 # for map in dd
