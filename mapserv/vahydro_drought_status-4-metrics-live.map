@@ -263,7 +263,7 @@ LAYER
    #GROUP proj_seglocalities
    TYPE POLYGON
    STATUS DEFAULT
-   #DEBUG ON
+   DEBUG 3
    DATA "shape FROM (
      select st_setsrid(reg_geo.dh_geofield_geom,4326) AS shape,
        reg_feat.hydroid, 
