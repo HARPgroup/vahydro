@@ -259,6 +259,111 @@ END
 LAYER
    CONNECTIONTYPE postgis
    CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   NAME proj_seglocalities
+   #GROUP proj_seglocalities
+   TYPE POLYGON
+   STATUS DEFAULT
+   #DEBUG ON
+   DATA "shape FROM (
+     select st_setsrid(reg_geo.dh_geofield_geom,4326) AS shape,
+       reg_feat.hydroid, 
+       CASE 
+         WHEN reg_val.propcode = '' THEN '-1'
+         WHEN reg_val.propcode is NOT NULL THEN reg_val.propcode
+         ELSE '-1'
+       END as drought_status, reg_val.startdate, reg_val.enddate 
+     from dh_feature as reg_feat  
+     left outer join field_data_dh_geofield as reg_geo
+     on (
+       reg_geo.entity_id = reg_feat.hydroid 
+       and reg_geo.entity_type = 'dh_feature' 
+     )
+     left outer join dh_variabledefinition as b 
+     on (
+       b.varkey = 'drought_status'
+     )
+     left outer join dh_properties as reg_val
+     on (
+       reg_feat.hydroid = reg_val.featureid
+       and reg_val.entity_type = 'dh_feature' 
+       and reg_val.varid = b.hydroid 
+     )
+     where reg_feat.bundle = 'usafips'
+       and reg_feat.hydrocode LIKE '51%' 
+       and (
+         reg_feat.hydroid = %hydroid%
+         OR %hydroid% = -1
+       )
+     group by reg_feat.hydroid, reg_val.propcode, reg_val.propvalue, 
+       reg_val.startdate, reg_val.enddate, reg_geo.dh_geofield_geom 
+   ) AS foo USING UNIQUE hydroid using SRID=4326 "
+   #MINSCALE 1000
+   #MAXSCALE 50000
+   CLASS
+      NAME "Normal"
+      EXPRESSION ( '[drought_status]' = '0' )
+      #STYLE
+	    #SYMBOL 'hatch-simple'
+      #   SIZE 3
+      COLOR 100 200 100
+      BACKGROUNDCOLOR 100 200 100
+      OUTLINECOLOR 0 0 0   
+      #END
+   END
+   CLASS
+      NAME "Watch"
+      EXPRESSION ( [drought_status] = 1 )
+      #STYLE
+	    #SYMBOL 'hatch-simple'
+      #   SIZE 3
+      COLOR 255 255 51
+      BACKGROUNDCOLOR 255 255 51
+      OUTLINECOLOR 0 0 0
+      #END
+   END
+   CLASS
+      NAME "Warning"
+      EXPRESSION ( [drought_status] = 2 )
+      #STYLE
+   	  #SYMBOL 'hatch-simple'
+      #   SIZE 3
+      COLOR 255 204 51
+      BACKGROUNDCOLOR 255 204 51
+      OUTLINECOLOR 0 0 0  
+      #END
+   END
+   CLASS
+      NAME "Emergency"
+      EXPRESSION ( [drought_status] = 3 )
+      #STYLE
+	    #SYMBOL 'hatch-simple'
+      #   SIZE 3
+      COLOR 184 0 0
+      BACKGROUNDCOLOR 184 0 0
+      OUTLINECOLOR 0 0 0  
+      #END
+   END
+   CLASS
+      NAME "proj_seggroups"
+      #SYMBOL 'hatch-simple'
+      #SIZE 3
+      COLOR -1 -1 -1
+      BACKGROUNDCOLOR 0 0 0
+      OUTLINECOLOR 0 0 0
+   END
+   TOLERANCE 10
+   PROJECTION
+   # EPSG SRID = 4326
+     "proj=latlong"
+   END
+  METADATA
+    "DESCRIPTION"   "Stat Results"
+  END
+END
+
+LAYER
+   CONNECTIONTYPE postgis
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_box
    GROUP sym_box
    TYPE POINT
