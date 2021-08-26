@@ -4,7 +4,7 @@ SIZE 600 360
 STATUS ON
 #SYMBOLSET "./sym_wateruse.sym"
 # for map in dd
-EXTENT -83.6753387451172 36.4427703857422 -75.2407989501953 39.3660148620605
+EXTENT -84 35.25 -75 40.6
 UNITS DD
 # for map in utm 83z18
 #UNITS METERS
@@ -100,7 +100,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.alpha"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME proj_seggroups
    #GROUP proj_seggroups
    TYPE POLYGON
@@ -251,7 +251,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.alpha"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_box
    GROUP sym_box
    TYPE POINT
@@ -346,7 +346,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.alpha"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_flow
    GROUP sym_flow
    TYPE POINT
@@ -476,7 +476,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.alpha"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_res
    GROUP sym_res
    TYPE POINT
@@ -705,7 +705,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.alpha"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_precip
    GROUP sym_precip
    TYPE POINT
@@ -849,7 +849,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.alpha"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_mllr
    GROUP sym_mllr
    TYPE POINT
@@ -979,7 +979,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.alpha"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_gw
    GROUP sym_gw
    TYPE POINT
