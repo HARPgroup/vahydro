@@ -290,7 +290,7 @@ LAYER
      )
      where reg_feat.bundle = 'usafips'
        and reg_feat.hydrocode LIKE '51%'
-	   and mp_val.propcode IS NOT NULL
+	   and reg_val.propcode > 0
        and (
          reg_feat.hydroid = %hydroid%
          OR %hydroid% = -1
