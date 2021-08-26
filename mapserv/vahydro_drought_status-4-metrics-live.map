@@ -344,12 +344,12 @@ LAYER
       #END
    END
    CLASS
-      NAME "proj_seggroups"
+      NAME "proj_seglocalities"
       #SYMBOL 'hatch-simple'
       #SIZE 3
       COLOR -1 -1 -1
       BACKGROUNDCOLOR 0 0 0
-      OUTLINECOLOR 0 0 0
+      OUTLINECOLOR -1 -1 -1
    END
    TOLERANCE 10
    PROJECTION
