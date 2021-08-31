@@ -14,7 +14,7 @@ output:
       header: 0.0
       footer: 0.0
 params: 
-  rseg.hydroid: 477140 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
+  rseg.hydroid: 462757 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
   fac.hydroid: 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "runid_6014"
   runid.list: [ "runid_6011","runid_6013" ]
   fac.metric.list: [ "wd_mgd","ps_mgd","unmet30_mgd" ]
@@ -419,8 +419,9 @@ fontsize(ft, size = 9)
 
 
 # Reservoir Storage Plots:
+The following reservoir storage plots depict changes in reservoir storage under each scenario (indicated in black), as well as simulated inflow to the reservoir (blue), simulated outflow from the reservoir (green), and system demand for the given scenario (red).  For water supply reservoirs, a minimum of 60 days of remaining storage over the course of the simulation is recommended. System demand varies seasonally. 
 
-```{r ResPLOTS, echo=FALSE, results = "asis"}
+```{r ResPLOTS, echo=FALSE, message=FALSE, results = "asis"}
 
 # check river model for plots
 for (i in 1:length(runid.list)){
@@ -447,9 +448,10 @@ for (i in 1:length(runid.list)){
 
 \newpage
 
-# Unmet Demand Heatmaps:
+# Unmet Demand Plots:
+The following heatmaps depict the number of days with unmet demands for each month of the simulation (due to demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). Heatmaps also show the amount of unmet demand for each month [Unmet Days / Amount (mgd)]. Hydrographs are shown for the period of the simulation with greatest unmet demand.
 
-```{r UnmetDemandPLOTS, echo=FALSE, results = "asis"}
+```{r UnmetDemandPLOTS, echo=FALSE, message=FALSE, results = "asis"}
 
 # check facility model for plots
 for (i in 1:length(runid.list)){
@@ -458,41 +460,35 @@ for (i in 1:length(runid.list)){
   runid.i <- runid.list[i]
   run.i <- sub("runid_", "", runid.i)
   # 
-  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.unmet_heatmap_amt")
+  fig_prop <- invisible(om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.unmet_heatmap_amt"))
   if (!is.logical(fig_prop)) {
     fig_path <- fig_prop$propcode
     # we have an image, show it 
-    cat("\n\n## Reservoir Storage: ",short_names[[runid.i]],"\n\n")
+    cat("\n\n## Heatmap: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
   }
   fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.30daymax_unmet")
   if (!is.logical(fig_prop)) {
     fig_path <- fig_prop$propcode
     # we have an image, show it 
-    cat("\n\n## Unmet Demand: ",short_names[[runid.i]],"\n\n")
+    cat("\n\n## Hydrograph: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
-    cat("\n\n\\pagebreak\n")
+    #cat("\n\n\\pagebreak\n")
   }
   
-  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
-  if (!is.logical(fig_prop)) {
-    fig_path <- fig_prop$propcode
-    # we have an image, show it 
-    cat("\n\n## Reservoir Storage: ",short_names[[runid.i]],"\n\n")
-    cat(paste0("![](",fig_path,")"),"\n")
-  } else {
-    # JK - do we want to simply supress in order to have better formatting? or maybe keep a count
-    # of missing images so we can alert the user to which entities lack impoundments?
-    print(paste("No local facility impoundment for ",short_names[[runid.i]]))
-  }
-  cat("\n\n\\pagebreak\n")
 }
 
 ``` 
 
+\newpage
+
 # Ecological Impacts Assessment:
 
 ## Elfgen:
+In response to a need for better environmental flow metrics, DEQ has developed a new framework for characterizing relations between streamflow and aquatic organism species richness. Part of an evolving approach to managing environmental flows for maintaining aquatic life; this methodology builds on existing minimum instream ow approaches, allowable withdrawals as a percentage of flow, and extensive flow-habitat studies. For the first time this new framework may allow quantification of potential species loss resulting from flow change, and may offer an improved understanding of aquatic life risk variability due to geographic location, stream size and local scale. 
+
+In order to calculate river segment-level richness change, elfgen is first used to produce relations between stream flow and species richness at the HUC 8 scale (See plot below). This is achieved using long term datasets for both ecological and hydrologic data. Ecological data (Fish species richness) is sourced from the VAHydro-EDAS dataset. Hydrologic data (Average Annual Flow) is sourced from the National Hydrography Dataset Plus. The Richness Change values presented in the 6.1. Stats Comparison Table are derived from this flow-ecology relation.
+
 
 ```{r GrabELFPlot, include=FALSE, echo=FALSE}
 # Need to have a switch based on draiange area with text such as:
