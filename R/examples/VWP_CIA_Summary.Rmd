@@ -1,7 +1,7 @@
 ---
 date: "`r format(Sys.time(), '%m/%d/%Y')`"
-author: "JK"
-title: "VWP CIA Summary (TEMPLATE)"
+author: ""
+title: "VWP CIA Summary - [INSERT PROJECT NAME HERE]"
 output: 
   officedown::rdocx_document:
     mapstyles:
@@ -14,16 +14,17 @@ output:
       header: 0.0
       footer: 0.0
 params: 
-  rseg.hydroid: 476998 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
-  fac.hydroid: 71977 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672
-  runid.list: [ "runid_401", "runid_601" ]
+  rseg.hydroid: 477140 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
+  fac.hydroid: 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "runid_6014"
+  runid.list: [ "runid_6011","runid_6013" ]
   fac.metric.list: [ "wd_mgd","ps_mgd","unmet30_mgd" ]
-  rseg.metric.list: [ "Qout","Qbaseline","remaining_days_p0","l30_Qout",
+  rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout",
     "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
   intake_stats_runid: 11
 ---
 
 ```{r setup, include=FALSE}
+#"runid_201","runid_401","runid_6014","runid_6011","runid_6013","runid_6015","runid_6012"
 #https://cran.r-project.org/web/packages/officedown/officedown.pdf
 #https://ardata-fr.github.io/officeverse/officedown-for-word.html#insert-sections
 knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
@@ -78,6 +79,9 @@ rlist <- gsub('runid_', '', runid.list)
 
 #RSEG MODEL INFO
 print(paste("searching", site,"for river segment id", rseg.hydroid))
+
+#base_url = site, entity_id = rseg.hydroid
+
 rseg.model <- om_get_model(site, rseg.hydroid)
 rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
 
@@ -163,29 +167,35 @@ for (i in 1:length(runid.list)){
 
 ```
 
-This is an R Markdown document. This will serve as the template for VWP Project Model Summaries moving forward. For related GitHub issue see <https://github.com/HARPgroup/vahydro/issues/317>.
 
-# VAHydro Model Boilerplate:
+# VAHydro Model:
 
 
 ## VAHydro
-The comprehensive VAHydro hydrologic model is used to evaluate instream and off-stream beneficial uses for surface water withdrawals throughout Virginia. The VAHydro model simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through DEQ water supply planning and reporting programs including all known withdrawals and discharges, as well as operational rules of VWP permits and major hydrologic features such as reservoirs. 
+The comprehensive VAHydro hydrologic model is used to evaluate potential impacts to surface water supply and other beneficial uses (including aquatic life), for withdrawal projects that have applied for a Virginia Water Protection (VWP). The VAHydro model simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through Local and Regional Water Supply Plans and reported water use submitted to DEQ through the Annual Water Withdrawal Reporting program. The VAHydro model includes all known withdrawals and discharges, as well as operational rules of VWP permits and major hydrologic features such as reservoirs. 
 
-The VAHydro model is built on rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6 which runs from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed, aka the "southern rivers." The VAHydro model features high-resolution hydrologic subsections called "river segments" (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
+The VAHydro model is built on rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6 which runs from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed, aka the “southern rivers.” The VAHydro model features high-resolution hydrologic subsections called “river segments” (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
 
 ## CIA
-DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA) modeling. CIA is a modeling and analysis approach that takes into account the varied hydrologic process occurring throughout a river network (including meteorology and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential "cumulative impact" of all streamflow changes occurring upstream of any location within the river network, as well as the downstream impact of individual permitted withdrawal operations.
+DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA) modeling. CIA is a modeling and analysis approach that takes into account the varied hydrologic process occurring throughout a river network (including meteorology and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential “cumulative impact” of all streamflow changes occurring upstream and downstream of any location within the river system, as well as the downstream impact of a specific proposed or permitted surface water withdrawal.
 
-The goal of the folloing analysis was to estimate the cumulative impacts of all existing water users in addition to the requested water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses.
+The goal of the following analysis is to estimate the potential impacts of the proposed water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses. In addition, cumulative impacts from all existing withdrawals are included in the evaluation.
 
 \newpage
-# Project Introduction (To be provided by permit writer)
+# Project Introduction
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+This project consists of an existing water intake constructed in the 1960's with an upgrade in the early 1980's. The Town owns and operates the Big Cherry Dam located approximately 3 miles upstream from the intake structure. The Town's water treatment plant operators control the amount of water discharging the dam into the Powell River and all of the stream by-pass flow to meet the previous permit requirements of 4.0 MOD of maximum withdrawal and 0.50 MGD of by-pass flow. This is always true unless the dam is overflowing exceeding the amount of water required from various rainfall events. Therefore, the existing/proposed maximum withdrawal amounts will not have an impact on the stream in terms of rates, volumes, frequency, etc. This is a daily activity as it serves the existing water treatment plant.
 
-Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+Permit: Big Cherry Dam, 01-0688  
+Permit Dates: 2003-08-23 to 2018-08-22  
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
+* **Annual Withdrawal Limit** = 1168 mg/yr (3.2 mgd)
+    + (historically they withdraw ~2 mgd on average)
+* **Daily Withdrawal Limit** = 4 mgd 
+* **Flow-by** = 0.5 mgd 
+<br>
+<br>
+<br>
 
 ## Location Map
 
@@ -235,7 +245,7 @@ for (i in 1:length(runid.list)){
           "__",ri$scenario_name$value,"__", 
         " (", ri$scenario_short_name$value, ")"
         ),
-        "-",run_info$reports$scenario_intro$value,"\n")
+        "-",run_info$reports$scenario_intro$value,"\n\n")
       )
   }
   
@@ -262,7 +272,7 @@ if (jan_ex == 0) {
   ex_col = "25%"
 }
 jan_ex <- intake_sum_current[1,ex_col]
-non_ex_text <- paste0("For example, in the table below the ",ex_col," column states that ",ex_col," of flows within the month of January would be less than ", jan_ex, "cfs.")
+non_ex_text <- paste0("For example, in the table below the ",ex_col," column states that ",ex_col," of flows within the month of January would be less than ", jan_ex, " cfs.")
 drun_info <- find_name(fac_model_info,paste0("runid_",intake_stats_runid))
 demand_url <- drun_info$fig.monthly_demand$code
 ```
@@ -272,7 +282,7 @@ demand_url <- drun_info$fig.monthly_demand$code
 ft <- qflextable(intake_sum_current)
 ft <- theme_box(ft)
 ft <- bg(ft, bg = "#EFEFEF", part = "header")
-cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show the minimum (Min) and average (Mean) modeled flow, and a range of non-exceedence flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the", paste0("\"",ex_col, "\""), "states that only", ex_col, "of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.", non_ex_text) )
+cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show the minimum (Min) and average (Mean) modeled flow, and a range of non-exceedance flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the", paste0("\"",ex_col, "\""), "states that only", ex_col, "of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.", non_ex_text) )
 ft
 if (!is.null(demand_url)) {
     cat("\n\n## Facility Base Demand Before Conservation: ", short_names[[runid.i]],"\n\n")
@@ -282,8 +292,9 @@ if (!is.null(demand_url)) {
 ```
   
 \newpage
-# Model Summary Results - Conclusion/Recommendation
+# Model Results Summary
 
+Four scenarios are presented below to examine the alternatives for this permit re-issuance.  A summary of how permit rules affect available water for this permit, and how this operation may impact instream beneficial uses, and other downstream water withdrawals is presented.   
 
 ```{r LoadRunResults, echo=FALSE, results = "asis"}
 for (i in 1:length(runid.list)){
@@ -308,6 +319,13 @@ for (i in 1:length(runid.list)){
   
 }
 ```
+
+## Conclusion
+
+Overall, remodeling to consider a net % change to flow (after the point source return flow) has improved the outlook across all scenarios examined, and supports moving towards a "percent of flow" flowby approach. When modeling as a net % change in flow, the reservoir is not chronically drawn down as was shown in previous model results.
+
+With the current permit operations and a limit of 3.2 mgd they likely wouldn't be able to meet a 90% flowby and retain 60 days remaining storage in the reservoir during the drought of record. However a flowby closer to 80% would likely be effective at maintaining storage levels and ensuring they can sustainably meet demand during dry periods while still better preserving the natural flow regime over a static 0.5 mgd flowby approach. This project may also be able to get to a 90% flowby by reducing demands from 3.2 mgd to around 3.0 mgd, and/or by including drought triggers in the permit to help maintain storage levels in the reservoir during dry periods (this permit doesn't currently have drought triggers in place). Additionally, this facility has emergency connections with neighboring towns which may be sufficient to maintain supply during times of extreme drought. Note that demand is projected to decline according to water supply plan.
+
 <!-- TEXT STASHED for Joey -->
 <!-- * Safe yield of the intake is listed as 3.2 mgd from a study published in 2001 (3.2 mgd is equivalent to the permit annual withdrawal limit of 1168 mg/yr). -->
 <!--     + The data for the study was collected in 1997, which predates the drought period of 1999-2002. -->
@@ -363,6 +381,8 @@ statsdf_sql <- paste('SELECT
                     WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (mgd)"
                     WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
                     WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
+                    WHEN "Desc" = "rseg_model" THEN "Name"
+                    WHEN "Desc" = "fac_model" THEN "Name"
                     ELSE Desc
                   END AS Description, *
                  FROM statsdf
@@ -371,16 +391,16 @@ statsdf_sql <- paste('SELECT
 statsdf <- sqldf(statsdf_sql)
 statsdf <- statsdf[,-2]
 ```
-## CIA
-This table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project.  The section entitled "River Segment Model Statistics" contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated percent total consumptive use as a resutl of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed.  The section entitled "Facility Model Statistics" shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect.  There will be one or more columns in this table representing each scenario considered for this analysis.
+# Cumulative Impact Analysis
+This table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project.  The section entitled "River Segment Model Statistics" contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated percent total consumptive use as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed.  Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Estimates for richness change are also presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calcualtions are derived from the estimated percent total consumptive use (For additional details on "elfgen" methodology, see https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876).  The section entitled "Facility Model Statistics" shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect.  There will be one or more columns in this table representing each scenario considered for this analysis.
 
 <!---BLOCK_LANDSCAPE_START--->
-# Stats Comparison Table:
+## Stats Comparison Table:
 ```{r StatsTable, echo=FALSE}
 ft <- qflextable(statsdf)
 
 # Set column widths
-ft <- width(ft, j = 2:length(statsdf[1,]), width = 1.5)
+ft <- width(ft, j = 2:length(statsdf[1,]), width = 1.9)
 ft <- width(ft, j = 1, width = 2)
 
 # Add header row -----------------------------------------------------------------------------------
@@ -425,6 +445,7 @@ for (i in 1:length(runid.list)){
 
 ``` 
 
+\newpage
 
 # Unmet Demand Heatmaps:
 
@@ -496,15 +517,5 @@ if (!is.logical(fig_path)) {
 }
 ```
 
+
 ## Habitat (If Applicable):
-
-\newpage
-
-# Additional Sections
-<!---BLOCK_MULTICOL_START--->
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
-
-`r run_columnbreak()`Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla eu pulvinar arcu, quis aliquam dui. In at cursus ante. Vestibulum non sagittis lacus. Duis vitae iaculis dui. Vivamus tempor, nibh ut pretium tempus, enim lorem dignissim quam, at euismod massa magna at magna. Sed facilisis dapibus diam nec volutpat. Maecenas facilisis dapibus egestas. Curabitur dignissim pharetra pulvinar. Nunc bibendum elit sed cursus congue. Curabitur ligula quam, iaculis faucibus orci quis, vestibulum lobortis lectus. Suspendisse fringilla nisl pulvinar, laoreet tellus sed, sollicitudin tortor. Donec consequat congue erat in iaculis. Curabitur luctus tellus ut turpis iaculis, nec laoreet ligula scelerisque.
-<!---BLOCK_MULTICOL_STOP{widths: [3,3], space: 0.2, sep: true}--->
