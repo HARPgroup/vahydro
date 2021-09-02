@@ -1,0 +1,2729 @@
+$view = new view();
+$view->name = 'wwpr_measuring_point_dashboard';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'dh_feature';
+$view->human_name = 'WWPR - Measuring Point Dashboard';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'VWUDS - Measuring Point Dashboard';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['row_plugin'] = 'fields';
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: TS Data */
+$handler->display->display_options['relationships']['crossts_dh_feature']['id'] = 'crossts_dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['field'] = 'crossts_dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['ui_name'] = 'TS Data';
+$handler->display->display_options['relationships']['crossts_dh_feature']['label'] = 'TS Data';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: fstatus */
+$handler->display->display_options['fields']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['exclude'] = TRUE;
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: MP Dashboard */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'MP Dashboard';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<table>
+<tr>
+<td colspan=2 valign=top><h2>[name]</h2>
+<br><h4><strong>Facility:</strong>[name_1]</h4> [hydroid_1]</td>
+</tr>
+<tr>
+<td width=\'60%\' valign=top><strong>Notes: </strong>[description]
+<br><strong>Facility Type:</strong> [ftype]  <strong>Source Type</strong>: [bundle]</td>
+<td width=\'40%\' valign=top>
+</tr>
+</table>';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+);
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: Fac-Org */
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['id'] = 'dh_link_admin_fa_or_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['table'] = 'field_data_dh_link_admin_fa_or';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['field'] = 'dh_link_admin_fa_or_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['ui_name'] = 'Fac-Org';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['label'] = 'Fac-Org';
+/* Relationship: DEQ Well Number */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'DEQ Well Number';
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'Permit Link';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+$handler->display->display_options['fields']['bundle']['machine_name'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: fstatus */
+$handler->display->display_options['fields']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['label'] = 'Status';
+$handler->display->display_options['fields']['fstatus']['exclude'] = TRUE;
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility Page';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_2']['id'] = 'hydroid_2';
+$handler->display->display_options['fields']['hydroid_2']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_2']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_2']['label'] = '';
+$handler->display->display_options['fields']['hydroid_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['text'] = 'Edit Measuring Point';
+$handler->display->display_options['fields']['hydroid_2']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['path'] = 'ows-wwpr-[bundle]-info/[hydroid]/edit';
+$handler->display->display_options['fields']['hydroid_2']['alter']['path_query_parameters'] = 'destination=ows-wwpr-[bundle]-info/[hydroid]';
+$handler->display->display_options['fields']['hydroid_2']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid_2']['separator'] = '';
+/* Field: DH Feature: hydrocode */
+$handler->display->display_options['fields']['hydrocode']['id'] = 'hydrocode';
+$handler->display->display_options['fields']['hydrocode']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydrocode']['field'] = 'hydrocode';
+$handler->display->display_options['fields']['hydrocode']['label'] = '';
+$handler->display->display_options['fields']['hydrocode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydrocode']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['adminid']['label'] = '';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['text'] = 'Return to Permit Page';
+$handler->display->display_options['fields']['adminid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['path'] = 'ows-wwpr-permit-info/[adminid]';
+$handler->display->display_options['fields']['adminid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name_2']['id'] = 'name_2';
+$handler->display->display_options['fields']['name_2']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name_2']['field'] = 'name';
+$handler->display->display_options['fields']['name_2']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['name_2']['label'] = '';
+$handler->display->display_options['fields']['name_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name_2']['element_label_colon'] = FALSE;
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: MPID */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['ui_name'] = 'MPID';
+$handler->display->display_options['fields']['propcode']['label'] = '';
+$handler->display->display_options['fields']['propcode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode']['element_label_colon'] = FALSE;
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['id'] = 'dh_link_admin_fa_usafips_1';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['label'] = '';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['delta_offset'] = '0';
+/* Field: Field: Address 1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'field_data_address1';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['address1']['label'] = '';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address1']['element_label_colon'] = FALSE;
+/* Field: Field: Address 2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'field_data_address2';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['address2']['label'] = '';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address2']['element_label_colon'] = FALSE;
+/* Field: Field: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'field_data_city';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['city']['label'] = '';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+$handler->display->display_options['fields']['city']['element_label_colon'] = FALSE;
+/* Field: Field: Zip/Postal Code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'field_data_postal_code';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['postal_code']['label'] = '';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+$handler->display->display_options['fields']['postal_code']['element_label_colon'] = FALSE;
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['permit_id']['label'] = '';
+$handler->display->display_options['fields']['permit_id']['exclude'] = TRUE;
+$handler->display->display_options['fields']['permit_id']['element_label_colon'] = FALSE;
+/* Field: MP Dashboard */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'MP Dashboard';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<table>
+<tr>
+<td colspan=2 valign=top><strong>Measuring Point:</strong> [name]
+<br><strong>Permit:</strong> [name_2] ([adminid])
+<br><strong>Permit ID:</strong> [permit_id]
+<br><strong>DEQ Well Number:</strong> [propcode]</td>
+</tr>
+<tr>
+<td width=\'60%\' valign=top><strong>Status: </strong> [fstatus]
+<br><strong>Facility Type:</strong> [ftype]  <strong>Source Type</strong>: [bundle]
+<br><strong>Latitude:</strong>[dh_geofield] <strong>Longitude:</strong> [dh_geofield_1]
+<br><strong>Notes: </strong>[description]</td>
+<td width=\'40%\' valign=top>
+<br><strong>Facility Address:</strong>
+<br>[address1] [address2]
+<br>[city], VA [postal_code]
+<br><strong>Locality:</strong> [dh_link_admin_fa_usafips_1]
+</tr>
+</table>';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+/* Contextual filter: Pass Through Argument */
+$handler->display->display_options['arguments']['null']['id'] = 'null';
+$handler->display->display_options['arguments']['null']['table'] = 'views';
+$handler->display->display_options['arguments']['null']['field'] = 'null';
+$handler->display->display_options['arguments']['null']['ui_name'] = 'Pass Through Argument';
+$handler->display->display_options['arguments']['null']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['null']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['null']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['null']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['path'] = 'vwuds---measuring-point-dashboard';
+
+/* Display: Map */
+$handler = $view->new_display('page', 'Map', 'page_1');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '1';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'leaflet';
+$handler->display->display_options['style_options']['data_source'] = 'dh_geofield';
+$handler->display->display_options['style_options']['name_field'] = 'name';
+$handler->display->display_options['style_options']['description_field'] = 'nothing';
+$handler->display->display_options['style_options']['map'] = 'bing';
+$handler->display->display_options['style_options']['hide_empty'] = 0;
+$handler->display->display_options['style_options']['zoom']['initialZoom'] = '-1';
+$handler->display->display_options['style_options']['zoom']['minZoom'] = '0';
+$handler->display->display_options['style_options']['zoom']['maxZoom'] = '18';
+$handler->display->display_options['style_options']['vector_display']['stroke'] = 0;
+$handler->display->display_options['style_options']['vector_display']['fill'] = 0;
+$handler->display->display_options['style_options']['vector_display']['clickable'] = 0;
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+/* Field: DH Feature: fstatus */
+$handler->display->display_options['fields']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['exclude'] = TRUE;
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: MP Dashboard */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'MP Dashboard';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<br>[name]
+<br><strong>Source Type</strong>: [bundle]
+<br>[description]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+);
+$handler->display->display_options['path'] = 'vwuds-mp-map-info';
+
+/* Display: Tiny */
+$handler = $view->new_display('page', 'Tiny', 'page_2');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: MPID */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'MPID';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'MPID';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+/* Field: DH Feature: Bundle */
+$handler->display->display_options['fields']['bundle_1']['id'] = 'bundle_1';
+$handler->display->display_options['fields']['bundle_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle_1']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle_1']['label'] = '';
+$handler->display->display_options['fields']['bundle_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['bundle_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['bundle_1']['machine_name'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['name']['alter']['path'] = 'ows-vwuds-[bundle_1]-info/[hydroid]';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = '[name_1]';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: MP Edit Link */
+$handler->display->display_options['fields']['hydroid_2']['id'] = 'hydroid_2';
+$handler->display->display_options['fields']['hydroid_2']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_2']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_2']['ui_name'] = 'MP Edit Link';
+$handler->display->display_options['fields']['hydroid_2']['label'] = '';
+$handler->display->display_options['fields']['hydroid_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['text'] = 'Edit Measuring Point';
+$handler->display->display_options['fields']['hydroid_2']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['path'] = 'admin/content/dh_features/manage/[hydroid]';
+$handler->display->display_options['fields']['hydroid_2']['alter']['path_query_parameters'] = 'destination=ows-vwuds-mp-info/[hydroid]';
+$handler->display->display_options['fields']['hydroid_2']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid_2']['separator'] = '';
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = '';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+$handler->display->display_options['fields']['ftype']['element_label_colon'] = FALSE;
+/* Field: MPID */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['ui_name'] = 'MPID';
+$handler->display->display_options['fields']['propcode']['label'] = '';
+$handler->display->display_options['fields']['propcode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode']['element_label_colon'] = FALSE;
+/* Field: MP Dashboard */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'MP Dashboard';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Name: [name]
+<br>MPID: [propcode]
+<br>Source Type: [bundle] [ftype]
+<br>Facility: [hydroid_1]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'vadeq_mpid' => 'vadeq_mpid',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['path'] = 'vwuds---measuring-point-dashboard';
+
+/* Display: Historical Monthly Data */
+$handler = $view->new_display('page', 'Historical Monthly Data', 'page_3');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '100';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['pager']['options']['id'] = '0';
+$handler->display->display_options['pager']['options']['quantity'] = '9';
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'hydroid' => 'hydroid',
+  'bundle' => 'bundle',
+  'description' => 'description',
+  'name' => 'name',
+  'hydroid_1' => 'hydroid_1',
+  'tstime' => 'tstime',
+  'tsvalue' => 'tsvalue',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bundle' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'description' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tstime' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tsvalue' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['header'] = FALSE;
+/* Header: Global: Text area */
+$handler->display->display_options['header']['area']['id'] = 'area';
+$handler->display->display_options['header']['area']['table'] = 'views';
+$handler->display->display_options['header']['area']['field'] = 'area';
+$handler->display->display_options['header']['area']['content'] = 'Click the following link to: [nothing]';
+$handler->display->display_options['header']['area']['format'] = 'filtered_html';
+$handler->display->display_options['header']['area']['tokenize'] = TRUE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['fields']['tstime']['label'] = 'Date';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['label'] = 'Total Withdrawal (gallons/month)';
+$handler->display->display_options['fields']['tsvalue']['precision'] = '2';
+/* Field: data download */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'data download';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Download Historical Reporting Data for [name]';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'ows-wwpr-historical-data-export/[hydroid]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['sorts']['tstime']['order'] = 'DESC';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wlg' => 'wlg',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'water_use' => 'water_use',
+);
+$handler->display->display_options['path'] = 'ows-vwwr-wd-historical-data';
+
+/* Display: Properties */
+$handler = $view->new_display('page', 'Properties', 'page_6');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '1';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['row_plugin'] = 'fields';
+$handler->display->display_options['row_options']['hide_empty'] = TRUE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: DH Feature: dh_feature LEFT OUTER JOIN dH Properties */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'startdate';
+/* Relationship: DH Feature: dh_feature LEFT OUTER JOIN dH Properties */
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['id'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_1']['label'] = 'siccode';
+/* Relationship: DH Feature: dh_feature LEFT OUTER JOIN dH Properties */
+$handler->display->display_options['relationships']['crosstab_dh_feature_2']['id'] = 'crosstab_dh_feature_2';
+$handler->display->display_options['relationships']['crosstab_dh_feature_2']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_2']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_2']['label'] = 'enddate';
+/* Relationship: DH Feature: dh_feature LEFT OUTER JOIN dH Properties */
+$handler->display->display_options['relationships']['crosstab_dh_feature_3']['id'] = 'crosstab_dh_feature_3';
+$handler->display->display_options['relationships']['crosstab_dh_feature_3']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_3']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_3']['label'] = 'status';
+/* Relationship: DH Feature: dh_feature LEFT OUTER JOIN dH Properties */
+$handler->display->display_options['relationships']['crosstab_dh_feature_4']['id'] = 'crosstab_dh_feature_4';
+$handler->display->display_options['relationships']['crosstab_dh_feature_4']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_4']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_4']['label'] = 'subtype';
+/* Relationship: DH Feature: dh_feature LEFT OUTER JOIN dH Properties */
+$handler->display->display_options['relationships']['crosstab_dh_feature_5']['id'] = 'crosstab_dh_feature_5';
+$handler->display->display_options['relationships']['crosstab_dh_feature_5']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_5']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_5']['label'] = 'pwsid';
+/* Relationship: DH Feature: dh_feature LEFT OUTER JOIN dH Properties */
+$handler->display->display_options['relationships']['crosstab_dh_feature_6']['id'] = 'crosstab_dh_feature_6';
+$handler->display->display_options['relationships']['crosstab_dh_feature_6']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_6']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature_6']['label'] = 'vpdes';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Properties: Startdate */
+$handler->display->display_options['fields']['startdate']['id'] = 'startdate';
+$handler->display->display_options['fields']['startdate']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['startdate']['field'] = 'startdate';
+$handler->display->display_options['fields']['startdate']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['startdate']['label'] = '';
+$handler->display->display_options['fields']['startdate']['exclude'] = TRUE;
+$handler->display->display_options['fields']['startdate']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['startdate']['empty'] = '(None)';
+$handler->display->display_options['fields']['startdate']['date_format'] = 'custom';
+$handler->display->display_options['fields']['startdate']['custom_date_format'] = 'Y';
+$handler->display->display_options['fields']['startdate']['second_date_format'] = 'long';
+/* Field: DH Properties: Enddate */
+$handler->display->display_options['fields']['enddate']['id'] = 'enddate';
+$handler->display->display_options['fields']['enddate']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['enddate']['field'] = 'enddate';
+$handler->display->display_options['fields']['enddate']['relationship'] = 'crosstab_dh_feature_2';
+$handler->display->display_options['fields']['enddate']['exclude'] = TRUE;
+$handler->display->display_options['fields']['enddate']['empty'] = '(N/A)';
+$handler->display->display_options['fields']['enddate']['hide_empty'] = TRUE;
+$handler->display->display_options['fields']['enddate']['hide_alter_empty'] = FALSE;
+$handler->display->display_options['fields']['enddate']['date_format'] = 'custom';
+$handler->display->display_options['fields']['enddate']['custom_date_format'] = 'Y';
+$handler->display->display_options['fields']['enddate']['second_date_format'] = 'long';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_1']['id'] = 'propcode_1';
+$handler->display->display_options['fields']['propcode_1']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_1']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_1']['relationship'] = 'crosstab_dh_feature_3';
+$handler->display->display_options['fields']['propcode_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode_1']['empty'] = '(None)';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['fields']['propcode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode']['empty'] = '(None)';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_2']['id'] = 'propcode_2';
+$handler->display->display_options['fields']['propcode_2']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_2']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_2']['relationship'] = 'crosstab_dh_feature_4';
+$handler->display->display_options['fields']['propcode_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode_2']['empty'] = '(None)';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_3']['id'] = 'propcode_3';
+$handler->display->display_options['fields']['propcode_3']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_3']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_3']['relationship'] = 'crosstab_dh_feature_5';
+$handler->display->display_options['fields']['propcode_3']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode_3']['empty'] = '(None)';
+/* Field: DH Properties: propcode */
+$handler->display->display_options['fields']['propcode_4']['id'] = 'propcode_4';
+$handler->display->display_options['fields']['propcode_4']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode_4']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode_4']['relationship'] = 'crosstab_dh_feature_6';
+$handler->display->display_options['fields']['propcode_4']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode_4']['empty'] = '(None)';
+/* Field: Edit Additional Information */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['ui_name'] = 'Edit Additional Information';
+$handler->display->display_options['fields']['hydroid_1']['label'] = '';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Click To Edit';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-intake-info/[hydroid]/editprops?destination=ows-vwuds-intake-info/[hydroid]';
+$handler->display->display_options['fields']['hydroid_1']['element_label_colon'] = FALSE;
+/* Field: MP Dashboard */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'MP Dashboard';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<table>
+<tr>
+<td colspan=2 valign=top><strong>Additional Information:</strong>([hydroid_1])
+<br><strong>Year Added:</strong> [startdate]  
+<br><strong>Year Removed:</strong> [enddate]  
+<br><strong>Activity Status:</strong> [propcode_1]  
+<br><strong>Subtype:</strong> [propcode_2]  
+<br><strong>SIC Code:</strong> [propcode]  
+<br><strong>VDH PWSID:</strong> [propcode_3]  
+<br><strong>VPDES Permit No.:</strong> [propcode_4] </td>
+<td width=\'40%\' valign=top>
+</tr>
+</table>';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+/* Contextual filter: Pass Through Argument */
+$handler->display->display_options['arguments']['null']['id'] = 'null';
+$handler->display->display_options['arguments']['null']['table'] = 'views';
+$handler->display->display_options['arguments']['null']['field'] = 'null';
+$handler->display->display_options['arguments']['null']['ui_name'] = 'Pass Through Argument';
+$handler->display->display_options['arguments']['null']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['null']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['null']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['null']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'date_added' => 'date_added',
+  'water_act_status' => 'water_act_status',
+);
+$handler->display->display_options['filters']['varidid']['group'] = 1;
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'administrative' => 'administrative',
+  'vadeq_ows' => 'vadeq_ows',
+  'water_use' => 'water_use',
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_2']['id'] = 'varidid_2';
+$handler->display->display_options['filters']['varidid_2']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_2']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_2']['relationship'] = 'crosstab_dh_feature_2';
+$handler->display->display_options['filters']['varidid_2']['value'] = array(
+  'date_removed' => 'date_removed',
+);
+$handler->display->display_options['filters']['varidid_2']['group'] = 1;
+$handler->display->display_options['filters']['varidid_2']['vocabulary'] = array(
+  'administrative' => 'administrative',
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_3']['id'] = 'varidid_3';
+$handler->display->display_options['filters']['varidid_3']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_3']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_3']['relationship'] = 'crosstab_dh_feature_3';
+$handler->display->display_options['filters']['varidid_3']['value'] = array(
+  'water_act_status' => 'water_act_status',
+);
+$handler->display->display_options['filters']['varidid_3']['group'] = 1;
+$handler->display->display_options['filters']['varidid_3']['vocabulary'] = array(
+  'vadeq_ows' => 'vadeq_ows',
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_1']['id'] = 'varidid_1';
+$handler->display->display_options['filters']['varidid_1']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_1']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_1']['relationship'] = 'crosstab_dh_feature_1';
+$handler->display->display_options['filters']['varidid_1']['value'] = array(
+  'sic_code' => 'sic_code',
+);
+$handler->display->display_options['filters']['varidid_1']['group'] = 1;
+$handler->display->display_options['filters']['varidid_1']['vocabulary'] = array(
+  'administrative' => 'administrative',
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_4']['id'] = 'varidid_4';
+$handler->display->display_options['filters']['varidid_4']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_4']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_4']['relationship'] = 'crosstab_dh_feature_4';
+$handler->display->display_options['filters']['varidid_4']['value'] = array(
+  'vadeq_vwuds_mp_subtype' => 'vadeq_vwuds_mp_subtype',
+);
+$handler->display->display_options['filters']['varidid_4']['vocabulary'] = array(
+  'vadeq_ows' => 'vadeq_ows',
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_5']['id'] = 'varidid_5';
+$handler->display->display_options['filters']['varidid_5']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_5']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_5']['relationship'] = 'crosstab_dh_feature_5';
+$handler->display->display_options['filters']['varidid_5']['value'] = array(
+  'vdh_pwsid' => 'vdh_pwsid',
+);
+$handler->display->display_options['filters']['varidid_5']['vocabulary'] = array(
+  'vdh' => 'vdh',
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_6']['id'] = 'varidid_6';
+$handler->display->display_options['filters']['varidid_6']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_6']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_6']['relationship'] = 'crosstab_dh_feature_6';
+$handler->display->display_options['filters']['varidid_6']['value'] = array(
+  'vpdes_permitno' => 'vpdes_permitno',
+);
+$handler->display->display_options['filters']['varidid_6']['vocabulary'] = array(
+  'vpdes' => 'vpdes',
+);
+$handler->display->display_options['path'] = 'vwuds---measuring-point-dashboard-props';
+
+/* Display: Past Monthly Data Export */
+$handler = $view->new_display('views_data_export', 'Past Monthly Data Export', 'views_data_export_1');
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+$handler->display->display_options['style_options']['provide_file'] = 1;
+$handler->display->display_options['style_options']['filename'] = 'HistoricalWithdrawalData_%timestamp-mm%timestamp-dd%timestamp-yyyy.csv';
+$handler->display->display_options['style_options']['parent_sort'] = 0;
+$handler->display->display_options['style_options']['quote'] = 1;
+$handler->display->display_options['style_options']['trim'] = 0;
+$handler->display->display_options['style_options']['replace_newlines'] = 0;
+$handler->display->display_options['style_options']['header'] = 1;
+$handler->display->display_options['style_options']['keep_html'] = 0;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = 'DEQ Source ID';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['label'] = 'Source Type';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'Measuring Point';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['label'] = 'Date';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y-m';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['label'] = 'Withdrawal (gallons/month)';
+$handler->display->display_options['fields']['tsvalue']['precision'] = '3';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['order'] = 'DESC';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wlg' => 'wlg',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'water_use' => 'water_use',
+);
+$handler->display->display_options['path'] = 'ows-wwpr-historical-data-export';
+
+/* Display: Historical Annual Data */
+$handler = $view->new_display('page', 'Historical Annual Data', 'page_7');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '100';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['pager']['options']['id'] = '0';
+$handler->display->display_options['pager']['options']['quantity'] = '9';
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'hydroid' => 'hydroid',
+  'bundle' => 'bundle',
+  'description' => 'description',
+  'name' => 'name',
+  'hydroid_1' => 'hydroid_1',
+  'tstime' => 'tstime',
+  'tsvalue' => 'tsvalue',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bundle' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'description' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tstime' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tsvalue' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['header'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['label'] = 'Reporting Year';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['label'] = 'Total Annual Withdrawal (million gallons/year)';
+$handler->display->display_options['fields']['tsvalue']['precision'] = '2';
+/* Field: data download */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'data download';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Download Historical Reporting Data for [name]';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'ows-vwwr-historical-data-export/[hydroid]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['sorts']['tstime']['order'] = 'DESC';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wd_mgy' => 'wd_mgy',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'water_use' => 'water_use',
+);
+$handler->display->display_options['path'] = 'ows-vwwr-wd-historical-annual-data';
+
+/* Display: Max Withdrawal */
+$handler = $view->new_display('page', 'Max Withdrawal', 'page_8');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '1';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: Water Use Monthly */
+$handler->display->display_options['relationships']['crossts_dh_feature']['id'] = 'crossts_dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['field'] = 'crossts_dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['ui_name'] = 'Water Use Monthly';
+$handler->display->display_options['relationships']['crossts_dh_feature']['label'] = 'Water Use Monthly';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['fields']['tstime']['label'] = 'Date';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'm/Y';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['fields']['tsvalue']['label'] = 'Monthly Water Use (MGM)';
+$handler->display->display_options['fields']['tsvalue']['precision'] = '0';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tsvalue */
+$handler->display->display_options['sorts']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['sorts']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['sorts']['tsvalue']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['sorts']['tsvalue']['order'] = 'DESC';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wd_mgm' => 'wd_mgm',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['path'] = 'vwuds-max-historic-mp-withdrawal';
+
+/* Display: Well Edit */
+$handler = $view->new_display('page', 'Well Edit', 'page_4');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: Fac-Org */
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['id'] = 'dh_link_admin_fa_or_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['table'] = 'field_data_dh_link_admin_fa_or';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['field'] = 'dh_link_admin_fa_or_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['ui_name'] = 'Fac-Org';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['label'] = 'Fac-Org';
+/* Relationship: Deq well number */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'Deq well number';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'DEQ Well Number';
+/* Relationship: Permit Link */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['ui_name'] = 'Permit Link';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'Permit Link';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+$handler->display->display_options['fields']['bundle']['machine_name'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: fstatus */
+$handler->display->display_options['fields']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['label'] = 'Status';
+$handler->display->display_options['fields']['fstatus']['exclude'] = TRUE;
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility Page';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_2']['id'] = 'hydroid_2';
+$handler->display->display_options['fields']['hydroid_2']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_2']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_2']['label'] = '';
+$handler->display->display_options['fields']['hydroid_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['text'] = 'Edit Measuring Point';
+$handler->display->display_options['fields']['hydroid_2']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['path'] = 'ows-vwuds-[bundle]-info/[hydroid]/edit';
+$handler->display->display_options['fields']['hydroid_2']['alter']['path_query_parameters'] = 'destination=ows-vwuds-[bundle]-info/[hydroid]';
+$handler->display->display_options['fields']['hydroid_2']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid_2']['separator'] = '';
+/* Field: DH Feature: hydrocode */
+$handler->display->display_options['fields']['hydrocode']['id'] = 'hydrocode';
+$handler->display->display_options['fields']['hydrocode']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydrocode']['field'] = 'hydrocode';
+$handler->display->display_options['fields']['hydrocode']['label'] = '';
+$handler->display->display_options['fields']['hydrocode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydrocode']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['adminid']['label'] = '';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['text'] = 'Return to Permit Page';
+$handler->display->display_options['fields']['adminid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['path'] = 'ows-wwpr-permit-info/[adminid]';
+$handler->display->display_options['fields']['adminid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name_2']['id'] = 'name_2';
+$handler->display->display_options['fields']['name_2']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name_2']['field'] = 'name';
+$handler->display->display_options['fields']['name_2']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['name_2']['label'] = '';
+$handler->display->display_options['fields']['name_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name_2']['element_label_colon'] = FALSE;
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: DEQ Well Number */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['fields']['propcode']['label'] = '';
+$handler->display->display_options['fields']['propcode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode']['element_label_colon'] = FALSE;
+/* Field: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['permit_id']['ui_name'] = 'Permit ID';
+$handler->display->display_options['fields']['permit_id']['label'] = '';
+$handler->display->display_options['fields']['permit_id']['exclude'] = TRUE;
+$handler->display->display_options['fields']['permit_id']['element_label_colon'] = FALSE;
+/* Field: Expiration Date */
+$handler->display->display_options['fields']['enddate']['id'] = 'enddate';
+$handler->display->display_options['fields']['enddate']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['enddate']['field'] = 'enddate';
+$handler->display->display_options['fields']['enddate']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['enddate']['ui_name'] = 'Expiration Date';
+$handler->display->display_options['fields']['enddate']['label'] = '';
+$handler->display->display_options['fields']['enddate']['exclude'] = TRUE;
+$handler->display->display_options['fields']['enddate']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['enddate']['date_format'] = 'custom';
+$handler->display->display_options['fields']['enddate']['custom_date_format'] = 'm/d/Y';
+$handler->display->display_options['fields']['enddate']['second_date_format'] = 'long';
+/* Field: Issuance Date */
+$handler->display->display_options['fields']['startdate']['id'] = 'startdate';
+$handler->display->display_options['fields']['startdate']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['startdate']['field'] = 'startdate';
+$handler->display->display_options['fields']['startdate']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['startdate']['ui_name'] = 'Issuance Date';
+$handler->display->display_options['fields']['startdate']['label'] = '';
+$handler->display->display_options['fields']['startdate']['exclude'] = TRUE;
+$handler->display->display_options['fields']['startdate']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['startdate']['date_format'] = 'custom';
+$handler->display->display_options['fields']['startdate']['custom_date_format'] = 'm/d/Y';
+$handler->display->display_options['fields']['startdate']['second_date_format'] = 'long';
+/* Field: MP Dashboard */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'MP Dashboard';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<table>
+<tr>
+<td colspan=2 valign=top><strong>Measuring Point:</strong> [name] ([hydroid_2])
+<br><strong>Facility:</strong> [name_1] ([hydroid_1])
+<br><strong>Permit:</strong> [name_2] ([adminid])
+<br><strong>Permit ID:</strong> [permit_id]
+<br><strong>Permit Term:</strong> [startdate] to [enddate]</td>
+</tr>
+<tr>
+<td width=\'60%\' valign=top><strong>Status: </strong>[fstatus]
+<br><strong>Notes: </strong>[description]
+<br><strong>Facility Type:</strong> [ftype]  <strong>Source Type</strong>: [bundle]
+<br><strong>Latitude:</strong>[dh_geofield] <strong>Longitude:</strong> [dh_geofield_1]
+<br><strong>DEQ Well Number:</strong>  [propcode]</td>
+<td width=\'40%\' valign=top>
+</tr>
+</table>';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+/* Contextual filter: Pass Through Argument */
+$handler->display->display_options['arguments']['null']['id'] = 'null';
+$handler->display->display_options['arguments']['null']['table'] = 'views';
+$handler->display->display_options['arguments']['null']['field'] = 'null';
+$handler->display->display_options['arguments']['null']['ui_name'] = 'Pass Through Argument';
+$handler->display->display_options['arguments']['null']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['null']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['null']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['null']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['path'] = 'wwpr-measuring-point-dashboard-edit';
+
+/* Display: Monthly Use Small */
+$handler = $view->new_display('page', 'Monthly Use Small', 'page_5');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'hydroid' => 'hydroid',
+  'bundle' => 'bundle',
+  'description' => 'description',
+  'name' => 'name',
+  'hydroid_1' => 'hydroid_1',
+  'tstime' => 'tstime',
+  'tsvalue' => 'tsvalue',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bundle' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'description' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tstime' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tsvalue' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['header'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['fields']['tstime']['label'] = 'Date';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['label'] = 'Total Withdrawal (gallons/month)';
+$handler->display->display_options['fields']['tsvalue']['precision'] = '2';
+/* Field: data download */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'data download';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Download Historical Reporting Data for [name]';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'ows-wwpr-historical-data-export/[hydroid]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['sorts']['tstime']['order'] = 'DESC';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wlg' => 'wlg',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'water_use' => 'water_use',
+);
+$handler->display->display_options['path'] = 'ows-wwpr-wd-historical-data-tiny';
+
+/* Display: Form Page */
+$handler = $view->new_display('page', 'Form Page', 'page_9');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: Fac-Org */
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['id'] = 'dh_link_admin_fa_or_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['table'] = 'field_data_dh_link_admin_fa_or';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['field'] = 'dh_link_admin_fa_or_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['ui_name'] = 'Fac-Org';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['label'] = 'Fac-Org';
+/* Relationship: DEQ Well Number */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'DEQ Well Number';
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'Permit Link';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+$handler->display->display_options['fields']['bundle']['machine_name'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: fstatus */
+$handler->display->display_options['fields']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['label'] = 'Status';
+$handler->display->display_options['fields']['fstatus']['exclude'] = TRUE;
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility Page';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_2']['id'] = 'hydroid_2';
+$handler->display->display_options['fields']['hydroid_2']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_2']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_2']['label'] = '';
+$handler->display->display_options['fields']['hydroid_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['text'] = 'Edit Measuring Point';
+$handler->display->display_options['fields']['hydroid_2']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['path'] = 'ows-wwpr-[bundle]-info/[hydroid]/edit';
+$handler->display->display_options['fields']['hydroid_2']['alter']['path_query_parameters'] = 'destination=ows-wwpr-[bundle]-info/[hydroid]';
+$handler->display->display_options['fields']['hydroid_2']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid_2']['separator'] = '';
+/* Field: DH Feature: hydrocode */
+$handler->display->display_options['fields']['hydrocode']['id'] = 'hydrocode';
+$handler->display->display_options['fields']['hydrocode']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydrocode']['field'] = 'hydrocode';
+$handler->display->display_options['fields']['hydrocode']['label'] = '';
+$handler->display->display_options['fields']['hydrocode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydrocode']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['adminid']['label'] = '';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['text'] = 'Return to Permit Page';
+$handler->display->display_options['fields']['adminid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['path'] = 'ows-wwpr-permit-info/[adminid]';
+$handler->display->display_options['fields']['adminid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name_2']['id'] = 'name_2';
+$handler->display->display_options['fields']['name_2']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name_2']['field'] = 'name';
+$handler->display->display_options['fields']['name_2']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['name_2']['label'] = '';
+$handler->display->display_options['fields']['name_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name_2']['element_label_colon'] = FALSE;
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: MPID */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['ui_name'] = 'MPID';
+$handler->display->display_options['fields']['propcode']['label'] = '';
+$handler->display->display_options['fields']['propcode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode']['element_label_colon'] = FALSE;
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['id'] = 'dh_link_admin_fa_usafips_1';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['label'] = '';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['delta_offset'] = '0';
+/* Field: Field: Address 1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'field_data_address1';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['address1']['label'] = '';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address1']['element_label_colon'] = FALSE;
+/* Field: Field: Address 2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'field_data_address2';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['address2']['label'] = '';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address2']['element_label_colon'] = FALSE;
+/* Field: Field: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'field_data_city';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['city']['label'] = '';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+$handler->display->display_options['fields']['city']['element_label_colon'] = FALSE;
+/* Field: Field: Zip/Postal Code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'field_data_postal_code';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['postal_code']['label'] = '';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+$handler->display->display_options['fields']['postal_code']['element_label_colon'] = FALSE;
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['permit_id']['label'] = '';
+$handler->display->display_options['fields']['permit_id']['exclude'] = TRUE;
+$handler->display->display_options['fields']['permit_id']['element_label_colon'] = FALSE;
+/* Field: MP Dashboard */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'MP Dashboard';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<table>
+<tr>
+<td colspan=2 valign=top><strong>Measuring Point:</strong> [name]
+<br><strong>Permit:</strong> [name_2] ([adminid])
+<br><strong>Permit ID:</strong> [permit_id]
+<br><strong>DEQ Well Number:</strong> [propcode]
+<br><strong>Facility Address:</strong>
+<br>[address1] [address2]
+<br>[city], VA [postal_code]
+</tr>
+</table>';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+/* Contextual filter: Pass Through Argument */
+$handler->display->display_options['arguments']['null']['id'] = 'null';
+$handler->display->display_options['arguments']['null']['table'] = 'views';
+$handler->display->display_options['arguments']['null']['field'] = 'null';
+$handler->display->display_options['arguments']['null']['ui_name'] = 'Pass Through Argument';
+$handler->display->display_options['arguments']['null']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['null']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['null']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['null']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['path'] = 'wwpr-form-page-measuring-point-dashboard';
+
+/* Display: Well Name */
+$handler = $view->new_display('page', 'Well Name', 'page_10');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: Fac-Org */
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['id'] = 'dh_link_admin_fa_or_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['table'] = 'field_data_dh_link_admin_fa_or';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['field'] = 'dh_link_admin_fa_or_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['ui_name'] = 'Fac-Org';
+$handler->display->display_options['relationships']['dh_link_admin_fa_or_target_id']['label'] = 'Fac-Org';
+/* Relationship: DEQ Well Number */
+$handler->display->display_options['relationships']['crosstab_dh_feature']['id'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['field'] = 'crosstab_dh_feature';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['ui_name'] = 'DEQ Well Number';
+$handler->display->display_options['relationships']['crosstab_dh_feature']['label'] = 'DEQ Well Number';
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'Permit Link';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+$handler->display->display_options['fields']['bundle']['machine_name'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: fstatus */
+$handler->display->display_options['fields']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['label'] = 'Status';
+$handler->display->display_options['fields']['fstatus']['exclude'] = TRUE;
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: dH Feature: Land Surface Elevation */
+$handler->display->display_options['fields']['dh_landelev']['id'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['table'] = 'field_data_dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['field'] = 'dh_landelev';
+$handler->display->display_options['fields']['dh_landelev']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_landelev']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => ' ',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'Return to Facility Page';
+$handler->display->display_options['fields']['hydroid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['path'] = 'ows-vwuds-facility-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_2']['id'] = 'hydroid_2';
+$handler->display->display_options['fields']['hydroid_2']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_2']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_2']['label'] = '';
+$handler->display->display_options['fields']['hydroid_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['text'] = 'Edit Measuring Point';
+$handler->display->display_options['fields']['hydroid_2']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['hydroid_2']['alter']['path'] = 'ows-wwpr-[bundle]-info/[hydroid]/edit';
+$handler->display->display_options['fields']['hydroid_2']['alter']['path_query_parameters'] = 'destination=ows-wwpr-[bundle]-info/[hydroid]';
+$handler->display->display_options['fields']['hydroid_2']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid_2']['separator'] = '';
+/* Field: DH Feature: hydrocode */
+$handler->display->display_options['fields']['hydrocode']['id'] = 'hydrocode';
+$handler->display->display_options['fields']['hydrocode']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydrocode']['field'] = 'hydrocode';
+$handler->display->display_options['fields']['hydrocode']['label'] = '';
+$handler->display->display_options['fields']['hydrocode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydrocode']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['adminid']['label'] = '';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['text'] = 'Return to Permit Page';
+$handler->display->display_options['fields']['adminid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['adminid']['alter']['path'] = 'ows-wwpr-permit-info/[adminid]';
+$handler->display->display_options['fields']['adminid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name_2']['id'] = 'name_2';
+$handler->display->display_options['fields']['name_2']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name_2']['field'] = 'name';
+$handler->display->display_options['fields']['name_2']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['name_2']['label'] = '';
+$handler->display->display_options['fields']['name_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name_2']['element_label_colon'] = FALSE;
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+$handler->display->display_options['fields']['description']['exclude'] = TRUE;
+/* Field: MPID */
+$handler->display->display_options['fields']['propcode']['id'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propcode']['field'] = 'propcode';
+$handler->display->display_options['fields']['propcode']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['fields']['propcode']['ui_name'] = 'MPID';
+$handler->display->display_options['fields']['propcode']['label'] = '';
+$handler->display->display_options['fields']['propcode']['exclude'] = TRUE;
+$handler->display->display_options['fields']['propcode']['element_label_colon'] = FALSE;
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['id'] = 'dh_link_admin_fa_usafips_1';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['label'] = '';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips_1']['delta_offset'] = '0';
+/* Field: Field: Address 1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'field_data_address1';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['address1']['label'] = '';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address1']['element_label_colon'] = FALSE;
+/* Field: Field: Address 2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'field_data_address2';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['address2']['label'] = '';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address2']['element_label_colon'] = FALSE;
+/* Field: Field: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'field_data_city';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['city']['label'] = '';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+$handler->display->display_options['fields']['city']['element_label_colon'] = FALSE;
+/* Field: Field: Zip/Postal Code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'field_data_postal_code';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['postal_code']['label'] = '';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+$handler->display->display_options['fields']['postal_code']['element_label_colon'] = FALSE;
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['permit_id']['label'] = '';
+$handler->display->display_options['fields']['permit_id']['exclude'] = TRUE;
+$handler->display->display_options['fields']['permit_id']['element_label_colon'] = FALSE;
+/* Field: MP Dashboard */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'MP Dashboard';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<h4><strong>Well Name (DEQ Well Number):</strong> [name] ([propcode])</h4>
+<h5><strong>Permit Name (Permit ID):</strong> [name_2] ([permit_id])</h5>
+';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+/* Contextual filter: Pass Through Argument */
+$handler->display->display_options['arguments']['null']['id'] = 'null';
+$handler->display->display_options['arguments']['null']['table'] = 'views';
+$handler->display->display_options['arguments']['null']['field'] = 'null';
+$handler->display->display_options['arguments']['null']['ui_name'] = 'Pass Through Argument';
+$handler->display->display_options['arguments']['null']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['null']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['null']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['null']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'deq_wellno' => 'deq_wellno',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['path'] = 'wwpr-well-name-big';
+
+/* Display: Previous Meter Reading */
+$handler = $view->new_display('page', 'Previous Meter Reading', 'page_11');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '1';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: Meter Reading */
+$handler->display->display_options['relationships']['crossts_dh_feature']['id'] = 'crossts_dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['field'] = 'crossts_dh_feature';
+$handler->display->display_options['relationships']['crossts_dh_feature']['ui_name'] = 'Meter Reading';
+$handler->display->display_options['relationships']['crossts_dh_feature']['label'] = 'Meter Reading';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility Name';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['fields']['tstime']['label'] = 'Date';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'm/Y';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['fields']['tsvalue']['label'] = 'Previous Meter Reading';
+$handler->display->display_options['fields']['tsvalue']['precision'] = '0';
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<br><strong>Reminder: Please report your monthly meter readings below in total gallons, not thousands of gallons or millions of gallons. (e.g. 1000000 not 1) and please do not use commas in the meter reading</strong>';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tsvalue */
+$handler->display->display_options['sorts']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['sorts']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['sorts']['tsvalue']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['sorts']['tsvalue']['order'] = 'DESC';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crossts_dh_feature';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wd_meter_reading' => 'wd_meter_reading',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'water_use' => 'water_use',
+  'wwpr_meter' => 'wwpr_meter',
+);
+$handler->display->display_options['path'] = 'wwpr-previous-meter-reading';
+
+/* Display: MP Sidebar List Nav */
+$handler = $view->new_display('page', 'MP Sidebar List Nav', 'page_12');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'WWPR Form Sidebar Navigation';
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'list';
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['row_plugin'] = 'fields';
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['header'] = FALSE;
+$handler->display->display_options['defaults']['footer'] = FALSE;
+/* Footer: Global: Text area */
+$handler->display->display_options['footer']['area']['id'] = 'area';
+$handler->display->display_options['footer']['area']['table'] = 'views';
+$handler->display->display_options['footer']['area']['field'] = 'area';
+$handler->display->display_options['footer']['area']['content'] = 'Click the well name above to enter quarterly meter readings for that well. Be sure to Save & Reload before exiting the current page.';
+$handler->display->display_options['footer']['area']['format'] = 'filtered_html';
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Facility link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: MPs */
+$handler->display->display_options['relationships']['reverse_dh_link_facility_mps_dh_feature']['id'] = 'reverse_dh_link_facility_mps_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_facility_mps_dh_feature']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_facility_mps_dh_feature']['field'] = 'reverse_dh_link_facility_mps_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_facility_mps_dh_feature']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['reverse_dh_link_facility_mps_dh_feature']['ui_name'] = 'MPs';
+$handler->display->display_options['relationships']['reverse_dh_link_facility_mps_dh_feature']['label'] = 'MPs';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: Source Type */
+$handler->display->display_options['fields']['bundle']['id'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['bundle']['field'] = 'bundle';
+$handler->display->display_options['fields']['bundle']['ui_name'] = 'Source Type';
+$handler->display->display_options['fields']['bundle']['label'] = '';
+$handler->display->display_options['fields']['bundle']['exclude'] = TRUE;
+$handler->display->display_options['fields']['bundle']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['bundle']['machine_name'] = TRUE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = '';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name']['alter']['text'] = '<b>[name]</b>';
+$handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'reverse_dh_link_facility_mps_dh_feature';
+$handler->display->display_options['fields']['name_1']['label'] = '';
+$handler->display->display_options['fields']['name_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name_1']['element_label_colon'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid_1']['id'] = 'hydroid_1';
+$handler->display->display_options['fields']['hydroid_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid_1']['relationship'] = 'reverse_dh_link_facility_mps_dh_feature';
+$handler->display->display_options['fields']['hydroid_1']['label'] = '';
+$handler->display->display_options['fields']['hydroid_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid_1']['alter']['text'] = 'ows-wwpr-[bundle]-info/[hydroid_1]';
+$handler->display->display_options['fields']['hydroid_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid_1']['separator'] = '';
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '[name_1]';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'ows-wwpr-[bundle]-monthly/[hydroid_1]/!2/%3';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: Views: Views Conditional */
+$handler->display->display_options['fields']['views_conditional']['id'] = 'views_conditional';
+$handler->display->display_options['fields']['views_conditional']['table'] = 'views_conditional';
+$handler->display->display_options['fields']['views_conditional']['field'] = 'views_conditional';
+$handler->display->display_options['fields']['views_conditional']['label'] = '';
+$handler->display->display_options['fields']['views_conditional']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['views_conditional']['if'] = 'hydroid_1';
+$handler->display->display_options['fields']['views_conditional']['condition'] = '1';
+$handler->display->display_options['fields']['views_conditional']['equalto'] = '[hydroid]';
+$handler->display->display_options['fields']['views_conditional']['then'] = '[name]';
+$handler->display->display_options['fields']['views_conditional']['or'] = '[nothing]';
+$handler->display->display_options['fields']['views_conditional']['strip_tags'] = 0;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: Feature Name */
+$handler->display->display_options['sorts']['name']['id'] = 'name';
+$handler->display->display_options['sorts']['name']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['name']['field'] = 'name';
+$handler->display->display_options['sorts']['name']['relationship'] = 'reverse_dh_link_facility_mps_dh_feature';
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+/* Contextual filter: Pass-thru Year */
+$handler->display->display_options['arguments']['null']['id'] = 'null';
+$handler->display->display_options['arguments']['null']['table'] = 'views';
+$handler->display->display_options['arguments']['null']['field'] = 'null';
+$handler->display->display_options['arguments']['null']['ui_name'] = 'Pass-thru Year';
+$handler->display->display_options['arguments']['null']['default_action'] = 'default';
+$handler->display->display_options['arguments']['null']['default_argument_type'] = 'php';
+$handler->display->display_options['arguments']['null']['default_argument_options']['code'] = '$curYear = date(\'Y\');
+return $curYear;
+';
+$handler->display->display_options['arguments']['null']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['null']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['null']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['null']['specify_validation'] = TRUE;
+$handler->display->display_options['arguments']['null']['validate']['type'] = 'php';
+$handler->display->display_options['arguments']['null']['validate_options']['code'] = '$startdate = dh_handletimestamp($view->args[1]);
+$year = date(\'Y\', $startdate);
+return $year;';
+/* Contextual filter: Pass-thru Quarter */
+$handler->display->display_options['arguments']['null_1']['id'] = 'null_1';
+$handler->display->display_options['arguments']['null_1']['table'] = 'views';
+$handler->display->display_options['arguments']['null_1']['field'] = 'null';
+$handler->display->display_options['arguments']['null_1']['ui_name'] = 'Pass-thru Quarter';
+$handler->display->display_options['arguments']['null_1']['default_action'] = 'default';
+$handler->display->display_options['arguments']['null_1']['default_argument_type'] = 'php';
+$handler->display->display_options['arguments']['null_1']['default_argument_options']['code'] = '$quarter = ceil(floatval(date(\'n\')) / 3.0);
+return $quarter ;';
+$handler->display->display_options['arguments']['null_1']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['null_1']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['null_1']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['null_1']['specify_validation'] = TRUE;
+$handler->display->display_options['arguments']['null_1']['validate']['type'] = 'php';
+$handler->display->display_options['arguments']['null_1']['validate_options']['code'] = '// check for a date format, if so, find the quarter
+$date_pieces = explode(\'-\', $argument);
+if (count($date_pieces) > 1) {
+  $quarter = ceil(floatval(date(\'n\',strtotime($argument))) / 3.0);
+} else {
+  $quarter = $argument;
+}
+$handler->argument = $quarter;
+return TRUE;';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Feature: Bundle */
+$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['relationship'] = 'reverse_dh_link_facility_mps_dh_feature';
+$handler->display->display_options['filters']['bundle']['value'] = array(
+  'well' => 'well',
+);
+/* Filter criterion: DH Feature: fstatus */
+$handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['relationship'] = 'reverse_dh_link_facility_mps_dh_feature';
+$handler->display->display_options['filters']['fstatus']['value'] = array(
+  'active' => 'active',
+);
+/* Filter criterion: DH Feature: ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_dh_link_facility_mps_dh_feature';
+$handler->display->display_options['filters']['ftype']['operator'] = 'not';
+$handler->display->display_options['filters']['ftype']['value'] = 'monitoring';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'wwpr-sidebar-well-list';
