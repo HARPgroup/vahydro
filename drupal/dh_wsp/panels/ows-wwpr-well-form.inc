@@ -1,9 +1,4 @@
 <?php
-/* 
-// to use this:
-module_load_include('inc', 'dh_wsp', 'panels/ows-wwpr-well-form');
-*/
-
 $lu = NULL;
 module_load_include('module', 'dh');
 module_load_include('module', 'dh_adminreg');
