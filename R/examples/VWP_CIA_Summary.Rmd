@@ -21,6 +21,7 @@ params:
   rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout",
     "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
   intake_stats_runid: 11
+  intake_stats_varname: "Qintake"
 ---
 
 ```{r setup, include=FALSE}
@@ -64,6 +65,7 @@ runid.list <- params$runid.list
 fac.metric.list <- params$fac.metric.list
 rseg.metric.list <- params$rseg.metric.list
 intake_stats_runid <- params$intake_stats_runid
+intake_stats_varname <- params$intake_stats_varname
 
 #runid.list <- c('runid_400','runid_600')
 #runid.list <- c('runid_201','runid_401')
@@ -181,6 +183,9 @@ DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA
 
 The goal of the following analysis is to estimate the potential impacts of the proposed water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses. In addition, cumulative impacts from all existing withdrawals are included in the evaluation.
 
+### Glossary of Cumulative Impact Modeling Terms
+- Consumptive Use (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline. 
+
 \newpage
 # Project Introduction
 
@@ -262,10 +267,10 @@ dat_current <- om_get_rundata(fac.elid, intake_stats_runid, omsite, FALSE)
 # catch instances where older models did not have Qintake
 # does this have an impoundment sub-comp and is imp_off = 0?
 cols <- names(dat_current)
-if(!("Qintake" %in% cols)) {
-  dat_current$Qintake <- dat_current$Qriver
+if(!(intake_stats_varname %in% cols)) {
+  dat_current[,intake_stats_varname] <- dat_current$Qriver
 }
-intake_sum_current <- om_flow_table(dat_current, "Qintake")
+intake_sum_current <- om_flow_table(dat_current, intake_stats_varname)
 ex_col = "10%"
 jan_ex <- intake_sum_current[1,ex_col]
 if (jan_ex == 0) {
