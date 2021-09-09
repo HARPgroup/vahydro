@@ -26,11 +26,20 @@ datbcfac201 <- om_get_rundata(247415, 201, site = omsite)
 datbcfac301 <- om_get_rundata(247415, 301, site = omsite)
 datbcfac401 <- om_get_rundata(247415, 401, site = omsite)
 datbcfac6011 <- om_get_rundata(247415, 6011, site = omsite)
+datbcfac601 <- om_get_rundata(247415, 601, site = omsite)
+datbcfac602 <- om_get_rundata(247415, 602, site = omsite)
 datbcfac6014 <- om_get_rundata(247415, 6014, site = omsite)
 
+datbcfac602[,c("Qintake", "bc_release_cfs", "ps_local_mgd", "Qnatural", "wd_mgd")][190:205]
+
+hydroTSM::fdc(cbind(datbcfac4011$Qnatural, datbcfac4011$Qintake))
+hydroTSM::fdc(cbind(datbcfac601$Qnatural, datbcfac601$Qintake))
+hydroTSM::fdc(cbind(datbcfac602$Qnatural, datbcfac602$Qintake, datbcfac602$flowby, datbcfac602$flowby_pof))
+cccc <- as.data.frame(cbind(datbcfac602$Qnatural, datbcfac602$Qintake, datbcfac602$flowby, datbcfac602$flowby_pof))
+hydroTSM::fdc(cccc)
 ro6014 <- om_get_rundata(247387,  6014, site = omsite)
 ro601 <- om_get_rundata(247387,  601, site = omsite)
-
+hydroTSM::fdc(datbcfac602$flowby)
 247387
 
 datbc[200:250,c('wd_channel_cfs', 'Qlocal_channel', 'bc_release_cfs', 'impoundment_Qout')]
@@ -64,3 +73,5 @@ scenprop <- RomProperty$new( ds, sceninfo, TRUE)
 elfgen_huc(runid, hydroid, huc_level, dataset, scenprop, ds, save_directory, save_url, site)
 ###############################################
 
+
+fdc(cbind(datbcfac401$Qnatural, datbcfac401$Qintake))

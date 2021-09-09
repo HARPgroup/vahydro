@@ -65,6 +65,7 @@ runid.list <- params$runid.list
 fac.metric.list <- params$fac.metric.list
 rseg.metric.list <- params$rseg.metric.list
 intake_stats_runid <- params$intake_stats_runid
+intake_stats_varname <- params$intake_stats_varname
 
 #runid.list <- c('runid_400','runid_600')
 #runid.list <- c('runid_201','runid_401')
