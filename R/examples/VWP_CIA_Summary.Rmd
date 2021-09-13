@@ -17,7 +17,7 @@ params:
   rseg.hydroid: 462757 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
   fac.hydroid: 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "runid_6014"
   runid.list: [ "runid_6011","runid_6013" ]
-  fac.metric.list: [ "wd_mgd","ps_mgd","unmet30_mgd" ]
+  fac.metric.list: [ "base_demand_mgy", "wd_mgy", "unmet_demand_mgy","base_demand_mgd", "wd_mgd","ps_mgd","unmet30_mgd" ]
   rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout",
     "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
   intake_stats_runid: 11
@@ -293,6 +293,8 @@ if (!is.null(demand_url)) {
     cat("\n\n## Facility Base Demand Before Conservation: ", short_names[[runid.i]],"\n\n")
     cat(paste0("![](",demand_url,")"),"\n")
     cat("\n\n\\pagebreak\n")
+} else {
+  cat("NULL demand_url\n")
 }
 ```
   
@@ -381,7 +383,8 @@ statsdf_sql <- paste('SELECT
                     WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (mgd)"
                     WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (mgd)" 
                     WHEN "Desc" = "Facility_Stats" THEN "Facility Model Statistics:"
-                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal (mgd)"  
+                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (mgd)"  
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (mgd)"  
                     WHEN "Desc" = "ps_mgd" THEN "Point Source (mgd)"  
                     WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (mgd)"
                     WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
@@ -480,6 +483,18 @@ for (i in 1:length(runid.list)){
     cat(paste0("![](",fig_path,")"),"\n")
     #cat("\n\n\\pagebreak\n")
   }
+   fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
+  if (!is.logical(fig_prop)) {
+    fig_path <- fig_prop$propcode
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: ",short_names[[runid.i]],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+  } else {
+    # JK - do we want to simply supress in order to have better formatting? or maybe keep a count
+    # of missing images so we can alert the user to which entities lack impoundments?
+    print(paste("No local facility impoundment for ",short_names[[runid.i]]))
+  }
+  cat("\n\n\\pagebreak\n")
   
 }
 
