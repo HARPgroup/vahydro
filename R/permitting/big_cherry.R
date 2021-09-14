@@ -5,12 +5,12 @@ source("/var/www/R/config.R")
 # river
 pid = 5831933
 elid = 352078
-runid = 6011
+runid = 6013
 
 # facility
 pid = 4826467
 elid = 247415
-runid = 6014
+runid = 6013
 
 
 datbc201 <- om_get_rundata(352078, 201, site = omsite)
@@ -33,7 +33,7 @@ datbcfac4011 <- om_get_rundata(247415, 4011, site = omsite)
 datbcfac201 <- om_get_rundata(247415, 201, site = omsite)
 datbcfac301 <- om_get_rundata(247415, 301, site = omsite)
 datbcfac401 <- om_get_rundata(247415, 401, site = omsite)
-datbcfac6011 <- om_get_rundata(247415, 6011, site = omsite)
+datbcfac6013 <- om_get_rundata(247415, 6013, site = omsite)
 datbcfac601 <- om_get_rundata(247415, 601, site = omsite)
 datbcfac6014 <- om_get_rundata(247415, 6014, site = omsite)
 quantile(datbcfac602$available_mgd,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
@@ -42,9 +42,10 @@ quantile(datbcfac602$available_mgd,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
 dev.off()
 hydroTSM::fdc(cbind(datbcfac4011$Qnatural, datbcfac4011$Qintake))
 hydroTSM::fdc(cbind(datbcfac601$Qnatural, datbcfac601$Qintake))
-hydroTSM::fdc(cbind(datbcfac602$Qnatural, datbcfac602$Qintake))
+hydroTSM::fdc(cbind(datbcfac6013$Qnatural, datbcfac6013$Qintake))
+hydroTSM::fdc(cbind(datbcfac6014$Qnatural, datbcfac6014$Qintake))
 cccc <- as.data.frame(
-  datbcfac602[,c(
+  datbcfac6013[,c(
     "Qnatural",
     "discharge_mgd",
     "flowby_pof",
@@ -57,6 +58,25 @@ cccc <- as.data.frame(
     "reservoir_use_remain_mg")]
   )
 hydroTSM::fdc(cccc)
+datbcfac6013[300:370,c('Qnatural', 'reservoir_use_remain_mg', 'bc_release_cfs')]
+
+# Compare mean flowby with 15% pof and 0.5 MGD when flow < 6 cfs
+sqldf(
+  "select avg(Qnatural), avg(0.25 * Qnatural) AS flowby_25pct, 0.5 * 1.547 as p0_pt_5_mgd
+   from cccc
+  where Qnatural < (4 * 0.5 * 1.547)")
+
+sqldf(
+  "select avg(Qnatural), avg(0.25 * Qnatural), 0.5 * 1.547 as p0_pt_5_mgd
+   from cccc
+  where Qnatural >= 6.0 and Qnatural < 15.0 ")
+
+sqldf(
+  "select avg(Qnatural), avg(0.25 * Qnatural), 0.5 * 1.547 as p0_pt_5_mgd,
+  count(*) as num_days
+   from cccc
+  where (0.25 * Qnatural) < (0.5 * 1.547) ")
+
 # ro container = 247387
 # ro cbp5 = 347582
 ro6014 <- om_get_rundata(347582,  6014, site = omsite)
