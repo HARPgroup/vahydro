@@ -1,6 +1,10 @@
 #Use this script to generate a list of Drought Contacts
 # 1) WSP Staff need to provide list of affected Drought Regions and/or localities
 #LOAD CONFIG FILE
+library(sqldf)
+library(httr)
+library(devtools)
+install_github("HARPgroup/hydro-tools")
 source(paste("/var/www/R/config.local.private", sep = ""))
 
 #Pull list of all contacts associated with a facility
