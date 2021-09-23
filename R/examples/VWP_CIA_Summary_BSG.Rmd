@@ -16,7 +16,7 @@ output:
 params: 
   rseg.hydroid: 477140 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
   fac.hydroid: 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "runid_6014"
-  runid.list: [ "runid_400","runid_600","runid_6001" ]
+  runid.list: [ "runid_400","runid_600","runid_6001","runid_6014" ]
   fac.metric.list: [ "base_demand_mgy", "wd_mgy", "unmet_demand_mgy","base_demand_mgd", "wd_mgd","ps_mgd","unmet30_mgd" ]
   rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout",
     "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
@@ -406,9 +406,11 @@ for (i in 1:length(runid.list)){
 
 ## Conclusion
 
-Overall, remodeling to consider a net % change to flow (after the point source return flow) has improved the outlook across all scenarios examined, and supports moving towards a "percent of flow" flowby approach. When modeling as a net % change in flow, the reservoir is not chronically drawn down as was shown in previous model results. Additionally, modeling with the Big Cherry Dam maximum release capacity set to 15 cfs benefits reservoir storage by minimizing reservoir refill time, promoting improved storage recovery following dry periods.
+The range of model scenarios considered provides several workable solutions to maximize safe yield, explore the potential for a more naturally varying hydrograph, and maintain adequate emergency storage in the event that future droughts are more severe than historical.  Ultimately,  the multi-year drought of 1998-2002, combined with the need to have a minimum of 60 days of storage remaining, will require a reduction in safe yield from the original 3.2 mgd. In order to meet the 60 days storage remaining, a 0.5mgd static flowby will probably supply a maximum demand of 2.6-2.8, comparable to that afforded by the 90% flowby scenario. 
 
 With the current permit operations and a limit of 3.2 mgd they likely wouldn't be able to meet a 90% flowby and retain 60 days remaining storage in the reservoir during the drought of record. However a flowby closer to 50% would likely be effective at maintaining storage levels and ensuring they can sustainably meet demand during dry periods while still better preserving the natural flow regime over a static 0.5 mgd flowby approach. This project may also be able to get to a 90% flowby by reducing demands from 3.2 mgd to around 2.7 mgd, and/or by including drought triggers in the permit to help maintain storage levels in the reservoir during dry periods (this permit doesn't currently have drought triggers in place). Additionally, this facility has emergency connections with neighboring towns which may be sufficient to maintain supply during times of extreme drought. Note that demand is projected to decline according to water supply plan.
+
+Overall, remodeling to consider a net % change to flow (after the point source return flow) has improved the outlook across all scenarios examined, and supports moving towards a "percent of flow" flowby approach. When modeling as a net % change in flow, the reservoir is not chronically drawn down as was shown in previous model results. It is important to note that modeling with the Big Cherry Dam maximum release capacity set to 15 cfs benefits reservoir storage by minimizing reservoir refill time, promoting improved storage recovery following dry periods.  This 15 cfs, or some similarly modest maximum release, is crucial in enabling a PoF management schema to be effective.
 
 <!-- TEXT STASHED for Joey -->
 <!-- * Safe yield of the intake is listed as 3.2 mgd from a study published in 2001 (3.2 mgd is equivalent to the permit annual withdrawal limit of 1168 mg/yr). -->
