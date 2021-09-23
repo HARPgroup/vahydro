@@ -34,6 +34,7 @@ datbcfac201 <- om_get_rundata(247415, 201, site = omsite)
 datbcfac301 <- om_get_rundata(247415, 301, site = omsite)
 datbcfac401 <- om_get_rundata(247415, 401, site = omsite)
 datbcfac6011 <- om_get_rundata(247415, 6011, site = omsite)
+datbcfac6001 <- om_get_rundata(247415, 6001, site = omsite)
 datbcfac6012 <- om_get_rundata(247415, 6012, site = omsite)
 datbcfac601 <- om_get_rundata(247415, 601, site = omsite)
 datbcfac6014 <- om_get_rundata(247415, 6014, site = omsite)
@@ -41,6 +42,10 @@ quantile(datbcfac602$available_mgd,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
 
 
 dev.off()
+hydroTSM::fdc(
+  cbind(datbcfac6011$Qnatural, datbcfac6001$Qintake),
+  yat = c(1,5,10,25,100,400)
+)
 hydroTSM::fdc(
   cbind(datbcfac6011$Qnatural, datbcfac6011$Qintake),
   yat = c(1,5,10,25,100,400)
