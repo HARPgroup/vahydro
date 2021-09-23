@@ -126,8 +126,6 @@ rseg_report_info <- merge.list(rseg_report_info, rseg_default_info)
 
 # Pre load the output runs so we have them available for later use
 # I think the om_get_prop here is no longer needed, rather, we 
-fac_runs = FALSE
-rseg_runs = FALSE
 short_names = list()
 run_names = list()
 
@@ -136,18 +134,7 @@ for (i in 1:length(runid.list)){
   # get river model run prop 
   runid.i <- runid.list[i]
   run.i <- sub("runid_", "", runid.i)
-  fac_run <- om_get_prop(site,fac.model$pid, "dh_properties", runid.i)
-  if (is.logical(fac_runs)) {
-    fac_runs <- as.data.frame(fac_run)
-  } else {
-    fac_runs <- rbind(fac_runs, fac_run)
-  }
-  rseg_run <- om_get_prop(site,rseg.model$pid, "dh_properties", runid.i)
-  if (is.logical(rseg_runs)) {
-    rseg_runs <- as.data.frame(rseg_run)
-  } else {
-    rseg_runs <- rbind(rseg_runs, rseg_run)
-  }
+  
   # TODO: prepopulate runid_XXX$report$facility_default_reports and riverseg_default_reports on the om_model_scenario variable to load as a default for these.  For example, runid11 is *always* the current WSP run, so there should be no need to give it a short name, or scenario name at the individual facility level.
   # stash short names since they are used frequently
   fac_run_info <- find_name(fac_model_info,runid.i)
@@ -436,19 +423,17 @@ for (i in 1:length(runid.list)){
   # get fac model run prop
   # get river model run prop 
   runid.i <- runid.list[i]
-  run.i <- sub("runid_", "", runid.i)
-  rseg_prop <- om_get_prop(site,rseg_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
-  run_info <- find_name(fac_model_info,runid.i)
-  if (!is.logical(rseg_prop)) {
-    fig_path <- rseg_prop$propcode
+  run_info <- find_name(rseg_model_info,runid.i)
+  fig_prop <- find_name(run_info, "fig.imp_storage.all")
+  if (!(is.null(fig_prop))) {
+    fig_path <- fig_prop$propcode
     # we have an image, show it 
     cat("\n\n## Reservoir Storage: ", short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
     cat("\n\n\\pagebreak\n")
   } else {
-    # try facility and impoundment linked to river segment.
-    fac_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
-    print(paste("No riverseg impoundment for run id",run.i))
+    # tbd: try impoundment linked to river segment.
+    print(paste("No active impoundment found for run id",runid.i))
   }
 }
 
@@ -467,24 +452,24 @@ for (i in 1:length(runid.list)){
   # get river model run prop 
   runid.i <- runid.list[i]
   run.i <- sub("runid_", "", runid.i)
-  # 
-  fig_prop <- invisible(om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.unmet_heatmap_amt"))
-  if (!is.logical(fig_prop)) {
-    fig_path <- fig_prop$propcode
+  fac_run <- find_name(fac_model_info, runid.i)
+  fig_prop <- invisible(find_name(fac_run, "fig.unmet_heatmap_amt"))
+  if (!(is.null(fig_prop))) {
+    fig_path <- fig_prop$code
     # we have an image, show it 
     cat("\n\n## Heatmap: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
   }
-  fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.30daymax_unmet")
-  if (!is.logical(fig_prop)) {
+  fig_prop <- invisible(find_name(fac_run, "fig.30daymax_unmet"))
+  if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$propcode
     # we have an image, show it 
     cat("\n\n## Hydrograph: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
     #cat("\n\n\\pagebreak\n")
   }
-   fig_prop <- om_get_prop(site,fac_runs[i,]$pid, "dh_properties", "fig.imp_storage.all")
-  if (!is.logical(fig_prop)) {
+  fig_prop <- invisible(find_name(fac_run, "fig.imp_storage.all"))
+  if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$propcode
     # we have an image, show it 
     cat("\n\n## Reservoir Storage: ",short_names[[runid.i]],"\n\n")
