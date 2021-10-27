@@ -1,0 +1,535 @@
+---
+date: "`r format(Sys.time(), '%m/%d/%Y')`"
+author: ""
+title: "VWP CIA Summary - Route 58 Lovers Leap"
+output: 
+  officedown::rdocx_document:
+    mapstyles:
+      Normal: ['First Paragraph']
+    page_margins:
+      bottom: 0.5
+      top: 0.5
+      right: 1
+      left: 0.5
+      header: 0.0
+      footer: 0.0
+params: 
+  rseg.hydroid: 462757 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
+  fac.hydroid: 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "runid_6014"
+  runid.list: [ "runid_600" ]
+  fac.metric.list: [ "base_demand_mgy", "wd_mgy", "unmet_demand_mgy","base_demand_mgd", "wd_mgd","ps_mgd","unmet30_mgd" ]
+  rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout",
+    "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
+  intake_stats_runid: 600
+  intake_stats_varname: "Qintake"
+---
+
+```{r setup, include=FALSE}
+#"runid_201","runid_401","runid_6014","runid_6011","runid_6013","runid_6015","runid_6012"
+#https://cran.r-project.org/web/packages/officedown/officedown.pdf
+#https://ardata-fr.github.io/officeverse/officedown-for-word.html#insert-sections
+knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
+library(officedown)
+library(officer)
+library(flextable)
+library(hydrotools)
+library(rjson)
+basepath='/var/www/R'
+source('/var/www/R/config.R')
+#source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
+# Could also use:
+#source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/run_text.R") #Used during development
+
+fp <- fp_par(
+  text.align = "center", 
+  padding.bottom = 20, padding.top = 120, 
+  border.bottom = fp_border())
+
+ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
+
+```
+
+
+```{r UserInputs, include=FALSE}
+site.plots <- omsite #image files use http
+
+#SPECIFY MODELS AND RUNIDS OF INTEREST
+
+rseg.hydroid <- params$rseg.hydroid
+fac.hydroid <- params$fac.hydroid
+runid.list <- params$runid.list
+fac.metric.list <- params$fac.metric.list
+rseg.metric.list <- params$rseg.metric.list
+intake_stats_runid <- params$intake_stats_runid
+intake_stats_varname <- params$intake_stats_varname
+
+#runid.list <- c('runid_400','runid_600')
+#runid.list <- c('runid_201','runid_401')
+rlist <- gsub('runid_', '', runid.list)
+
+# SALEM WTP
+# rseg.hydroid <- 68327
+# fac.hydroid <- 73112
+# runid.list <- c('runid_11','runid_12','runid_13')
+# 
+# fac.metric.list <- c('wd_mgd','ps_mgd','unmet30_mgd')
+# rseg.metric.list <- c("Qout","Qbaseline","l30_Qout","l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd")
+
+#RSEG MODEL INFO
+print(paste("searching", site,"for river segment id", rseg.hydroid))
+
+#base_url = site, entity_id = rseg.hydroid
+
+rseg.model <- om_get_model(site, rseg.hydroid)
+rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
+#FAC MODEL INFO
+fac.model <- om_get_model(site, fac.hydroid, model_varkey = 'om_water_system_element')
+fac.elid <- om_get_prop(site, fac.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+
+if (exists("json_obj_url")) {
+  fac_obj_url <- paste(json_obj_url, fac.model$pid, sep="/")
+  fac_model_info <- om_auth_read(fac_obj_url, token,  "text/json", "")
+  fac_model_info <- fromJSON(fac_model_info)
+  rseg_obj_url <- paste(json_obj_url, rseg.model$pid, sep="/")
+  rseg_model_info <- om_auth_read(rseg_obj_url, token,  "text/json", "")
+  rseg_model_info <- fromJSON(rseg_model_info)
+  # get report cusomtizations
+  fac_report_info = find_name(fac_model_info, "reports")
+  rseg_report_info = find_name(rseg_model_info, "reports")
+} else {
+  message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
+  fac_model_info <- list()
+  rseg_model_info <- list()
+}
+
+fac_default_info = list(
+  model_overview = list(
+    "value" = "Facility intake model overview not provided."
+  ),
+  intake_name = list(
+    "value"  = "un-named intake"
+  )
+)
+rseg_default_info = list(
+  model_overview = list(
+    "value" = "River segment model overview not provided."
+  )
+)
+
+fac_report_info <- merge.list(fac_report_info, fac_default_info)
+rseg_report_info <- merge.list(rseg_report_info, rseg_default_info)   
+
+# Pre load the output runs so we have them available for later use
+# I think the om_get_prop here is no longer needed, rather, we 
+short_names = list()
+run_names = list()
+
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  
+  # TODO: prepopulate runid_XXX$report$facility_default_reports and riverseg_default_reports on the om_model_scenario variable to load as a default for these.  For example, runid11 is *always* the current WSP run, so there should be no need to give it a short name, or scenario name at the individual facility level.
+  # stash short names since they are used frequently
+  fac_run_info <- find_name(fac_model_info,runid.i)
+  f_rep <- find_name(fac_run_info,'reports')
+  # get the short name
+  if (is.null(f_rep$scenario_short_name$value)) {
+    short_names[[runid.i]] <- runid.i
+  } else {
+    short_names[[runid.i]] = as.character(f_rep$scenario_short_name$value)
+  }
+  # get the long name
+  if (is.null(f_rep$scenario_name$value)) {
+    run_names[[runid.i]] <- runid.i
+  } else {
+    run_names[[runid.i]] = as.character(f_rep$scenario_name$value)
+  }
+}
+
+
+```
+
+
+# VAHydro Model:
+
+
+## VAHydro
+The comprehensive VAHydro hydrologic model is used to evaluate potential impacts to surface water supply and other beneficial uses (including aquatic life), for withdrawal projects that have applied for a Virginia Water Protection (VWP). The VAHydro model simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through Local and Regional Water Supply Plans and reported water use submitted to DEQ through the Annual Water Withdrawal Reporting program. The VAHydro model includes all known withdrawals and discharges, as well as operational rules of VWP permits and major hydrologic features such as reservoirs.
+
+The VAHydro model is built on rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6 which runs from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed, aka the “southern rivers.” The VAHydro model features high-resolution hydrologic subsections called “river segments” (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
+
+
+## CIA
+DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA) modeling. CIA is a modeling and analysis approach that takes into account the varied hydrologic process occurring throughout a river network (including meteorology and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential “cumulative impact” of all streamflow changes occurring upstream and downstream of any location within the river system, as well as the downstream impact of a specific proposed or permitted surface water withdrawal.
+
+The goal of the following analysis is to estimate the potential impacts of the proposed water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses. In addition, cumulative impacts from all existing withdrawals are included in the evaluation.
+
+
+\newpage
+# Project Introduction
+
+*PLACEHOLDER TEXT
+
+<br>
+
+## Location Map
+
+```{r GrabLocationMap, include=FALSE, echo=FALSE}
+fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
+```
+
+```{r LocationMap, echo=FALSE, results = "asis"}
+
+if (!is.logical(fig_prop)) {
+  map_path <- fig_prop$propcode
+  cat(paste0("![](",map_path,")"),"\n")
+} else {
+  cat(paste0("*No location map available for this facility model*"))
+}
+``` 
+
+\newpage
+# Model Overview and Scenario Descriptions
+
+```{r ModelOverview, echo=FALSE, results = "asis"}
+
+cat("__River Model Description__\n")
+cat(paste(rseg_report_info$model_overview$value,"\n\n"))
+cat("__Facility & Intake Model Description__\n")
+cat(paste(fac_report_info$model_overview$value,"\n\n"))
+```
+
+The following model scenarios were simulated in order to determine the most effective means of meeting the project need and all other in-stream beneficial uses:
+
+```{r LoadRunInfo, echo=FALSE, results = "asis"}
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  run_info <- find_name(fac_model_info,runid.i)
+  
+  if (is.null(run_info$reports)) {
+    cat(paste("*", paste0("__",run_info$name,"__"),"-","Run report information not provided.","\n"))
+  } else {
+    ri <- run_info$reports
+    cat(
+      paste(
+        "*", 
+        paste0(
+          "__",ri$scenario_name$value,"__", 
+        " (", ri$scenario_short_name$value, ")"
+        ),
+        "-",run_info$reports$scenario_intro$value,"\n\n")
+      )
+  }
+  
+}
+
+```
+
+\newpage
+
+# Intake Site Description & Current Estimated Stream Flows
+
+```{r LoadSiteInfo, include=FALSE}
+dat_current <- om_get_rundata(fac.elid, intake_stats_runid, omsite, FALSE)
+# catch instances where older models did not have Qintake
+# does this have an impoundment sub-comp and is imp_off = 0?
+cols <- names(dat_current)
+if(!(intake_stats_varname %in% cols)) {
+  dat_current[,intake_stats_varname] <- dat_current$Qriver
+}
+intake_sum_current <- om_flow_table(dat_current, intake_stats_varname)
+ex_col = "10%"
+jan_ex <- intake_sum_current[1,ex_col]
+if (jan_ex == 0) {
+  ex_col = "25%"
+}
+jan_ex <- intake_sum_current[1,ex_col]
+non_ex_text <- paste0("For example, in the table below the ",ex_col," column states that ",ex_col," of flows within the month of January would be less than ", jan_ex, " cfs.")
+drun_info <- find_name(fac_model_info,paste0("runid_",intake_stats_runid))
+demand_url <- drun_info$fig.monthly_demand$code
+```
+
+```{r SiteTable, echo=FALSE, results = "asis"}
+# Format table
+ft <- qflextable(intake_sum_current)
+ft <- theme_box(ft)
+ft <- bg(ft, bg = "#EFEFEF", part = "header")
+cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show the minimum (Min) and average (Mean) modeled flow, and a range of non-exceedance flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the", paste0("\"",ex_col, "\""), "states that only", ex_col, "of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.", non_ex_text) )
+ft
+if (!is.null(demand_url)) {
+    cat("\n\n## Facility Base Demand Before Conservation: ", short_names[[runid.i]],"\n\n")
+    cat(paste0("![](",demand_url,")"),"\n")
+    cat("\n\n\\pagebreak\n")
+} else {
+  cat("NULL demand_url\n")
+}
+```
+  
+\newpage
+# Model Results Summary
+
+*PLACEHOLDER TEXT   
+
+```{r LoadRunResults, echo=FALSE, results = "asis"}
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  run_info <- find_name(fac_model_info,runid.i)
+  if (is.null(run_info$reports)) {
+    cat(paste("*", paste0("__",run_names[runid.i],"__"),"-","Run analysis not provided.","\n"))
+  } else {
+    ri <- run_info$reports
+    cat(
+      paste(
+        "*", 
+        paste0(
+          "__",ri$scenario_name$value,"__"
+        ),
+        "-",run_info$reports$scenario_analysis$value,"\n")
+      )
+  }
+  
+}
+```
+
+## Conclusion
+
+*PLACEHOLDER TEXT
+
+\newpage
+
+
+
+```{r LoadStatsTable, include=FALSE}
+# todo: pass in fac_model_info and rseg_model_info to:
+#       - eliminate redundant data retrieval, since all data that is pulled inside om_cia_table via om_vahydro_metric_grid is already inside fac_model_info and rseg_model_info data structures
+#       - eliminate having data retrieval and data formatting/analysis in the same function (best practice)
+# this could now, I think, be simplified as:
+# om_cia_table(fac_model_info, rseg_model_info)
+statsdf <- om_cia_table(
+  fac_model_info = fac_model_info,
+  rseg_model_info = rseg_model_info,
+  runid.list = runid.list, 
+  fac.metric.list = fac.metric.list,
+  rseg.metric.list = rseg.metric.list,
+  site,
+  omsite
+)
+
+statsdf <- cbind(rownames(statsdf),statsdf)
+names(statsdf)[names(statsdf) == 'rownames(statsdf)'] <- 'Desc'
+statsdf_raw <- statsdf
+
+statsdf_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "Qout" THEN "Flow Out (cfs)"
+                    WHEN "Desc" = "Qbaseline" THEN "Flow Baseline (cfs)"
+                    WHEN "Desc" = "remaining_days_p0" THEN "Minimum Days of Storage Remaining"
+                    WHEN "Desc" = "l30_Qout" THEN "30 Day Low Flow (cfs)"
+                    WHEN "Desc" = "l90_Qout" THEN "90 Day Low Flow (cfs)"
+                    WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
+                    WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (mgd)"
+                    WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (mgd)" 
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (mgd)"  
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (mgd)"  
+                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (mgd)"
+                    WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
+                    WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
+                    WHEN "Desc" = "rseg_model" THEN "River Segment Model Statistics:"
+                    WHEN "Desc" = "fac_model" THEN "Facility Model Statistics:"
+                    WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (mgy)"
+                    WHEN "Desc" = "wd_mgy" THEN "Withdrawal (mgy)"
+                    WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (mgy)"
+                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (mgd)" 
+                    ELSE Desc
+                  END AS Description, *
+                 FROM statsdf
+                 WHERE Desc NOT IN ("Rseg_Stats","Facility_Stats","riverseg","run_date","starttime","endtime","richness_change_abs","richness_change_pct")
+                 ',sep='')
+statsdf <- sqldf(statsdf_sql)
+statsdf <- statsdf[,-2]
+```
+# Cumulative Impact Analysis
+The following table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project. The section entitled “River Segment Model Statistics” contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated Consumptive Use Fraction (See description below) as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed. Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Total Number of Days with Storage < 50% describes the number of days in the simulation in which reservoir levels fall below 50% of full storage. The section entitled “Facility Model Statistics” shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect. There will be one or more columns in this table representing each scenario considered for this analysis.
+
+## Glossary of Cumulative Impact Modeling Terms
+- Consumptive Use (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline.
+
+<!---BLOCK_LANDSCAPE_START--->
+## Stats Comparison Table:
+```{r StatsTable, echo=FALSE}
+ft <- qflextable(statsdf)
+
+# Set column widths
+ft <- width(ft, j = 2:length(statsdf[1,]), width = 1.9)
+ft <- width(ft, j = 1, width = 2.5)
+
+# Add header row -----------------------------------------------------------------------------------
+# ft <- add_header_row(x = ft, values = c("", "Scenario Alternatives"),colwidths = c(3, 4))
+
+# Set theme
+ft <- theme_box(ft)
+
+# Set background color of select rows --------------------------------------------------------------
+ft <- bg(ft, bg = "#EFEFEF", part = "header")
+ft <- bg(ft, i = ~ Description == "River Segment Model Statistics:", bg = "#EFEFEF", part = "body")
+ft <- bg(ft, i = ~ Description == "Facility Model Statistics:", bg = "#EFEFEF", part = "body")
+fontsize(ft, size = 9)
+```
+<!---BLOCK_LANDSCAPE_STOP--->
+
+
+# Reservoir Storage Plots:
+The following reservoir storage plots depict changes in reservoir storage under each scenario (indicated in black), as well as simulated inflow to the reservoir (blue), simulated outflow from the reservoir (green), and system demand for the given scenario (red). For water supply reservoirs, a minimum of 60 days of remaining storage over the course of the simulation is recommended. System demand varies seasonally.
+
+```{r ResPLOTS, echo=FALSE, message=FALSE, results = "asis"}
+
+# check river model for plots
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run_info <- find_name(rseg_model_info,runid.i)
+  fig_prop <- find_name(run_info, "fig.imp_storage.all")
+  if (!(is.null(fig_prop))) {
+    fig_path <- fig_prop$code
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: ", short_names[[runid.i]],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+    cat("\n\n\\pagebreak\n")
+  } else {
+    # tbd: try impoundment linked to river segment.
+    print(paste("No active impoundment found for run id",runid.i))
+  }
+}
+
+``` 
+
+\newpage
+
+# Unmet Demand Plots:
+Heatmaps are data plotting tools that help visualize data as magnitudes of color intensity. The following heatmaps depict the number of days with unmet demands for each month of the simulation (due to demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The heatmap cells show the amount of unmet demand for each month [Number of Unmet Days & Amount (mgd)]. Hydrographs are shown for the period of the simulation with greatest unmet demand.
+
+```{r UnmetDemandPLOTS, echo=FALSE, message=FALSE, results = "asis"}
+
+# check facility model for plots
+for (i in 1:length(runid.list)){
+  # get fac model run prop
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  run.i <- sub("runid_", "", runid.i)
+  fac_run <- find_name(fac_model_info, runid.i)
+  fig_prop <- invisible(find_name(fac_run, "fig.unmet_heatmap_amt"))
+  if (!(is.null(fig_prop))) {
+    fig_path <- fig_prop$code
+    # we have an image, show it 
+    cat("\n\n## Heatmap: ",short_names[[runid.i]],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+  }
+  fig_prop <- invisible(find_name(fac_run, "fig.30daymax_unmet"))
+  if (!(is.null(fig_prop))) {
+    fig_path <- fig_prop$code
+    # we have an image, show it 
+    cat("\n\n## Hydrograph: ",short_names[[runid.i]],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+    #cat("\n\n\\pagebreak\n")
+  }
+  fig_prop <- invisible(find_name(fac_run, "fig.imp_storage.all"))
+  if (!(is.null(fig_prop))) {
+    fig_path <- fig_prop$code
+    # we have an image, show it 
+    cat("\n\n## Reservoir Storage: ",short_names[[runid.i]],"\n\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+  } else {
+    # JK - do we want to simply supress in order to have better formatting? or maybe keep a count
+    # of missing images so we can alert the user to which entities lack impoundments?
+    print(paste("No local facility impoundment for ",short_names[[runid.i]]))
+  }
+  cat("\n\n\\pagebreak\n")
+  
+}
+
+``` 
+
+\newpage
+
+# Ecological Impacts Assessment:
+
+## Elfgen:
+In response to a need for better environmental flow metrics, DEQ has developed a new framework for characterizing relations between streamflow and aquatic organism species richness. Part of an evolving approach to managing environmental flows for maintaining aquatic life; this methodology builds on existing minimum instream ow approaches, allowable withdrawals as a percentage of flow, and extensive flow-habitat studies. For the first time this new framework may allow quantification of potential species loss resulting from flow change, and may offer an improved understanding of aquatic life risk variability due to geographic location, stream size and local scale.
+
+This new flow-ecology framework referred to as “elfgen” (*pronounced elf-jen*) derives its name from Ecological Limit Function (ELF) generation (*ELF-gen*). In order to calculate river segment-level richness change, elfgen is first used to produce ELFs, or relations between stream flow and species richness at the HUC 8 scale (See plot below). This is achieved using long term datasets for both ecological and hydrologic data. Ecological data (Fish species richness) is sourced from the VAHydro-EDAS dataset. Hydrologic data (Average Annual Flow) is sourced from the National Hydrography Dataset Plus. The Richness Change values presented in the table below are derived from this flow-ecology relation.
+
+
+```{r GrabELFPlot, include=FALSE, echo=FALSE}
+# Need to have a switch based on draiange area with text such as:
+# Ecological Limit Functions are not available for this location because the drainage area exceeds 800 square miles, which is beyond the applicable range of current mean flow based ecological limit functions.
+
+
+run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
+fig_path = FALSE
+elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
+if (!is.logical(elfgen_EDAS_huc8)) {
+  fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
+  fig_path <- fig.elfgen$propcode
+}
+``` 
+
+```{r elfPlot, echo=FALSE, results = "asis"}
+if (!is.logical(fig_path)) {
+  cat(paste0("![](",fig_path,")"),"\n")
+
+} else {
+  cat(paste0("*No elfgen plot available for this model*"))
+}
+```
+
+\newpage
+
+## Richness Change Metric Table:
+Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use (For additional details on “elfgen” methodology, see https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876).
+
+```{r LoadRichnessTable, include=FALSE}
+elfgen_df <- statsdf_raw
+elfgen_sql <- paste('SELECT
+                      CASE
+                        WHEN "Desc" = "rseg_model" THEN "River Segment Model Statistics:"
+                        WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
+                        WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (mgd)"
+                        WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
+                        WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
+                        ELSE Desc
+                      END AS Description, *
+                    FROM elfgen_df
+                    WHERE Desc IN ("rseg_model","consumptive_use_frac","wd_cumulative_mgd","richness_change_abs","richness_change_pct")
+                    ',sep='')
+elfgen_df <- sqldf(elfgen_sql)
+elfgen_df <- elfgen_df[,-2]
+```
+
+```{r RichnessTable, echo=FALSE}
+ft <- qflextable(elfgen_df)
+# Set column widths
+  ft <- width(ft, j = 2:length(elfgen_df[1,]), width = 1.9)
+  ft <- width(ft, j = 1, width = 2)
+# Set theme
+  ft <- theme_box(ft)
+# Set background color of select rows --------------------------------------------------------------
+  ft <- bg(ft, bg = "#EFEFEF", part = "header")
+  fontsize(ft, size = 9)
+```
+
+
+## Habitat (If Applicable):
