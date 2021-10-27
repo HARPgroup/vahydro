@@ -2,6 +2,25 @@ library('hydrotools')
 library('zoo')
 basepath='/var/www/R';
 source("/var/www/R/config.R")
+
+# container
+pid =
+elid = 352123
+
+datbcr <- list()
+datbcr400 <- om_get_rundata(247387, 400, site = omsite)
+datbcr600 <- om_get_rundata(247387, 600, site = omsite)
+datbcr6001 <- om_get_rundata(247387, 6001, site = omsite)
+datbcr6012 <- om_get_rundata(247387, 6012, site = omsite)
+datbcr4011 <- om_get_rundata(247387, 4011, site = omsite)
+datbcr6011 <- om_get_rundata(247387, 6011, site = omsite)
+datbcr400[5813,]$Runit
+datbcr600[5813,]$Runit
+datbcr4011[700,]$Runit
+datbcr6011[700,]$Runit
+datbcr6012[700,]$Runit
+datbcr6001[5813,]$Runit
+
 # river
 pid = 5831933
 elid = 352078
@@ -16,6 +35,8 @@ runid = 6013
 datbc201 <- om_get_rundata(352078, 201, site = omsite)
 datbc301 <- om_get_rundata(352078, 301, site = omsite)
 datbc4011 <- om_get_rundata(352078, 4011, site = omsite)
+datbc400 <- om_get_rundata(352078, 400, site = omsite)
+datbc600 <- om_get_rundata(352078, 600, site = omsite)
 datbc401 <- om_get_rundata(352078, 401, site = omsite)
 datbc601 <- om_get_rundata(352078, 601, site = omsite)
 datbc602 <- om_get_rundata(352078, 602, site = omsite)
@@ -34,8 +55,10 @@ datbcfac201 <- om_get_rundata(247415, 201, site = omsite)
 datbcfac301 <- om_get_rundata(247415, 301, site = omsite)
 datbcfac401 <- om_get_rundata(247415, 401, site = omsite)
 datbcfac6011 <- om_get_rundata(247415, 6011, site = omsite)
-datbcfac6001 <- om_get_rundata(247415, 6001, site = omsite)
+datbcfac600 <- om_get_rundata(247415, 600, site = omsite)
 datbcfac6012 <- om_get_rundata(247415, 6012, site = omsite)
+datbcfac6001 <- om_get_rundata(247415, 6001, site = omsite)
+
 datbcfac601 <- om_get_rundata(247415, 601, site = omsite)
 datbcfac6014 <- om_get_rundata(247415, 6014, site = omsite)
 quantile(datbcfac602$available_mgd,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
@@ -51,13 +74,16 @@ hydroTSM::fdc(
   yat = c(1,5,10,25,100,400)
 )
 hydroTSM::fdc(
-  cbind(datbcfac4011$Qnatural, datbcfac4011$Qintake),
+  cbind(datbcfac600$Qnatural, datbcfac600$Qintake),
   yat = c(1,5,10,25,100,400)
 )
 hydroTSM::fdc(
-  cbind(datbcfac6012$Qnatural, datbcfac6012$Qintake),
+  cbind(datbcfac6014$Qnatural, datbcfac6014$Qintake),
   yat = c(1,5,10,25,100,400)
 )
+
+
+[runid_600:wd_cumulative_mgd]
 
 hydroTSM::fdc(cbind(datbcfac4011$Qnatural, datbcfac4011$Qintake))
 hydroTSM::fdc(cbind(datbcfac601$Qnatural, datbcfac601$Qintake))
@@ -79,7 +105,23 @@ cccc <- as.data.frame(
 hydroTSM::fdc(cccc)
 datbcfac6013[300:370,c('Qnatural', 'reservoir_use_remain_mg', 'bc_release_cfs')]
 
-# Compare mean flowby with 15% pof and 0.5 MGD when flow < 6 cfs
+sample <- rbind(as.data.frame(datbcfac600[5813,]),as.data.frame(datbcfac6011[700,]))
+xcsam <- as.data.frame(
+  sample[,c(
+    "Qnatural",
+    "discharge_mgd",
+    "flowby_pof",
+    "flowby",
+    "bc_release_cfs",
+    "Qintake",
+    "available_mgd",
+    "wd_mgd",
+    "unmet_demand_mgd",
+    "reservoir_use_remain_mg")]
+)
+
+write.table(sample,"c:/WorkSpace/tmp/bsg_600_vs_6012.csv",sep=",")
+#Compare mean flowby with 15% pof and 0.5 MGD when flow < 6 cfs
 sqldf(
   "select avg(Qnatural), avg(0.25 * Qnatural) AS flowby_25pct, 0.5 * 1.547 as p0_pt_5_mgd
    from cccc
@@ -102,6 +144,8 @@ ro6014 <- om_get_rundata(347582,  6014, site = omsite)
 ro601 <- om_get_rundata(347582,  601, site = omsite)
 ro602 <- om_get_rundata(347582,  602, site = omsite)
 ro6012 <- om_get_rundata(347582,  6012, site = omsite)
+ro600 <- om_get_rundata(347582,  600, site = omsite)
+ro6011 <- om_get_rundata(347582,  6011, site = omsite)
 ro6013 <- om_get_rundata(347582,  6013, site = omsite)
 quantile(ro6012$Qunit)
 quantile(ro6013$Qunit)

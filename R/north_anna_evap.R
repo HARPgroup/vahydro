@@ -6,7 +6,7 @@ site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d
 # Load Libraries
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
-
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/cia_utils.R")
 #cbp6_link <- paste0(github_link, "/cbp6/code");
 #source(paste0(cbp6_link,"/cbp6_functions.R"))
 #source(paste(cbp6_link, "/fn_vahydro-1.0.R", sep = ''))
@@ -22,7 +22,7 @@ bechtel_dat <- fn_get_runfile(elid, runid, site = omsite,  cached = TRUE);
 mode(bechtel_dat) <- 'numeric'
 # North Anna Impoundment model
 elid = 207925
-omsite = site <- "http://deq2.bse.vt.edu"
+#omsite = site <- "http://deq2.bse.vt.edu"
 dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE, use_tz = 'UTC');
 mode(dat) <- 'numeric'
 amn <- 10.0 * mean(dat$Qin)
@@ -82,28 +82,28 @@ loess.smooth(
 lines(dat$et_in, dat$whtf_natevap_mgd, col = "tan")
 # add quatratic function to the plot
 order_id <- order(dat$whtf_natevap_mgd)
-lines(x = as.numeric(dat$et_in)[order_id], 
+lines(x = as.numeric(dat$et_in)[order_id],
       y = as.numeric(fitted(quadratic_model))[order_id],
-      col = "red", 
-      lwd = 2) 
-lines(x = as.numeric(dat$et_in)[order_id], 
+      col = "red",
+      lwd = 2)
+lines(x = as.numeric(dat$et_in)[order_id],
       y = as.numeric(fitted(quadratic_model2))[order_id],
-      col = "purple", 
-      lwd = 2) 
+      col = "purple",
+      lwd = 2)
 summary(breg)
 
 boxplot( as.numeric(dat$wd12_mgd) ~ dat$month)
 
 dat$br <- as.numeric(breg$coefficients['(Intercept)']) + as.numeric(breg$coefficients['as.numeric(dat$et_in)']) * dat$et_in
-dat$qm <- ( as.numeric(quadratic_model$coefficients['(Intercept)']) 
-  + as.numeric(quadratic_model$coefficients['dat$whtf_natevap_mgd']) 
-  * dat$et_in 
-  + as.numeric(quadratic_model$coefficients['I(dat$whtf_natevap_mgd^2)']) 
+dat$qm <- ( as.numeric(quadratic_model$coefficients['(Intercept)'])
+  + as.numeric(quadratic_model$coefficients['dat$whtf_natevap_mgd'])
+  * dat$et_in
+  + as.numeric(quadratic_model$coefficients['I(dat$whtf_natevap_mgd^2)'])
   * dat$whtf_natevap_mgd ^ 2 )
-dat$qm2 <- ( as.numeric(quadratic_model2$coefficients['(Intercept)']) 
-             + as.numeric(quadratic_model2$coefficients['dat$whtf_natevap_mgd']) 
-             * dat$et_in 
-             + as.numeric(quadratic_model2$coefficients['I(dat$whtf_natevap_mgd^2)']) 
+dat$qm2 <- ( as.numeric(quadratic_model2$coefficients['(Intercept)'])
+             + as.numeric(quadratic_model2$coefficients['dat$whtf_natevap_mgd'])
+             * dat$et_in
+             + as.numeric(quadratic_model2$coefficients['I(dat$whtf_natevap_mgd^2)'])
              * dat$whtf_natevap_mgd ^ 2 )
 datdf <- as.data.frame(dat)
 modat <- sqldf("select month, avg(evap_mgd) as evap_mgd, avg(whtf_reg_mgd) as whtf_reg_mgd from datdf group by month")
@@ -114,10 +114,10 @@ mode(mot) <- 'numeric'
 barplot(
   mot,
   main="Monthly Mean Evap",
-  xlab="Month", 
+  xlab="Month",
   col=c("darkblue","darkgreen"),
   legend = c(
-    paste('Natural Evap',round(anndat$evap_mgd,1)), 
+    paste('Natural Evap',round(anndat$evap_mgd,1)),
     paste('WHTF Extra',round(anndat$whtf_reg_mgd,1))
   ), beside=TRUE
 )
@@ -126,14 +126,14 @@ barplot(
 datdf <- as.data.frame(dat)
 yrdat <- sqldf(
   "select year,
-    round(avg(wd_mgd),2) as wd_mgd, 
-    round(avg(release),2) as release, 
-    round(avg(Qin),2) as Qin, 
-    round(avg(Qout),2) as Qout, 
-    round(min(Qout),2) as minout, 
-    round(avg(evap_mgd),2) as evap_mgd, 
-    round(min(days_remaining)) as min_days, 
-    round(min(use_remain_mg),1) as use_remain_mg, 
+    round(avg(wd_mgd),2) as wd_mgd,
+    round(avg(release),2) as release,
+    round(avg(Qin),2) as Qin,
+    round(avg(Qout),2) as Qout,
+    round(min(Qout),2) as minout,
+    round(avg(evap_mgd),2) as evap_mgd,
+    round(min(days_remaining)) as min_days,
+    round(min(use_remain_mg),1) as use_remain_mg,
     round(min(lake_elev),2) as lake_elev
   from datdf
   group by year
@@ -156,7 +156,7 @@ if (!is.null(flows)) {
   ndx = which.min(as.numeric(l90[,"90 Day Min"]));
   l90_flow = round(loflows[ndx,]$"90 Day Min",1);
   l90_year = loflows[ndx,]$"year";
-  
+
   #moflows <- aggregate(flows, function(tt) as.Date(as.yearmon(tt), na.rm = TRUE), mean);
   #ndx = which.min(moflows);
   #x2a <- aggregate(flows, as.Date(as.yearmon(flows), na.rm = TRUE), mean);
@@ -168,21 +168,21 @@ if (!is.null(flows)) {
 }
 # Now plot the historical and the modeled
 datpd <- window(
-  dat, 
-  start = as.Date(paste0(l90_year,"-06-01") ), 
+  dat,
+  start = as.Date(paste0(l90_year,"-06-01") ),
   end = as.Date(paste0(l90_year, "-10-30") )
 );
 elevpd <- window(
-  la_elevs, 
-  start = as.Date(paste0(l90_year,"-06-01") ), 
+  la_elevs,
+  start = as.Date(paste0(l90_year,"-06-01") ),
   end = as.Date(paste0(l90_year, "-10-30") )
 );
 par(mar = c(5,5,2,5))
 plot(
-#  datpd$lake_elev, 
+#  datpd$lake_elev,
   elevpd,
   col='red',
-  ylim=c(240,255), 
+  ylim=c(240,255),
   ylab="Reservoir Surface Elevation (ft. asl)"
 )
 lines(datpd$lake_elev,col='black')
@@ -193,66 +193,106 @@ lines(datpd$Qout,col='green')
 axis(side = 4)
 mtext(side = 4, line = 3, 'Flow (cfs)')
 
+# Draw-down
+# this was a special 4 year run with extra evap
+# from whtf turned off, and units 1&2 only
+dat202 <- om_get_rundata(207925, 202, omsite, FALSE, FALSE)
+pdstart <- paste0(2001,"-01-01")
+pdend <- paste0(2002,"-12-31")
 # Now plot the historical and the modeled
 datpd2k <- window(
-  dat, 
-  start = as.Date(paste0(2002,"-06-01") ), 
-  end = as.Date(paste0(2002, "-10-30") )
+  dat,
+  start = as.Date(pdstart ),
+  end = as.Date(pdend)
 );
 elevpd2k <- window(
-  la_elevs, 
-  start = as.Date(paste0(2002,"-06-01") ), 
-  end = as.Date(paste0(2002, "-10-30") )
+  la_elevs,
+  start = as.Date(pdstart ),
+  end = as.Date(pdend)
 );
 gage2k <- window(
-  gage, 
-  start = as.Date(paste0(2002,"-06-01") ), 
-  end = as.Date(paste0(2002, "-10-30") )
+  gage,
+  start = as.Date(pdstart ),
+  end = as.Date(pdend)
 );
 model_gage2k <- window(
-  model_gage, 
-  start = as.Date(paste0(2002,"-06-01") ), 
-  end = as.Date(paste0(2002, "-10-30") )
+  model_gage,
+  start = as.Date(pdstart ),
+  end = as.Date(pdend)
 );
 bechtel2k <- window(
-  bechtel_dat, 
-  start = as.Date(paste0(2002,"-06-01") ), 
-  end = as.Date(paste0(2002, "-10-30") )
+  bechtel_dat,
+  start = as.Date(pdstart ),
+  end = as.Date(pdend)
 );
-par(mar = c(5,5,2,5))
+dat202_2k <- window(
+  dat202,
+  start = as.Date(pdstart ),
+  end = as.Date(pdend)
+);
+elevdf <- as.data.frame(elevpd2k)
+colnames(elevdf) <- c('obs_elev')
+par(mar = c(3,3,2,2))
 plot(
-  #  datpd2k$lake_elev, 
-  elevpd2k,
-  col='red',
-  ylim=c(240,255), 
-  ylab="Reservoir Surface Elevation (ft. asl)"
+  #  datpd2k$lake_elev,
+  elevdf$obs_elev,
+  col='red', xaxt="n",
+  ylim=c(240,255),
+  xlab="",
+  main="North Anna Dam Water Surface Level",
+  ylab="Lake Surface Elev (ft. asl)"
 )
-lines(elevpd2k,col='orange')
-lines(datpd2k$lake_elev,col='black') 
+x_ticks <- axTicks(1)
+x_labs <- index(datpd2k)[x_ticks + 1]
+axis(1, at = x_ticks, labels = x_labs)
+dsets <- c("Observed", "Modeled, no Extra", "Modeled w/Extra")
+dcols = c("red", "purple", "black")
+legend("topright",xpd=TRUE,
+       dsets[1:1],
+       col = dcols[1:1],
+       lty = c(1,1,1,1),
+       bg='white',cex=0.8) #ADD LEGEND
+#lines(elevpd2k,col='orange')
+lines(as.numeric(dat202_2k$lake_elev),col='purple')
+legend("topright",xpd=TRUE,
+       dsets[1:2],
+       col = dcols[1:2],
+       lty = c(1,1,1,1),
+       bg='white',cex=0.8) #ADD LEGEND
+lines(as.numeric(datpd2k$lake_elev),col='black')
+legend("topright",xpd=TRUE,
+       dsets[1:3],
+       col = dcols[1:3],
+       lty = c(1,1,1,1),
+       bg='white',cex=0.8) #ADD LEGEND
+
+om_ts_diff(datpd2k, dat202_2k, "lake_elev", "lake_elev")
+
 par(new = TRUE)
 plot(datpd2k$Qin,col='grey', axes=FALSE, xlab="", ylab="", ylim=c(-50,400))
 #plot(datpd2k$Qin,col='grey', xlab="", ylab="")
 lines(gage2k$flow,col='blue')
 lines(datpd2k$Qout,col='green')
 lines(model_gage2k$Qout,col='purple')
-lines(bechtel2k$bechtel_inflow_cfs,col='yellow') 
+lines(bechtel2k$bechtel_inflow_cfs,col='yellow')
 axis(side = 4)
 mtext(side = 4, line = 3, 'Flow (cfs)')
 gage2kdf = as.data.frame(gage2k)
 
+
 datpd2kdf <- as.data.frame(datpd2k)
 pd2kdat <- sqldf(
   "select year, month,
-    round(avg(wd_mgd),2) as wd_mgd, 
-    round(avg(release),2) as release, 
-    round(avg(Qin),2) as Qin, 
-    round(avg(Qout),2) as Qout, 
-    round(min(Qout),2) as minout, 
-    round(avg(evap_mgd),2) as evap_mgd, 
-    round(avg(whtf_reg_mgd ),2) as whtf_reg_mgd , 
-    round(avg(whtf_natevap_mgd),2) as whtf_natevap_mgd, 
-    round(min(days_remaining)) as min_days, 
-    round(min(use_remain_mg),1) as use_remain_mg, 
+    round(avg(wd_mgd),2) as wd_mgd,
+    round(avg(release),2) as release,
+    round(avg(Qin),2) as Qin,
+    round(avg(Qout),2) as Qout,
+    round(min(Qout),2) as minout,
+    round(avg(evap_mgd),2) as evap_mgd,
+    round(avg(whtf_reg_mgd ),2) as whtf_reg_mgd ,
+    round(avg(whtf_natevap_mgd),2) as whtf_natevap_mgd,
+    round(min(days_remaining)) as min_days,
+    round(min(use_remain_mg),1) as use_remain_mg,
     round(min(lake_elev),2) as lake_elev
   from datpd2kdf
   group by year, month

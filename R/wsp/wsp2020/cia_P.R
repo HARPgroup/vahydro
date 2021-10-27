@@ -8,12 +8,12 @@ library("hydrotools") #for str_remove()
 # Load Libraries
 basepath='/var/www/R';
 #site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
-source("/var/www/R/config.local.private"); 
+source("/var/www/R/config.local.private");
 folder <- "C:/Workspace/tmp/"
 
 # get the DA, need to grab a model output first in order to insure segments with a channel subcomp
 # are included
-# 
+#
 df <- data.frame(
   'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
   'runid' = c('runid_11', '0.%20River%20Channel', 'local_channel'),
@@ -47,9 +47,9 @@ wshed_data <- om_vahydro_metric_grid(
 )
 
 wshed_data <- sqldf(
-  "select a.*, b.da 
-   from wshed_data as a 
-  left outer join da_data as b 
+  "select a.*, b.da
+   from wshed_data as a
+  left outer join da_data as b
   on (a.pid = b.pid)
   where hydrocode like 'vahydrosw_wshed_P%'
   and hydrocode not like 'vahydrosw_wshed_PL%'
@@ -71,9 +71,9 @@ cc_data <- om_vahydro_metric_grid(
 )
 
 cc_data <- sqldf(
-  "select a.*, b.da 
-   from cc_data as a 
-  left outer join da_data as b 
+  "select a.*, b.da
+   from cc_data as a
+  left outer join da_data as b
   on (a.pid = b.pid)
   where hydrocode like 'vahydrosw_wshed_PM%'
   and hydrocode like '%0001'
@@ -84,27 +84,27 @@ print((cc_data$L90_median - cc_data$L90_2040 ) / cc_data$L90_2040) #[1] 0.044502
 print( (cc_data$L90_wet - cc_data$L90_2040 ) / cc_data$L90_2040) # [1] 0.8909848
 
 wshed_cu <- sqldf(
-  "select propname, riverseg, WD_2020, PS_2020, (WD_2020 - PS_2020)*1.547 as CU_2020_cfs, 
+  "select propname, riverseg, WD_2020, PS_2020, (WD_2020 - PS_2020)*1.547 as CU_2020_cfs,
   WD_2040, PS_2040, (WD_2040 - PS_2040)*1.547 as CU_2040_cfs
-  from wshed_data 
+  from wshed_data
   where riverseg in ('PM7_4200_4410', 'PM7_4410_4620', 'PM7_4620_4580', 'PM7_4580_4820', 'PM7_4820_0001')
   "
 )
 wshed_case <- sqldf(
-  "select * from 
-  wshed_data 
-  where 
+  "select * from
+  wshed_data
+  where
     (abs(1.0 - (QBaseline_2020/QBaseline_2040)) > 0.001)
-    or riverseg = 'PM7_4200_4410' 
+    or riverseg = 'PM7_4200_4410'
     or riverseg = 'PM7_4410_4620'
   ")
 
 wshed_case <- sqldf(
-  "select * from 
-  wshed_data 
-  where 
+  "select * from
+  wshed_data
+  where
     (abs(1.0 - (QBaseline_2020/QBaseline_2040)) > 0.001)
-    or riverseg = 'PM7_4200_4410' 
+    or riverseg = 'PM7_4200_4410'
     or riverseg = 'PM7_4410_4620'
   ")
 
@@ -113,7 +113,7 @@ pordat <- fn_get_runfile(elid, 201)
 pordf <- as.data.frame(pordat)
 
 
-# 
+#
 df <- data.frame(
   'model_version' = c('vahydro-1.0',  'vahydro-1.0'),
   'runid' = c('runid_11', 'runid_13'),
@@ -123,12 +123,22 @@ df <- data.frame(
 wshed_data <- om_vahydro_metric_grid(metric, df)
 
 P_data <- sqldf(
-  "select a.*, b.da 
-   from wshed_data as a 
-  left outer join da_data as b 
+  "select a.*, b.da
+   from wshed_data as a
+  left outer join da_data as b
   on (a.pid = b.pid)
   where hydrocode like 'vahydrosw_wshed_P%'
   and hydrocode not like 'vahydrosw_wshed_PU%'
+  and riverseg not like '%0000%'
+  order by da
+  ")
+
+PU_data <- sqldf(
+  "select a.*, b.da
+   from wshed_data as a
+  left outer join da_data as b
+  on (a.pid = b.pid)
+  where hydrocode like 'vahydrosw_wshed_PU%'
   and riverseg not like '%0000%'
   order by da
   ")
