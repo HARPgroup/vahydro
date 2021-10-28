@@ -1,0 +1,973 @@
+$view = new view();
+$view->name = 'gwpermit_special_conditions';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'dh_adminreg_feature';
+$view->human_name = 'GWPermit: Special Conditions';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'GWPermit: Special Conditions';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '0';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'table';
+/* Header: Global: Result summary */
+$handler->display->display_options['header']['result']['id'] = 'result';
+$handler->display->display_options['header']['result']['table'] = 'views';
+$handler->display->display_options['header']['result']['field'] = 'result';
+/* Relationship: Var Matrix */
+$handler->display->display_options['relationships']['ts_feature_vardef']['id'] = 'ts_feature_vardef';
+$handler->display->display_options['relationships']['ts_feature_vardef']['table'] = 'dha_feature_vars';
+$handler->display->display_options['relationships']['ts_feature_vardef']['field'] = 'ts_feature_vardef';
+$handler->display->display_options['relationships']['ts_feature_vardef']['ui_name'] = 'Var Matrix';
+$handler->display->display_options['relationships']['ts_feature_vardef']['label'] = 'Var Matrix';
+/* Relationship: Facility */
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['id'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['field'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['ui_name'] = 'Facility';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['label'] = 'Facility';
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: dH AdminReg Feature: dHA Feature-Vars Variable ID */
+$handler->display->display_options['fields']['varid']['id'] = 'varid';
+$handler->display->display_options['fields']['varid']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varid']['field'] = 'varid';
+$handler->display->display_options['fields']['varid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['varid']['precision'] = '0';
+/* Field: dH AdminReg Feature: dHA Feature-Vars VarKey */
+$handler->display->display_options['fields']['varkey']['id'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varkey']['field'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['exclude'] = TRUE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['fields']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['exclude'] = TRUE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Add Condition';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'newspecialcondition';
+$handler->display->display_options['fields']['nothing']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Description */
+$handler->display->display_options['fields']['vardesc']['id'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vardesc']['field'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['label'] = 'Special Condition';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstime']['label'] = 'Due Date';
+$handler->display->display_options['fields']['tstime']['empty'] = '[nothing]';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsendtime */
+$handler->display->display_options['fields']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tsendtime']['label'] = 'Completion Date';
+$handler->display->display_options['fields']['tsendtime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tsendtime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tsendtime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: Label */
+$handler->display->display_options['fields']['tid']['id'] = 'tid';
+$handler->display->display_options['fields']['tid']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tid']['field'] = 'tid';
+$handler->display->display_options['fields']['tid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tid']['label'] = '';
+$handler->display->display_options['fields']['tid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['text'] = 'Edit/View';
+$handler->display->display_options['fields']['tid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['path'] = 'admin/content/dh_timeseries/manage/[tid]';
+$handler->display->display_options['fields']['tid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
+$handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
+/* Sort criterion: dH AdminReg Feature: dHA Feature-Vars Description */
+$handler->display->display_options['sorts']['vardesc']['id'] = 'vardesc';
+$handler->display->display_options['sorts']['vardesc']['table'] = 'dha_feature_vars';
+$handler->display->display_options['sorts']['vardesc']['field'] = 'vardesc';
+/* Contextual filter: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['arguments']['adminid']['id'] = 'adminid';
+$handler->display->display_options['arguments']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['arguments']['adminid']['field'] = 'adminid';
+$handler->display->display_options['arguments']['adminid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['adminid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['adminid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['adminid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['adminid']['comparator'] = '1';
+$handler->display->display_options['arguments']['adminid']['op_location'] = '1';
+/* Contextual filter: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['arguments']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['arguments']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['arguments']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['arguments']['vocabulary']['default_action'] = 'default';
+$handler->display->display_options['arguments']['vocabulary']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['vocabulary']['default_argument_options']['argument'] = 'water_permit_special';
+$handler->display->display_options['arguments']['vocabulary']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['vocabulary']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['vocabulary']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['vocabulary']['limit'] = '0';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['defaults']['header'] = FALSE;
+/* Header: Global: Result summary */
+$handler->display->display_options['header']['result']['id'] = 'result';
+$handler->display->display_options['header']['result']['table'] = 'views';
+$handler->display->display_options['header']['result']['field'] = 'result';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: dH AdminReg Feature: dHA Feature-Vars Variable ID */
+$handler->display->display_options['fields']['varid']['id'] = 'varid';
+$handler->display->display_options['fields']['varid']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varid']['field'] = 'varid';
+$handler->display->display_options['fields']['varid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['varid']['precision'] = '0';
+/* Field: dH AdminReg Feature: dHA Feature-Vars VarKey */
+$handler->display->display_options['fields']['varkey']['id'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varkey']['field'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['exclude'] = TRUE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['fields']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['exclude'] = TRUE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Add Condition';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'newspecialcondition';
+$handler->display->display_options['fields']['nothing']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Description */
+$handler->display->display_options['fields']['vardesc']['id'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vardesc']['field'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['label'] = 'Special Condition';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstime']['label'] = 'Due Date';
+$handler->display->display_options['fields']['tstime']['empty'] = '[nothing]';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsendtime */
+$handler->display->display_options['fields']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tsendtime']['label'] = 'Completion Date';
+$handler->display->display_options['fields']['tsendtime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tsendtime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tsendtime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: Label */
+$handler->display->display_options['fields']['tid']['id'] = 'tid';
+$handler->display->display_options['fields']['tid']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tid']['field'] = 'tid';
+$handler->display->display_options['fields']['tid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tid']['label'] = '';
+$handler->display->display_options['fields']['tid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['text'] = 'Edit/View';
+$handler->display->display_options['fields']['tid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['path'] = 'admin/content/dh_timeseries/manage/[tid]';
+$handler->display->display_options['fields']['tid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
+$handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
+/* Field: Additional Condition */
+$handler->display->display_options['fields']['tstime_1']['id'] = 'tstime_1';
+$handler->display->display_options['fields']['tstime_1']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime_1']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime_1']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstime_1']['ui_name'] = 'Additional Condition';
+$handler->display->display_options['fields']['tstime_1']['label'] = '';
+$handler->display->display_options['fields']['tstime_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['tstime_1']['alter']['text'] = 'Additional Condition';
+$handler->display->display_options['fields']['tstime_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['tstime_1']['alter']['path'] = 'newspecialcondition';
+$handler->display->display_options['fields']['tstime_1']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
+$handler->display->display_options['fields']['tstime_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tstime_1']['date_format'] = 'long';
+$handler->display->display_options['fields']['tstime_1']['second_date_format'] = 'long';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['relationship'] = 'ts_feature_vardef';
+/* Sort criterion: dH AdminReg Feature: dHA Feature-Vars Description */
+$handler->display->display_options['sorts']['vardesc']['id'] = 'vardesc';
+$handler->display->display_options['sorts']['vardesc']['table'] = 'dha_feature_vars';
+$handler->display->display_options['sorts']['vardesc']['field'] = 'vardesc';
+$handler->display->display_options['path'] = 'gwpermit-special-conditions';
+
+/* Display: Compliance */
+$handler = $view->new_display('page', 'Compliance', 'page_1');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '0';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['header'] = FALSE;
+/* Header: Global: Result summary */
+$handler->display->display_options['header']['result']['id'] = 'result';
+$handler->display->display_options['header']['result']['table'] = 'views';
+$handler->display->display_options['header']['result']['field'] = 'result';
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Var Matrix */
+$handler->display->display_options['relationships']['ts_feature_vardef']['id'] = 'ts_feature_vardef';
+$handler->display->display_options['relationships']['ts_feature_vardef']['table'] = 'dha_feature_vars';
+$handler->display->display_options['relationships']['ts_feature_vardef']['field'] = 'ts_feature_vardef';
+$handler->display->display_options['relationships']['ts_feature_vardef']['ui_name'] = 'Var Matrix';
+$handler->display->display_options['relationships']['ts_feature_vardef']['label'] = 'Var Matrix';
+/* Relationship: Facility */
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['id'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['field'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['ui_name'] = 'Facility';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['label'] = 'Facility';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'Permit';
+$handler->display->display_options['fields']['name']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['name']['alter']['path'] = 'gwp-permit-dash-conditions/[adminid]';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = 'County';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: dH AdminReg Feature: dHA Feature-Vars Variable ID */
+$handler->display->display_options['fields']['varid']['id'] = 'varid';
+$handler->display->display_options['fields']['varid']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varid']['field'] = 'varid';
+$handler->display->display_options['fields']['varid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['varid']['precision'] = '0';
+/* Field: dH AdminReg Feature: dHA Feature-Vars VarKey */
+$handler->display->display_options['fields']['varkey']['id'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varkey']['field'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['exclude'] = TRUE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['fields']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['exclude'] = TRUE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Add Condition';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'newspecialcondition';
+$handler->display->display_options['fields']['nothing']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Description */
+$handler->display->display_options['fields']['vardesc']['id'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vardesc']['field'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['label'] = 'Special Condition';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstime']['label'] = 'Due Date';
+$handler->display->display_options['fields']['tstime']['empty'] = '[nothing]';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsendtime */
+$handler->display->display_options['fields']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tsendtime']['label'] = 'Completion Date';
+$handler->display->display_options['fields']['tsendtime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tsendtime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tsendtime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: Label */
+$handler->display->display_options['fields']['tid']['id'] = 'tid';
+$handler->display->display_options['fields']['tid']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tid']['field'] = 'tid';
+$handler->display->display_options['fields']['tid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tid']['label'] = '';
+$handler->display->display_options['fields']['tid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['text'] = 'Edit/View';
+$handler->display->display_options['fields']['tid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['path'] = 'admin/content/dh_timeseries/manage/[tid]';
+$handler->display->display_options['fields']['tid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
+$handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tid']['separator'] = '';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['sorts']['tstime']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['tstime']['expose']['label'] = 'Due Date';
+/* Sort criterion: DH TimeSeries: tsendtime */
+$handler->display->display_options['sorts']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['sorts']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['sorts']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['sorts']['tsendtime']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['tsendtime']['expose']['label'] = 'Completion Date';
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['arguments']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['arguments']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['arguments']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['arguments']['vocabulary']['default_action'] = 'default';
+$handler->display->display_options['arguments']['vocabulary']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['vocabulary']['default_argument_options']['argument'] = 'water_permit_special';
+$handler->display->display_options['arguments']['vocabulary']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['vocabulary']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['vocabulary']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['vocabulary']['limit'] = '0';
+/* Contextual filter: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['arguments']['adminid']['id'] = 'adminid';
+$handler->display->display_options['arguments']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['arguments']['adminid']['field'] = 'adminid';
+$handler->display->display_options['arguments']['adminid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['adminid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['adminid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['adminid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['adminid']['comparator'] = '1';
+$handler->display->display_options['arguments']['adminid']['op_location'] = '1';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: tstime */
+$handler->display->display_options['filters']['tstime']['id'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['tstime']['field'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['filters']['tstime']['operator'] = 'not empty';
+/* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['filters']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['operator'] = 'contains';
+$handler->display->display_options['filters']['permit_id_value']['exposed'] = TRUE;
+$handler->display->display_options['filters']['permit_id_value']['expose']['operator_id'] = 'permit_id_value_op';
+$handler->display->display_options['filters']['permit_id_value']['expose']['label'] = 'Permit ID';
+$handler->display->display_options['filters']['permit_id_value']['expose']['operator'] = 'permit_id_value_op';
+$handler->display->display_options['filters']['permit_id_value']['expose']['identifier'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
+);
+$handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'aquifer_test_condition' => 'aquifer_test_condition',
+  'geophysical_borehole_logging' => 'geophysical_borehole_logging',
+);
+$handler->display->display_options['filters']['varidid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['varidid']['expose']['operator_id'] = 'varidid_op';
+$handler->display->display_options['filters']['varidid']['expose']['label'] = 'varid (selector)';
+$handler->display->display_options['filters']['varidid']['expose']['operator'] = 'varidid_op';
+$handler->display->display_options['filters']['varidid']['expose']['identifier'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['varidid']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'water_permit_special' => 'water_permit_special',
+);
+$handler->display->display_options['path'] = 'ows-special-condition-tracking';
+
+/* Display: Data export */
+$handler = $view->new_display('views_data_export', 'Data export', 'views_data_export_1');
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+$handler->display->display_options['style_options']['provide_file'] = 1;
+$handler->display->display_options['style_options']['filename'] = 'ComplianceSpecialConditions_%timestamp-mm-%timestamp-dd-%timestamp-yyyy.csv';
+$handler->display->display_options['style_options']['parent_sort'] = 0;
+$handler->display->display_options['style_options']['quote'] = 1;
+$handler->display->display_options['style_options']['trim'] = 0;
+$handler->display->display_options['style_options']['replace_newlines'] = 0;
+$handler->display->display_options['style_options']['header'] = 1;
+$handler->display->display_options['style_options']['keep_html'] = 0;
+$handler->display->display_options['defaults']['header'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'Permit';
+$handler->display->display_options['fields']['name']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['name']['alter']['path'] = 'gwp-permit-dash-enforcement/[adminid]';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = 'County';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: dH AdminReg Feature: dHA Feature-Vars Variable ID */
+$handler->display->display_options['fields']['varid']['id'] = 'varid';
+$handler->display->display_options['fields']['varid']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varid']['field'] = 'varid';
+$handler->display->display_options['fields']['varid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['varid']['precision'] = '0';
+/* Field: dH AdminReg Feature: dHA Feature-Vars VarKey */
+$handler->display->display_options['fields']['varkey']['id'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varkey']['field'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['exclude'] = TRUE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['fields']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['exclude'] = TRUE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Add Condition';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'newspecialcondition';
+$handler->display->display_options['fields']['nothing']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Description */
+$handler->display->display_options['fields']['vardesc']['id'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vardesc']['field'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['label'] = 'Special Condition';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstime']['label'] = 'Due Date';
+$handler->display->display_options['fields']['tstime']['empty'] = '[nothing]';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsendtime */
+$handler->display->display_options['fields']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tsendtime']['label'] = 'Completion Date';
+$handler->display->display_options['fields']['tsendtime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tsendtime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tsendtime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: Label */
+$handler->display->display_options['fields']['tid']['id'] = 'tid';
+$handler->display->display_options['fields']['tid']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tid']['field'] = 'tid';
+$handler->display->display_options['fields']['tid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tid']['label'] = '';
+$handler->display->display_options['fields']['tid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['text'] = 'Edit/View';
+$handler->display->display_options['fields']['tid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['path'] = 'admin/content/dh_timeseries/manage/[tid]';
+$handler->display->display_options['fields']['tid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
+$handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tid']['separator'] = '';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['sorts']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['sorts']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['sorts']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['sorts']['permit_id_value']['order'] = 'DESC';
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['sorts']['tstime']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['tstime']['expose']['label'] = 'Due Date';
+/* Sort criterion: DH TimeSeries: tsendtime */
+$handler->display->display_options['sorts']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['sorts']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['sorts']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['sorts']['tsendtime']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['tsendtime']['expose']['label'] = 'Completion Date';
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['arguments']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['arguments']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['arguments']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['arguments']['vocabulary']['default_action'] = 'default';
+$handler->display->display_options['arguments']['vocabulary']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['vocabulary']['default_argument_options']['argument'] = 'water_permit_special';
+$handler->display->display_options['arguments']['vocabulary']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['vocabulary']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['vocabulary']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['vocabulary']['limit'] = '0';
+/* Contextual filter: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['arguments']['adminid']['id'] = 'adminid';
+$handler->display->display_options['arguments']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['arguments']['adminid']['field'] = 'adminid';
+$handler->display->display_options['arguments']['adminid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['adminid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['adminid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['adminid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['adminid']['comparator'] = '1';
+$handler->display->display_options['arguments']['adminid']['op_location'] = '1';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: tstime */
+$handler->display->display_options['filters']['tstime']['id'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['tstime']['field'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['filters']['tstime']['operator'] = 'not empty';
+/* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['filters']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['operator'] = 'contains';
+$handler->display->display_options['filters']['permit_id_value']['exposed'] = TRUE;
+$handler->display->display_options['filters']['permit_id_value']['expose']['operator_id'] = 'permit_id_value_op';
+$handler->display->display_options['filters']['permit_id_value']['expose']['label'] = 'Permit ID';
+$handler->display->display_options['filters']['permit_id_value']['expose']['operator'] = 'permit_id_value_op';
+$handler->display->display_options['filters']['permit_id_value']['expose']['identifier'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
+);
+$handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'aquifer_test_condition' => 'aquifer_test_condition',
+  'geophysical_borehole_logging' => 'geophysical_borehole_logging',
+);
+$handler->display->display_options['filters']['varidid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['varidid']['expose']['operator_id'] = 'varidid_op';
+$handler->display->display_options['filters']['varidid']['expose']['label'] = 'varid (selector)';
+$handler->display->display_options['filters']['varidid']['expose']['operator'] = 'varidid_op';
+$handler->display->display_options['filters']['varidid']['expose']['identifier'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['varidid']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'water_permit_special' => 'water_permit_special',
+);
+$handler->display->display_options['path'] = 'ows-special-condition-tracking-export';
+$handler->display->display_options['displays'] = array(
+  'page_1' => 'page_1',
+  'default' => 0,
+  'page' => 0,
+);
+
+/* Display: Conjunctive Use */
+$handler = $view->new_display('page', 'Conjunctive Use', 'page_2');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['empty'] = FALSE;
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['empty'] = TRUE;
+$handler->display->display_options['empty']['area']['content'] = 'N/A';
+$handler->display->display_options['empty']['area']['format'] = 'filtered_html';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: dH AdminReg Feature: dHA Feature-Vars Variable ID */
+$handler->display->display_options['fields']['varid']['id'] = 'varid';
+$handler->display->display_options['fields']['varid']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varid']['field'] = 'varid';
+$handler->display->display_options['fields']['varid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['varid']['precision'] = '0';
+$handler->display->display_options['fields']['varid']['separator'] = '';
+/* Field: dH AdminReg Feature: dHA Feature-Vars VarKey */
+$handler->display->display_options['fields']['varkey']['id'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varkey']['field'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['exclude'] = TRUE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['fields']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['exclude'] = TRUE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Add Condition';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'newspecialcondition';
+$handler->display->display_options['fields']['nothing']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: dH AdminReg Feature: dHA Feature-Vars Description */
+$handler->display->display_options['fields']['vardesc']['id'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vardesc']['field'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['label'] = 'Conjunctive Use';
+$handler->display->display_options['fields']['vardesc']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['vardesc']['alter']['text'] = 'Yes';
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstime']['label'] = 'Due Date';
+$handler->display->display_options['fields']['tstime']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tstime']['empty'] = '[nothing]';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsendtime */
+$handler->display->display_options['fields']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tsendtime']['label'] = 'Completion Date';
+$handler->display->display_options['fields']['tsendtime']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tsendtime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tsendtime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tsendtime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: Label */
+$handler->display->display_options['fields']['tid']['id'] = 'tid';
+$handler->display->display_options['fields']['tid']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tid']['field'] = 'tid';
+$handler->display->display_options['fields']['tid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tid']['label'] = '';
+$handler->display->display_options['fields']['tid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['text'] = 'Edit/View';
+$handler->display->display_options['fields']['tid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['tid']['alter']['path'] = 'admin/content/dh_timeseries/manage/[tid]';
+$handler->display->display_options['fields']['tid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
+$handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
+/* Field: Additional Condition */
+$handler->display->display_options['fields']['tstime_1']['id'] = 'tstime_1';
+$handler->display->display_options['fields']['tstime_1']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime_1']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime_1']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstime_1']['ui_name'] = 'Additional Condition';
+$handler->display->display_options['fields']['tstime_1']['label'] = '';
+$handler->display->display_options['fields']['tstime_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tstime_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['tstime_1']['alter']['text'] = 'Additional Condition';
+$handler->display->display_options['fields']['tstime_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['tstime_1']['alter']['path'] = 'newspecialcondition';
+$handler->display->display_options['fields']['tstime_1']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
+$handler->display->display_options['fields']['tstime_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tstime_1']['date_format'] = 'long';
+$handler->display->display_options['fields']['tstime_1']['second_date_format'] = 'long';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH VariableDefinition: Variable Key (may be short name or = varname) (selector) */
+$handler->display->display_options['filters']['varkeykey']['id'] = 'varkeykey';
+$handler->display->display_options['filters']['varkeykey']['table'] = 'dh_variabledefinition';
+$handler->display->display_options['filters']['varkeykey']['field'] = 'varkeykey';
+$handler->display->display_options['filters']['varkeykey']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['filters']['varkeykey']['value'] = array(
+  'groundwater_conjunctive_use' => 'groundwater_conjunctive_use',
+);
+$handler->display->display_options['path'] = 'conjunctive-use-points';
+
+/* Display: Tseries to Prop export */
+$handler = $view->new_display('views_data_export', 'Tseries to Prop export', 'views_data_export_2');
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+$handler->display->display_options['style_options']['provide_file'] = 1;
+$handler->display->display_options['style_options']['filename'] = 'ComplianceSpecialConditions_mmddyy.csv';
+$handler->display->display_options['style_options']['parent_sort'] = 0;
+$handler->display->display_options['style_options']['separator'] = '\\t';
+$handler->display->display_options['style_options']['quote'] = 1;
+$handler->display->display_options['style_options']['trim'] = 0;
+$handler->display->display_options['style_options']['replace_newlines'] = 0;
+$handler->display->display_options['style_options']['header'] = 1;
+$handler->display->display_options['style_options']['keep_html'] = 0;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['label'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'Permit';
+$handler->display->display_options['fields']['name']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['name']['alter']['path'] = 'gwp-permit-dash-enforcement/[adminid]';
+/* Field: dH AdminReg Feature: dHA Feature-Vars Variable ID */
+$handler->display->display_options['fields']['varid']['id'] = 'varid';
+$handler->display->display_options['fields']['varid']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varid']['field'] = 'varid';
+$handler->display->display_options['fields']['varid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['varid']['precision'] = '0';
+/* Field: dH AdminReg Feature: dHA Feature-Vars VarKey */
+$handler->display->display_options['fields']['varkey']['id'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['varkey']['field'] = 'varkey';
+$handler->display->display_options['fields']['varkey']['label'] = 'varkey';
+/* Field: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['fields']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['fields']['vocabulary']['label'] = 'Vocab';
+/* Field: dH AdminReg Feature: dHA Feature-Vars Description */
+$handler->display->display_options['fields']['vardesc']['id'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['table'] = 'dha_feature_vars';
+$handler->display->display_options['fields']['vardesc']['field'] = 'vardesc';
+$handler->display->display_options['fields']['vardesc']['label'] = 'Special Condition';
+$handler->display->display_options['fields']['vardesc']['exclude'] = TRUE;
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstime']['label'] = 'startdate';
+$handler->display->display_options['fields']['tstime']['empty'] = '[nothing]';
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsendtime */
+$handler->display->display_options['fields']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['fields']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tsendtime']['label'] = 'enddate';
+$handler->display->display_options['fields']['tsendtime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tsendtime']['custom_date_format'] = 'Y/m/d';
+$handler->display->display_options['fields']['tsendtime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: Label */
+$handler->display->display_options['fields']['tid']['id'] = 'tid';
+$handler->display->display_options['fields']['tid']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tid']['field'] = 'tid';
+$handler->display->display_options['fields']['tid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tid']['label'] = 'label';
+$handler->display->display_options['fields']['tid']['alter']['text'] = 'Edit/View';
+$handler->display->display_options['fields']['tid']['alter']['path'] = 'admin/content/dh_timeseries/manage/[tid]';
+$handler->display->display_options['fields']['tid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
+$handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
+/* Field: dH TimeSeries: Storage for text ts value */
+$handler->display->display_options['fields']['tstext']['id'] = 'tstext';
+$handler->display->display_options['fields']['tstext']['table'] = 'field_data_tstext';
+$handler->display->display_options['fields']['tstext']['field'] = 'tstext';
+$handler->display->display_options['fields']['tstext']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['tstext']['label'] = 'proptext';
+/* Field: DH VariableDefinition: HydroID - Unique Feature ID (VarID in Time Series) */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_variabledefinition';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['hydroid']['label'] = 'varid';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH VariableDefinition: Variable Name */
+$handler->display->display_options['fields']['varname']['id'] = 'varname';
+$handler->display->display_options['fields']['varname']['table'] = 'dh_variabledefinition';
+$handler->display->display_options['fields']['varname']['field'] = 'varname';
+$handler->display->display_options['fields']['varname']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['fields']['varname']['label'] = 'propname';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['sorts']['tstime']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['tstime']['expose']['label'] = 'Due Date';
+/* Sort criterion: DH TimeSeries: tsendtime */
+$handler->display->display_options['sorts']['tsendtime']['id'] = 'tsendtime';
+$handler->display->display_options['sorts']['tsendtime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tsendtime']['field'] = 'tsendtime';
+$handler->display->display_options['sorts']['tsendtime']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['sorts']['tsendtime']['exposed'] = TRUE;
+$handler->display->display_options['sorts']['tsendtime']['expose']['label'] = 'Completion Date';
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
+$handler->display->display_options['arguments']['vocabulary']['id'] = 'vocabulary';
+$handler->display->display_options['arguments']['vocabulary']['table'] = 'dha_feature_vars';
+$handler->display->display_options['arguments']['vocabulary']['field'] = 'vocabulary';
+$handler->display->display_options['arguments']['vocabulary']['default_action'] = 'default';
+$handler->display->display_options['arguments']['vocabulary']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['vocabulary']['default_argument_options']['argument'] = 'water_permit_special';
+$handler->display->display_options['arguments']['vocabulary']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['vocabulary']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['vocabulary']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['vocabulary']['limit'] = '0';
+/* Contextual filter: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['arguments']['adminid']['id'] = 'adminid';
+$handler->display->display_options['arguments']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['arguments']['adminid']['field'] = 'adminid';
+$handler->display->display_options['arguments']['adminid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['adminid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['adminid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['adminid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['adminid']['comparator'] = '1';
+$handler->display->display_options['arguments']['adminid']['op_location'] = '1';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: Label */
+$handler->display->display_options['filters']['tid']['id'] = 'tid';
+$handler->display->display_options['filters']['tid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['tid']['field'] = 'tid';
+$handler->display->display_options['filters']['tid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['filters']['tid']['operator'] = 'not empty';
+$handler->display->display_options['path'] = 'ows-special-condition-ts-to-prop-export';
+$handler->display->display_options['displays'] = array(
+  'default' => 0,
+  'page' => 0,
+  'page_1' => 0,
+  'page_2' => 0,
+);
