@@ -421,7 +421,7 @@ $handler->display->display_options['filters']['varidid']['value'] = array(
 );
 $handler->display->display_options['filters']['varidid']['exposed'] = TRUE;
 $handler->display->display_options['filters']['varidid']['expose']['operator_id'] = 'varidid_op';
-$handler->display->display_options['filters']['varidid']['expose']['label'] = 'varid (selector)';
+$handler->display->display_options['filters']['varidid']['expose']['label'] = 'Condition Name';
 $handler->display->display_options['filters']['varidid']['expose']['operator'] = 'varidid_op';
 $handler->display->display_options['filters']['varidid']['expose']['identifier'] = 'varidid';
 $handler->display->display_options['filters']['varidid']['expose']['multiple'] = TRUE;
