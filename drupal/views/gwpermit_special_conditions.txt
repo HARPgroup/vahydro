@@ -238,8 +238,7 @@ $handler->display->display_options['path'] = 'gwpermit-special-conditions';
 /* Display: Compliance */
 $handler = $view->new_display('page', 'Compliance', 'page_1');
 $handler->display->display_options['defaults']['pager'] = FALSE;
-$handler->display->display_options['pager']['type'] = 'some';
-$handler->display->display_options['pager']['options']['items_per_page'] = '0';
+$handler->display->display_options['pager']['type'] = 'none';
 $handler->display->display_options['pager']['options']['offset'] = '0';
 $handler->display->display_options['defaults']['header'] = FALSE;
 /* Header: Global: Result summary */
@@ -247,12 +246,12 @@ $handler->display->display_options['header']['result']['id'] = 'result';
 $handler->display->display_options['header']['result']['table'] = 'views';
 $handler->display->display_options['header']['result']['field'] = 'result';
 $handler->display->display_options['defaults']['relationships'] = FALSE;
-/* Relationship: Var Matrix */
-$handler->display->display_options['relationships']['ts_feature_vardef']['id'] = 'ts_feature_vardef';
-$handler->display->display_options['relationships']['ts_feature_vardef']['table'] = 'dha_feature_vars';
-$handler->display->display_options['relationships']['ts_feature_vardef']['field'] = 'ts_feature_vardef';
-$handler->display->display_options['relationships']['ts_feature_vardef']['ui_name'] = 'Var Matrix';
-$handler->display->display_options['relationships']['ts_feature_vardef']['label'] = 'Var Matrix';
+/* Relationship: Prop */
+$handler->display->display_options['relationships']['prop_feature_vardef']['id'] = 'prop_feature_vardef';
+$handler->display->display_options['relationships']['prop_feature_vardef']['table'] = 'dha_feature_vars';
+$handler->display->display_options['relationships']['prop_feature_vardef']['field'] = 'prop_feature_vardef';
+$handler->display->display_options['relationships']['prop_feature_vardef']['ui_name'] = 'Prop';
+$handler->display->display_options['relationships']['prop_feature_vardef']['label'] = 'Prop';
 /* Relationship: Facility */
 $handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['id'] = 'reverse_dh_link_admin_location_dh_feature';
 $handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['table'] = 'dh_adminreg_feature';
@@ -303,69 +302,58 @@ $handler->display->display_options['fields']['vocabulary']['id'] = 'vocabulary';
 $handler->display->display_options['fields']['vocabulary']['table'] = 'dha_feature_vars';
 $handler->display->display_options['fields']['vocabulary']['field'] = 'vocabulary';
 $handler->display->display_options['fields']['vocabulary']['exclude'] = TRUE;
-/* Field: Global: Custom text */
-$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
-$handler->display->display_options['fields']['nothing']['table'] = 'views';
-$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
-$handler->display->display_options['fields']['nothing']['label'] = '';
-$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
-$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Add Condition';
-$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['nothing']['alter']['path'] = 'newspecialcondition';
-$handler->display->display_options['fields']['nothing']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
-$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
 /* Field: dH AdminReg Feature: dHA Feature-Vars Description */
 $handler->display->display_options['fields']['vardesc']['id'] = 'vardesc';
 $handler->display->display_options['fields']['vardesc']['table'] = 'dha_feature_vars';
 $handler->display->display_options['fields']['vardesc']['field'] = 'vardesc';
 $handler->display->display_options['fields']['vardesc']['label'] = 'Special Condition';
-/* Field: DH TimeSeries: tstime */
-$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
-$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
-$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
-$handler->display->display_options['fields']['tstime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['fields']['tstime']['label'] = 'Due Date';
-$handler->display->display_options['fields']['tstime']['empty'] = '[nothing]';
-$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
-$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m/d';
-$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
-/* Field: DH TimeSeries: tsendtime */
-$handler->display->display_options['fields']['tsendtime']['id'] = 'tsendtime';
-$handler->display->display_options['fields']['tsendtime']['table'] = 'dh_timeseries';
-$handler->display->display_options['fields']['tsendtime']['field'] = 'tsendtime';
-$handler->display->display_options['fields']['tsendtime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['fields']['tsendtime']['label'] = 'Completion Date';
-$handler->display->display_options['fields']['tsendtime']['date_format'] = 'custom';
-$handler->display->display_options['fields']['tsendtime']['custom_date_format'] = 'Y/m/d';
-$handler->display->display_options['fields']['tsendtime']['second_date_format'] = 'long';
-/* Field: DH TimeSeries: Label */
-$handler->display->display_options['fields']['tid']['id'] = 'tid';
-$handler->display->display_options['fields']['tid']['table'] = 'dh_timeseries';
-$handler->display->display_options['fields']['tid']['field'] = 'tid';
-$handler->display->display_options['fields']['tid']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['fields']['tid']['label'] = '';
-$handler->display->display_options['fields']['tid']['alter']['alter_text'] = TRUE;
-$handler->display->display_options['fields']['tid']['alter']['text'] = 'Edit/View';
-$handler->display->display_options['fields']['tid']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['tid']['alter']['path'] = 'admin/content/dh_timeseries/manage/[tid]';
-$handler->display->display_options['fields']['tid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
-$handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
-$handler->display->display_options['fields']['tid']['separator'] = '';
+/* Field: DH Properties: Startdate */
+$handler->display->display_options['fields']['startdate']['id'] = 'startdate';
+$handler->display->display_options['fields']['startdate']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['startdate']['field'] = 'startdate';
+$handler->display->display_options['fields']['startdate']['relationship'] = 'prop_feature_vardef';
+$handler->display->display_options['fields']['startdate']['label'] = 'Due Date';
+$handler->display->display_options['fields']['startdate']['alter']['alter_date_format'] = '0';
+$handler->display->display_options['fields']['startdate']['date_format'] = 'custom';
+$handler->display->display_options['fields']['startdate']['custom_date_format'] = 'Y-m-d';
+$handler->display->display_options['fields']['startdate']['second_date_format'] = 'long';
+/* Field: DH Properties: Enddate */
+$handler->display->display_options['fields']['enddate']['id'] = 'enddate';
+$handler->display->display_options['fields']['enddate']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['enddate']['field'] = 'enddate';
+$handler->display->display_options['fields']['enddate']['relationship'] = 'prop_feature_vardef';
+$handler->display->display_options['fields']['enddate']['label'] = 'Completion Date';
+$handler->display->display_options['fields']['enddate']['alter']['alter_date_format'] = '0';
+$handler->display->display_options['fields']['enddate']['date_format'] = 'custom';
+$handler->display->display_options['fields']['enddate']['custom_date_format'] = 'Y-m-d';
+$handler->display->display_options['fields']['enddate']['second_date_format'] = 'long';
+/* Field: DH Properties: Label */
+$handler->display->display_options['fields']['pid']['id'] = 'pid';
+$handler->display->display_options['fields']['pid']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['pid']['field'] = 'pid';
+$handler->display->display_options['fields']['pid']['relationship'] = 'prop_feature_vardef';
+$handler->display->display_options['fields']['pid']['label'] = '';
+$handler->display->display_options['fields']['pid']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['pid']['alter']['text'] = 'Edit/View';
+$handler->display->display_options['fields']['pid']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['pid']['alter']['path'] = 'admin/content/dh_properties/manage/[pid]';
+$handler->display->display_options['fields']['pid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
+$handler->display->display_options['fields']['pid']['alter']['alt'] = 'Go to the property edit page for this Special Condition';
+$handler->display->display_options['fields']['pid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['pid']['separator'] = '';
 $handler->display->display_options['defaults']['sorts'] = FALSE;
-/* Sort criterion: DH TimeSeries: tstime */
-$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
-$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
-$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
-$handler->display->display_options['sorts']['tstime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['sorts']['tstime']['exposed'] = TRUE;
-$handler->display->display_options['sorts']['tstime']['expose']['label'] = 'Due Date';
-/* Sort criterion: DH TimeSeries: tsendtime */
-$handler->display->display_options['sorts']['tsendtime']['id'] = 'tsendtime';
-$handler->display->display_options['sorts']['tsendtime']['table'] = 'dh_timeseries';
-$handler->display->display_options['sorts']['tsendtime']['field'] = 'tsendtime';
-$handler->display->display_options['sorts']['tsendtime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['sorts']['tsendtime']['exposed'] = TRUE;
-$handler->display->display_options['sorts']['tsendtime']['expose']['label'] = 'Completion Date';
+/* Sort criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['sorts']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['sorts']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['sorts']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['sorts']['permit_id_value']['order'] = 'DESC';
+/* Sort criterion: DH Properties: Startdate */
+$handler->display->display_options['sorts']['startdate']['id'] = 'startdate';
+$handler->display->display_options['sorts']['startdate']['table'] = 'dh_properties';
+$handler->display->display_options['sorts']['startdate']['field'] = 'startdate';
+$handler->display->display_options['sorts']['startdate']['relationship'] = 'prop_feature_vardef';
+$handler->display->display_options['sorts']['startdate']['order'] = 'DESC';
+$handler->display->display_options['sorts']['startdate']['granularity'] = 'day';
 $handler->display->display_options['defaults']['arguments'] = FALSE;
 /* Contextual filter: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
 $handler->display->display_options['arguments']['vocabulary']['id'] = 'vocabulary';
@@ -390,12 +378,6 @@ $handler->display->display_options['arguments']['adminid']['comparator'] = '1';
 $handler->display->display_options['arguments']['adminid']['op_location'] = '1';
 $handler->display->display_options['defaults']['filter_groups'] = FALSE;
 $handler->display->display_options['defaults']['filters'] = FALSE;
-/* Filter criterion: DH TimeSeries: tstime */
-$handler->display->display_options['filters']['tstime']['id'] = 'tstime';
-$handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
-$handler->display->display_options['filters']['tstime']['field'] = 'tstime';
-$handler->display->display_options['filters']['tstime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['filters']['tstime']['operator'] = 'not empty';
 /* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
 $handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
 $handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
@@ -428,11 +410,11 @@ $handler->display->display_options['filters']['permit_id_value']['expose']['reme
   19 => 0,
 );
 $handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
-/* Filter criterion: DH TimeSeries: varid (selector) */
+/* Filter criterion: DH Properties: varid (selector) */
 $handler->display->display_options['filters']['varidid']['id'] = 'varidid';
-$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
 $handler->display->display_options['filters']['varidid']['field'] = 'varidid';
-$handler->display->display_options['filters']['varidid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'prop_feature_vardef';
 $handler->display->display_options['filters']['varidid']['value'] = array(
   'aquifer_test_condition' => 'aquifer_test_condition',
   'geophysical_borehole_logging' => 'geophysical_borehole_logging',
@@ -459,8 +441,12 @@ $handler->display->display_options['filters']['varidid']['expose']['remember_rol
   13 => 0,
   14 => 0,
   15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
+  20 => 0,
 );
-$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
 $handler->display->display_options['filters']['varidid']['vocabulary'] = array(
   'water_permit_special' => 'water_permit_special',
 );
@@ -480,6 +466,19 @@ $handler->display->display_options['style_options']['replace_newlines'] = 0;
 $handler->display->display_options['style_options']['header'] = 1;
 $handler->display->display_options['style_options']['keep_html'] = 0;
 $handler->display->display_options['defaults']['header'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Prop */
+$handler->display->display_options['relationships']['prop_feature_vardef']['id'] = 'prop_feature_vardef';
+$handler->display->display_options['relationships']['prop_feature_vardef']['table'] = 'dha_feature_vars';
+$handler->display->display_options['relationships']['prop_feature_vardef']['field'] = 'prop_feature_vardef';
+$handler->display->display_options['relationships']['prop_feature_vardef']['ui_name'] = 'Prop';
+$handler->display->display_options['relationships']['prop_feature_vardef']['label'] = 'Prop';
+/* Relationship: Facility */
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['id'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['field'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['ui_name'] = 'Facility';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['label'] = 'Facility';
 $handler->display->display_options['defaults']['fields'] = FALSE;
 /* Field: DH AdminReg Feature: Dh adminreg feature ID */
 $handler->display->display_options['fields']['adminid']['id'] = 'adminid';
@@ -524,75 +523,51 @@ $handler->display->display_options['fields']['vocabulary']['id'] = 'vocabulary';
 $handler->display->display_options['fields']['vocabulary']['table'] = 'dha_feature_vars';
 $handler->display->display_options['fields']['vocabulary']['field'] = 'vocabulary';
 $handler->display->display_options['fields']['vocabulary']['exclude'] = TRUE;
-/* Field: Global: Custom text */
-$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
-$handler->display->display_options['fields']['nothing']['table'] = 'views';
-$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
-$handler->display->display_options['fields']['nothing']['label'] = '';
-$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
-$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Add Condition';
-$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['nothing']['alter']['path'] = 'newspecialcondition';
-$handler->display->display_options['fields']['nothing']['alter']['path_query_parameters'] = 'featureid=!1&varkey=[varkey]';
-$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
 /* Field: dH AdminReg Feature: dHA Feature-Vars Description */
 $handler->display->display_options['fields']['vardesc']['id'] = 'vardesc';
 $handler->display->display_options['fields']['vardesc']['table'] = 'dha_feature_vars';
 $handler->display->display_options['fields']['vardesc']['field'] = 'vardesc';
 $handler->display->display_options['fields']['vardesc']['label'] = 'Special Condition';
-/* Field: DH TimeSeries: tstime */
-$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
-$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
-$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
-$handler->display->display_options['fields']['tstime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['fields']['tstime']['label'] = 'Due Date';
-$handler->display->display_options['fields']['tstime']['empty'] = '[nothing]';
-$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
-$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'Y/m/d';
-$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
-/* Field: DH TimeSeries: tsendtime */
-$handler->display->display_options['fields']['tsendtime']['id'] = 'tsendtime';
-$handler->display->display_options['fields']['tsendtime']['table'] = 'dh_timeseries';
-$handler->display->display_options['fields']['tsendtime']['field'] = 'tsendtime';
-$handler->display->display_options['fields']['tsendtime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['fields']['tsendtime']['label'] = 'Completion Date';
-$handler->display->display_options['fields']['tsendtime']['date_format'] = 'custom';
-$handler->display->display_options['fields']['tsendtime']['custom_date_format'] = 'Y/m/d';
-$handler->display->display_options['fields']['tsendtime']['second_date_format'] = 'long';
-/* Field: DH TimeSeries: Label */
-$handler->display->display_options['fields']['tid']['id'] = 'tid';
-$handler->display->display_options['fields']['tid']['table'] = 'dh_timeseries';
-$handler->display->display_options['fields']['tid']['field'] = 'tid';
-$handler->display->display_options['fields']['tid']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['fields']['tid']['label'] = '';
-$handler->display->display_options['fields']['tid']['exclude'] = TRUE;
-$handler->display->display_options['fields']['tid']['alter']['alter_text'] = TRUE;
-$handler->display->display_options['fields']['tid']['alter']['text'] = 'Edit/View';
-$handler->display->display_options['fields']['tid']['alter']['make_link'] = TRUE;
-$handler->display->display_options['fields']['tid']['alter']['path'] = 'admin/content/dh_timeseries/manage/[tid]';
-$handler->display->display_options['fields']['tid']['alter']['path_query_parameters'] = 'destination=gwp-permit-dash-conditions/[adminid]';
-$handler->display->display_options['fields']['tid']['element_label_colon'] = FALSE;
-$handler->display->display_options['fields']['tid']['separator'] = '';
+/* Field: DH Properties: Enddate */
+$handler->display->display_options['fields']['enddate']['id'] = 'enddate';
+$handler->display->display_options['fields']['enddate']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['enddate']['field'] = 'enddate';
+$handler->display->display_options['fields']['enddate']['relationship'] = 'prop_feature_vardef';
+$handler->display->display_options['fields']['enddate']['label'] = 'Due Date';
+$handler->display->display_options['fields']['enddate']['alter']['alter_date_format'] = '0';
+$handler->display->display_options['fields']['enddate']['date_format'] = 'custom';
+$handler->display->display_options['fields']['enddate']['custom_date_format'] = 'Y-m-d';
+$handler->display->display_options['fields']['enddate']['second_date_format'] = 'long';
+/* Field: DH Properties: Startdate */
+$handler->display->display_options['fields']['startdate']['id'] = 'startdate';
+$handler->display->display_options['fields']['startdate']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['startdate']['field'] = 'startdate';
+$handler->display->display_options['fields']['startdate']['relationship'] = 'prop_feature_vardef';
+$handler->display->display_options['fields']['startdate']['label'] = 'Completion Date';
+$handler->display->display_options['fields']['startdate']['alter']['alter_date_format'] = '0';
+$handler->display->display_options['fields']['startdate']['date_format'] = 'custom';
+$handler->display->display_options['fields']['startdate']['custom_date_format'] = 'Y-m-d';
+$handler->display->display_options['fields']['startdate']['second_date_format'] = 'long';
+/* Field: DH Properties: Label */
+$handler->display->display_options['fields']['pid']['id'] = 'pid';
+$handler->display->display_options['fields']['pid']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['pid']['field'] = 'pid';
+$handler->display->display_options['fields']['pid']['relationship'] = 'prop_feature_vardef';
+$handler->display->display_options['fields']['pid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['pid']['separator'] = '';
 $handler->display->display_options['defaults']['sorts'] = FALSE;
 /* Sort criterion: dH AdminReg Feature: Permit ID (permit_id) */
 $handler->display->display_options['sorts']['permit_id_value']['id'] = 'permit_id_value';
 $handler->display->display_options['sorts']['permit_id_value']['table'] = 'field_data_permit_id';
 $handler->display->display_options['sorts']['permit_id_value']['field'] = 'permit_id_value';
 $handler->display->display_options['sorts']['permit_id_value']['order'] = 'DESC';
-/* Sort criterion: DH TimeSeries: tstime */
-$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
-$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
-$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
-$handler->display->display_options['sorts']['tstime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['sorts']['tstime']['exposed'] = TRUE;
-$handler->display->display_options['sorts']['tstime']['expose']['label'] = 'Due Date';
-/* Sort criterion: DH TimeSeries: tsendtime */
-$handler->display->display_options['sorts']['tsendtime']['id'] = 'tsendtime';
-$handler->display->display_options['sorts']['tsendtime']['table'] = 'dh_timeseries';
-$handler->display->display_options['sorts']['tsendtime']['field'] = 'tsendtime';
-$handler->display->display_options['sorts']['tsendtime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['sorts']['tsendtime']['exposed'] = TRUE;
-$handler->display->display_options['sorts']['tsendtime']['expose']['label'] = 'Completion Date';
+/* Sort criterion: DH Properties: Startdate */
+$handler->display->display_options['sorts']['startdate']['id'] = 'startdate';
+$handler->display->display_options['sorts']['startdate']['table'] = 'dh_properties';
+$handler->display->display_options['sorts']['startdate']['field'] = 'startdate';
+$handler->display->display_options['sorts']['startdate']['relationship'] = 'prop_feature_vardef';
+$handler->display->display_options['sorts']['startdate']['order'] = 'DESC';
+$handler->display->display_options['sorts']['startdate']['granularity'] = 'day';
 $handler->display->display_options['defaults']['arguments'] = FALSE;
 /* Contextual filter: dH AdminReg Feature: dHA Feature-Vars Vocabulary */
 $handler->display->display_options['arguments']['vocabulary']['id'] = 'vocabulary';
@@ -617,12 +592,6 @@ $handler->display->display_options['arguments']['adminid']['comparator'] = '1';
 $handler->display->display_options['arguments']['adminid']['op_location'] = '1';
 $handler->display->display_options['defaults']['filter_groups'] = FALSE;
 $handler->display->display_options['defaults']['filters'] = FALSE;
-/* Filter criterion: DH TimeSeries: tstime */
-$handler->display->display_options['filters']['tstime']['id'] = 'tstime';
-$handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
-$handler->display->display_options['filters']['tstime']['field'] = 'tstime';
-$handler->display->display_options['filters']['tstime']['relationship'] = 'ts_feature_vardef';
-$handler->display->display_options['filters']['tstime']['operator'] = 'not empty';
 /* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
 $handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
 $handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
@@ -655,18 +624,18 @@ $handler->display->display_options['filters']['permit_id_value']['expose']['reme
   19 => 0,
 );
 $handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
-/* Filter criterion: DH TimeSeries: varid (selector) */
+/* Filter criterion: DH Properties: varid (selector) */
 $handler->display->display_options['filters']['varidid']['id'] = 'varidid';
-$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
 $handler->display->display_options['filters']['varidid']['field'] = 'varidid';
-$handler->display->display_options['filters']['varidid']['relationship'] = 'ts_feature_vardef';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'prop_feature_vardef';
 $handler->display->display_options['filters']['varidid']['value'] = array(
   'aquifer_test_condition' => 'aquifer_test_condition',
   'geophysical_borehole_logging' => 'geophysical_borehole_logging',
 );
 $handler->display->display_options['filters']['varidid']['exposed'] = TRUE;
 $handler->display->display_options['filters']['varidid']['expose']['operator_id'] = 'varidid_op';
-$handler->display->display_options['filters']['varidid']['expose']['label'] = 'varid (selector)';
+$handler->display->display_options['filters']['varidid']['expose']['label'] = 'Condition Name';
 $handler->display->display_options['filters']['varidid']['expose']['operator'] = 'varidid_op';
 $handler->display->display_options['filters']['varidid']['expose']['identifier'] = 'varidid';
 $handler->display->display_options['filters']['varidid']['expose']['multiple'] = TRUE;
@@ -690,8 +659,8 @@ $handler->display->display_options['filters']['varidid']['expose']['remember_rol
   17 => 0,
   18 => 0,
   19 => 0,
+  20 => 0,
 );
-$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
 $handler->display->display_options['filters']['varidid']['vocabulary'] = array(
   'water_permit_special' => 'water_permit_special',
 );
