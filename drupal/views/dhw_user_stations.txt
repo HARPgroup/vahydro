@@ -60,6 +60,10 @@ $handler->display->display_options['fields']['nothing_1']['alter']['text'] = 'Vi
 $handler->display->display_options['fields']['nothing_1']['alter']['make_link'] = TRUE;
 $handler->display->display_options['fields']['nothing_1']['alter']['path'] = 'gwp-permit-dash-info/[adminid]';
 $handler->display->display_options['fields']['nothing_1']['element_label_colon'] = FALSE;
+/* Sort criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['sorts']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['sorts']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['sorts']['permit_id_value']['field'] = 'permit_id_value';
 /* Contextual filter: User: Uid */
 $handler->display->display_options['arguments']['uid']['id'] = 'uid';
 $handler->display->display_options['arguments']['uid']['table'] = 'users';
@@ -192,6 +196,260 @@ $handler->display->display_options['filters']['fstatus']['group'] = 2;
 
 /* Display: Page */
 $handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['defaults']['header'] = FALSE;
+/* Header: Global: Result summary */
+$handler->display->display_options['header']['result']['id'] = 'result';
+$handler->display->display_options['header']['result']['table'] = 'views';
+$handler->display->display_options['header']['result']['field'] = 'result';
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['dh_link_admin_record_mgr_id_target_id']['id'] = 'dh_link_admin_record_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_record_mgr_id_target_id']['table'] = 'field_data_dh_link_admin_record_mgr_id';
+$handler->display->display_options['relationships']['dh_link_admin_record_mgr_id_target_id']['field'] = 'dh_link_admin_record_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_record_mgr_id_target_id']['label'] = 'Managing User';
+/* Relationship: Owner/Org */
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['id'] = 'dh_link_admin_reg_holder_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['table'] = 'field_data_dh_link_admin_reg_holder';
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['field'] = 'dh_link_admin_reg_holder_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['ui_name'] = 'Owner/Org';
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['label'] = 'Owner/Org';
+/* Relationship: Facility */
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['id'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['field'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['ui_name'] = 'Facility';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_location_dh_feature']['label'] = 'Facility';
+/* Relationship: Locality */
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['relationship'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['ui_name'] = 'Locality';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['label'] = 'Locality';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH AdminReg Feature: Dh adminreg feature ID */
+$handler->display->display_options['fields']['adminid']['id'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['adminid']['field'] = 'adminid';
+$handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_admin_reg_holder_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Owner/Organization';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['permit_id']['alter']['path'] = 'gwp-permit-dash-info/[adminid]';
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'Permit Name';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_2']['id'] = 'name_2';
+$handler->display->display_options['fields']['name_2']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_2']['field'] = 'name';
+$handler->display->display_options['fields']['name_2']['relationship'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['fields']['name_2']['label'] = 'Facility';
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Remove Link';
+$handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing']['alter']['path'] = 'ows-user-dash-prs/!1/deletelink/[adminid]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing_1']['id'] = 'nothing_1';
+$handler->display->display_options['fields']['nothing_1']['table'] = 'views';
+$handler->display->display_options['fields']['nothing_1']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing_1']['label'] = '';
+$handler->display->display_options['fields']['nothing_1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing_1']['alter']['text'] = 'View Permit/Reg Info';
+$handler->display->display_options['fields']['nothing_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing_1']['alter']['path'] = 'gwp-permit-dash-info/[adminid]';
+$handler->display->display_options['fields']['nothing_1']['element_label_colon'] = FALSE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_3']['id'] = 'name_3';
+$handler->display->display_options['fields']['name_3']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_3']['field'] = 'name';
+$handler->display->display_options['fields']['name_3']['relationship'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['fields']['name_3']['label'] = 'Locality';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['filter_groups']['groups'] = array(
+  1 => 'AND',
+  2 => 'OR',
+);
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['filters']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['operator'] = 'contains';
+$handler->display->display_options['filters']['permit_id_value']['group'] = 1;
+$handler->display->display_options['filters']['permit_id_value']['exposed'] = TRUE;
+$handler->display->display_options['filters']['permit_id_value']['expose']['operator_id'] = 'permit_id_value_op';
+$handler->display->display_options['filters']['permit_id_value']['expose']['label'] = 'Permit ID';
+$handler->display->display_options['filters']['permit_id_value']['expose']['operator'] = 'permit_id_value_op';
+$handler->display->display_options['filters']['permit_id_value']['expose']['identifier'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
+);
+$handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
+/* Filter criterion: DH AdminReg Feature: name */
+$handler->display->display_options['filters']['name']['id'] = 'name';
+$handler->display->display_options['filters']['name']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['name']['field'] = 'name';
+$handler->display->display_options['filters']['name']['operator'] = 'contains';
+$handler->display->display_options['filters']['name']['group'] = 1;
+$handler->display->display_options['filters']['name']['exposed'] = TRUE;
+$handler->display->display_options['filters']['name']['expose']['operator_id'] = 'name_op';
+$handler->display->display_options['filters']['name']['expose']['label'] = 'Permit Name';
+$handler->display->display_options['filters']['name']['expose']['operator'] = 'name_op';
+$handler->display->display_options['filters']['name']['expose']['identifier'] = 'name';
+$handler->display->display_options['filters']['name']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
+);
+$handler->display->display_options['filters']['name']['op_location'] = 'where';
+/* Filter criterion: DH AdminReg Feature: Bundle */
+$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['value'] = array(
+  'permit' => 'permit',
+  'registration' => 'registration',
+);
+$handler->display->display_options['filters']['bundle']['group'] = 1;
+/* Filter criterion: dH AdminReg Feature: Permit/Registration Issuing Authority (dh_link_admin_reg_issuer) */
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['id'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['field'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['value'] = array(
+  65668 => '65668',
+  91200 => '91200',
+);
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['group'] = 1;
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['operator_id'] = 'dh_link_admin_reg_issuer_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['label'] = 'Permit Type';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['operator'] = 'dh_link_admin_reg_issuer_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['identifier'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
+);
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['reduce'] = TRUE;
+/* Filter criterion: DH AdminReg Feature: fstatus */
+$handler->display->display_options['filters']['fstatus_1']['id'] = 'fstatus_1';
+$handler->display->display_options['filters']['fstatus_1']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['fstatus_1']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_1']['value'] = 'application';
+$handler->display->display_options['filters']['fstatus_1']['group'] = 2;
+/* Filter criterion: DH AdminReg Feature: fstatus */
+$handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['value'] = 'active';
+$handler->display->display_options['filters']['fstatus']['group'] = 2;
+/* Filter criterion: DH AdminReg Feature: fstatus */
+$handler->display->display_options['filters']['fstatus_2']['id'] = 'fstatus_2';
+$handler->display->display_options['filters']['fstatus_2']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['fstatus_2']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_2']['value'] = 'expired';
+$handler->display->display_options['filters']['fstatus_2']['group'] = 2;
+$handler->display->display_options['filters']['fstatus_2']['op_location'] = 'where';
+/* Filter criterion: DH AdminReg Feature: fstatus */
+$handler->display->display_options['filters']['fstatus_3']['id'] = 'fstatus_3';
+$handler->display->display_options['filters']['fstatus_3']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['fstatus_3']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_3']['exposed'] = TRUE;
+$handler->display->display_options['filters']['fstatus_3']['expose']['operator_id'] = 'fstatus_3_op';
+$handler->display->display_options['filters']['fstatus_3']['expose']['label'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_3']['expose']['operator'] = 'fstatus_3_op';
+$handler->display->display_options['filters']['fstatus_3']['expose']['identifier'] = 'fstatus_3';
+$handler->display->display_options['filters']['fstatus_3']['is_grouped'] = TRUE;
+$handler->display->display_options['filters']['fstatus_3']['group_info']['label'] = 'Permit Status';
+$handler->display->display_options['filters']['fstatus_3']['group_info']['identifier'] = 'fstatus_3';
+$handler->display->display_options['filters']['fstatus_3']['group_info']['widget'] = 'radios';
+$handler->display->display_options['filters']['fstatus_3']['group_info']['group_items'] = array(
+  1 => array(
+    'title' => 'Application',
+    'operator' => '=',
+    'value' => 'application',
+  ),
+  2 => array(
+    'title' => 'Active',
+    'operator' => '=',
+    'value' => 'active',
+  ),
+  3 => array(
+    'title' => 'Admin Continued',
+    'operator' => '=',
+    'value' => 'expired',
+  ),
+);
+$handler->display->display_options['filters']['fstatus_3']['op_location'] = 'where';
 $handler->display->display_options['path'] = 'dha-user-prs';
 
 /* Display: Compliance User Permits & Reg */
@@ -224,18 +482,87 @@ $handler->display->display_options['relationships']['dh_link_feature_mgr_id_targ
 $handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['relationship'] = 'dh_link_admin_fa_usafips_target_id';
 $handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['ui_name'] = 'User';
 $handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['label'] = 'User';
+/* Relationship: Owner/Org */
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['id'] = 'dh_link_admin_reg_holder_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['table'] = 'field_data_dh_link_admin_reg_holder';
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['field'] = 'dh_link_admin_reg_holder_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['ui_name'] = 'Owner/Org';
+$handler->display->display_options['relationships']['dh_link_admin_reg_holder_target_id']['label'] = 'Owner/Org';
 $handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH AdminReg Feature: name */
+$handler->display->display_options['fields']['name_2']['id'] = 'name_2';
+$handler->display->display_options['fields']['name_2']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['fields']['name_2']['field'] = 'name';
+$handler->display->display_options['fields']['name_2']['relationship'] = 'dh_link_admin_reg_holder_target_id';
+$handler->display->display_options['fields']['name_2']['label'] = 'Owner/Organization';
 /* Field: DH AdminReg Feature: Dh adminreg feature ID */
 $handler->display->display_options['fields']['adminid']['id'] = 'adminid';
 $handler->display->display_options['fields']['adminid']['table'] = 'dh_adminreg_feature';
 $handler->display->display_options['fields']['adminid']['field'] = 'adminid';
 $handler->display->display_options['fields']['adminid']['exclude'] = TRUE;
 $handler->display->display_options['fields']['adminid']['separator'] = '';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['permit_id']['alter']['path'] = 'gwp-permit-dash-info/[adminid]';
 /* Field: DH AdminReg Feature: name */
 $handler->display->display_options['fields']['name']['id'] = 'name';
 $handler->display->display_options['fields']['name']['table'] = 'dh_adminreg_feature';
 $handler->display->display_options['fields']['name']['field'] = 'name';
 $handler->display->display_options['fields']['name']['label'] = 'Permit Name';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_3']['id'] = 'name_3';
+$handler->display->display_options['fields']['name_3']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_3']['field'] = 'name';
+$handler->display->display_options['fields']['name_3']['relationship'] = 'reverse_dh_link_admin_location_dh_feature';
+$handler->display->display_options['fields']['name_3']['label'] = 'Facility';
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing_3']['id'] = 'nothing_3';
+$handler->display->display_options['fields']['nothing_3']['table'] = 'views';
+$handler->display->display_options['fields']['nothing_3']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing_3']['label'] = '';
+$handler->display->display_options['fields']['nothing_3']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing_3']['alter']['text'] = 'Quarterly Withdrawal Report';
+$handler->display->display_options['fields']['nothing_3']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing_3']['alter']['path'] = 'ows-wwpr-permit-info/[adminid]';
+$handler->display->display_options['fields']['nothing_3']['element_label_colon'] = FALSE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing_4']['id'] = 'nothing_4';
+$handler->display->display_options['fields']['nothing_4']['table'] = 'views';
+$handler->display->display_options['fields']['nothing_4']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing_4']['label'] = '';
+$handler->display->display_options['fields']['nothing_4']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing_4']['alter']['text'] = 'Water Level & Quality Reports';
+$handler->display->display_options['fields']['nothing_4']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing_4']['alter']['path'] = 'gwp-facility-dash-compliance/[hydroid]';
+$handler->display->display_options['fields']['nothing_4']['element_label_colon'] = FALSE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing_5']['id'] = 'nothing_5';
+$handler->display->display_options['fields']['nothing_5']['table'] = 'views';
+$handler->display->display_options['fields']['nothing_5']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing_5']['label'] = '';
+$handler->display->display_options['fields']['nothing_5']['exclude'] = TRUE;
+$handler->display->display_options['fields']['nothing_5']['alter']['text'] = 'Reports Received';
+$handler->display->display_options['fields']['nothing_5']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['nothing_5']['alter']['path'] = 'gwp-permit-dash-compliance/[adminid]';
+$handler->display->display_options['fields']['nothing_5']['element_label_colon'] = FALSE;
+/* Field: Global: Custom text */
+$handler->display->display_options['fields']['nothing_2']['id'] = 'nothing_2';
+$handler->display->display_options['fields']['nothing_2']['table'] = 'views';
+$handler->display->display_options['fields']['nothing_2']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing_2']['label'] = 'Data Entry';
+$handler->display->display_options['fields']['nothing_2']['alter']['text'] = '[nothing_3] <br>
+[nothing_4] <br>
+[nothing_5]';
 /* Field: Global: Custom text */
 $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
 $handler->display->display_options['fields']['nothing']['table'] = 'views';
@@ -251,6 +578,7 @@ $handler->display->display_options['fields']['nothing_1']['id'] = 'nothing_1';
 $handler->display->display_options['fields']['nothing_1']['table'] = 'views';
 $handler->display->display_options['fields']['nothing_1']['field'] = 'nothing';
 $handler->display->display_options['fields']['nothing_1']['label'] = '';
+$handler->display->display_options['fields']['nothing_1']['exclude'] = TRUE;
 $handler->display->display_options['fields']['nothing_1']['alter']['text'] = 'View Permit/Reg Info';
 $handler->display->display_options['fields']['nothing_1']['alter']['make_link'] = TRUE;
 $handler->display->display_options['fields']['nothing_1']['alter']['path'] = 'gwp-permit-dash-info/[adminid]';
@@ -268,15 +596,39 @@ $handler->display->display_options['filter_groups']['groups'] = array(
   2 => 'OR',
 );
 $handler->display->display_options['defaults']['filters'] = FALSE;
-/* Filter criterion: DH AdminReg Feature: Bundle */
-$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
-$handler->display->display_options['filters']['bundle']['table'] = 'dh_adminreg_feature';
-$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
-$handler->display->display_options['filters']['bundle']['value'] = array(
-  'permit' => 'permit',
-  'registration' => 'registration',
+/* Filter criterion: dH AdminReg Feature: Permit ID (permit_id) */
+$handler->display->display_options['filters']['permit_id_value']['id'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['table'] = 'field_data_permit_id';
+$handler->display->display_options['filters']['permit_id_value']['field'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['operator'] = 'contains';
+$handler->display->display_options['filters']['permit_id_value']['group'] = 1;
+$handler->display->display_options['filters']['permit_id_value']['exposed'] = TRUE;
+$handler->display->display_options['filters']['permit_id_value']['expose']['operator_id'] = 'permit_id_value_op';
+$handler->display->display_options['filters']['permit_id_value']['expose']['label'] = 'Permit ID';
+$handler->display->display_options['filters']['permit_id_value']['expose']['operator'] = 'permit_id_value_op';
+$handler->display->display_options['filters']['permit_id_value']['expose']['identifier'] = 'permit_id_value';
+$handler->display->display_options['filters']['permit_id_value']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
 );
-$handler->display->display_options['filters']['bundle']['group'] = 1;
+$handler->display->display_options['filters']['permit_id_value']['op_location'] = 'where';
 /* Filter criterion: DH AdminReg Feature: name */
 $handler->display->display_options['filters']['name']['id'] = 'name';
 $handler->display->display_options['filters']['name']['table'] = 'dh_adminreg_feature';
@@ -286,7 +638,6 @@ $handler->display->display_options['filters']['name']['group'] = 1;
 $handler->display->display_options['filters']['name']['exposed'] = TRUE;
 $handler->display->display_options['filters']['name']['expose']['operator_id'] = 'name_op';
 $handler->display->display_options['filters']['name']['expose']['label'] = 'Permit Name';
-$handler->display->display_options['filters']['name']['expose']['use_operator'] = TRUE;
 $handler->display->display_options['filters']['name']['expose']['operator'] = 'name_op';
 $handler->display->display_options['filters']['name']['expose']['identifier'] = 'name';
 $handler->display->display_options['filters']['name']['expose']['remember_roles'] = array(
@@ -309,15 +660,75 @@ $handler->display->display_options['filters']['name']['expose']['remember_roles'
   17 => 0,
   18 => 0,
   19 => 0,
-  20 => 0,
 );
 $handler->display->display_options['filters']['name']['op_location'] = 'where';
+/* Filter criterion: DH AdminReg Feature: Bundle */
+$handler->display->display_options['filters']['bundle']['id'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['bundle']['field'] = 'bundle';
+$handler->display->display_options['filters']['bundle']['value'] = array(
+  'permit' => 'permit',
+  'registration' => 'registration',
+);
+$handler->display->display_options['filters']['bundle']['group'] = 1;
+/* Filter criterion: User: Current */
+$handler->display->display_options['filters']['uid_current']['id'] = 'uid_current';
+$handler->display->display_options['filters']['uid_current']['table'] = 'users';
+$handler->display->display_options['filters']['uid_current']['field'] = 'uid_current';
+$handler->display->display_options['filters']['uid_current']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['filters']['uid_current']['value'] = '1';
+$handler->display->display_options['filters']['uid_current']['group'] = 1;
+/* Filter criterion: DH AdminReg Feature: ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['operator'] = '!=';
+$handler->display->display_options['filters']['ftype']['value'] = 'gw2_system_provider';
+$handler->display->display_options['filters']['ftype']['group'] = 1;
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: dH AdminReg Feature: Permit/Registration Issuing Authority (dh_link_admin_reg_issuer) */
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['id'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['field'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['value'] = array(
+  65668 => '65668',
+  91200 => '91200',
+);
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['group'] = 1;
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['operator_id'] = 'dh_link_admin_reg_issuer_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['label'] = 'Permit Type';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['operator'] = 'dh_link_admin_reg_issuer_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['identifier'] = 'dh_link_admin_reg_issuer_target_id';
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+  16 => 0,
+  17 => 0,
+  18 => 0,
+  19 => 0,
+);
+$handler->display->display_options['filters']['dh_link_admin_reg_issuer_target_id']['expose']['reduce'] = TRUE;
 /* Filter criterion: DH AdminReg Feature: fstatus */
 $handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
 $handler->display->display_options['filters']['fstatus']['table'] = 'dh_adminreg_feature';
 $handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
 $handler->display->display_options['filters']['fstatus']['operator'] = 'contains';
-$handler->display->display_options['filters']['fstatus']['group'] = 2;
+$handler->display->display_options['filters']['fstatus']['group'] = 1;
 $handler->display->display_options['filters']['fstatus']['exposed'] = TRUE;
 $handler->display->display_options['filters']['fstatus']['expose']['operator_id'] = 'fstatus_op';
 $handler->display->display_options['filters']['fstatus']['expose']['label'] = 'Permit Status';
@@ -346,18 +757,40 @@ $handler->display->display_options['filters']['fstatus']['expose']['remember_rol
   19 => 0,
   20 => 0,
 );
+$handler->display->display_options['filters']['fstatus']['is_grouped'] = TRUE;
+$handler->display->display_options['filters']['fstatus']['group_info']['label'] = 'Permit Status';
+$handler->display->display_options['filters']['fstatus']['group_info']['identifier'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['group_info']['widget'] = 'radios';
+$handler->display->display_options['filters']['fstatus']['group_info']['group_items'] = array(
+  1 => array(
+    'title' => 'Active',
+    'operator' => '=',
+    'value' => 'active',
+  ),
+  2 => array(
+    'title' => 'Expired',
+    'operator' => '=',
+    'value' => 'expired',
+  ),
+  3 => array(
+    'title' => '',
+    'operator' => 'contains',
+    'value' => '',
+  ),
+);
 $handler->display->display_options['filters']['fstatus']['op_location'] = 'where';
-/* Filter criterion: User: Current */
-$handler->display->display_options['filters']['uid_current']['id'] = 'uid_current';
-$handler->display->display_options['filters']['uid_current']['table'] = 'users';
-$handler->display->display_options['filters']['uid_current']['field'] = 'uid_current';
-$handler->display->display_options['filters']['uid_current']['relationship'] = 'dh_link_feature_mgr_id_target_id';
-$handler->display->display_options['filters']['uid_current']['value'] = '1';
-/* Filter criterion: DH AdminReg Feature: ftype */
-$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
-$handler->display->display_options['filters']['ftype']['table'] = 'dh_adminreg_feature';
-$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
-$handler->display->display_options['filters']['ftype']['operator'] = '!=';
-$handler->display->display_options['filters']['ftype']['value'] = 'gw2_system_provider';
-$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: DH AdminReg Feature: fstatus */
+$handler->display->display_options['filters']['fstatus_1']['id'] = 'fstatus_1';
+$handler->display->display_options['filters']['fstatus_1']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['fstatus_1']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_1']['value'] = 'active';
+$handler->display->display_options['filters']['fstatus_1']['group'] = 2;
+$handler->display->display_options['filters']['fstatus_1']['op_location'] = 'where';
+/* Filter criterion: DH AdminReg Feature: fstatus */
+$handler->display->display_options['filters']['fstatus_2']['id'] = 'fstatus_2';
+$handler->display->display_options['filters']['fstatus_2']['table'] = 'dh_adminreg_feature';
+$handler->display->display_options['filters']['fstatus_2']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus_2']['value'] = 'expired';
+$handler->display->display_options['filters']['fstatus_2']['group'] = 2;
+$handler->display->display_options['filters']['fstatus_2']['op_location'] = 'where';
 $handler->display->display_options['path'] = 'dha-compliance-user-prs';
