@@ -23,7 +23,8 @@ params:
   intake_stats_fid: FALSE
   intake_stats_runid: 11
   intake_stats_varname: "Qintake"
-  preferred_runid: 600
+  preferred_runid: "runid_600"
+  impoundment_fid: FALSE
 ---
 
 ```{r setup, include=FALSE}
@@ -38,6 +39,9 @@ library(hydrotools)
 library(rjson)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
+
 #source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
@@ -70,6 +74,7 @@ intake_stats_fid <- params$intake_stats_fid
 intake_stats_runid <- params$intake_stats_runid
 intake_stats_varname <- params$intake_stats_varname
 preferred_runid <- params$preferred_runid
+impoundment_fid <- params$impoundment_fid
 
 if (is.logical(intake_stats_fid)) {
   intake_stats_fid = fac.hydroid
@@ -104,10 +109,10 @@ if (intake_stats_fid == fac.hydroid) {
   istats_elid = rseg.elid
 } else {
   istats_model <- RomProperty$new(
-  ds,
-  list(entity_type='dh_feature', featureid = intake_stats_fid, propcode="vahydro-1.0"),
-  TRUE
-)
+    ds,
+    list(entity_type='dh_feature', featureid = intake_stats_fid, propcode="vahydro-1.0"),
+    TRUE
+  )
   istats_elid <- as.integer(as.character(istats_model$propvalues('om_element_connection')$propvalue))
 }
 
@@ -122,6 +127,16 @@ if (exists("json_obj_url")) {
   # get report cusomtizations
   fac_report_info = find_name(fac_model_info, "reports")
   rseg_report_info = find_name(rseg_model_info, "reports")
+  if (!is.logical(impoundment_fid)) {
+    imp_model <- RomProperty$new(
+      ds,
+      list(entity_type='dh_feature', featureid = impoundment_fid, propcode="vahydro-1.0"),
+      TRUE
+    )
+    imp_obj_url <- paste(json_obj_url, imp_model$pid, sep="/")
+    imp_model_info <- om_auth_read(imp_obj_url, token,  "text/json", "")
+    imp_model_info <- fromJSON(imp_model_info)
+  }
 } else {
   message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
   fac_model_info <- list()
@@ -459,6 +474,20 @@ for (i in 1:length(runid.list)){
   } else {
     # tbd: try impoundment linked to river segment.
     print(paste("No active impoundment found for run id",runid.i))
+  }
+  if (!is.logical(impoundment_fid)) {
+    run_info <- find_name(imp_model_info,runid.i)
+    fig_prop <- find_name(run_info, "fig.imp_storage.all")
+    if (!(is.null(fig_prop))) {
+      fig_path <- fig_prop$code
+      # we have an image, show it 
+      cat("\n\n## Reservoir Storage: ", short_names[[runid.i]],"\n\n")
+      cat(paste0("![](",fig_path,")"),"\n")
+      cat("\n\n\\pagebreak\n")
+    } else {
+      # tbd: try impoundment linked to river segment.
+      print(paste("No active impoundment found for run id",runid.i,"on impoundment feature", impoundment_fid)) 
+    }
   }
 }
 
