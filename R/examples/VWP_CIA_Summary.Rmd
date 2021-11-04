@@ -20,8 +20,11 @@ params:
   fac.metric.list: [ "base_demand_mgy", "wd_mgy", "unmet_demand_mgy","base_demand_mgd", "wd_mgd","ps_mgd","unmet30_mgd" ]
   rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout",
     "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
+  intake_stats_fid: FALSE
   intake_stats_runid: 11
   intake_stats_varname: "Qintake"
+  preferred_runid: "runid_600"
+  impoundment_fid: FALSE
 ---
 
 ```{r setup, include=FALSE}
@@ -36,6 +39,9 @@ library(hydrotools)
 library(rjson)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
+
 #source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
@@ -64,9 +70,15 @@ fac.hydroid <- params$fac.hydroid
 runid.list <- params$runid.list
 fac.metric.list <- params$fac.metric.list
 rseg.metric.list <- params$rseg.metric.list
+intake_stats_fid <- params$intake_stats_fid
 intake_stats_runid <- params$intake_stats_runid
 intake_stats_varname <- params$intake_stats_varname
+preferred_runid <- params$preferred_runid
+impoundment_fid <- params$impoundment_fid
 
+if (is.logical(intake_stats_fid)) {
+  intake_stats_fid = fac.hydroid
+}
 #runid.list <- c('runid_400','runid_600')
 #runid.list <- c('runid_201','runid_401')
 rlist <- gsub('runid_', '', runid.list)
@@ -91,6 +103,20 @@ rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om
 fac.model <- om_get_model(site, fac.hydroid, model_varkey = 'om_water_system_element')
 fac.elid <- om_get_prop(site, fac.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
 
+if (intake_stats_fid == fac.hydroid) {
+  istats_elid = fac.elid
+} else if (intake_stats_fid == rseg.hydroid) {
+  istats_elid = rseg.elid
+} else {
+  istats_model <- RomProperty$new(
+    ds,
+    list(entity_type='dh_feature', featureid = intake_stats_fid, propcode="vahydro-1.0"),
+    TRUE
+  )
+  istats_elid <- as.integer(as.character(istats_model$propvalues('om_element_connection')$propvalue))
+}
+
+
 if (exists("json_obj_url")) {
   fac_obj_url <- paste(json_obj_url, fac.model$pid, sep="/")
   fac_model_info <- om_auth_read(fac_obj_url, token,  "text/json", "")
@@ -101,6 +127,16 @@ if (exists("json_obj_url")) {
   # get report cusomtizations
   fac_report_info = find_name(fac_model_info, "reports")
   rseg_report_info = find_name(rseg_model_info, "reports")
+  if (!is.logical(impoundment_fid)) {
+    imp_model <- RomProperty$new(
+      ds,
+      list(entity_type='dh_feature', featureid = impoundment_fid, propcode="vahydro-1.0"),
+      TRUE
+    )
+    imp_obj_url <- paste(json_obj_url, imp_model$pid, sep="/")
+    imp_model_info <- om_auth_read(imp_obj_url, token,  "text/json", "")
+    imp_model_info <- fromJSON(imp_model_info)
+  }
 } else {
   message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
   fac_model_info <- list()
@@ -249,7 +285,7 @@ for (i in 1:length(runid.list)){
 # Intake Site Description & Current Estimated Stream Flows
 
 ```{r LoadSiteInfo, include=FALSE}
-dat_current <- om_get_rundata(fac.elid, intake_stats_runid, omsite, FALSE)
+dat_current <- om_get_rundata(istats_elid, intake_stats_runid, omsite, FALSE)
 # catch instances where older models did not have Qintake
 # does this have an impoundment sub-comp and is imp_off = 0?
 cols <- names(dat_current)
@@ -315,12 +351,25 @@ for (i in 1:length(runid.list)){
 
 ## Conclusion
 
-Overall, remodeling to consider a net % change to flow (after the point source return flow) has improved the outlook across all scenarios examined, and supports moving towards a "percent of flow" flowby approach. When modeling as a net % change in flow, the reservoir is not chronically drawn down as was shown in previous model results.
+```{r LoadConclusions, echo=FALSE, results = "asis"}
 
-With the current permit operations and a limit of 3.2 mgd they likely wouldn't be able to meet a 90% flowby and retain 60 days remaining storage in the reservoir during the drought of record. However a flowby closer to 80% would likely be effective at maintaining storage levels and ensuring they can sustainably meet demand during dry periods while still better preserving the natural flow regime over a static 0.5 mgd flowby approach. This project may also be able to get to a 90% flowby by reducing demands from 3.2 mgd to around 3.0 mgd, and/or by including drought triggers in the permit to help maintain storage levels in the reservoir during dry periods (this permit doesn't currently have drought triggers in place). Additionally, this facility has emergency connections with neighboring towns which may be sufficient to maintain supply during times of extreme drought. Note that demand is projected to decline according to water supply plan.
+runid.i <- preferred_runid
+run.i <- sub("runid_", "", runid.i)
+run_info <- find_name(fac_model_info,runid.i)
+if (is.null(run_info$reports)) {
+  cat(paste("*", paste0("__",run_names[runid.i],"__"),"-","Preferred scenario, ", runid.i, ", conclusions not provided.","\n", "Conclusions should be stored in [model] -> ", run.i, " -> reports -> conclusions"))
+} else {
+  cat(
+    paste(
+      "*", 
+      paste0(
+        "__",run_info$reports$scenario_name$value,"__"
+      ),
+      "-",run_info$reports$conclusions$value,"\n")
+    )
+}
 
-Overall, the scenarios examined support the option for moving towards a “percent of flow” flowby approach. It is important to note that modeling with the Big Cherry Dam maximum release capacity set to 15 cfs benefits reservoir storage by minimizing reservoir refill time, promoting improved storage recovery following dry periods. This 15 cfs, or some similarly modest maximum release, is crucial in enabling a PoF management schema to be effective.
-
+```
 \newpage
 
 
@@ -425,6 +474,20 @@ for (i in 1:length(runid.list)){
   } else {
     # tbd: try impoundment linked to river segment.
     print(paste("No active impoundment found for run id",runid.i))
+  }
+  if (!is.logical(impoundment_fid)) {
+    run_info <- find_name(imp_model_info,runid.i)
+    fig_prop <- find_name(run_info, "fig.imp_storage.all")
+    if (!(is.null(fig_prop))) {
+      fig_path <- fig_prop$code
+      # we have an image, show it 
+      cat("\n\n## Reservoir Storage: ", short_names[[runid.i]],"\n\n")
+      cat(paste0("![](",fig_path,")"),"\n")
+      cat("\n\n\\pagebreak\n")
+    } else {
+      # tbd: try impoundment linked to river segment.
+      print(paste("No active impoundment found for run id",runid.i,"on impoundment feature", impoundment_fid)) 
+    }
   }
 }
 
