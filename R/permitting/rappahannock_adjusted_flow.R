@@ -53,7 +53,7 @@ plot(
   dat2$vahydro ~
     dat2$usgs
 )
-points(dat2$vreg ~ dat2$vahydro, col="red")
+#points(dat2$vreg ~ dat2$vahydro, col="red")
 points(dat2$vreg ~ dat2$usgs, col="purple")
 qprobs <- c(0,0.1,0.25,0.35,0.5,0.6,0.75,1.0)
 qtable_comp <- rbind(
@@ -74,3 +74,12 @@ plot(
 lines(dat2$usgs, col='blue')
 
 hydroTSM::fdc(dat2)
+
+
+# test flowbys, demand, and storage remaining
+datrpr41$flowby_current
+df41 <- as.data.frame(datrpr41)
+df41common <- dat2[32:nrow(dat2),]
+datall <- cbind(df41, df41common)
+write.table(datall,file="/Workspace/tmp/rpr.csv")
+
