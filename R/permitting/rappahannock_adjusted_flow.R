@@ -55,11 +55,14 @@ plot(
 )
 #points(dat2$vreg ~ dat2$vahydro, col="red")
 points(dat2$vreg ~ dat2$usgs, col="purple")
+#elimiante the first record because it is warmup
+# and creates a negative value in the table
+dat2f <- dat2[2:nrow(dat2),]
 qprobs <- c(0,0.1,0.25,0.35,0.5,0.6,0.75,1.0)
 qtable_comp <- rbind(
-  round(quantile(dat2$vahydro, probs=qprobs)),
-  round(quantile(dat2$usgs, probs=qprobs)),
-  round(quantile(dat2$vreg, probs=qprobs))
+  round(quantile(dat2f$vahydro, probs=qprobs)),
+  round(quantile(dat2f$usgs, probs=qprobs)),
+  round(quantile(dat2f$vreg, probs=qprobs))
 )
 kable(qtable_comp, 'markdown')
 
