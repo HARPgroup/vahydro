@@ -25,6 +25,7 @@ params:
   intake_stats_varname: "Qintake"
   preferred_runid: "runid_600"
   impoundment_fid: FALSE
+  additional_rseg_ids: FALSE
 ---
 
 ```{r setup, include=FALSE}
@@ -75,6 +76,7 @@ intake_stats_runid <- params$intake_stats_runid
 intake_stats_varname <- params$intake_stats_varname
 preferred_runid <- params$preferred_runid
 impoundment_fid <- params$impoundment_fid
+additional_rseg_ids <- params$additional_rseg_ids
 
 if (is.logical(intake_stats_fid)) {
   intake_stats_fid = fac.hydroid
@@ -541,7 +543,7 @@ for (i in 1:length(runid.list)){
 
 \newpage
 
-# Ecological Impacts Assessment:
+# Appendix A - Ecological Impacts Assessment:
 
 ## Elfgen:
 In response to a need for better environmental flow metrics, DEQ has developed a new framework for characterizing relations between streamflow and aquatic organism species richness. Part of an evolving approach to managing environmental flows for maintaining aquatic life; this methodology builds on existing minimum instream ow approaches, allowable withdrawals as a percentage of flow, and extensive flow-habitat studies. For the first time this new framework may allow quantification of potential species loss resulting from flow change, and may offer an improved understanding of aquatic life risk variability due to geographic location, stream size and local scale.
@@ -609,3 +611,58 @@ ft <- qflextable(elfgen_df)
 
 
 ## Habitat (If Applicable):
+
+\newpage
+
+
+```{r LoadRsegWithdrawalsTable, include=FALSE}
+if (isFALSE(additional_rseg_ids) == FALSE  & length(additional_rseg_ids) > 0) {
+  users_df <- read.csv(paste(site,"/contains-mps-model-summary-export/",
+                           rseg.hydroid,",",gsub(" ","",toString(additional_rseg_ids)),sep=""))
+} else {
+  users_df <- read.csv(paste(site,"contains-mps-model-summary-export",rseg.hydroid,sep="/"))
+}
+#########################################################################################  
+#MP 5-yr Avg Current Annual Use (MGY)
+#Facility 5-yr Avg Current Annual Use (MGY)
+#Facility Projected 2040 Use (MGY)
+users_sql <- paste('SELECT polygon_name AS "Sub-Watershed",
+                          mp_bundle AS "MP Type",
+                          mp_fstatus AS "MP Status",
+                          mp_name AS "MP Name",
+                          mp_wd_current_mgy AS "MP 5-yr Avg Use (MGY)",                
+                          facility_name AS "Facility Name",
+                          facility_wd_current_mgy AS "Facility 5-yr Avg Use (MGY)",
+                          facility_wsp2020_2040_mgy AS "Facility 2040 Use (MGY)"
+                   FROM users_df
+                   ORDER BY mp_wd_current_mgy DESC
+                  ')
+#WHERE mp_wd_current_mgy > 0
+usersdf <- sqldf(users_sql)
+usersdf <- cbind(" "=seq.int(nrow(usersdf)),usersdf) #ADD COLUMN OF ROW NUMBER 
+```
+
+<!---BLOCK_LANDSCAPE_START--->
+# Appendix B - Nearby Users Table:
+```{r RsegWithdrawalsTable, echo=FALSE}
+#cat(paste("MP 5-yr Avg Use (MGY) refers to the 5-year average current annual Use (MGY) based on reported withdrawals"))
+users <- qflextable(usersdf)
+
+# Set column widths
+users <- width(users, j = 1, width = 0.3)
+users <- width(users, j = 2, width = 1.5)
+users <- width(users, j = 3:4, width = 0.65)
+users <- width(users, j = 5, width = 1.75)
+users <- width(users, j = 6, width = 0.95)
+users <- width(users, j = 7, width = 1.75)
+users <- width(users, j = 8, width = 1.2)
+users <- width(users, j = 9, width = 0.95)
+
+# Set theme
+users <- theme_box(users)
+users <- padding(users, padding.top = 0, part = "all")
+users <- padding(users, padding.bottom = 0, part = "all")
+users <- bg(users, bg = "#EFEFEF", part = "header")
+fontsize(users, size = 9, part ="all")
+```
+<!---BLOCK_LANDSCAPE_STOP--->
