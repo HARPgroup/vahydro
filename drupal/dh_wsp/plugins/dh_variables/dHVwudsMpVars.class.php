@@ -548,6 +548,7 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
       '#type' => 'hidden',
       '#default_value' => $entity->tstime,
     );
+  error_log("Called  buildForm :: renderFormRow :: formRowPlugins :: ");
         
     $form['tsvalue']['#coltitle'] = 'Meter Reading';
     $form['tsvalue']['#required'] = FALSE;
