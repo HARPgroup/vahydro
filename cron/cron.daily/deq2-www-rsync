@@ -1,0 +1,9 @@
+#!/bin/sh
+
+#### sudo not allowed inscripts...
+### copy all html  dir to deq2
+### - except drupal alpha, and beta, and the OM model, 
+###   primary for these is on deq2 which pushes here daily
+sudo -u rob rsync -aLv /var/www/html/d.alpha/ deq1:/var/www/html/d.alpha/
+sudo -u rob rsync -aLv /var/www/html/d.bet/ deq1:/var/www/html/d.bet/
+
