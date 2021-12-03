@@ -728,7 +728,7 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
       'tstime' => $lasttime,
       'varid' => $entity->varid,
     );
-    
+    dpm($last_info,'last time reading');
     $last_reading = FALSE;
     if (property_exists($entity, 'form_state') and !empty($entity->form_state) and $entity->form_state['rebuild']) {
       $last_reading = $this->searchFormState($entity->form_state, $last_info);
