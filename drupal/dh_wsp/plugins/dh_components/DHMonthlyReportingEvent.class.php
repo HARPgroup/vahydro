@@ -522,7 +522,7 @@ class DHGWPermitMonthlyReportingEvent extends dhTimeSeriesGroup {
     $q .= "   extract (epoch from to_timestamp(";
     $q .= "     a.thisyear || '-' || b.thismonth || ";
     $q .= "     '-' || 1, 'YYYY-MM-DD') ";
-    $q .= "   ) as tstime, ";
+    $q .= "   )::integer as tstime, ";
     $q .= "   v.hydroid as varid, c.tid, v.varunits as units, ";
     $q .= "   c.tsvalue as tsvalue ";
     $q .= " from $entity_tbl as mp  ";
