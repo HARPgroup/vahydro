@@ -6,6 +6,7 @@
 
 # Set up R packages
 install.packages('ggplot2');
+install.packages('xml2');
 install.packages('gtable');
 install.packages('reshape2');
 install.packages('RJSONIO');

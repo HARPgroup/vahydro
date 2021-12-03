@@ -4,6 +4,13 @@
 ### copy all html  dir to deq2
 ### - except drupal alpha, and beta, and the OM model, 
 ###   primary for these is on deq2 which pushes here daily
+<<<<<<< HEAD
 sudo -u rob rsync -aLv /var/www/html/d.alpha/ deq1:/var/www/html/d.alpha/
 sudo -u rob rsync -aLv /var/www/html/d.bet/ deq1:/var/www/html/d.bet/
+=======
+sudo -u rob rsync -aLv /var/www/html/lib/ deq2:/var/www/html/lib/
+sudo -u rob rsync -av /var/www/html/om/ deq2:/var/www/html/om/
+sudo -u rob rsync -av /var/www/html/d.alpha/ deq2:/var/www/html/d.alpha/
+sudo -u rob rsync -av /var/www/html/d.bet/ deq2:/var/www/html/d.bet/
+>>>>>>> fbb645b9670cc9031607d30ccadc8163e2bc18db
 
