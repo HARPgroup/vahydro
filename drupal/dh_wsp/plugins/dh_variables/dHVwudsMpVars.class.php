@@ -548,7 +548,6 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
       '#type' => 'hidden',
       '#default_value' => $entity->tstime,
     );
-  error_log("Called  buildForm :: renderFormRow :: formRowPlugins :: ");
         
     $form['tsvalue']['#coltitle'] = 'Meter Reading';
     $form['tsvalue']['#required'] = FALSE;
@@ -596,6 +595,7 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
     $value_types = $this->codeOptions();
     $form['tscode']['#options'] = $value_types;
     $quantity = $this->loadReplicant($entity, $this->quantity_varkey);
+  error_log("Called  buildForm :: renderFormRow :: formRowPlugins :: formRowEdit :: loadReplicant");
     //dpm($quantity,'quant');
     if ($entity->tscode == 'reading') {
       $last_reading = $this->getLastReading($entity);
