@@ -595,7 +595,7 @@ class EntityGroupConfiguratorPluggable extends EntityGroupConfigurator {
     // and it may over-ride some of these if we have uipdated them later
     //$this->applyEntityTokens();
     //$this->applySettings();
-    dpm($this, 'buildform called');
+    //dpm($this, 'buildform called');
     $element = array(
       '#tree' => TRUE,
       '#type' => '#fieldset',
@@ -848,7 +848,7 @@ class EntityGroupConfiguratorPluggableNew extends EntityGroupConfigurator {
     // and it may over-ride some of these if we have uipdated them later
     //$this->applyEntityTokens();
     //$this->applySettings();
-    dpm($this, 'buildform called');
+    //dpm($this, 'buildform called');
     $element = array(
       '#tree' => TRUE,
       '#type' => '#fieldset',
@@ -1105,7 +1105,7 @@ class dhTimeSeriesGroupPluggable extends EntityGroupConfiguratorPluggable {
     }
     $q .= " LIMIT $this->limit ";
     $this->query = $q;
-    dpm($q, "Query");
+    //dpm($q, "Query");
     return TRUE;
   }
   
@@ -1128,7 +1128,7 @@ class dhTimeSeriesGroupPluggable extends EntityGroupConfiguratorPluggable {
         $this->data[] = array_shift($entities);
       }
     }
-    dpm($this->data, "Final data");
+    //dpm($this->data, "Final data");
     // now, go through the returned data and if we have "show_blank" property set
     // we append new object form entries for these
     // create a matrix of entity_type, property_conditions & field_conditions?

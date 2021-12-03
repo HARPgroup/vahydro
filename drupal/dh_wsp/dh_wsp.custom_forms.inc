@@ -1034,11 +1034,11 @@ function dh_wsp_gwp_monthly_form($form, &$form_state, $annual_ts = null, $op = '
     $hiddens = array('tid', 'varname', 'tsendtime', 'featureid', 'entity_type');
     $src->hidePropCols($hiddens);
     $src->prepareQuery();
-  error_log("called prepareQuery");
+  //error_log("called prepareQuery");
     $src->getData();
-  error_log("called getData");
+  //error_log("called getData");
     $src->buildForm($form, $form_state);
-  error_log("called buildForm");
+  //error_log("called buildForm");
     $form['annual_tid'] = array(
       '#type' => 'hidden',
       '#default_value' => $annual_ts->tid
@@ -1046,7 +1046,7 @@ function dh_wsp_gwp_monthly_form($form, &$form_state, $annual_ts = null, $op = '
   } else {
     dsm("Could not load $class for plugin $plugin");
   }
-  error_log("passed in annual_ts");
+  //error_log("passed in annual_ts");
   //dpm($annual_ts,"passed in annual_ts");
   $form['permit_id'] = array(
     '#type' => 'hidden',

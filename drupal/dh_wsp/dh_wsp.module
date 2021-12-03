@@ -106,11 +106,11 @@ function dh_wsp_guess_sic_options($sic_mp) {
 function dh_rebuild_plugin(&$form, $form_state) {
   // @todo: don't think this does anything yet??
   // should it use dh_rebuild_plugin_row below?
-  dpm($form, 'form');
+  //dpm($form, 'form');
   $trigger_info = $form_state['triggering_element'];
   $trigger_val = drupal_array_get_nested_value($form_state['values'], $trigger_info['#parents']);
-  dpm($trigger_info, 'trigger');
-  dpm($trigger_val, 'value ');
+  //dpm($trigger_info, 'trigger');
+  //dpm($trigger_val, 'value ');
   //return $form;
 }
 

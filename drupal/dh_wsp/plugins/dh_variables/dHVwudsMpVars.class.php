@@ -467,11 +467,11 @@ class dHMonthlyFractionFactors extends dHVarWithTableFieldBase {
     //   3. add clause in SQL to filter entity_type = 'dh_feature'
     //   4. test on d.bet - make sure that the line "if (!empty($historical)) {" in function tableDefault($entity) behaves as expected.
     
-    dpm($sql,'sql');
+    //dpm($sql,'sql');
     $result = db_query($sql);
-	  dpm($result,'result');
+	  //dpm($result,'result');
     $record = $result->fetchAssoc();
-	  dpm($record,'record');
+	  //dpm($record,'record');
     return array_values($record); 
   }
 
@@ -594,8 +594,8 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
     
     $value_types = $this->codeOptions();
     $form['tscode']['#options'] = $value_types;
-  error_log("Called  buildForm :: renderFormRow :: formRowPlugins :: formRowEdit :: codeOptions");
-  dpm($entity,'entity before loadReplicant()');
+  //error_log("Called  buildForm :: renderFormRow :: formRowPlugins :: formRowEdit :: codeOptions");
+  //dpm($entity,'entity before loadReplicant()');
     $quantity = $this->loadReplicant($entity, $this->quantity_varkey);
     //dpm($quantity,'quant');
     if ($entity->tscode == 'reading') {
@@ -730,7 +730,7 @@ class dHWaterMeterReading extends dHVariablePluginDefault {
       'tstime' => $lasttime,
       'varid' => $entity->varid,
     );
-    dpm($last_info,'last time reading');
+    //dpm($last_info,'last time reading');
     $last_reading = FALSE;
     if (property_exists($entity, 'form_state') and !empty($entity->form_state) and $entity->form_state['rebuild']) {
       $last_reading = $this->searchFormState($entity->form_state, $last_info);
