@@ -75,7 +75,7 @@ for (i in 1:nrow(gages)) {
   if (file.exists(filepath) & !overwrite_file) {
     # check in case the file is out of date, in which case overwrite it anyhow
     linfo = file.info(filepath)
-    if (as.Date(linfo$mtime) < as.Date(paste0(target_year, '-03-01'))) {
+    if (as.Date(linfo$mtime) > as.Date(paste0(target_year, '-03-01'))) {
       message(paste( gage_id, "is up to date as of ",as.Date(linfo$mtime)  ))
       message("*********** SKIPPING ************* ")
       next
