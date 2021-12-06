@@ -39,6 +39,8 @@ if (length(argst) > 0) {
   } else {
     overwrite_file = FALSE
   }
+} else {
+  overwrite_file = FALSE
 }
 
 # Build info URI
