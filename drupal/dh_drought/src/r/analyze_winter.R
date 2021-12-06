@@ -69,6 +69,9 @@ for (i in 1:nrow(gages)) {
   # Saving file to the correct location
   filename <- paste("usgs", gage_id, "mllr_bar_winterflows", target_year, ".png", sep="_")
   filepath <- paste(file_directory, filename, sep="/")
+  if (overwrite_file) {
+    message("Overwrite Force call")
+  }
   if (file.exists(filepath) & !overwrite_file) {
     # check in case the file is out of date, in which case overwrite it anyhow
     linfo = file.info(filepath)
@@ -76,6 +79,8 @@ for (i in 1:nrow(gages)) {
       message(paste( gage_id, "is up to date as of ",as.Date(linfo$mtime)  ))
       message("*********** SKIPPING ************* ")
       next
+    } else {
+      message(paste("File is out of date",as.Date(linfo$mtime) ))
     }
   }
 	# Initialize variables
