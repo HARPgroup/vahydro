@@ -383,6 +383,8 @@ for (i in 1:nrow(gages)) {
     # find the month with the highest value
     target_mllr <- max(c(target_jul_10, target_aug_10, target_sep_10))
     tmo <- (c(target_jul_10, target_aug_10, target_sep_10) == target_mllr)
+    # handle NA when a month is missing, i.e., has no b0/b1 and no value
+    tmo[is.na(tmo)] <- FALSE
     target_month <- as.character(c('mllr_july_10', 'mllr_august_10', 'mllr_september_10')[tmo])
 
     # - stash a timeseries for the year using generic drought_status_mllr
