@@ -36,10 +36,9 @@ if (length(argst) > 0) {
   gage <- sprintf("%08s", gage)
   if (length(argst) > 1) {
     overwrite_file <- as.logical(argst[2])
-  } else {
-    overwrite_file = FALSE
   }
-} else {
+}
+if (!exists("overwrite_file")) {
   overwrite_file = FALSE
 }
 
