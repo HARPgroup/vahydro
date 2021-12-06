@@ -356,41 +356,45 @@ for (i in 1:nrow(gages)) {
   print(paste("Saved file: ", filename, " in ", file_directory, "with URL", furl))
   # todo: stash properties and timeseries
   # get the current years 10%
-  target_jul_10 <- P_est(
-    beta_table[which(beta_table$month.m == "july"),"b0"],
-    beta_table[which(beta_table$month.m == "july"),"b1"],
-    most_recent)
-  target_aug_10 <- P_est(
-    beta_table[which(beta_table$month.m == "august"),"b0"],
-    beta_table[which(beta_table$month.m == "august"),"b1"],
-    most_recent)
-  target_sep_10 <- P_est(
-    beta_table[which(beta_table$month.m == "september"),"b0"],
-    beta_table[which(beta_table$month.m == "september"),"b1"],
-    most_recent)
-  # find the month with the highest value
-  target_mllr <- max(c(target_jul_10, target_aug_10, target_sep_10))
-  tmo <- (c(target_jul_10, target_aug_10, target_sep_10) == target_mllr)
-  target_month <- as.character(c('mllr_july_10', 'mllr_august_10', 'mllr_september_10')[tmo])
+  # this calc fails if there si no flow for this gage, so screen it.
+  if (most_recent >= 0) {
+    target_jul_10 <- P_est(
+      beta_table[which(beta_table$month.m == "july"),"b0"],
+      beta_table[which(beta_table$month.m == "july"),"b1"],
+      most_recent)
+    target_aug_10 <- P_est(
+      beta_table[which(beta_table$month.m == "august"),"b0"],
+      beta_table[which(beta_table$month.m == "august"),"b1"],
+      most_recent)
+    target_sep_10 <- P_est(
+      beta_table[which(beta_table$month.m == "september"),"b0"],
+      beta_table[which(beta_table$month.m == "september"),"b1"],
+      most_recent)
+    # find the month with the highest value
+    target_mllr <- max(c(target_jul_10, target_aug_10, target_sep_10))
+    tmo <- (c(target_jul_10, target_aug_10, target_sep_10) == target_mllr)
+    target_month <- as.character(c('mllr_july_10', 'mllr_august_10', 'mllr_september_10')[tmo])
 
-  # - stash a timeseries for the year using generic drought_status_mllr
-  # - TBD: set tsvalue to max 10% val for site per dh_drought/src/sql/mllr-table.sql
-  # - attach a property to this timeseries rec to hold pointer to image
-  # q_nov_feb_mean_cfs, drought_status_mllr
-  config_list = list(
-    "featureid" = gage_info$hydroid,
-    "entity_type" = 'dh_feature',
-    "varkey" = 'mllr_annual_risk10',
-    "tsvalue" = target_mllr,
-    "tscode" = target_month,
-    "tstime" =  as.numeric(as.POSIXct(paste(target_year, "-03-01", sep=""),tz="America/New_York"))
-  )
-  ts <- RomTS$new(
-    ds,
-    config_list,
-    TRUE
-  )
-  ts$save(TRUE)
+    # - stash a timeseries for the year using generic drought_status_mllr
+    # - TBD: set tsvalue to max 10% val for site per dh_drought/src/sql/mllr-table.sql
+    # - attach a property to this timeseries rec to hold pointer to image
+    # q_nov_feb_mean_cfs, drought_status_mllr
+    config_list = list(
+      "featureid" = gage_info$hydroid,
+      "entity_type" = 'dh_feature',
+      "varkey" = 'mllr_annual_risk10',
+      "tsvalue" = target_mllr,
+      "tscode" = target_month,
+      "tstime" =  as.numeric(as.POSIXct(paste(target_year, "-03-01", sep=""),tz="America/New_York"))
+    )
+    ts <- RomTS$new(
+      ds,
+      config_list,
+      TRUE
+    )
+    ts$save(TRUE)
+  }
+
   # don't include the path here since rest properties may not always be singular by name
   img_prop <- RomProperty$new(
     ds, list(
