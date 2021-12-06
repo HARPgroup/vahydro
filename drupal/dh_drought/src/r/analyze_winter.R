@@ -35,6 +35,8 @@ if (length(argst) > 0) {
   gage <- as.character(argst[1])
   gage <- sprintf("%08s", gage)
   overwrite_file <- as.logical(argst[2])
+} else {
+  overwrite_file = FALSE
 }
 
 # Build info URI
