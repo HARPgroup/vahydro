@@ -64,7 +64,11 @@ for (i in 1:nrow(gages)) {
   filename <- paste("usgs", gage_id, "mllr_bar_winterflows", target_year, ".png", sep="_")
   filepath <- paste(file_directory, filename, sep="/")
   if (file.exists(filepath) & !overwrite_file) {
-    next
+    # check in case the file is out of date, in which case overwrite it anyhow
+    linfo = file.info(filepath)
+    if (as.Date(linfo$mtime) < as.Date(paste0(target_year, '-03-01'))) {
+      next
+    }
   }
 	# Initialize variables
 	n_f_flow <- c()
