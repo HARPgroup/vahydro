@@ -282,9 +282,8 @@ for (i in 1:length(runid.list)){
 
 ```
 
-\newpage
-
-# Intake Site Description & Current Estimated Stream Flows
+__Historical Intake Flows and Drought Flow Indicators__
+The VAHydro model is used to estimate flows at the project intake, including the impact of all cumulative withdrawals, discharges and management rules upstream of the withdrawal location. The models estimates of currently available flows are presented in Table 1.  The Virginia Drought Assessment and Response Plan employs non-exceedance flow percentiles as indicators of drought conditions at particular stream-gaging stations used to monitor drought conditions.  Representative daily streamflows above the 25th percentile for return flow frequency represent normal conditions with respect to drought.  Representative daily streamflows between the 10th and 25th percentiles represent drought watch conditions. Representative daily streamflows between the 5th and 10th percentiles represent drought warning conditions.  Representative daily streamflows below the 5th percentile indicate drought emergency conditions.
 
 ```{r LoadSiteInfo, include=FALSE}
 dat_current <- om_get_rundata(istats_elid, intake_stats_runid, omsite, FALSE)
