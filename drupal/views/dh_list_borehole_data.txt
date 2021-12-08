@@ -126,23 +126,6 @@ $handler->display->display_options['style_options']['info'] = array(
     'empty_column' => 0,
   ),
 );
-/* No results behavior: Global: Text area */
-$handler->display->display_options['empty']['area']['id'] = 'area';
-$handler->display->display_options['empty']['area']['table'] = 'views';
-$handler->display->display_options['empty']['area']['field'] = 'area';
-$handler->display->display_options['empty']['area']['label'] = 'Intervals Undefined';
-$handler->display->display_options['empty']['area']['empty'] = TRUE;
-$handler->display->display_options['empty']['area']['content'] = 'You have no intervals recorded for this well.  Please select "Add Interval Entry" to add interval information.';
-$handler->display->display_options['empty']['area']['format'] = 'filtered_html';
-/* No results behavior: Global: View (Views field view) */
-$handler->display->display_options['empty']['view_field']['id'] = 'view_field';
-$handler->display->display_options['empty']['view_field']['table'] = 'views';
-$handler->display->display_options['empty']['view_field']['field'] = 'view_field';
-$handler->display->display_options['empty']['view_field']['label'] = '';
-$handler->display->display_options['empty']['view_field']['element_label_colon'] = FALSE;
-$handler->display->display_options['empty']['view_field']['view'] = 'ows_data_entry_interval';
-$handler->display->display_options['empty']['view_field']['display'] = 'page';
-$handler->display->display_options['empty']['view_field']['arguments'] = '!1';
 /* Relationship: Entity Reference: Referenced Entity */
 $handler->display->display_options['relationships']['wellid_target_id']['id'] = 'wellid_target_id';
 $handler->display->display_options['relationships']['wellid_target_id']['table'] = 'field_data_wellid';
@@ -1573,6 +1556,7 @@ $handler->display->display_options['style_options']['info'] = array(
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['empty'] = FALSE;
 $handler->display->display_options['defaults']['fields'] = FALSE;
 /* Field: DH Borehole Log: Logtype */
 $handler->display->display_options['fields']['logtype']['id'] = 'logtype';
@@ -1736,6 +1720,7 @@ $handler->display->display_options['style_options']['info'] = array(
 $handler->display->display_options['defaults']['style_options'] = FALSE;
 $handler->display->display_options['defaults']['row_plugin'] = FALSE;
 $handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['empty'] = FALSE;
 $handler->display->display_options['defaults']['fields'] = FALSE;
 /* Field: DH Borehole Log: Ftype */
 $handler->display->display_options['fields']['ftype']['id'] = 'ftype';
