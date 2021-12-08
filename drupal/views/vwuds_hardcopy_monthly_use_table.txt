@@ -1,0 +1,404 @@
+$view = new view();
+$view->name = 'vwuds_hardcopy_monthly_use_table';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'dh_feature';
+$view->human_name = 'VWUDS - Hardcopy Monthly Use Table';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'VWUDS - Hardcopy Monthly Use Table';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '12';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'hydroid' => 'hydroid',
+  'name' => 'name',
+  'tstime' => 'tstime',
+  'tsvalue' => 'tsvalue',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tstime' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tsvalue' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['empty'] = TRUE;
+$handler->display->display_options['empty']['area']['content'] = 'There were no annual withdrawals reported for [name] from the previous year.';
+$handler->display->display_options['empty']['area']['format'] = 'filtered_html';
+$handler->display->display_options['empty']['area']['tokenize'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'MP';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['label'] = '';
+$handler->display->display_options['fields']['tstime']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tstime']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'M-Y';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['label'] = '2015';
+$handler->display->display_options['fields']['tsvalue']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tsvalue']['set_precision'] = TRUE;
+$handler->display->display_options['fields']['tsvalue']['precision'] = '4';
+/* Sort criterion: DH TimeSeries: tstime */
+$handler->display->display_options['sorts']['tstime']['id'] = 'tstime';
+$handler->display->display_options['sorts']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['sorts']['tstime']['field'] = 'tstime';
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wd_mgm' => 'wd_mgm',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH TimeSeries: tstime */
+$handler->display->display_options['filters']['tstime']['id'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['tstime']['field'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['operator'] = 'between';
+$handler->display->display_options['filters']['tstime']['value']['min'] = '2016-01-01';
+$handler->display->display_options['filters']['tstime']['value']['max'] = '2016-12-31';
+$handler->display->display_options['filters']['tstime']['value']['value'] = '2015-01-01';
+
+/* Display: Previous Year */
+$handler = $view->new_display('page', 'Previous Year', 'page');
+$handler->display->display_options['display_description'] = '-monthly facility VWUDS value by MP - used to populate Hardcopy Template ';
+$handler->display->display_options['defaults']['group_by'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'hydroid' => 'hydroid',
+  'name' => 'name',
+  'tstime' => 'tstime',
+  'tsvalue' => 'tsvalue',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tstime' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tsvalue' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['empty'] = FALSE;
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['empty'] = TRUE;
+$handler->display->display_options['empty']['area']['content'] = 'No withdrawals reported for this year.';
+$handler->display->display_options['empty']['area']['format'] = 'filtered_html';
+$handler->display->display_options['empty']['area']['tokenize'] = TRUE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'MP';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['label'] = '';
+$handler->display->display_options['fields']['tstime']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tstime']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'M-Y';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['label'] = '';
+$handler->display->display_options['fields']['tsvalue']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tsvalue']['set_precision'] = TRUE;
+$handler->display->display_options['fields']['tsvalue']['precision'] = '4';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wd_mgm' => 'wd_mgm',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH TimeSeries: tstime */
+$handler->display->display_options['filters']['tstime']['id'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['tstime']['field'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['operator'] = 'between';
+$handler->display->display_options['filters']['tstime']['value']['min'] = '2020-01-01';
+$handler->display->display_options['filters']['tstime']['value']['max'] = '2020-12-31';
+$handler->display->display_options['filters']['tstime']['value']['value'] = '2015-01-01';
+$handler->display->display_options['path'] = 'vwuds---hardcopy-monthly-use-table-previous';
+
+/* Display: Two Years Prior  */
+$handler = $view->new_display('page', 'Two Years Prior ', 'page_1');
+$handler->display->display_options['display_description'] = '-monthly facility VWUDS value by MP - used to populate Hardcopy Template ';
+$handler->display->display_options['defaults']['empty'] = FALSE;
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['empty'] = TRUE;
+$handler->display->display_options['empty']['area']['content'] = 'No withdrawals reported for this year.';
+$handler->display->display_options['empty']['area']['format'] = 'filtered_html';
+$handler->display->display_options['empty']['area']['tokenize'] = TRUE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'MP';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['label'] = '';
+$handler->display->display_options['fields']['tstime']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tstime']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'M-Y';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['label'] = '';
+$handler->display->display_options['fields']['tsvalue']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tsvalue']['set_precision'] = TRUE;
+$handler->display->display_options['fields']['tsvalue']['precision'] = '4';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wd_mgm' => 'wd_mgm',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH TimeSeries: tstime */
+$handler->display->display_options['filters']['tstime']['id'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['tstime']['field'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['operator'] = 'between';
+$handler->display->display_options['filters']['tstime']['value']['min'] = '2019-01-01';
+$handler->display->display_options['filters']['tstime']['value']['max'] = '2019-12-31';
+$handler->display->display_options['filters']['tstime']['value']['value'] = '2015-01-01';
+$handler->display->display_options['path'] = 'vwuds---hardcopy-monthly-use-table-two-years';
+
+/* Display: Previous Year (Total) */
+$handler = $view->new_display('page', 'Previous Year (Total)', 'page_2');
+$handler->display->display_options['defaults']['group_by'] = FALSE;
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '12';
+$handler->display->display_options['pager']['options']['offset'] = '';
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'hydroid' => 'hydroid',
+  'name' => 'name',
+  'tstime' => 'tstime',
+  'tsvalue' => 'tsvalue',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tstime' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'tsvalue' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'MP';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH TimeSeries: tstime */
+$handler->display->display_options['fields']['tstime']['id'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tstime']['field'] = 'tstime';
+$handler->display->display_options['fields']['tstime']['label'] = '';
+$handler->display->display_options['fields']['tstime']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tstime']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tstime']['date_format'] = 'custom';
+$handler->display->display_options['fields']['tstime']['custom_date_format'] = 'M-Y';
+$handler->display->display_options['fields']['tstime']['second_date_format'] = 'long';
+/* Field: DH TimeSeries: tsvalue */
+$handler->display->display_options['fields']['tsvalue']['id'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['table'] = 'dh_timeseries';
+$handler->display->display_options['fields']['tsvalue']['field'] = 'tsvalue';
+$handler->display->display_options['fields']['tsvalue']['label'] = '';
+$handler->display->display_options['fields']['tsvalue']['exclude'] = TRUE;
+$handler->display->display_options['fields']['tsvalue']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['tsvalue']['set_precision'] = TRUE;
+$handler->display->display_options['fields']['tsvalue']['precision'] = '4';
+/* Field: Global: Math expression */
+$handler->display->display_options['fields']['expression']['id'] = 'expression';
+$handler->display->display_options['fields']['expression']['table'] = 'views';
+$handler->display->display_options['fields']['expression']['field'] = 'expression';
+$handler->display->display_options['fields']['expression']['label'] = '';
+$handler->display->display_options['fields']['expression']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['expression']['precision'] = '0';
+$handler->display->display_options['fields']['expression']['expression'] = '[tsvalue] +[expression] ';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH TimeSeries: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'wd_mgm' => 'wd_mgm',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+/* Filter criterion: DH TimeSeries: tstime */
+$handler->display->display_options['filters']['tstime']['id'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
+$handler->display->display_options['filters']['tstime']['field'] = 'tstime';
+$handler->display->display_options['filters']['tstime']['operator'] = 'between';
+$handler->display->display_options['filters']['tstime']['value']['min'] = '2020-01-01';
+$handler->display->display_options['filters']['tstime']['value']['max'] = '2020-12-31';
+$handler->display->display_options['filters']['tstime']['value']['value'] = '2015-01-01';
+$handler->display->display_options['path'] = 'vwuds---hardcopy-monthly-use-table-previous-year-total';
