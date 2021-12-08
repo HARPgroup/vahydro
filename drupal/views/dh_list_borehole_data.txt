@@ -1,0 +1,2868 @@
+$view = new view();
+$view->name = 'dh_list_borehole_data';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'dh_boreholelog';
+$view->human_name = 'dH - List Borehole Data';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'dH - List Well Interval Data';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '30';
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'bhlid' => 'bhlid',
+  'diameter' => 'diameter',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'ftype' => 'ftype',
+  'material' => 'material',
+  'hgucode' => 'hgucode',
+  'logtype' => 'logtype',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'hgucode_1' => 'hgucode_1',
+  'bhlid_1' => 'bhlid_1',
+  'bhlid_2' => 'bhlid_2',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'diameter' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'ftype' => array(
+    'sortable' => 1,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hgucode' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hgucode_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_2' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+/* No results behavior: Global: Text area */
+$handler->display->display_options['empty']['area']['id'] = 'area';
+$handler->display->display_options['empty']['area']['table'] = 'views';
+$handler->display->display_options['empty']['area']['field'] = 'area';
+$handler->display->display_options['empty']['area']['label'] = 'Intervals Undefined';
+$handler->display->display_options['empty']['area']['empty'] = TRUE;
+$handler->display->display_options['empty']['area']['content'] = 'You have no intervals recorded for this well.  Please select "Add Interval Entry" to add interval information.';
+$handler->display->display_options['empty']['area']['format'] = 'filtered_html';
+/* No results behavior: Global: View (Views field view) */
+$handler->display->display_options['empty']['view_field']['id'] = 'view_field';
+$handler->display->display_options['empty']['view_field']['table'] = 'views';
+$handler->display->display_options['empty']['view_field']['field'] = 'view_field';
+$handler->display->display_options['empty']['view_field']['label'] = '';
+$handler->display->display_options['empty']['view_field']['element_label_colon'] = FALSE;
+$handler->display->display_options['empty']['view_field']['view'] = 'ows_data_entry_interval';
+$handler->display->display_options['empty']['view_field']['display'] = 'page';
+$handler->display->display_options['empty']['view_field']['arguments'] = '!1';
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['relationships']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['label'] = 'dH Feature Well';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+/* Contextual filter: dH Borehole Log: Well ID (wellid) */
+$handler->display->display_options['arguments']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['arguments']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['arguments']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['arguments']['wellid_target_id']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['wellid_target_id']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['wellid_target_id']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['wellid_target_id']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['wellid_target_id']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['wellid_target_id']['op_location'] = 'WHERE';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'From Depth';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['label'] = 'To Depth';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Type';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Hydrogeologic Unit: Label */
+$handler->display->display_options['fields']['hguname']['id'] = 'hguname';
+$handler->display->display_options['fields']['hguname']['table'] = 'dh_hydrogeologicunit';
+$handler->display->display_options['fields']['hguname']['field'] = 'hguname';
+$handler->display->display_options['fields']['hguname']['label'] = 'Hydrogeologic Unit';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = '';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = 'Edit Interval';
+$handler->display->display_options['fields']['bhlid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['path'] = 'dh-list-borehole-data';
+
+/* Display: By Hydrocode */
+$handler = $view->new_display('page', 'By Hydrocode', 'page_1');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['arguments'] = FALSE;
+/* Contextual filter: DH Feature: hydrocode */
+$handler->display->display_options['arguments']['hydrocode']['id'] = 'hydrocode';
+$handler->display->display_options['arguments']['hydrocode']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydrocode']['field'] = 'hydrocode';
+$handler->display->display_options['arguments']['hydrocode']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['arguments']['hydrocode']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydrocode']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydrocode']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydrocode']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydrocode']['limit'] = '0';
+$handler->display->display_options['path'] = 'dh-bhl-hcode';
+$handler->display->display_options['menu']['title'] = 'Borehole Data';
+$handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['context'] = 0;
+
+/* Display: Tiny */
+$handler = $view->new_display('page', 'Tiny', 'page_2');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['grouping'] = array(
+  0 => array(
+    'field' => 'name',
+    'rendered' => 1,
+    'rendered_strip' => 0,
+  ),
+);
+$handler->display->display_options['style_options']['columns'] = array(
+  'name' => 'name',
+  'ftype' => 'ftype',
+  'bhlid' => 'bhlid',
+  'diameter' => 'diameter',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'hgucode' => 'hgucode',
+  'logtype' => 'logtype',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'hguname' => 'hguname',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'name' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'ftype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'diameter' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hgucode' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hguname' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['name']['label'] = 'Well Name';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Type';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['exclude'] = TRUE;
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'From (ft)';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['label'] = 'To (ft)';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+$handler->display->display_options['fields']['logtype']['separator'] = '';
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Hydrogeologic Unit: Label */
+$handler->display->display_options['fields']['hguname']['id'] = 'hguname';
+$handler->display->display_options['fields']['hguname']['table'] = 'dh_hydrogeologicunit';
+$handler->display->display_options['fields']['hguname']['field'] = 'hguname';
+$handler->display->display_options['fields']['hguname']['label'] = 'Hydrogeologic Unit';
+$handler->display->display_options['fields']['hguname']['exclude'] = TRUE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['path'] = 'dh-list-borehole-tiny';
+
+/* Display: Medium */
+$handler = $view->new_display('page', 'Medium', 'page_3');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['label'] = 'Diam.';
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'From';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['label'] = 'To';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+$handler->display->display_options['fields']['material']['label'] = 'Matl.';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Hydrogeologic Unit: Hgucode */
+$handler->display->display_options['fields']['hgucode_1']['id'] = 'hgucode_1';
+$handler->display->display_options['fields']['hgucode_1']['table'] = 'dh_hydrogeologicunit';
+$handler->display->display_options['fields']['hgucode_1']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode_1']['label'] = 'HGU';
+/* Field: Edit */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['ui_name'] = 'Edit';
+$handler->display->display_options['fields']['bhlid_1']['label'] = '';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '&nbsp;';
+$handler->display->display_options['fields']['bhlid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['link_class'] = 'editlink';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+/* Field: Delete */
+$handler->display->display_options['fields']['bhlid_2']['id'] = 'bhlid_2';
+$handler->display->display_options['fields']['bhlid_2']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_2']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_2']['ui_name'] = 'Delete';
+$handler->display->display_options['fields']['bhlid_2']['label'] = '';
+$handler->display->display_options['fields']['bhlid_2']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_2']['alter']['text'] = '&nbsp;';
+$handler->display->display_options['fields']['bhlid_2']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['bhlid_2']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid]/delete';
+$handler->display->display_options['fields']['bhlid_2']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_2']['alter']['link_class'] = 'subtractlink';
+$handler->display->display_options['fields']['bhlid_2']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['path'] = 'dh-list-bhl-med';
+
+/* Display: Screens sans HGU */
+$handler = $view->new_display('page', 'Screens sans HGU', 'page_4');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'From Depth';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['label'] = 'To Depth';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Type';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Hydrogeologic Unit: Label */
+$handler->display->display_options['fields']['hguname']['id'] = 'hguname';
+$handler->display->display_options['fields']['hguname']['table'] = 'dh_hydrogeologicunit';
+$handler->display->display_options['fields']['hguname']['field'] = 'hguname';
+$handler->display->display_options['fields']['hguname']['label'] = 'Hydrogeologic Unit';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = '';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = 'Edit Interval';
+$handler->display->display_options['fields']['bhlid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['value'] = 'screen';
+/* Filter criterion: dH Borehole Log: Well ID (wellid) */
+$handler->display->display_options['filters']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['filters']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['filters']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['filters']['wellid_target_id']['operator'] = 'not empty';
+/* Filter criterion: DH Hydrogeologic Unit: Label */
+$handler->display->display_options['filters']['hguname']['id'] = 'hguname';
+$handler->display->display_options['filters']['hguname']['table'] = 'dh_hydrogeologicunit';
+$handler->display->display_options['filters']['hguname']['field'] = 'hguname';
+$handler->display->display_options['filters']['hguname']['operator'] = 'empty';
+$handler->display->display_options['path'] = 'dh-list-borehole-data';
+
+/* Display: Mobile */
+$handler = $view->new_display('page', 'Mobile', 'page_5');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['exclude'] = TRUE;
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = '';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '[fromdepth] to [todepth] ft';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+/* Field: DH Hydrogeologic Unit: Hgucode */
+$handler->display->display_options['fields']['hgucode_1']['id'] = 'hgucode_1';
+$handler->display->display_options['fields']['hgucode_1']['table'] = 'dh_hydrogeologicunit';
+$handler->display->display_options['fields']['hgucode_1']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode_1']['label'] = 'HGU';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['sorts']['ftype']['id'] = 'ftype';
+$handler->display->display_options['sorts']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['ftype']['field'] = 'ftype';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['path'] = 'dh-list-bhl-mobile';
+
+/* Display: Intervals by County */
+$handler = $view->new_display('page', 'Intervals by County', 'page_6');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['relationships']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['label'] = 'dH Feature Well';
+/* Relationship: Facility Link */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility Link';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility Link';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'From Depth';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['label'] = 'To Depth';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Type';
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Hydrogeologic Unit: Label */
+$handler->display->display_options['fields']['hguname']['id'] = 'hguname';
+$handler->display->display_options['fields']['hguname']['table'] = 'dh_hydrogeologicunit';
+$handler->display->display_options['fields']['hguname']['field'] = 'hguname';
+$handler->display->display_options['fields']['hguname']['label'] = 'Hydrogeologic Unit';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = '';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = 'Edit Interval';
+$handler->display->display_options['fields']['bhlid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name']['label'] = 'Facility';
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = 'Locality';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: dH Feature: Link Facility to usafips (dh_link_admin_fa_usafips) */
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator_id'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['label'] = 'Locality';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['identifier'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+);
+$handler->display->display_options['path'] = 'dh-list-interval-data-with-county';
+
+/* Display: Interval Data export */
+$handler = $view->new_display('views_data_export', 'Interval Data export', 'views_data_export_1');
+$handler->display->display_options['pager']['type'] = 'none';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+$handler->display->display_options['style_options']['provide_file'] = 1;
+$handler->display->display_options['style_options']['parent_sort'] = 0;
+$handler->display->display_options['style_options']['quote'] = 1;
+$handler->display->display_options['style_options']['trim'] = 0;
+$handler->display->display_options['style_options']['replace_newlines'] = 0;
+$handler->display->display_options['style_options']['header'] = 1;
+$handler->display->display_options['style_options']['keep_html'] = 0;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['relationships']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['label'] = 'dH Feature Well';
+/* Relationship: Facility */
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['id'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['table'] = 'field_data_dh_link_facility_mps';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['field'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['ui_name'] = 'Facility';
+$handler->display->display_options['relationships']['dh_link_facility_mps_target_id']['label'] = 'Facility';
+/* Relationship: Permit */
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['id'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['table'] = 'field_data_dh_link_admin_location';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['field'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['ui_name'] = 'Permit';
+$handler->display->display_options['relationships']['dh_link_admin_location_target_id']['label'] = 'Permit';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = 'DEQ ID of Well';
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+/* Field: DH Borehole Log: Hguid */
+$handler->display->display_options['fields']['hguid']['id'] = 'hguid';
+$handler->display->display_options['fields']['hguid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hguid']['field'] = 'hguid';
+$handler->display->display_options['fields']['hguid']['label'] = 'Aquifer ID';
+$handler->display->display_options['fields']['hguid']['separator'] = '';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['label'] = 'Aquifer Code';
+/* Field: Field: Description */
+$handler->display->display_options['fields']['description']['id'] = 'description';
+$handler->display->display_options['fields']['description']['table'] = 'field_data_description';
+$handler->display->display_options['fields']['description']['field'] = 'description';
+/* Field: dH AdminReg Feature: Permit ID */
+$handler->display->display_options['fields']['permit_id']['id'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['table'] = 'field_data_permit_id';
+$handler->display->display_options['fields']['permit_id']['field'] = 'permit_id';
+$handler->display->display_options['fields']['permit_id']['relationship'] = 'dh_link_admin_location_target_id';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name_1']['id'] = 'name_1';
+$handler->display->display_options['fields']['name_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name_1']['field'] = 'name';
+$handler->display->display_options['fields']['name_1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['name_1']['label'] = 'Facility';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['name']['label'] = 'Well Name';
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield']['id'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['dh_geofield']['label'] = 'Latitude';
+$handler->display->display_options['fields']['dh_geofield']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield']['type'] = 'geofield_lat';
+$handler->display->display_options['fields']['dh_geofield']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_1']['id'] = 'dh_geofield_1';
+$handler->display->display_options['fields']['dh_geofield_1']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_1']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['dh_geofield_1']['label'] = 'Longitude';
+$handler->display->display_options['fields']['dh_geofield_1']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_1']['type'] = 'geofield_lon';
+$handler->display->display_options['fields']['dh_geofield_1']['settings'] = array(
+  'data' => 'full',
+  'format' => 'decimal_degrees',
+);
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = 'Locality';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: Field: Address 1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'field_data_address1';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+/* Field: Field: Address 2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'field_data_address2';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+/* Field: Field: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'field_data_city';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+/* Field: Field: State/Province */
+$handler->display->display_options['fields']['state']['id'] = 'state';
+$handler->display->display_options['fields']['state']['table'] = 'field_data_state';
+$handler->display->display_options['fields']['state']['field'] = 'state';
+$handler->display->display_options['fields']['state']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['state']['exclude'] = TRUE;
+/* Field: Field: Zip/Postal Code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'field_data_postal_code';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+/* Field: Field: Geometry */
+$handler->display->display_options['fields']['dh_geofield_2']['id'] = 'dh_geofield_2';
+$handler->display->display_options['fields']['dh_geofield_2']['table'] = 'field_data_dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_2']['field'] = 'dh_geofield';
+$handler->display->display_options['fields']['dh_geofield_2']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['dh_geofield_2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_geofield_2']['click_sort_column'] = 'geom';
+$handler->display->display_options['fields']['dh_geofield_2']['settings'] = array(
+  'data' => 'full',
+);
+/* Field: dH AdminReg Feature: Permit/Registration Issuing Authority */
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['id'] = 'dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['table'] = 'field_data_dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['field'] = 'dh_link_admin_reg_issuer';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['relationship'] = 'dh_link_admin_location_target_id';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['label'] = 'DEQ Program';
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_reg_issuer']['delta_offset'] = '0';
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype_1']['id'] = 'ftype_1';
+$handler->display->display_options['fields']['ftype_1']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype_1']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype_1']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['ftype_1']['label'] = 'Well Type';
+/* Field: DH Feature: fstatus */
+$handler->display->display_options['fields']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['fields']['fstatus']['relationship'] = 'wellid_target_id';
+/* Field: DH Feature: ftype */
+$handler->display->display_options['fields']['ftype_2']['id'] = 'ftype_2';
+$handler->display->display_options['fields']['ftype_2']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['ftype_2']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype_2']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['fields']['ftype_2']['label'] = 'Water Use Type';
+/* Field: dH Feature: Well Depth */
+$handler->display->display_options['fields']['dh_welldepth']['id'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['table'] = 'field_data_dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['field'] = 'dh_welldepth';
+$handler->display->display_options['fields']['dh_welldepth']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['dh_welldepth']['settings'] = array(
+  'thousand_separator' => '',
+  'decimal_separator' => '.',
+  'scale' => '2',
+  'prefix_suffix' => 1,
+);
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: dH Feature: Link Facility to usafips (dh_link_admin_fa_usafips) */
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['relationship'] = 'dh_link_facility_mps_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['value'] = array(
+  58422 => '58422',
+  58500 => '58500',
+);
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['exposed'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator_id'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['label'] = 'Locality';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['operator'] = 'dh_link_admin_fa_usafips_target_id_op';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['identifier'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['multiple'] = TRUE;
+$handler->display->display_options['filters']['dh_link_admin_fa_usafips_target_id']['expose']['remember_roles'] = array(
+  2 => '2',
+  1 => 0,
+  3 => 0,
+  4 => 0,
+  5 => 0,
+  6 => 0,
+  7 => 0,
+  8 => 0,
+  9 => 0,
+  10 => 0,
+  11 => 0,
+  12 => 0,
+  13 => 0,
+  14 => 0,
+  15 => 0,
+);
+/* Filter criterion: DH Feature: fstatus */
+$handler->display->display_options['filters']['fstatus']['id'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['table'] = 'dh_feature';
+$handler->display->display_options['filters']['fstatus']['field'] = 'fstatus';
+$handler->display->display_options['filters']['fstatus']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['filters']['fstatus']['operator'] = '!=';
+$handler->display->display_options['filters']['fstatus']['value'] = 'duplicate';
+$handler->display->display_options['filters']['fstatus']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'ows-interval-drillers-log-export';
+$handler->display->display_options['use_batch'] = 'batch';
+$handler->display->display_options['segment_size'] = '250';
+
+/* Display: Medium - Intervals */
+$handler = $view->new_display('page', 'Medium - Intervals', 'page_7');
+$handler->display->display_options['display_description'] = 'this is used in the GW2 Formatted Submittals view to pull interval data that may be changed in vahydro ';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['grouping'] = array(
+  0 => array(
+    'field' => 'ftype',
+    'rendered' => 1,
+    'rendered_strip' => 0,
+  ),
+);
+$handler->display->display_options['style_options']['columns'] = array(
+  'bhlid' => 'bhlid',
+  'diameter' => 'diameter',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'ftype' => 'ftype',
+  'material' => 'material',
+  'hgucode' => 'hgucode',
+  'logtype' => 'logtype',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'hgucode_1' => 'hgucode_1',
+  'bhlid_1' => 'bhlid_1',
+  'bhlid_2' => 'bhlid_2',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'diameter' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'ftype' => array(
+    'sortable' => 1,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hgucode' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hgucode_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_2' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['label'] = 'Diam.';
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['label'] = 'From Depth (ft)';
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['label'] = 'To Depth (ft)';
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+$handler->display->display_options['fields']['material']['label'] = 'Matl.';
+/* Field: DH Borehole Log: Hgucode */
+$handler->display->display_options['fields']['hgucode']['id'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['hgucode']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Hydrogeologic Unit: Hgucode */
+$handler->display->display_options['fields']['hgucode_1']['id'] = 'hgucode_1';
+$handler->display->display_options['fields']['hgucode_1']['table'] = 'dh_hydrogeologicunit';
+$handler->display->display_options['fields']['hgucode_1']['field'] = 'hgucode';
+$handler->display->display_options['fields']['hgucode_1']['label'] = 'HGU';
+/* Field: Edit */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['ui_name'] = 'Edit';
+$handler->display->display_options['fields']['bhlid_1']['label'] = '';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '&nbsp;';
+$handler->display->display_options['fields']['bhlid_1']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['link_class'] = 'editlink';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+/* Field: Delete */
+$handler->display->display_options['fields']['bhlid_2']['id'] = 'bhlid_2';
+$handler->display->display_options['fields']['bhlid_2']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_2']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_2']['ui_name'] = 'Delete';
+$handler->display->display_options['fields']['bhlid_2']['label'] = '';
+$handler->display->display_options['fields']['bhlid_2']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_2']['alter']['text'] = '&nbsp;';
+$handler->display->display_options['fields']['bhlid_2']['alter']['make_link'] = TRUE;
+$handler->display->display_options['fields']['bhlid_2']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid]/delete';
+$handler->display->display_options['fields']['bhlid_2']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_2']['alter']['link_class'] = 'subtractlink';
+$handler->display->display_options['fields']['bhlid_2']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['path'] = 'dh-list-bhl-med';
+
+/* Display: drillers log */
+$handler = $view->new_display('page', 'drillers log', 'page_8');
+$handler->display->display_options['display_description'] = '-this view is used in the formatted submittals view to pull drillers log interval data into the report';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'logtype' => 'logtype',
+  'bhlid' => 'bhlid',
+  'material' => 'material',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'bhlid_1' => 'bhlid_1',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-left',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+$handler->display->display_options['fields']['material']['label'] = 'Type of Rock or Soil';
+$handler->display->display_options['fields']['material']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['empty'] = '0';
+$handler->display->display_options['fields']['fromdepth']['hide_alter_empty'] = FALSE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = 'Depth';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '[fromdepth] to [todepth] ft';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['value'] = 'drillers_log';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'dh-list-bhl-drillers-log';
+
+/* Display: Grout Interval */
+$handler = $view->new_display('page', 'Grout Interval', 'page_9');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'dH - List Well Grout Interval Data';
+$handler->display->display_options['display_description'] = '-this view is used in the formatted submittals view to pull grout interval data into the report';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'logtype' => 'logtype',
+  'bhlid' => 'bhlid',
+  'material' => 'material',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'bhlid_1' => 'bhlid_1',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-left',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Interval Type';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+$handler->display->display_options['fields']['material']['label'] = 'Grout Type';
+$handler->display->display_options['fields']['material']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['empty'] = '0';
+$handler->display->display_options['fields']['fromdepth']['hide_alter_empty'] = FALSE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = 'Depth';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '[fromdepth] to [todepth] ft';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['value'] = 'grout';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'dh-list-bhl-grout-intervals';
+
+/* Display: Hole Interval */
+$handler = $view->new_display('page', 'Hole Interval', 'page_10');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'dH - List Well Hole Interval Data';
+$handler->display->display_options['display_description'] = '-this view is used in the formatted submittals view to pull hole interval data into the report';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'logtype' => 'logtype',
+  'bhlid' => 'bhlid',
+  'material' => 'material',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'bhlid_1' => 'bhlid_1',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-left',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Interval Type';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['empty'] = '0';
+$handler->display->display_options['fields']['fromdepth']['hide_alter_empty'] = FALSE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = 'Depth';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '[fromdepth] to [todepth] ft';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['label'] = 'Diameter Size (in.)';
+$handler->display->display_options['fields']['diameter']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['diameter']['empty_zero'] = TRUE;
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['value'] = 'hole';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'dh-list-bhl-hole-interval';
+
+/* Display: Casing Interval */
+$handler = $view->new_display('page', 'Casing Interval', 'page_11');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'dH - List Well Casing Interval Data';
+$handler->display->display_options['display_description'] = '-this view is used in the formatted submittals view to pull casing interval data into the report';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'logtype' => 'logtype',
+  'bhlid' => 'bhlid',
+  'material' => 'material',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'bhlid_1' => 'bhlid_1',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-left',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['relationships']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['label'] = 'dH Feature Well';
+/* Relationship: weight */
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['id'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['table'] = 'dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['field'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['ui_name'] = 'weight';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['label'] = 'weight';
+/* Relationship: thickness */
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog_1']['id'] = 'crosstab_dh_boreholelog_1';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog_1']['field'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog_1']['ui_name'] = 'thickness';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog_1']['label'] = 'thickness';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Interval Type';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+$handler->display->display_options['fields']['material']['label'] = 'Material/Type';
+$handler->display->display_options['fields']['material']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['empty'] = '0';
+$handler->display->display_options['fields']['fromdepth']['hide_alter_empty'] = FALSE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = 'Depth';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '[fromdepth] to [todepth] ft';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['label'] = 'Size (in.)';
+$handler->display->display_options['fields']['diameter']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['diameter']['empty_zero'] = TRUE;
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Properties: propvalue */
+$handler->display->display_options['fields']['propvalue']['id'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propvalue']['field'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue']['relationship'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['fields']['propvalue']['label'] = 'Weight (lbs/ft)';
+$handler->display->display_options['fields']['propvalue']['empty_zero'] = TRUE;
+$handler->display->display_options['fields']['propvalue']['precision'] = '0';
+$handler->display->display_options['fields']['propvalue']['separator'] = '';
+/* Field: DH Properties: propvalue */
+$handler->display->display_options['fields']['propvalue_1']['id'] = 'propvalue_1';
+$handler->display->display_options['fields']['propvalue_1']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propvalue_1']['field'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue_1']['relationship'] = 'crosstab_dh_boreholelog_1';
+$handler->display->display_options['fields']['propvalue_1']['label'] = 'Wall Thickness (in.)';
+$handler->display->display_options['fields']['propvalue_1']['empty_zero'] = TRUE;
+$handler->display->display_options['fields']['propvalue_1']['precision'] = '0';
+$handler->display->display_options['fields']['propvalue_1']['separator'] = '';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['value'] = 'casing';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'well_casing_wgt' => 'well_casing_wgt',
+);
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'well_construction_log' => 'well_construction_log',
+);
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid_1']['id'] = 'varidid_1';
+$handler->display->display_options['filters']['varidid_1']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid_1']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid_1']['relationship'] = 'crosstab_dh_boreholelog_1';
+$handler->display->display_options['filters']['varidid_1']['value'] = array(
+  'well_casing_thickness' => 'well_casing_thickness',
+);
+$handler->display->display_options['filters']['varidid_1']['vocabulary'] = array(
+  'well_construction_log' => 'well_construction_log',
+);
+$handler->display->display_options['path'] = 'dh-list-bhl-casing-interval';
+
+/* Display: Screen Interval */
+$handler = $view->new_display('page', 'Screen Interval', 'page_12');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'dH - List Well Screen Interval Data';
+$handler->display->display_options['display_description'] = '-this view is used in the formatted submittals view to pull screen interval data into the report';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'logtype' => 'logtype',
+  'bhlid' => 'bhlid',
+  'material' => 'material',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'bhlid_1' => 'bhlid_1',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-left',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['relationships']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['label'] = 'dH Feature Well';
+/* Relationship: meshsize */
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['id'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['table'] = 'dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['field'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['ui_name'] = 'meshsize';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['label'] = 'meshsize';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Interval Type';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+$handler->display->display_options['fields']['material']['label'] = 'Material/Type';
+$handler->display->display_options['fields']['material']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['empty'] = '0';
+$handler->display->display_options['fields']['fromdepth']['hide_alter_empty'] = FALSE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = 'Depth';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '[fromdepth] to [todepth] ft';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['label'] = 'Size (in.)';
+$handler->display->display_options['fields']['diameter']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['diameter']['empty_zero'] = TRUE;
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Properties: propvalue */
+$handler->display->display_options['fields']['propvalue']['id'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propvalue']['field'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue']['relationship'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['fields']['propvalue']['label'] = 'Mesh Size (in.)';
+$handler->display->display_options['fields']['propvalue']['precision'] = '0';
+$handler->display->display_options['fields']['propvalue']['separator'] = '';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['value'] = 'screen';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'well_screen_mesh_size' => 'well_screen_mesh_size',
+);
+$handler->display->display_options['filters']['varidid']['op_location'] = 'ON';
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'well_construction_log' => 'well_construction_log',
+);
+$handler->display->display_options['path'] = 'dh-list-bhl-casing-interval';
+
+/* Display: Water Zone Interval */
+$handler = $view->new_display('page', 'Water Zone Interval', 'page_13');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'dH - List Well Water Zone Interval Data';
+$handler->display->display_options['display_description'] = '-this view is used in the formatted submittals view to pull water zone interval data into the report';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'logtype' => 'logtype',
+  'bhlid' => 'bhlid',
+  'material' => 'material',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'bhlid_1' => 'bhlid_1',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-left',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['relationships']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['label'] = 'dH Feature Well';
+/* Relationship: yield */
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['id'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['table'] = 'dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['field'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['ui_name'] = 'yield';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['label'] = 'yield';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Interval Type';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['empty'] = '0';
+$handler->display->display_options['fields']['fromdepth']['hide_alter_empty'] = FALSE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = 'Depth';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '[fromdepth] to [todepth] ft';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['label'] = 'Size (in.)';
+$handler->display->display_options['fields']['diameter']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['diameter']['empty_zero'] = TRUE;
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Properties: propvalue */
+$handler->display->display_options['fields']['propvalue']['id'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propvalue']['field'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue']['relationship'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['fields']['propvalue']['label'] = 'Yield (gpm)';
+$handler->display->display_options['fields']['propvalue']['empty_zero'] = TRUE;
+$handler->display->display_options['fields']['propvalue']['precision'] = '0';
+$handler->display->display_options['fields']['propvalue']['separator'] = '';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['value'] = 'waterzone';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: DH Properties: varid (selector) */
+$handler->display->display_options['filters']['varidid']['id'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['table'] = 'dh_properties';
+$handler->display->display_options['filters']['varidid']['field'] = 'varidid';
+$handler->display->display_options['filters']['varidid']['relationship'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['filters']['varidid']['value'] = array(
+  'estimated_yield' => 'estimated_yield',
+);
+$handler->display->display_options['filters']['varidid']['vocabulary'] = array(
+  'well_construction_log' => 'well_construction_log',
+);
+$handler->display->display_options['path'] = 'dh-list-bhl-waterzone-interval';
+
+/* Display: Gravel Pack Interval */
+$handler = $view->new_display('page', 'Gravel Pack Interval', 'page_14');
+$handler->display->display_options['defaults']['title'] = FALSE;
+$handler->display->display_options['title'] = 'dH - List Well Gravel Pack Interval Data';
+$handler->display->display_options['display_description'] = '-this view is used in the formatted submittals view to pull gravel pack interval data into the report';
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['defaults']['style_plugin'] = FALSE;
+$handler->display->display_options['style_plugin'] = 'table';
+$handler->display->display_options['style_options']['columns'] = array(
+  'ftype' => 'ftype',
+  'logtype' => 'logtype',
+  'bhlid' => 'bhlid',
+  'material' => 'material',
+  'fromdepth' => 'fromdepth',
+  'todepth' => 'todepth',
+  'wellid' => 'wellid',
+  'hydroid' => 'hydroid',
+  'bhlid_1' => 'bhlid_1',
+  'diameter' => 'diameter',
+  'propvalue' => 'propvalue',
+);
+$handler->display->display_options['style_options']['default'] = '-1';
+$handler->display->display_options['style_options']['info'] = array(
+  'ftype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'logtype' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'material' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-left',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'fromdepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'todepth' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => 'views-align-right',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'wellid' => array(
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'hydroid' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'bhlid_1' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'diameter' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 0,
+  ),
+  'propvalue' => array(
+    'sortable' => 0,
+    'default_sort_order' => 'asc',
+    'align' => '',
+    'separator' => '',
+    'empty_column' => 1,
+  ),
+);
+$handler->display->display_options['defaults']['style_options'] = FALSE;
+$handler->display->display_options['defaults']['row_plugin'] = FALSE;
+$handler->display->display_options['defaults']['row_options'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: Entity Reference: Referenced Entity */
+$handler->display->display_options['relationships']['wellid_target_id']['id'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['table'] = 'field_data_wellid';
+$handler->display->display_options['relationships']['wellid_target_id']['field'] = 'wellid_target_id';
+$handler->display->display_options['relationships']['wellid_target_id']['label'] = 'dH Feature Well';
+/* Relationship: method */
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['id'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['table'] = 'dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['field'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['ui_name'] = 'method';
+$handler->display->display_options['relationships']['crosstab_dh_boreholelog']['label'] = 'method';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Borehole Log: Ftype */
+$handler->display->display_options['fields']['ftype']['id'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['ftype']['field'] = 'ftype';
+$handler->display->display_options['fields']['ftype']['label'] = 'Interval Type';
+$handler->display->display_options['fields']['ftype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Logtype */
+$handler->display->display_options['fields']['logtype']['id'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['logtype']['field'] = 'logtype';
+$handler->display->display_options['fields']['logtype']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid']['id'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid']['label'] = 'Internal, numeric dh borehole log ID';
+$handler->display->display_options['fields']['bhlid']['exclude'] = TRUE;
+/* Field: DH Borehole Log: Material */
+$handler->display->display_options['fields']['material']['id'] = 'material';
+$handler->display->display_options['fields']['material']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['material']['field'] = 'material';
+$handler->display->display_options['fields']['material']['label'] = 'Material/Type';
+$handler->display->display_options['fields']['material']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Fromdepth */
+$handler->display->display_options['fields']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['fromdepth']['field'] = 'fromdepth';
+$handler->display->display_options['fields']['fromdepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['fromdepth']['empty'] = '0';
+$handler->display->display_options['fields']['fromdepth']['hide_alter_empty'] = FALSE;
+$handler->display->display_options['fields']['fromdepth']['precision'] = '0';
+/* Field: DH Borehole Log: Todepth */
+$handler->display->display_options['fields']['todepth']['id'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['todepth']['field'] = 'todepth';
+$handler->display->display_options['fields']['todepth']['exclude'] = TRUE;
+$handler->display->display_options['fields']['todepth']['precision'] = '0';
+/* Field: dH Borehole Log: Well ID */
+$handler->display->display_options['fields']['wellid']['id'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['table'] = 'field_data_wellid';
+$handler->display->display_options['fields']['wellid']['field'] = 'wellid';
+$handler->display->display_options['fields']['wellid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['wellid']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['wellid']['delta_offset'] = '0';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Borehole Log: Label */
+$handler->display->display_options['fields']['bhlid_1']['id'] = 'bhlid_1';
+$handler->display->display_options['fields']['bhlid_1']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['bhlid_1']['field'] = 'bhlid';
+$handler->display->display_options['fields']['bhlid_1']['label'] = 'Depth';
+$handler->display->display_options['fields']['bhlid_1']['alter']['alter_text'] = TRUE;
+$handler->display->display_options['fields']['bhlid_1']['alter']['text'] = '[fromdepth] to [todepth] ft';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path'] = 'admin/content/dh_boreholelog/manage/[bhlid_1]';
+$handler->display->display_options['fields']['bhlid_1']['alter']['path_query_parameters'] = 'destination=gwp-well-dash-intervals/[hydroid]';
+$handler->display->display_options['fields']['bhlid_1']['element_label_colon'] = FALSE;
+/* Field: DH Borehole Log: Diameter */
+$handler->display->display_options['fields']['diameter']['id'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['table'] = 'dh_boreholelog';
+$handler->display->display_options['fields']['diameter']['field'] = 'diameter';
+$handler->display->display_options['fields']['diameter']['label'] = 'Size (in.)';
+$handler->display->display_options['fields']['diameter']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['diameter']['empty_zero'] = TRUE;
+$handler->display->display_options['fields']['diameter']['precision'] = '0';
+/* Field: DH Properties: propvalue */
+$handler->display->display_options['fields']['propvalue']['id'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue']['table'] = 'dh_properties';
+$handler->display->display_options['fields']['propvalue']['field'] = 'propvalue';
+$handler->display->display_options['fields']['propvalue']['relationship'] = 'crosstab_dh_boreholelog';
+$handler->display->display_options['fields']['propvalue']['label'] = 'Method';
+$handler->display->display_options['fields']['propvalue']['hide_empty'] = TRUE;
+$handler->display->display_options['fields']['propvalue']['precision'] = '0';
+$handler->display->display_options['fields']['propvalue']['separator'] = '';
+$handler->display->display_options['defaults']['sorts'] = FALSE;
+/* Sort criterion: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['sorts']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['sorts']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['sorts']['hydroid']['relationship'] = 'wellid_target_id';
+$handler->display->display_options['sorts']['hydroid']['order'] = 'DESC';
+/* Sort criterion: DH Borehole Log: Fromdepth */
+$handler->display->display_options['sorts']['fromdepth']['id'] = 'fromdepth';
+$handler->display->display_options['sorts']['fromdepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['fromdepth']['field'] = 'fromdepth';
+/* Sort criterion: DH Borehole Log: Todepth */
+$handler->display->display_options['sorts']['todepth']['id'] = 'todepth';
+$handler->display->display_options['sorts']['todepth']['table'] = 'dh_boreholelog';
+$handler->display->display_options['sorts']['todepth']['field'] = 'todepth';
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH Borehole Log: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_boreholelog';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['value'] = 'gravelpack';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+$handler->display->display_options['path'] = 'dh-list-bhl-gravelpack-interval';
