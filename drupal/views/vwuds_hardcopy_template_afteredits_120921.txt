@@ -1419,13 +1419,13 @@ Once you login, your facility’s information will be displayed. If you opt for 
 
 <b>Reporting Instructions:</b>
 <ul>
-<li>If you did not withdraw from one or more source points (your well, spring, or surface water intakes) in 2021, but expect you may in future years, "simply input zeros on the form in the Current Withdrawals table and note “no withdrawal this year” in the "Source Status" field.</li>
+<li>If you did not withdraw from one or more source points (your wells, springs, or surface water intakes) in 2021, but expect you may in future years, simply input zeros on the form in the Current Withdrawals table and note “no withdrawal this year” in the "Source Status" field.</li>
 <li>If the source point has been abandoned and you <u>do not</u> plan to make future withdrawals, please check the box next to "Permanently Abandoned" in the "Source Status" field, and write the year it was abandoned in the space provided.</li>  
 <li>The regulation requires the use of a methodology or the installation and operation of a gaging device at or near the source point to measure the cumulative volume of groundwater and/or surface water withdrawn. The gage or methodology used must be consistent with sound generally accepted engineering practice and produce volume determinations within 10% of accuracy. Methods for estimating your withdrawal volumes can be found at this link: <a>https://www.deq.virginia.gov/water/water-quantity/water-supply-planning/water-withdrawal-reporting</a> as the "Irrigation and Agriculture Water Use Estimate factsheet". Please contact your DEQ water supply planner (contact information above) if assistance is needed in calculating your withdrawal volumes. In addition, the regulation requires retention of water withdrawal and gage calibration records by the user for a period of three years.</li>
 <li>The regulation requires that you report the maximum withdrawal in a single day and the month during which the maximum day withdrawal occurred.  If you do not collect this information at this time, <u>please estimate</u> your maximum day withdrawal and note the month this withdrawal occurred. </li>
 <li>As per 2020, location data is required. <b>Section § 62.1-44.38. of the Code of Virginia requires location data be provided by each user in a coordinate system (decimal degrees) for each point of withdrawal. Provide the latitude and longitude in the location section of this form.</b></li>
-<li>If you have developed <u>a new source point  at an existing facility</u>, please use the form on the last printed page entitled “Additional Water Withdrawals.” Fill in as much information as possible. Examples of new source points include an additional pond, movement of a stream intake from one stream to a different stream, an additional groundwater well, etc.</li>
-<li> If you have a <u>new source point at a new facility</u>, please contact your DEQ water supply planner.</li>
+<li>If you have developed <u>a new source point  at an existing facility</u>, please use the form on the last page entitled “***Complete form for any additional source points.” Fill in as much information as possible. Examples of new source points include an additional pond, movement of a stream intake from one stream to a different stream, an additional groundwater well, etc.</li>
+<li> If you have <u>a new source point at a new facility</u>, please contact your DEQ water supply planner.</li>
 </ul>  
 
 <b>Description of Fields on Reporting Form:</b>
@@ -1512,32 +1512,33 @@ $handler->display->display_options['footer']['area']['content'] = '<strong>***<i
 </tr>
 </table>
 
+
+
+
+
 <!--LAT LONG TABLE-->
 <html>
 <table>
 
 <tr>
 <td><b>Location:</b></td>
-<td></td>
+<td>Latitude:
+______________________________________<br>
+Longitude:
+______________________________________<br></td>
+
 <td><b>Location data is required for all source points.</b> If section below is blank, or you are updating location information, please provide coordinates in decimal degrees. If you do not know the coordinates of your water source follow the steps below:<br>
 1) Open <a>https://www.google.com/maps</a>, navigate to and click on the precise location of your water source. <br>
 2) Right click on the red pin that appears and copy the Latitude/Longitude (example: 37.5671, -77.4771).<br>
-<br>
 If the location is known in Degrees:Minutes:Seconds, please convert to Decimal Degrees using the following link: <a>https://www.fcc.gov/media/radio/dms-decimal</a>
 </td>
 </tr>
 
-<tr>
-<td>Latitude:</td>
-<td>______________________________________</td>
-</tr>
-
-<tr>
-<td>Longitude:</td>
-<td>______________________________________</td>
-</tr>
-
 </table>
+
+
+
+
 <strong>[nothing_1]</strong>
 <strong>[nothing_2]</strong>
 <strong>[nothing_3]</strong>
