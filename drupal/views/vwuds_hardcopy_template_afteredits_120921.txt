@@ -1623,6 +1623,9 @@ If the location is known in Degrees:Minutes:Seconds, please convert to Decimal D
 </tr>
 </table>
 [nothing_7] 
+<br>
+Would you like to complete your reporting online next year? Please circle one: YES / NO
+<br><br>
 <i>By Signing on the line below, you certify the accuracy of the withdrawal information reported in this form.</i>
 <br>
 Signatory Name:______________________________________________Date:______________________________________________';
@@ -2146,28 +2149,20 @@ $handler->display->display_options['fields']['nothing']['alter']['text'] = '[vie
 
 <tr>
 <td><b>Location:</b></td>
-<td></td>
-<td><b>Location data is required for all source points.</b> If Latitude and Longitude fields below are blank, or you are updating location information, please provide coordinates in decimal degrees. If you do not know the coordinates of your water source follow the steps below:<br>
+<td>Latitude:
+[dh_geofield]  ____________________________________<br>
+Longitude:
+[dh_geofield_1]  ____________________________________<br></td>
+
+<td><b>Location data is required for all source points.</b> If Latitude and Longitude fields are blank, or you are updating location information, please provide coordinates in decimal degrees. If you do not know the coordinates of your water source follow the steps below:<br>
 1) Open <u><a>https://www.google.com/maps</a></u>, navigate to and click on the precise location of your water source. <br>
 2) Right click on the red pin that appears and copy the Latitude/Longitude (example: 37.5671, -77.4771).<br>
-<br>
 If the location is known in Degrees:Minutes:Seconds, please convert to Decimal Degrees using the following link: <u><a>https://www.fcc.gov/media/radio/dms-decimal</a></u>
 </td>
 </tr>
 
-<tr>
-<td>Latitude:</td>
-<td>[dh_geofield]</td>
-<td>______________________________________</td>
-</tr>
-
-<tr>
-<td>Longitude:</td>
-<td>[dh_geofield_1]</td>
-<td>______________________________________</td>
-</tr>
-
 </table>
+
 
 
 
