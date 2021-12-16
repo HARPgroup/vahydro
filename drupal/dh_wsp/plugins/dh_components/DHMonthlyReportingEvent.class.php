@@ -109,7 +109,7 @@ class DHMonthlyEvent extends dhTimeSeriesGroupPluggable {
     $q .= "   extract (epoch from to_timestamp(";
     $q .= "     a.thisyear || '-' || b.thismonth || ";
     $q .= "     '-' || 1, 'YYYY-MM-DD') ";
-    $q .= "   ) as tstime, ";
+    $q .= "   )::integer as tstime, ";
     $q .= "   v.hydroid as varid, c.tid, v.varunits as units, ";
     $q .= "   c.tsvalue as tsvalue, d.tsvalue as tsvalue_1, ";
     $q .= "   e.tsvalue as tsvalue_2 ";
