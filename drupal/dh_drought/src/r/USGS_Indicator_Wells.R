@@ -18,7 +18,9 @@ site <- base_url
 
 #USED TO EXPORT TABLES AS INDIVIDUAL CSVS, AND EXCEL FILE WITH MULTIPLE SHEETS
 # export_path <- 'C:/Users/jklei/Desktop/Potomac Monitoring Wells/exports/'
-export_path <- 'C:/Users/jklei/Desktop/Potomac Monitoring Wells 2021/exports/'
+# export_path <- 'C:/Users/jklei/Desktop/Potomac Monitoring Wells 2021/exports/'
+export_path <- 'C:/Users/nrf46657/Desktop/DEQ_new/Strategic Plan/Potomac monitoring wells/2022/'
+
 
 #Pull in list of all Potomac Monitoring Well dH Features 
 URL <- paste(site,"potomac-monitoring-wells-export", sep = "/");
