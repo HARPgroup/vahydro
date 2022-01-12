@@ -281,7 +281,8 @@ for (i in 1:length(runid.list)){
 }
 
 ```
-  
+
+\newpage  
 __Historical Intake Flows and Drought Flow Indicators__  
 
 The VAHydro model is used to estimate flows at the project intake, including the impact of all cumulative withdrawals, discharges and management rules upstream of the withdrawal location. The models estimates of currently available flows are presented in Table 1.  The Virginia Drought Assessment and Response Plan^[ [Virginia Drought Assessment and Response Plan](https://www.deq.virginia.gov/home/showpublisheddocument/5115/637490843054630000), developed by the Drought Response Technical Advisory Committee in response to Executive Order #39, March 28, 2003.] employs non-exceedance flow percentiles as indicators of drought conditions at particular stream-gaging stations used to monitor drought conditions.  Representative daily streamflows above the 25th percentile for return flow frequency represent normal conditions with respect to drought.  Representative daily streamflows between the 10th and 25th percentiles represent drought watch conditions. Representative daily streamflows between the 5th and 10th percentiles represent drought warning conditions.  Representative daily streamflows below the 5th percentile indicate drought emergency conditions.
@@ -357,7 +358,6 @@ for (i in 1:length(runid.list)){
 }
 ```
 
-\newpage
 ## Conclusion
 
 ```{r LoadConclusions, echo=FALSE, results = "asis"}
@@ -379,8 +379,6 @@ if (is.null(run_info$reports)) {
 }
 
 ```
-\newpage
-
 
 
 ```{r LoadStatsTable, include=FALSE}
@@ -432,6 +430,9 @@ statsdf_sql <- paste('SELECT
 statsdf <- sqldf(statsdf_sql)
 statsdf <- statsdf[,-2]
 ```
+
+
+\newpage
 ## Detailed Cumulative Impact Analysis
 The following "Summary of Results" table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project. The section entitled “River Segment Model Statistics” contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated Consumptive Use Fraction (See description below) as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed. Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Total Number of Days with Storage < 50% describes the number of days in the simulation in which reservoir levels fall below 50% of full storage. The section entitled “Facility Model Statistics” shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect. There will be one or more columns in this table representing each scenario considered for this analysis.
 
@@ -587,8 +588,7 @@ if (!is.logical(fig_path)) {
 \newpage
 
 ## Richness Change Metric Table:
-Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use^[For additional details on “elfgen” methodology, see [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876).]. Note: elfgen methodology only applicable for watersheds < 800 cfs mean annual flow.
-
+Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use^[Kleiner et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876) & Rapp et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877)]. Note: elfgen methodology only applicable for watersheds < 800 cfs mean annual flow.
 
 ```{r LoadRichnessTable, include=FALSE}
 elfgen_df <- statsdf_raw
