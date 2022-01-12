@@ -85,7 +85,7 @@ if (is.logical(intake_stats_fid)) {
 #runid.list <- c('runid_201','runid_401')
 rlist <- gsub('runid_', '', runid.list)
 
-# SALEM WTP
+# SALEM WTP:
 # rseg.hydroid <- 68327
 # fac.hydroid <- 73112
 # runid.list <- c('runid_11','runid_12','runid_13')
@@ -199,13 +199,13 @@ for (i in 1:length(runid.list)){
 
 
 ## VAHydro
-The comprehensive VAHydro hydrologic model is used to evaluate potential impacts to surface water supply and other beneficial uses (including aquatic life), for withdrawal projects that have applied for a Virginia Water Protection (VWP). The VAHydro model simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through Local and Regional Water Supply Plans and reported water use submitted to DEQ through the Annual Water Withdrawal Reporting program. The VAHydro model includes all known withdrawals and discharges, as well as operational rules of VWP permits and major hydrologic features such as reservoirs.
+The comprehensive VAHydro hydrologic model is used by the DEQ Office of Water Supply to evaluate instream and off-stream beneficial uses for non-tidal surface water withdrawals throughout Virginia. This model also simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through DEQ water supply planning and reporting programs, which includes all known withdrawals and discharges, as well as operational rules of Virginia Water Protection (VWP) permits and major hydrologic features such as reservoirs.
 
-The VAHydro model is built on rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6 which runs from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed, aka the “southern rivers.” The VAHydro model features high-resolution hydrologic subsections called “river segments” (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
+The VAHydro model is built on the rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6^[ [Chesapeake Bay Program Phase 6 Model](https://www.chesapeakebay.net/documents/Phase_6_Modeling_Tools_1-page_factsheet_12-18-17.pdf).]. The VAHydro model simulates conditions from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed. The VAHydro model features high-resolution hydrologic subsections called “river segments” (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
 
 
-## CIA
-DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA) modeling. CIA is a modeling and analysis approach that takes into account the varied hydrologic process occurring throughout a river network (including meteorology and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential “cumulative impact” of all streamflow changes occurring upstream and downstream of any location within the river system, as well as the downstream impact of a specific proposed or permitted surface water withdrawal.
+## Cumulative Impact Analysis (CIA)
+DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA). CIA is a modeling and analysis approach that takes into account the varied hydrologic processes occurring throughout a river network (including meteorological and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential “cumulative impact” of all streamflow changes occurring upstream and downstream of any location within the river system, as well as the downstream impact of a specific proposed or permitted surface water withdrawal.
 
 The goal of the following analysis is to estimate the potential impacts of the proposed water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses. In addition, cumulative impacts from all existing withdrawals are included in the evaluation.
 
@@ -218,10 +218,10 @@ This project consists of an existing water intake constructed in the 1960's with
 Permit: Big Cherry Dam, 01-0688  
 Permit Dates: 2003-08-23 to 2018-08-22  
 
-* **Annual Withdrawal Limit** = 1168 mg/yr (3.2 mgd)
-    + (historically they withdraw ~2 mgd on average)
-* **Daily Withdrawal Limit** = 4 mgd 
-* **Flow-by** = 0.5 mgd 
+* **Annual Withdrawal Limit** = 1168 MG/yr (3.2 MGD)
+    + (historically they withdraw ~2 MGD on average)
+* **Daily Withdrawal Limit** = 4 MGD 
+* **Flow-by** = 0.5 MGD 
 <br>
 <br>
 <br>
@@ -281,9 +281,10 @@ for (i in 1:length(runid.list)){
 }
 
 ```
+  
+__Historical Intake Flows and Drought Flow Indicators__  
 
-__Historical Intake Flows and Drought Flow Indicators__
-The VAHydro model is used to estimate flows at the project intake, including the impact of all cumulative withdrawals, discharges and management rules upstream of the withdrawal location. The models estimates of currently available flows are presented in Table 1.  The Virginia Drought Assessment and Response Plan employs non-exceedance flow percentiles as indicators of drought conditions at particular stream-gaging stations used to monitor drought conditions.  Representative daily streamflows above the 25th percentile for return flow frequency represent normal conditions with respect to drought.  Representative daily streamflows between the 10th and 25th percentiles represent drought watch conditions. Representative daily streamflows between the 5th and 10th percentiles represent drought warning conditions.  Representative daily streamflows below the 5th percentile indicate drought emergency conditions.
+The VAHydro model is used to estimate flows at the project intake, including the impact of all cumulative withdrawals, discharges and management rules upstream of the withdrawal location. The models estimates of currently available flows are presented in Table 1.  The Virginia Drought Assessment and Response Plan^[ [Virginia Drought Assessment and Response Plan](https://www.deq.virginia.gov/home/showpublisheddocument/5115/637490843054630000), developed by the Drought Response Technical Advisory Committee in response to Executive Order #39, March 28, 2003.] employs non-exceedance flow percentiles as indicators of drought conditions at particular stream-gaging stations used to monitor drought conditions.  Representative daily streamflows above the 25th percentile for return flow frequency represent normal conditions with respect to drought.  Representative daily streamflows between the 10th and 25th percentiles represent drought watch conditions. Representative daily streamflows between the 5th and 10th percentiles represent drought warning conditions.  Representative daily streamflows below the 5th percentile indicate drought emergency conditions.
 
 ```{r LoadSiteInfo, include=FALSE}
 dat_current <- om_get_rundata(istats_elid, intake_stats_runid, omsite, FALSE)
@@ -300,12 +301,17 @@ if (jan_ex == 0) {
   ex_col = "25%"
 }
 jan_ex <- intake_sum_current[1,ex_col]
-non_ex_text <- paste0("For example, in the table below the ",ex_col," column states that ",ex_col," of flows within the month of January would be less than ", jan_ex, " cfs.")
+non_ex_text <- paste0("For example, in the table below the ",ex_col," column states that ",ex_col," of flows within the month of January would be less than ", round(jan_ex,0), " cfs.")
 drun_info <- find_name(fac_model_info,paste0("runid_",intake_stats_runid))
 demand_url <- drun_info$fig.monthly_demand$code
 ```
 
 ```{r SiteTable, echo=FALSE, results = "asis"}
+#Round Table Values (Following McGurk request: "The tabulated values should be rounded to the nearest whole number.  The flow estimates at the stream gages are not precise or accurate enough for digits to the right of the decimal, and are not reported that way.  Therefore, modeled values should not be considered more accurate.")
+round_intake_sum_current <- intake_sum_current[2:length(intake_sum_current)]
+round_intake_sum_current <- round(round_intake_sum_current,0)
+intake_sum_current <- cbind(intake_sum_current[1],round_intake_sum_current)
+
 # Format table
 ft <- qflextable(intake_sum_current)
 ft <- theme_box(ft)
@@ -322,7 +328,8 @@ if (!is.null(demand_url)) {
 ```
   
 \newpage
-# Model Results Summary
+# Results
+## Summary
 
 Four scenarios are presented below to examine the alternatives for this permit re-issuance.  A summary of how permit rules affect available water for this permit, and how this operation may impact instream beneficial uses, and other downstream water withdrawals is presented.   
 
@@ -350,6 +357,7 @@ for (i in 1:length(runid.list)){
 }
 ```
 
+\newpage
 ## Conclusion
 
 ```{r LoadConclusions, echo=FALSE, results = "asis"}
@@ -397,25 +405,25 @@ statsdf_raw <- statsdf
 
 statsdf_sql <- paste('SELECT
                   CASE
-                    WHEN "Desc" = "Qout" THEN "Flow Out (cfs)"
+                    WHEN "Desc" = "Qout" THEN "Flow Out (cfs) - (i.e mean flow)"
                     WHEN "Desc" = "Qbaseline" THEN "Flow Baseline (cfs)"
                     WHEN "Desc" = "remaining_days_p0" THEN "Minimum Days of Storage Remaining"
-                    WHEN "Desc" = "l30_Qout" THEN "30 Day Low Flow (cfs)"
-                    WHEN "Desc" = "l90_Qout" THEN "90 Day Low Flow (cfs)"
+                    WHEN "Desc" = "l30_Qout" THEN "30 Day Low Flow (cfs) (i.e drought flow)"
+                    WHEN "Desc" = "l90_Qout" THEN "90 Day Low Flow (cfs) (i.e drought flow)"
                     WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
-                    WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (mgd)"
-                    WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (mgd)" 
-                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (mgd)"  
-                    WHEN "Desc" = "ps_mgd" THEN "Point Source (mgd)"  
-                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (mgd)"
+                    WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (MGD)"
+                    WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (MGD)" 
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (MGD)"  
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"  
+                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (MGD)"
                     WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
                     WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
                     WHEN "Desc" = "rseg_model" THEN "River Segment Model Statistics:"
                     WHEN "Desc" = "fac_model" THEN "Facility Model Statistics:"
-                    WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (mgy)"
-                    WHEN "Desc" = "wd_mgy" THEN "Withdrawal (mgy)"
-                    WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (mgy)"
-                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (mgd)" 
+                    WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (MGY)"
+                    WHEN "Desc" = "wd_mgy" THEN "Withdrawal (MGY)"
+                    WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (MGY)"
+                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (MGD)" 
                     ELSE Desc
                   END AS Description, *
                  FROM statsdf
@@ -424,14 +432,17 @@ statsdf_sql <- paste('SELECT
 statsdf <- sqldf(statsdf_sql)
 statsdf <- statsdf[,-2]
 ```
-# Cumulative Impact Analysis
-The following table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project. The section entitled “River Segment Model Statistics” contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated Consumptive Use Fraction (See description below) as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed. Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Total Number of Days with Storage < 50% describes the number of days in the simulation in which reservoir levels fall below 50% of full storage. The section entitled “Facility Model Statistics” shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect. There will be one or more columns in this table representing each scenario considered for this analysis.
+## Detailed Cumulative Impact Analysis
+The following "Summary of Results" table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project. The section entitled “River Segment Model Statistics” contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated Consumptive Use Fraction (See description below) as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed. Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Total Number of Days with Storage < 50% describes the number of days in the simulation in which reservoir levels fall below 50% of full storage. The section entitled “Facility Model Statistics” shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect. There will be one or more columns in this table representing each scenario considered for this analysis.
 
-## Glossary of Cumulative Impact Modeling Terms
-- Consumptive Use (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline.
+### Glossary of Cumulative Impact Modeling Terms
+- Consumptive Use Fraction (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline.
+- 30 Day Low Flow: *DESCRIPTION NEEDED
+- 90 Day Low Flow: *DESCRIPTION NEEDED
+- *Additional DESCRIPTIONS NEEDED for other table metrics that aren't clearly understood
 
 <!---BLOCK_LANDSCAPE_START--->
-## Stats Comparison Table:
+### Summary of Results:
 ```{r StatsTable, echo=FALSE}
 ft <- qflextable(statsdf)
 
@@ -454,7 +465,7 @@ fontsize(ft, size = 9)
 <!---BLOCK_LANDSCAPE_STOP--->
 
 
-# Reservoir Storage Plots:
+### Analysis of Reservoir Storage:
 The following reservoir storage plots depict changes in reservoir storage under each scenario (indicated in black), as well as simulated inflow to the reservoir (blue), simulated outflow from the reservoir (green), and system demand for the given scenario (red). For water supply reservoirs, a minimum of 60 days of remaining storage over the course of the simulation is recommended. System demand varies seasonally.
 
 ```{r ResPLOTS, echo=FALSE, message=FALSE, results = "asis"}
@@ -469,7 +480,7 @@ for (i in 1:length(runid.list)){
   if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$code
     # we have an image, show it 
-    cat("\n\n## Reservoir Storage: ", short_names[[runid.i]],"\n\n")
+    cat("\n\n#### Reservoir Storage: ", short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
     cat("\n\n\\pagebreak\n")
   } else {
@@ -482,7 +493,7 @@ for (i in 1:length(runid.list)){
     if (!(is.null(fig_prop))) {
       fig_path <- fig_prop$code
       # we have an image, show it 
-      cat("\n\n## Reservoir Storage: ", short_names[[runid.i]],"\n\n")
+      cat("\n\n#### Reservoir Storage: ", short_names[[runid.i]],"\n\n")
       cat(paste0("![](",fig_path,")"),"\n")
       cat("\n\n\\pagebreak\n")
     } else {
@@ -496,8 +507,8 @@ for (i in 1:length(runid.list)){
 
 \newpage
 
-# Unmet Demand Plots:
-Heatmaps are data plotting tools that help visualize data as magnitudes of color intensity. The following heatmaps depict the number of days with unmet demands for each month of the simulation (due to demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The heatmap cells show the amount of unmet demand for each month [Number of Unmet Days & Amount (mgd)]. Hydrographs are shown for the period of the simulation with greatest unmet demand.
+### Analysis of Potential Unmet Demand at the River Intake:
+Heatmaps are data plotting tools that help visualize data as magnitudes of color intensity. The following heatmaps depict the number of days with unmet demands for each month of the simulation (due to demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The heatmap cells show the amount of unmet demand for each month [Number of Unmet Days & Amount (MGD)]. Hydrographs are shown for the period of the simulation with greatest unmet demand.
 
 ```{r UnmetDemandPLOTS, echo=FALSE, message=FALSE, results = "asis"}
 
@@ -512,14 +523,14 @@ for (i in 1:length(runid.list)){
   if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$code
     # we have an image, show it 
-    cat("\n\n## Heatmap: ",short_names[[runid.i]],"\n\n")
+    cat("\n\n#### Heatmap: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
   }
   fig_prop <- invisible(find_name(fac_run, "fig.30daymax_unmet"))
   if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$code
     # we have an image, show it 
-    cat("\n\n## Hydrograph: ",short_names[[runid.i]],"\n\n")
+    cat("\n\n#### Hydrograph: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
     #cat("\n\n\\pagebreak\n")
   }
@@ -527,7 +538,7 @@ for (i in 1:length(runid.list)){
   if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$code
     # we have an image, show it 
-    cat("\n\n## Reservoir Storage: ",short_names[[runid.i]],"\n\n")
+    cat("\n\n#### Reservoir Storage: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
   } else {
     # JK - do we want to simply supress in order to have better formatting? or maybe keep a count
@@ -576,7 +587,8 @@ if (!is.logical(fig_path)) {
 \newpage
 
 ## Richness Change Metric Table:
-Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use (For additional details on “elfgen” methodology, see https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876).
+Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use^[For additional details on “elfgen” methodology, see [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876).]. Note: elfgen methodology only applicable for watersheds < 800 cfs mean annual flow.
+
 
 ```{r LoadRichnessTable, include=FALSE}
 elfgen_df <- statsdf_raw
@@ -584,7 +596,7 @@ elfgen_sql <- paste('SELECT
                       CASE
                         WHEN "Desc" = "rseg_model" THEN "River Segment Model Statistics:"
                         WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
-                        WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (mgd)"
+                        WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (MGD)"
                         WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
                         WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
                         ELSE Desc
