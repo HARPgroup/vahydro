@@ -555,6 +555,97 @@ for (i in 1:length(runid.list)){
 
 \newpage
 
+### Additional Model Flow Plots:
+
+```{r FDCplots,fig.width=6.25,fig.height=4.8,echo=FALSE,results='hide', warning = FALSE, message=FALSE}
+
+#runid.list
+########################################################## 
+batch_list <- list()
+for (i in 1:length(runid.list)) {
+  runid_i <- runid.list[i]
+  runid_i <- sub("runid_", "", runid_i)  
+  batch_list_i <- list(list(runid = runid_i,legend_text = paste("Flow (Qout: ",runid_i,")",sep="")))
+  batch_list <- append(batch_list, batch_list_i)
+}
+########################################################## 
+
+#i <- 3
+for (i in 1:length(batch_list)) {
+  runid_i <- batch_list[[i]]$runid
+  legend_text_i <- batch_list[[i]]$legend_text
+
+  ########################################################################################
+  # RETRIEVE RSEG AND FAC DATA, JOIN INTO ONE TABLE
+  rseg_dat <- om_get_rundata(rseg.elid, runid_i, site = omsite) 
+  rseg_df <- data.frame(rseg_dat)
+  rseg_df <- cbind("date" = rownames(rseg_df),rseg_df)
+  
+  fac_dat <- om_get_rundata(fac.elid, runid_i, site = omsite)
+  fac_df <- data.frame(fac_dat)
+  fac_df <- cbind("date" = rownames(fac_df),fac_df)
+  
+  dat_join <- sqldf(paste("SELECT *
+                          FROM rseg_df AS a
+                          LEFT OUTER JOIN fac_df AS b
+                          ON a.date = b.date")
+                    )
+  ########################################################################################
+  # FLOW DURATION CURVE PLOTS
+  fdc_plot <- hydroTSM::fdc(
+                          #cbind(dat_join$Qnatural, dat_join$Qout),
+                          cbind(dat_join$available_mgd, dat_join$Qout),
+                          yat = c(0.10,1,5,10,25,100,400),
+                          #leg.txt = c("Flow (Natural)",legend_text_i),
+                          leg.txt = c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
+                          ylab = "Q, [cfs]",
+                          ylim=c(1.0, 5000)
+                        )
+  print(fdc_plot)
+  ########################################################################################
+  # DROUGHT PERIOD PLOT 
+  xmn <- as.Date('1999-01-01')
+  xmx <- as.Date('1999-12-31')
+  ymn <- 0
+  ymx <- 1000
+  par(mar = c(5,5,2,5))
+  hydrograph_dry <- plot(as.numeric(dat_join$available_mgd)~as.Date(dat_join$date),
+                            type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
+                            ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
+                            main = "Hydrograph: Dry Period")
+  par(new = TRUE)
+  plot(as.numeric(dat_join$Qout)~as.Date(dat_join$date),type = "l",col='brown3', lwd = 2, 
+        axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
+  legend("topright",legend=c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
+         col=c("black","brown3"), 
+         lty=c(2,1), lwd=c(1,2), cex=1)
+  print(hydrograph_dry)
+  ########################################################################################
+  # WET PERIOD PLOT
+  xmn <- as.Date('2003-01-01')
+  xmx <- as.Date('2003-12-31')
+  ymn <- 0
+  ymx <- 5000
+  par(mar = c(5,5,2,5))
+  hydrograph_wet <- plot(as.numeric(dat_join$available_mgd)~as.Date(dat_join$date),
+                            type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
+                            ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
+                            main = "Hydrograph: Wet Period")
+  par(new = TRUE)
+  plot(as.numeric(dat_join$Qout)~as.Date(dat_join$date),type = "l",col='brown3', lwd = 2, 
+        axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
+  legend("topright",legend=c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
+         col=c("black","brown3"), 
+         lty=c(2,1), lwd=c(1,2), cex=1)
+  print(hydrograph_wet)
+  
+} #CLOSE FOR LOOP
+
+```
+
+
+\newpage
+
 # Appendix A - Ecological Impacts Assessment:
 
 ## Elfgen:
