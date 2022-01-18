@@ -82,7 +82,7 @@ frac_query="$frac_query
     gw_frac as propvalue
     from tmp_facility_fracs
     UNION 
-    select 'dh_feature' as entity_type, vmp.hydroid as featureid, 
+    select 'dh_feature' as entity_type, hydroid as featureid, 
     'om_class_Constant' as varkey, 
     'sw_frac' as propname,
     sw_frac as propvalue
@@ -91,7 +91,7 @@ frac_query="$frac_query
   "
 if [ $# -gt 0 ]; then
   hydroid=$1
-  frac_query="$frac_query WHERE hydroid = $hydroid"
+  frac_query="$frac_query WHERE featureid = $hydroid"
 fi 
   
 echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase2 drupal.dh03 > /tmp/facility_swgw_fractions.txt 
