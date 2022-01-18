@@ -93,7 +93,9 @@ if [ $# -gt 0 ]; then
   hydroid=$1
   frac_query="$frac_query WHERE featureid = $hydroid"
 fi 
-  
+
+echo $frac_query > fq.sql 
+ 
 echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase1 drupal.dh03 > /tmp/facility_swgw_fractions.txt 
 
 n=`< /tmp/facility_swgw_fractions.txt wc -l`
