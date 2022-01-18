@@ -74,7 +74,7 @@ done < /tmp/use_fractions.txt
 frac_query=`cat modules/dh_wsp/sql/create_use_fractions_wsp_virtual.sql`
 
 # County Virtual Well and Intakes 
-frac_query="$frac_query 
+frac_query="$frac_query ;
   select * from (
     select 'dh_feature' as entity_type, hydroid as featureid, 
     'om_class_Constant' as varkey, 
