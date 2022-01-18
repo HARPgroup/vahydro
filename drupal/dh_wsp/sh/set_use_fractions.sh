@@ -54,7 +54,7 @@ fi
 
 echo $frac_query 
 
-echo $frac_query | psql -h dbase2 drupal.dh03 > /tmp/use_fractions.txt 
+echo $frac_query | psql -h dbase1 drupal.dh03 > /tmp/use_fractions.txt 
 
 n=`< /tmp/use_fractions.txt wc -l`
 nm="$((n - 2))"
