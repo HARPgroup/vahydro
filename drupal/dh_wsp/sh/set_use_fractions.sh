@@ -101,7 +101,7 @@ n=`< /tmp/facility_swgw_fractions.txt wc -l`
 nm="$((n - 2))"
 head -n $nm /tmp/facility_swgw_fractions.txt > /tmp/fhead.txt 
 n=`< /tmp/fhead.txt wc -l`
-nm="$((n - 4))"
+nm="$((n - 2))"
 tail -n $nm /tmp/fhead.txt > /tmp/facility_swgw_fractions.txt 
 
 while IFS= read -r line; do
