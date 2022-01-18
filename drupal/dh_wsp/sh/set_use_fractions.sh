@@ -91,7 +91,7 @@ frac_query="$frac_query
   "
 if [ $# -gt 0 ]; then
   hydroid=$1
-  frac_query="$frac_query WHERE vfac.hydroid = $hydroid"
+  frac_query="$frac_query WHERE hydroid = $hydroid"
 fi 
   
 echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase2 drupal.dh03 > /tmp/facility_swgw_fractions.txt 
