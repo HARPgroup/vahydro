@@ -106,5 +106,6 @@ tail -n $nm /tmp/fhead.txt > /tmp/facility_swgw_fractions.txt
 while IFS= read -r line; do
   #echo "Text read from file: $line"
   IFS="$IFS|" read entity_type featureid varkey propname propvalue <<< "$line"
+  echo "drush scr modules/om/src/om_setprop.php cmd $entity_type $featureid $varkey $propname $propvalue"
   drush scr modules/om/src/om_setprop.php cmd $entity_type $featureid $varkey $propname $propvalue
 done < /tmp/facility_swgw_fractions.txt 
