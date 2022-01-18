@@ -87,7 +87,7 @@ frac_query="$frac_query
     'sw_frac' as propname,
     sw_frac as propvalue
     from tmp_facility_fracs
-  )
+  ) as foo 
   "
 if [ $# -gt 0 ]; then
   hydroid=$1
