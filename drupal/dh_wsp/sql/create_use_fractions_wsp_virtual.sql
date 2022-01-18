@@ -1,7 +1,7 @@
 -- Create Use Fractions for Virtual MPs on Virtual Facilities at county level
 -- for water supply plan/current withdrawal/total-permitted and/or other county level analyses.
-
-create temporary view vahydro_mp_current_active as (
+drop view vahydro_mp_current_active;
+create view vahydro_mp_current_active as (
   select hydroid, mplink.dh_link_facility_mps_target_id as fac_hydroid,
   dh_feature.bundle, fstatus, 
   -- use max just in case there are dupes 
@@ -25,7 +25,8 @@ create temporary view vahydro_mp_current_active as (
   
 
 -- County reported fractions SW/GW
-create temporary table tmp_wsp_virtual_fracs as (
+drop table tmp_wsp_virtual_fracs;
+create table tmp_wsp_virtual_fracs as (
   select fips.hydrocode, virtual_facs.hydroid, round(sum(wells.wd_current_mgy)) as gw_current_mgy, 
     round(sum(intakes.wd_current_mgy)) as sw_current_mgy, 
     round(sum(wells.wd_current_mgy) + sum(intakes.wd_current_mgy)) as total_mgy,
@@ -93,7 +94,8 @@ create temporary table tmp_wsp_virtual_fracs as (
 -- County reported fractions SW/GW
 -- we use all MPs here, not just active ones since that is what the totals are based on.
 -- also, "active" is vague.
-create temporary table tmp_facility_fracs as (
+drop table tmp_facility_fracs;
+create table tmp_facility_fracs as (
   select fac.hydroid, 
     CASE 
       WHEN sum(wells.wd_current_mgy) IS NULL THEN 0.0 

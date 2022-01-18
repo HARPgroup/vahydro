@@ -71,11 +71,10 @@ while IFS= read -r line; do
 done < /tmp/use_fractions.txt 
 
 # now, handle the facility's own gw_frac and sw_frac 
-frac_query=`cat modules/dh_wsp/sql/create_use_fractions_wsp_virtual.sql`
+cat modules/dh_wsp/sql/create_use_fractions_wsp_virtual.sql
 
 # County Virtual Well and Intakes 
-frac_query="$frac_query ;
-  select entity_type, featureid, varkey, propname, propvalue from (
+frac_query="select entity_type, featureid, varkey, propname, propvalue from (
     select 'dh_feature' as entity_type, hydroid as featureid, 
     'om_class_Constant' as varkey, 
     'gw_frac' as propname,
@@ -94,7 +93,7 @@ if [ $# -gt 0 ]; then
   frac_query="$frac_query WHERE featureid = $hydroid"
 fi 
 
-echo $frac_query > fq.sql 
+echo $frac_query 
  
 echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase1 drupal.dh03 > /tmp/facility_swgw_fractions.txt 
 
