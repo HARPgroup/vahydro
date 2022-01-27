@@ -19,6 +19,10 @@ drought_area <- sqldf('SELECT *
                       WHERE Drought_Region IN ("Big Sandy", "New River", "Upper James", "Shenandoah")
                       OR fips_name IN ("Loudoun", "Amherst", "Nelson", "Albemarle", "Charlottesville", "Lynchburg", "Bedford County", "Bedford City", "Roanoke City", "Roanoke County", "Salem", "Franklin County", "Patrick")')
 
+drought_area <- sqldf('SELECT *
+                      FROM drought_regions
+                      WHERE Drought_Region IN ("Eastern Shore", "York James", "Southeast Virginia", "Chowan", "Roanoke")')
+
 #only select contacts from the list that are in the drought_area
 drought_contacts <- sqldf('SELECT DISTINCT a.Email, a.Facility,  b.*
                           FROM all_contacts AS a
