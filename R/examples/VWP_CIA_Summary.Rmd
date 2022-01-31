@@ -17,9 +17,8 @@ params:
   rseg.hydroid: 462757 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
   fac.hydroid: 72672 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "runid_6014"
   runid.list: [ "runid_400","runid_600" ]
-  fac.metric.list: [ "base_demand_mgy", "wd_mgy", "unmet_demand_mgy","base_demand_mgd", "wd_mgd","ps_mgd","unmet30_mgd" ]
-  rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout",
-    "l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd" ]
+  fac.metric.list: [ "base_demand_mgy", "wd_mgy", "unmet_demand_mgy","base_demand_mgd","wd_mgd","ps_mgd","gw_demand_mgd","unmet30_mgd" ]
+  rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout","l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd","wd_mgd","ps_mgd" ]
   intake_stats_fid: FALSE
   intake_stats_runid: 11
   intake_stats_varname: "Qintake"
@@ -383,27 +382,21 @@ if (is.null(run_info$reports)) {
 
 
 ```{r LoadStatsTable, include=FALSE}
-# todo: pass in fac_model_info and rseg_model_info to:
-#       - eliminate redundant data retrieval, since all data that is pulled inside om_cia_table via om_vahydro_metric_grid is already inside fac_model_info and rseg_model_info data structures
-#       - eliminate having data retrieval and data formatting/analysis in the same function (best practice)
-# this could now, I think, be simplified as:
-# om_cia_table(fac_model_info, rseg_model_info)
-statsdf <- om_cia_table(
-  fac_model_info = fac_model_info,
-  rseg_model_info = rseg_model_info,
-  runid.list = runid.list, 
-  fac.metric.list = fac.metric.list,
-  rseg.metric.list = rseg.metric.list,
-  site,
-  omsite
+#-------------------------------------------------------------------------------
+rseg_table <- om_model_table(model_info = rseg_model_info,
+                             runid.list = runid.list,
+                             metric.list = rseg.metric.list,
+                             include.elfgen = TRUE,
+                             site = site,
+                             site_base = omsite
 )
+rseg_table <- cbind(rownames(rseg_table),rseg_table)
+names(rseg_table)[names(rseg_table) == 'rownames(rseg_table)'] <- 'Desc'
+rseg_table_raw <- rseg_table
 
-statsdf <- cbind(rownames(statsdf),statsdf)
-names(statsdf)[names(statsdf) == 'rownames(statsdf)'] <- 'Desc'
-statsdf_raw <- statsdf
-
-statsdf_sql <- paste('SELECT
+rseg_table_sql <- paste('SELECT
                   CASE
+                    WHEN "Desc" = "model" THEN "River Segment Model Statistics:"
                     WHEN "Desc" = "Qout" THEN "Flow Out (cfs) - (i.e mean flow)"
                     WHEN "Desc" = "Qbaseline" THEN "Flow Baseline (cfs)"
                     WHEN "Desc" = "remaining_days_p0" THEN "Minimum Days of Storage Remaining"
@@ -411,25 +404,47 @@ statsdf_sql <- paste('SELECT
                     WHEN "Desc" = "l90_Qout" THEN "90 Day Low Flow (cfs) (i.e drought flow)"
                     WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
                     WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (MGD)"
-                    WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (MGD)" 
-                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (MGD)"  
-                    WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"  
+                    WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (MGD)"
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal (MGD)"
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM rseg_table_raw
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","richness_change_abs","richness_change_pct")
+                 ',sep='')
+rseg_table <- sqldf(rseg_table_sql)
+rseg_table <- rseg_table[,-2]
+#-------------------------------------------------------------------------------
+fac_table <- om_model_table(model_info = fac_model_info,
+                            runid.list = runid.list,
+                            metric.list = fac.metric.list,
+                            site = site,
+                            site_base = omsite
+)
+fac_table <- cbind(rownames(fac_table),fac_table)
+names(fac_table)[names(fac_table) == 'rownames(fac_table)'] <- 'Desc'
+fac_table_raw <- fac_table
+
+fac_table_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "model" THEN "Facility Model Statistics:"
                     WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (MGD)"
-                    WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
-                    WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
-                    WHEN "Desc" = "rseg_model" THEN "River Segment Model Statistics:"
-                    WHEN "Desc" = "fac_model" THEN "Facility Model Statistics:"
                     WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (MGY)"
                     WHEN "Desc" = "wd_mgy" THEN "Withdrawal (MGY)"
                     WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (MGY)"
-                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (MGD)" 
+                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (MGD)"
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (MGD)"
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"
+                    WHEN "Desc" = "gw_demand_mgd" THEN "Groundwater Demand (MGD)"
                     ELSE Desc
                   END AS Description, *
-                 FROM statsdf
-                 WHERE Desc NOT IN ("Rseg_Stats","Facility_Stats","riverseg","run_date","starttime","endtime","richness_change_abs","richness_change_pct")
+                 FROM fac_table_raw
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime")
                  ',sep='')
-statsdf <- sqldf(statsdf_sql)
-statsdf <- statsdf[,-2]
+fac_table <- sqldf(fac_table_sql)
+fac_table <- fac_table[,-2]
+#-------------------------------------------------------------------------------
+statsdf <- rbind(rseg_table,fac_table)
 ```
 
 
@@ -683,7 +698,7 @@ if (!is.logical(fig_path)) {
 Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use^[Kleiner et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876) & Rapp et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877)]. Note: elfgen methodology only applicable for watersheds < 800 cfs mean annual flow.
 
 ```{r LoadRichnessTable, include=FALSE}
-elfgen_df <- statsdf_raw
+elfgen_df <- rseg_table_raw
 elfgen_sql <- paste('SELECT
                       CASE
                         WHEN "Desc" = "rseg_model" THEN "River Segment Model Statistics:"
