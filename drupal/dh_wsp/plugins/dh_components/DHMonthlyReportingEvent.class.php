@@ -154,7 +154,7 @@ class DHMonthlyEvent extends dhTimeSeriesGroupPluggable {
     $q .= " and v.varkey = '$this->varkey' ";
     $q .= " order by a.thisyear, b.thismonth";
     $this->query = $q;
-    dpm($this->query, 'query');
+    //dpm($this->query, 'query');
     return TRUE;
   }
   
