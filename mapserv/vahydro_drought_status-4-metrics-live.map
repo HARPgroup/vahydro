@@ -104,7 +104,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=noaa"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=noaa"
    NAME poli_bounds
    #GROUP poli_bounds
    TYPE POLYGON
@@ -153,7 +153,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME proj_seggroups
    #GROUP proj_seggroups
    TYPE POLYGON
@@ -258,7 +258,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME proj_seglocalities
    #GROUP proj_seglocalities
    TYPE POLYGON
@@ -364,7 +364,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_box
    GROUP sym_box
    TYPE POINT
@@ -443,7 +443,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_flow
    GROUP sym_flow
    TYPE POINT
@@ -579,7 +579,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_res
    GROUP sym_res
    DEBUG ON
@@ -714,7 +714,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=noaa"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=noaa"
    NAME sym_pdi
    GROUP sym_pdi
    TYPE POINT
@@ -814,7 +814,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_precip
    GROUP sym_precip
    TYPE POINT
@@ -963,7 +963,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME date_precip
    GROUP date_precip
    TYPE POINT
@@ -1005,7 +1005,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.2o user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_mllr
    GROUP sym_mllr
    TYPE POINT
@@ -1140,7 +1140,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME sym_gw
    GROUP sym_gw
    TYPE POINT
@@ -1275,7 +1275,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=noaa"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=noaa"
    NAME proj_flowgages
    GROUP proj_flowgages
    TYPE POINT
@@ -1311,7 +1311,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
    NAME grid_precip
    GROUP grid_precip
    TYPE POINT
