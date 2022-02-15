@@ -24,13 +24,13 @@ argst <- commandArgs(trailingOnly=T)
 message(paste("length of argst = ", length(argst)))
 gage = ""
 if (length(argst) > 0) {
-  calyear <- as.character(argst[1])
+  calyear <- as.integer(argst[1])
   if (length(argst) > 1) {
     gage <- as.character(argst[2])
     gage <- sprintf("%08s", gage)
   }
 } else {
-  calyear <- format(Sys.time(), "%Y"); # what summer year is this assessment for?
+  calyear <- as.integer(format(Sys.time(), "%Y")); # what summer year is this assessment for?
 }
 
 file_directory <- export_path;
