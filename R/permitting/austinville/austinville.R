@@ -7,6 +7,12 @@ source("/var/www/R/config.R")
 rpid = 4708935
 rhid = 68144
 relid = 277694  
+# facility
+fpid = 4825354
+fhid = 72194
+felid = 277738 
+# runoff (for checking)
+roelid = 276234
 
 datr401 <- om_get_rundata(relid, 401, site = omsite)
 datr601 <- om_get_rundata(relid, 601, site = omsite)
@@ -18,10 +24,6 @@ bccc <- as.data.frame(
   ]
 )
 
-# facility
-fpid = 4825354
-fhid = 72194
-felid = 277738 
 
 datf11 <- om_get_rundata(felid, 11, site = omsite)
 datf13 <- om_get_rundata(felid, 13, site = omsite)
@@ -34,11 +36,11 @@ rmarkdown::render(
   '/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', 
   params = list( 
     rseg.hydroid = rhid, fac.hydroid = fhid, 
-    runid.list = c("runid_11", "runid_401"), 
+    runid.list = c("runid_11", "runid_401", "runid_601"), 
     intake_stats_runid = 11
   ) 
 )
-roelid = 276234
+
 datrof401 <- om_get_rundata(roelid, 401, site = omsite)
 
 dev.off()
