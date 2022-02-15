@@ -10,6 +10,8 @@ rm -Rf $module_path/modules/dh_wsp
 ln -s /opt/model/vahydro/drupal/dh_wsp/ $module_path/modules/dh_wsp
 rm -Rf $module_path/modules/dh_drought
 ln -s /opt/model/vahydro/drupal/dh_drought/ $module_path/modules/dh_drought
+rm /var/www/html/mapserv/vahydro_drought_mllr-live.map
+ln -s /opt/model/vahydro/mapserv/vahydro_drought_mllr-live.map /var/www/html/mapserv/vahydro_drought_mllr-live.map
 
 
 # add drought and cbp6 to R directory
