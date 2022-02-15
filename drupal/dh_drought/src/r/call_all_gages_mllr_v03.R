@@ -16,8 +16,7 @@ basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 save_url <- paste(str_remove(site, 'd.dh'), "data/proj3/out", sep='');
 ds <- RomDataSource$new(site, 'restws_admin')
-ds$get_token()
-token <- om_vahydro_token()
+ds$get_token(rest_pw)
 set_mllr_status <- FALSE
 
 argst <- commandArgs(trailingOnly=T)
