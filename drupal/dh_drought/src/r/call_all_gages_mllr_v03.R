@@ -169,6 +169,8 @@ for (i in 1:nrow(gagelist)) {
 			b1 <- as.numeric(beta_table[beta_table[,1]==varkey_beta_1,2])
       print(paste("Found ", b0, b1, sep=""));
 
+      message(paste("Recharge flow =", n_f_flow))
+
       if (length(b0) & length(b1)) {
         ## Calculating P_est in the given month for the given percentile ##
 
