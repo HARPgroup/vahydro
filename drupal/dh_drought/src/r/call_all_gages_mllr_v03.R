@@ -193,11 +193,13 @@ for (i in 1:nrow(gagelist)) {
           "tsvalue" = P_est,
           "tscode" = P_est
         )
+        message(paste("Creating TS entity in R for", varids[z]))
         ts <- RomTS$new(
           ds,
           config_list,
           TRUE
         )
+        message(paste("Storing TS REST value for", varids[z]))
         ts$save(TRUE)
       } else {
         print(paste(variables[z], " = NULL for gage", gage, " varkeys ", varkey_beta_0, varkey_beta_1, sep=" "));
