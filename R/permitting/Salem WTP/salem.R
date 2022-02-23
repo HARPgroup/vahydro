@@ -5,7 +5,7 @@ source("/var/www/R/config.R")
 
 # river
 rpid = 4713208
-relid = 249169 
+relid = 249169
 
 datr401 <- om_get_rundata(relid, 401, site = omsite)
 datr601 <- om_get_rundata(relid, 601, site = omsite)
@@ -19,7 +19,7 @@ bccc <- as.data.frame(
 
 # facility
 fpid = 4827216
-felid = 306768 
+felid = 306768
 
 datf11 <- om_get_rundata(felid, 11, site = omsite)
 datf13 <- om_get_rundata(felid, 13, site = omsite)
@@ -70,20 +70,6 @@ cccc <- as.data.frame(
 hydroTSM::fdc(cccc)
 datf6013[300:370,c('Qnatural', 'reservoir_use_remain_mg', 'bc_release_cfs')]
 
-sample <- rbind(as.data.frame(datf600[5813,]),as.data.frame(datf6011[700,]))
-xcsam <- as.data.frame(
-  sample[,c(
-    "Qnatural",
-    "discharge_mgd",
-    "flowby_pof",
-    "flowby",
-    "bc_release_cfs",
-    "Qintake",
-    "available_mgd",
-    "wd_mgd",
-    "unmet_demand_mgd",
-    "reservoir_use_remain_mg")]
-)
 
 fdc(cbind(datf401$Qnatural, datf401$Qintake))
 
@@ -92,3 +78,28 @@ datf6012 <- om_get_rundata(felid, 6012, site = omsite)
 datf6013 <- om_get_rundata(felid, 6013, site = omsite)
 om_ts_diff(datf6012, datf6013, "reservoir_use_remain_mg", "reservoir_use_remain_mg")
 
+
+# calibration comparison
+# Wayside Park river segment & Glenvar Gage
+wrelid <- 251491
+datwr11 <- om_get_rundata(wrelid, 11, site = omsite)
+
+usgs_salem <- dataRetrieval::readNWISdv('02054530','00060')
+usgs_salem$month <- month(usgs_salem$Date)
+om_flow_table(usgs_salem, 'X_00060_00003')
+om_flow_table(datwr11, 'Qout')
+
+
+usgs_roan <- dataRetrieval::readNWISdv('02055000','00060')
+usgs_roan$month <- month(usgs_roan$Date)
+om_flow_table(usgs_roan, 'X_00060_00003')
+
+
+xcsam <- as.data.frame(
+  datwr11[,c(
+    "Qout",
+    "wd_cumulative_mgd",
+    "ps_cumulative_mgd",
+    "wd_mgd",
+    "ps_mgd")]
+)
