@@ -175,6 +175,7 @@ for (i in 1:nrow(gagelist)) {
         ## Calculating P_est in the given month for the given percentile ##
 
         P_est <- 1/(1+exp(-(b0 + b1*n_f_flow)));
+        message(paste("Recharge P_est =", P_est))
 
         # Creating columns for file output
         c <- c + 1 # total count of how many probabilities are being calculated
