@@ -100,12 +100,6 @@ class DHVWWRSignSubmit extends EntityGroupConfiguratorPreformatted {
       '#default_value' => (property_exists($row, 'startdate') and !empty($row->startdate)) ? dh_handletimestamp($row->startdate) : $this->startdate,
       '#type' => 'hidden',
     );
-    dpm($row, '$row');
-    dpm($row->startdate, '$row->startdate');
-    dpm(strtotime($row->startdate), 'strtotime($row->startdate)');
-    dpm(dh_handletimestamp($row->startdate), 'dh_handletimestamp($row->startdate)');
-    dpm($this->startdate, '$this->startdate');
-    dpm($rowform['startdate'], 'rowform[startdate]');
     $fstatus = array(
       'needs_review' => 'Needs Review',
       'submitted' => 'Submitted',
