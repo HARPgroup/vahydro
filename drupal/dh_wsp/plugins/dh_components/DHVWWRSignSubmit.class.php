@@ -97,12 +97,13 @@ class DHVWWRSignSubmit extends EntityGroupConfiguratorPreformatted {
     // shared by method and meterloc
     // date-time
     $rowform['startdate'] = array(
-      '#default_value' => (property_exists($row, 'startdate') and !empty($row->startdate)) ? strtotime($row->startdate) : $this->startdate,
+      '#default_value' => (property_exists($row, 'startdate') and !empty($row->startdate)) ? dh_handletimestamp($row->startdate) : $this->startdate,
       '#type' => 'hidden',
     );
     dpm($row, '$row');
     dpm($row->startdate, '$row->startdate');
     dpm(strtotime($row->startdate), 'strtotime($row->startdate)');
+    dpm(dh_handletimestamp($row->startdate), 'dh_handletimestamp($row->startdate)');
     dpm($this->startdate, '$this->startdate');
     dpm($rowform['startdate'], 'rowform[startdate]');
     $fstatus = array(
