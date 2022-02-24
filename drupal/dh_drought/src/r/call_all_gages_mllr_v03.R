@@ -169,10 +169,13 @@ for (i in 1:nrow(gagelist)) {
 			b1 <- as.numeric(beta_table[beta_table[,1]==varkey_beta_1,2])
       print(paste("Found ", b0, b1, sep=""));
 
+      message(paste("Recharge flow (n_f_flow))=", n_f_flow))
+
       if (length(b0) & length(b1)) {
         ## Calculating P_est in the given month for the given percentile ##
 
         P_est <- 1/(1+exp(-(b0 + b1*n_f_flow)));
+        message(paste("Recharge P_est =", P_est))
 
         # Creating columns for file output
         c <- c + 1 # total count of how many probabilities are being calculated
@@ -193,11 +196,13 @@ for (i in 1:nrow(gagelist)) {
           "tsvalue" = P_est,
           "tscode" = P_est
         )
+        message(paste("Creating TS entity in R for", varids[z]))
         ts <- RomTS$new(
           ds,
           config_list,
           TRUE
         )
+        message(paste("Storing TS REST value for", varids[z]))
         ts$save(TRUE)
       } else {
         print(paste(variables[z], " = NULL for gage", gage, " varkeys ", varkey_beta_0, varkey_beta_1, sep=" "));
