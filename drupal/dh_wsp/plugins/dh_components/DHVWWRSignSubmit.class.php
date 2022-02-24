@@ -100,7 +100,7 @@ class DHVWWRSignSubmit extends EntityGroupConfiguratorPreformatted {
       '#default_value' => (property_exists($row, 'startdate') and !empty($row->startdate)) ? strtotime($row->startdate) : $this->startdate,
       '#type' => 'hidden',
     );
-    dpm($row-, '$row');
+    dpm($row, '$row');
     dpm($row->startdate, '$row->startdate');
     dpm(strtotime($row->startdate), 'strtotime($row->startdate)');
     dpm($this->startdate, '$this->startdate');
