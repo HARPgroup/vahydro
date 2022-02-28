@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * Annual Water Withdrawal Reporting Sign & Submit Page.
+ * 
+ * - URL ows-vwuds-facility-info/71578/2021-01-01/sign/add
+ * Formatted According to Drupal doxygen standards: https://www.drupal.org/node/1354
+ */
+ 
 class DHVWWRSignSubmit extends EntityGroupConfiguratorPreformatted {
   // @todo:
   //  save handlers
