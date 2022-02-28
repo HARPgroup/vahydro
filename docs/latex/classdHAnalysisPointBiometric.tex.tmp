@@ -1,0 +1,24 @@
+\hypertarget{classdHAnalysisPointBiometric}{}\doxysection{d\+H\+Analysis\+Point\+Biometric Class Reference}
+\label{classdHAnalysisPointBiometric}\index{dHAnalysisPointBiometric@{dHAnalysisPointBiometric}}
+
+
+Inheritance diagram for d\+H\+Analysis\+Point\+Biometric\+:
+% FIG 0
+
+
+Collaboration diagram for d\+H\+Analysis\+Point\+Biometric\+:
+% FIG 1
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classdHAnalysisPointBiometric_a15ab9ec690612c0173bd3173ca6f53d9}\label{classdHAnalysisPointBiometric_a15ab9ec690612c0173bd3173ca6f53d9}} 
+{\bfseries option\+Defaults} (\$conf=array())
+\item 
+\mbox{\Hypertarget{classdHAnalysisPointBiometric_ae102ce1173a383b8796d8afbf9d6c7ef}\label{classdHAnalysisPointBiometric_ae102ce1173a383b8796d8afbf9d6c7ef}} 
+{\bfseries form\+Row\+Edit} (\&\$rowform, \$row)
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+drupal/dh\+\_\+wsp/plugins/dh\+\_\+variables/d\+H\+Analysis\+Point\+E\+L\+F.\+class.\+php\end{DoxyCompactItemize}

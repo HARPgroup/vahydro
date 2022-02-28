@@ -1,0 +1,74 @@
+\hypertarget{dh__wsp_8monthly__reporting_8inc}{}\doxysection{drupal/dh\+\_\+wsp/plugins/content\+\_\+types/dh\+\_\+wsp.monthly\+\_\+reporting.\+inc File Reference}
+\label{dh__wsp_8monthly__reporting_8inc}\index{drupal/dh\_wsp/plugins/content\_types/dh\_wsp.monthly\_reporting.inc@{drupal/dh\_wsp/plugins/content\_types/dh\_wsp.monthly\_reporting.inc}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{dh__wsp_8monthly__reporting_8inc_adfa5bde16740f3d4fbc6371de20a634f}{dh\+\_\+monthly\+\_\+form\+\_\+admin\+\_\+info}} (\$subtype, \$conf, \$contexts)
+\item 
+\mbox{\hyperlink{dh__wsp_8monthly__reporting_8inc_a908978282bdb6fb8df66b087fa99b78f}{dh\+\_\+monthly\+\_\+form\+\_\+edit\+\_\+form}} (\$form, \&\$form\+\_\+state)
+\item 
+\mbox{\hyperlink{dh__wsp_8monthly__reporting_8inc_a0f0dc4499f66838a0b16727e0ab34e7a}{dh\+\_\+monthly\+\_\+form\+\_\+edit\+\_\+form\+\_\+submit}} (\$form, \&\$form\+\_\+state)
+\item 
+\mbox{\Hypertarget{dh__wsp_8monthly__reporting_8inc_a9d1ae9df8b00104f13d1687261996490}\label{dh__wsp_8monthly__reporting_8inc_a9d1ae9df8b00104f13d1687261996490}} 
+{\bfseries dh\+\_\+monthly\+\_\+form} (\$form, \&\$form\+\_\+state, \$dh\+\_\+feature=null, \$op=\textquotesingle{}edit\textquotesingle{})
+\item 
+\mbox{\Hypertarget{dh__wsp_8monthly__reporting_8inc_aba2e38929eb43e440e5aecc1dc0febc5}\label{dh__wsp_8monthly__reporting_8inc_aba2e38929eb43e440e5aecc1dc0febc5}} 
+{\bfseries dh\+\_\+monthly\+\_\+form\+\_\+submit} (\&\$form, \&\$form\+\_\+state)
+\item 
+\mbox{\Hypertarget{dh__wsp_8monthly__reporting_8inc_a19bbd57ef3008b935ad2d13716b77a1d}\label{dh__wsp_8monthly__reporting_8inc_a19bbd57ef3008b935ad2d13716b77a1d}} 
+{\bfseries dh\+\_\+monthly\+\_\+form\+\_\+render} (\$subtype, \$conf, \$panels\+\_\+args, \&\$context)
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries \$plugin}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Pane for monthly gridded reporting data. 
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{dh__wsp_8monthly__reporting_8inc_adfa5bde16740f3d4fbc6371de20a634f}\label{dh__wsp_8monthly__reporting_8inc_adfa5bde16740f3d4fbc6371de20a634f}} 
+\index{dh\_wsp.monthly\_reporting.inc@{dh\_wsp.monthly\_reporting.inc}!dh\_monthly\_form\_admin\_info@{dh\_monthly\_form\_admin\_info}}
+\index{dh\_monthly\_form\_admin\_info@{dh\_monthly\_form\_admin\_info}!dh\_wsp.monthly\_reporting.inc@{dh\_wsp.monthly\_reporting.inc}}
+\doxysubsubsection{\texorpdfstring{dh\_monthly\_form\_admin\_info()}{dh\_monthly\_form\_admin\_info()}}
+{\footnotesize\ttfamily dh\+\_\+monthly\+\_\+form\+\_\+admin\+\_\+info (\begin{DoxyParamCaption}\item[{}]{\$subtype,  }\item[{}]{\$conf,  }\item[{}]{\$contexts }\end{DoxyParamCaption})}
+
+Callback for page\+\_\+manager admin UI information. \mbox{\Hypertarget{dh__wsp_8monthly__reporting_8inc_a908978282bdb6fb8df66b087fa99b78f}\label{dh__wsp_8monthly__reporting_8inc_a908978282bdb6fb8df66b087fa99b78f}} 
+\index{dh\_wsp.monthly\_reporting.inc@{dh\_wsp.monthly\_reporting.inc}!dh\_monthly\_form\_edit\_form@{dh\_monthly\_form\_edit\_form}}
+\index{dh\_monthly\_form\_edit\_form@{dh\_monthly\_form\_edit\_form}!dh\_wsp.monthly\_reporting.inc@{dh\_wsp.monthly\_reporting.inc}}
+\doxysubsubsection{\texorpdfstring{dh\_monthly\_form\_edit\_form()}{dh\_monthly\_form\_edit\_form()}}
+{\footnotesize\ttfamily dh\+\_\+monthly\+\_\+form\+\_\+edit\+\_\+form (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+
+Callback to configure options for the entity add/edit form in a pane. \mbox{\Hypertarget{dh__wsp_8monthly__reporting_8inc_a0f0dc4499f66838a0b16727e0ab34e7a}\label{dh__wsp_8monthly__reporting_8inc_a0f0dc4499f66838a0b16727e0ab34e7a}} 
+\index{dh\_wsp.monthly\_reporting.inc@{dh\_wsp.monthly\_reporting.inc}!dh\_monthly\_form\_edit\_form\_submit@{dh\_monthly\_form\_edit\_form\_submit}}
+\index{dh\_monthly\_form\_edit\_form\_submit@{dh\_monthly\_form\_edit\_form\_submit}!dh\_wsp.monthly\_reporting.inc@{dh\_wsp.monthly\_reporting.inc}}
+\doxysubsubsection{\texorpdfstring{dh\_monthly\_form\_edit\_form\_submit()}{dh\_monthly\_form\_edit\_form\_submit()}}
+{\footnotesize\ttfamily dh\+\_\+monthly\+\_\+form\+\_\+edit\+\_\+form\+\_\+submit (\begin{DoxyParamCaption}\item[{}]{\$form,  }\item[{\&}]{\$form\+\_\+state }\end{DoxyParamCaption})}
+
+Submit handler just puts non-\/empty values into \$form\+\_\+state\mbox{[}\textquotesingle{}conf\textquotesingle{}\mbox{]}. 
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{dh__wsp_8monthly__reporting_8inc_ada8a7130088351710bb02ed622d6bf65}\label{dh__wsp_8monthly__reporting_8inc_ada8a7130088351710bb02ed622d6bf65}} 
+\index{dh\_wsp.monthly\_reporting.inc@{dh\_wsp.monthly\_reporting.inc}!\$plugin@{\$plugin}}
+\index{\$plugin@{\$plugin}!dh\_wsp.monthly\_reporting.inc@{dh\_wsp.monthly\_reporting.inc}}
+\doxysubsubsection{\texorpdfstring{\$plugin}{$plugin}}
+{\footnotesize\ttfamily \$plugin}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{= array(}
+\DoxyCodeLine{  \textcolor{stringliteral}{'title'} => t(\textcolor{stringliteral}{'Monthly Reporting Gridded Form'}),}
+\DoxyCodeLine{  \textcolor{stringliteral}{'description'} => t(\textcolor{stringliteral}{'Display a set of 12 monthly reporting values form in a panel page.'}),}
+\DoxyCodeLine{  \textcolor{stringliteral}{'module'} => \textcolor{stringliteral}{'properties\_form'},}
+\DoxyCodeLine{  \textcolor{stringliteral}{'category'} => t(\textcolor{stringliteral}{'dH Meta-\/Modeling'}),}
+\DoxyCodeLine{  \textcolor{stringliteral}{'single'} => TRUE,}
+\DoxyCodeLine{  \textcolor{stringliteral}{'defaults'} => array(),}
+\DoxyCodeLine{  \textcolor{stringliteral}{'admin info'} => \textcolor{stringliteral}{'dh\_monthly\_form\_admin\_info'},}
+\DoxyCodeLine{  \textcolor{stringliteral}{'render callback'} => \textcolor{stringliteral}{'dh\_monthly\_form\_render'},}
+\DoxyCodeLine{  \textcolor{stringliteral}{'edit form'} => \textcolor{stringliteral}{'dh\_monthly\_form\_edit\_form'},}
+\DoxyCodeLine{  \textcolor{stringliteral}{'all contexts'} => TRUE, }
+\DoxyCodeLine{)}
+
+\end{DoxyCode}
