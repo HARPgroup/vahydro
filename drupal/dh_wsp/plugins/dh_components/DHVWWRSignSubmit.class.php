@@ -2,7 +2,7 @@
 /**
  * Annual Water Withdrawal Reporting Sign & Submit Page.
  * 
- * - URL ows-vwuds-facility-info/71578/2021-01-01/sign/add
+ * - Example:URL ows-vwuds-facility-info/[hydroid]/[year begin YYYY-MM-DD]/sign/add
  * Formatted According to Drupal doxygen standards: https://www.drupal.org/node/1354
  */
  
