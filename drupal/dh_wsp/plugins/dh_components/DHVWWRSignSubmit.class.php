@@ -1,5 +1,6 @@
 <?php
 /**
+ * @file
  * Annual Water Withdrawal Reporting Sign & Submit Page.
  * 
  * - Example:URL ows-vwuds-facility-info/[hydroid]/[year begin YYYY-MM-DD]/sign/add
