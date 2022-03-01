@@ -63,6 +63,7 @@ class dHDroughtStatusBase extends dHVariablePluginDefault {
   }
   
   public function formRowEdit(&$form, $entity) {
+    parent::formRowEdit($form, $entity);
     // apply custom settings here
     $opts = $this->droughtOptions();
     // note: when using '+' to combine arrays, the key-value pairs in the 1st will
@@ -157,7 +158,6 @@ class dHDroughtStatusReservoir extends dHDroughtStatusBase{
 
 class dHDroughtStatusMLLR extends dHDroughtStatusBase {
   public function formRowEdit(&$form, $entity) {
-    dpm($entity, "mllr edit form");
     parent::formRowEdit($form, $entity);
     $form['propvalue']['#title'] = t('Highest Probability of Drought Warning Flow (10%)');
   }  
