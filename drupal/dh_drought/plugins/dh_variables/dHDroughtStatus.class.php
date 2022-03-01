@@ -155,9 +155,10 @@ class dHDroughtStatusReservoir extends dHDroughtStatusBase{
   }  
 }
 
-class dHDroughtStatusMLLR extends dHDroughtStatusBase{
+class dHDroughtStatusMLLR extends dHDroughtStatusBase {
   public function formRowEdit(&$form, $entity) {
     parent::formRowEdit($form, $entity);
+    dpm($entity, "mllr edit form");
     $form['propvalue']['#title'] = t('Highest Probability of Drought Warning Flow (10%)');
   }  
   

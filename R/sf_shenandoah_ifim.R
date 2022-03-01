@@ -59,65 +59,48 @@ gage <- as.character(gageprop$propcode)
 ################################################################################################
 ################################################################################################
 # RETRIEVE RUN 11 MODEL FLOW TIMESERIES (using elid aka om_element_connection)
-model_flows_11 <- om_get_rundata(elid, 11)
+model_flows_11 <- om_get_rundata(elid, 11, site = omsite)
 model_flows_11$Qbaseline <- model_flows_11$Qout + (model_flows_11$wd_cumulative_mgd - model_flows_11$ps_cumulative_mgd ) * 1.547
-ts1 <- as.data.frame(model_flows_11[,c('thisdate', 'Qout')])
-ts1$thisdate <- as.character(as.Date(index(model_flows_11)))
-names(ts1) <- c('Date', 'Flow')
-ts1$Flow <- (as.numeric(ts1$Flow)*weighting_factor) #ADJUST MODEL FLOW USING WEIGHTING FACTOR
+ts2020 <- as.data.frame(model_flows_11[,c('thisdate', 'Qout')])
+ts2020$thisdate <- as.character(as.Date(index(model_flows_11)))
+names(ts2020) <- c('Date', 'Flow')
+ts2020$Flow <- (as.numeric(ts2020$Flow)*weighting_factor) #ADJUST MODEL FLOW USING WEIGHTING FACTOR
+
+##########################################################
+# Calculate a baseline flow from run 11 by adding WD and subtracting PS
+tsbase <- as.data.frame(model_flows_11[,c('thisdate', 'Qbaseline')])
+tsbase$thisdate <- as.character(as.Date(index(model_flows_11)))
+names(tsbase) <- c('Date', 'Flow')
 
 ################################################################################################
 # RETRIEVE RUN 13 MODEL FLOW TIMESERIES
-model_flows_13 <- om_get_rundata(elid, 13)
+model_flows_13 <- om_get_rundata(elid, 13, site = omsite)
 model_flows_13$Qbaseline <- model_flows_13$Qout + (model_flows_13$wd_cumulative_mgd - model_flows_13$ps_cumulative_mgd ) * 1.547
-ts2 <- as.data.frame(model_flows_13[,c('thisdate', 'Qout')])
-ts2$thisdate <- as.character(as.Date(index(model_flows_13)))
-names(ts2) <- c('Date', 'Flow')
-ts2 <- ts2
-ts2$Flow <- (as.numeric(ts2$Flow)*weighting_factor) #ADJUST MODEL FLOW USING WEIGHTING FACTOR
+ts2040 <- as.data.frame(model_flows_13[,c('thisdate', 'Qout')])
+ts2040$thisdate <- as.character(as.Date(index(model_flows_13)))
+names(ts2040) <- c('Date', 'Flow')
+ts2040$Flow <- (as.numeric(ts2040$Flow)*weighting_factor) #ADJUST MODEL FLOW USING WEIGHTING FACTOR
 
 ################################################################################################
 # PLOT THE HABITAT CHANGE BETWEEN THE 2 MODEL RUNS USING Qout
 
-# ALL FLOWS
-# ifim_plot <- ifim_wua_change_plot(ts1, ts2, WUA.df, 1.0,"ifim_da_sqmi" = ifim_da_sqmi,
-#                                     runid_a = "11",
-#                                     metric_a = "Qout",
-#                                     runid_b = "13",
-#                                     metric_b = "Qout")
-# ifim_plot + ylim(c(-50,50))
-# ggsave(paste(export_path,'ifim_boxplot_11Qout_13Qout_ALL_',elid,'.png',sep=""), width = 7, height = 4)
-
-
 # FLOWS BELOW THE 0.05 PERCENTILE
-ifim_plot05 <- ifim_wua_change_plot(ts1, ts2, WUA.df, 0.05,"ifim_da_sqmi" = ifim_da_sqmi,
+ifim_plot2020 <- ifim_wua_change_plot(tsbase, ts2020, WUA.df, 0.1,"ifim_da_sqmi" = ifim_da_sqmi,
+                                    runid_a = "Base",
+                                    metric_a = "Qout",
+                                    runid_b = "11",
+                                    metric_b = "Qout")
+ifim_plot2020 + ylim(c(-50,50))
+ggsave(paste(export_path,'ifim_boxplot_11Qout_13Qout_05_',elid,'.png',sep=""), width = 7, height = 4)
+
+# 2020 versus future 2040
+ifim_plot2040 <- ifim_wua_change_plot(tsbase, ts2040, WUA.df, 0.1,
+                                    "ifim_da_sqmi" = ifim_da_sqmi,
                                     runid_a = "11",
                                     metric_a = "Qout",
                                     runid_b = "13",
                                     metric_b = "Qout")
-ifim_plot05 + ylim(c(-50,50))
-ggsave(paste(export_path,'ifim_boxplot_11Qout_13Qout_05_',elid,'.png',sep=""), width = 7, height = 4)
-
-################################################################################################
-# PLOT THE HABITAT CHANGE BETWEEN Qbaseline AND Qout FOR THE SECOND MODEL RUN
-
-runid = 11
-
-ts2base <- as.data.frame(model_flows_13[,c('thisdate', 'Qbaseline')])
-ts2base$thisdate <- as.character(as.Date(index(model_flows_13)))
-names(ts2base) <- c('Date', 'Flow')
-
-ts2base$Flow <- (as.numeric(ts2base$Flow)*weighting_factor)
-ifim_plot05 <- ifim_wua_change_plot(ts2base, ts2, WUA.df, 0.05,"ifim_da_sqmi" = ifim_da_sqmi,runid_a = "13",metric_a = "Qbaseline",runid_b = "13",metric_b = "Qout")
-ifim_plot05 + ylim(c(-50,50))
-ggsave(paste(export_path,'ifim_boxplot_13QQbaseline_13Qout_05_',elid,'.png',sep=""), width = 7, height = 4)
-
-ifim_plot10 <- ifim_wua_change_plot(ts2base, ts2, WUA.df, 0.1,"ifim_da_sqmi" = ifim_da_sqmi,runid_a = "13",metric_a = "Qbaseline",runid_b = "13",metric_b = "Qout")
-ifim_plot10 + ylim(c(-50,50))
-ggsave(paste(export_path,'ifim_boxplot_13QQbaseline_13Qout_10_',elid,'.png',sep=""), width = 7, height = 4)
-
-ifim_plot20 <- ifim_wua_change_plot(ts2base, ts2, WUA.df, 0.2,"ifim_da_sqmi" = ifim_da_sqmi,runid_a = "13",metric_a = "Qbaseline",runid_b = "13",metric_b = "Qout")
-ifim_plot20 + ylim(c(-50,50))
+ifim_plot2040 + ylim(c(-50,50))
 ggsave(paste(export_path,'ifim_boxplot_13QQbaseline_13Qout_20_',elid,'.png',sep=""), width = 7, height = 4)
 
 ################################################################################################
