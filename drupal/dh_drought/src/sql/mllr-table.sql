@@ -1,6 +1,11 @@
-\set thisyear 2019
+\set thisyear 2022
 copy (
-  select gage_name as name, gage_hydrocode as hydrocode, gage_hydroid as hydroid, 'drought_status_mllr' as varkey, thisyear, mllr_prob_pct10 as tsvalue
+  select gage_name as name, 
+  gage_hydrocode as hydrocode, 
+  gage_hydroid as hydroid, 
+  'drought_status_mllr' as varkey, 
+  'drought_status_mllr' as propname, 
+  thisyear, mllr_prob_pct10 as tsvalue
   from (
     select gage_feat.hydroid as gage_hydroid, gage_feat.hydrocode as gage_hydrocode,
      gage_feat.name as gage_name, extract(year from to_timestamp(gage_mllr_pct10.tstime)) as thisyear , 
