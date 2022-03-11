@@ -388,6 +388,35 @@ if (is.null(run_info$reports)) {
 
 ```{r LoadStatsTable, include=FALSE}
 #-------------------------------------------------------------------------------
+fac_table <- om_model_table(model_info = fac_model_info,
+                            runid.list = runid.list,
+                            metric.list = fac.metric.list,
+                            site = site,
+                            site_base = omsite
+)
+fac_table <- cbind(rownames(fac_table),fac_table)
+names(fac_table)[names(fac_table) == 'rownames(fac_table)'] <- 'Desc'
+fac_table_raw <- fac_table
+
+fac_table_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "model" THEN "Facility Model Statistics:"
+                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (MGD)"
+                    WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (MGY)"
+                    WHEN "Desc" = "wd_mgy" THEN "Withdrawal (MGY)"
+                    WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (MGY)"
+                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (MGD)"
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (MGD)"
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"
+                    WHEN "Desc" = "gw_demand_mgd" THEN "Groundwater Demand (MGD)"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM fac_table_raw
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","runid")
+                 ',sep='')
+fac_table <- sqldf(fac_table_sql)
+fac_table <- fac_table[,-2]
+#-------------------------------------------------------------------------------
 rseg_table <- om_model_table(model_info = rseg_model_info,
                              runid.list = runid.list,
                              metric.list = rseg.metric.list,
@@ -415,43 +444,14 @@ rseg_table_sql <- paste('SELECT
                     ELSE Desc
                   END AS Description, *
                  FROM rseg_table_raw
-                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","richness_change_abs","richness_change_pct")
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","richness_change_abs","richness_change_pct","runid")
                  ',sep='')
 rseg_table <- sqldf(rseg_table_sql)
 rseg_table <- rseg_table[,-2]
-#-------------------------------------------------------------------------------
-fac_table <- om_model_table(model_info = fac_model_info,
-                            runid.list = runid.list,
-                            metric.list = fac.metric.list,
-                            site = site,
-                            site_base = omsite
-)
-fac_table <- cbind(rownames(fac_table),fac_table)
-names(fac_table)[names(fac_table) == 'rownames(fac_table)'] <- 'Desc'
-fac_table_raw <- fac_table
-
-fac_table_sql <- paste('SELECT
-                  CASE
-                    WHEN "Desc" = "model" THEN "Facility Model Statistics:"
-                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (MGD)"
-                    WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (MGY)"
-                    WHEN "Desc" = "wd_mgy" THEN "Withdrawal (MGY)"
-                    WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (MGY)"
-                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (MGD)"
-                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (MGD)"
-                    WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"
-                    WHEN "Desc" = "gw_demand_mgd" THEN "Groundwater Demand (MGD)"
-                    ELSE Desc
-                  END AS Description, *
-                 FROM fac_table_raw
-                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime")
-                 ',sep='')
-fac_table <- sqldf(fac_table_sql)
-fac_table <- fac_table[,-2]
+colnames(rseg_table) <- colnames(fac_table) #Col names need to match before rbind
 #-------------------------------------------------------------------------------
 statsdf <- rbind(rseg_table,fac_table)
 ```
-
 
 \newpage
 ## Detailed Cumulative Impact Analysis
