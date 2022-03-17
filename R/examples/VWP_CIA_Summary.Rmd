@@ -579,21 +579,32 @@ for (i in 1:length(runid.list)){
 
 ```{r FDCplots,fig.width=6.25,fig.height=4.8,echo=FALSE,results='hide', warning = FALSE, message=FALSE}
 
-#runid.list
+base_var <- "Qnatural" #BASE VARIABLE USED IN FDCs AND HYDROGRAPHS
+comp_var <- "Qout" #VARIABLE TO COMPARE AGAINST BASE VARIABLE, TYPICALLY Qout
+
 ########################################################## 
 batch_list <- list()
 for (i in 1:length(runid.list)) {
   runid_i <- runid.list[i]
+  #--------------------------------------------------    
+    run_info.fac <- find_name(fac_model_info,runid_i)
+    if (is.null(run_info.fac$reports)) {
+      scenario_short_name.i <- runid.i
+    } else {
+      ri <- run_info.fac$reports
+      scenario_short_name.i <- as.character(ri$scenario_short_name$value)
+    }
+  #-------------------------------------------------- 
   runid_i <- sub("runid_", "", runid_i)  
-  batch_list_i <- list(list(runid = runid_i,legend_text = paste("Flow (Qout: ",runid_i,")",sep="")))
+  batch_list_i <- list(list(runid = runid_i,title_text = scenario_short_name.i))
   batch_list <- append(batch_list, batch_list_i)
 }
 ########################################################## 
-
+legend_text = c(paste("Flow (",base_var,")",sep=""),paste("Flow (",comp_var,")",sep=""))
 #i <- 3
 for (i in 1:length(batch_list)) {
   runid_i <- batch_list[[i]]$runid
-  legend_text_i <- batch_list[[i]]$legend_text
+  title_text_i <- batch_list[[i]]$title_text
 
   ########################################################################################
   # RETRIEVE RSEG AND FAC DATA, JOIN INTO ONE TABLE
@@ -604,6 +615,7 @@ for (i in 1:length(batch_list)) {
   fac_dat <- om_get_rundata(fac.elid, runid_i, site = omsite)
   fac_df <- data.frame(fac_dat)
   fac_df <- cbind("date" = rownames(fac_df),fac_df)
+  fac_df <- fac_df[ , !(names(fac_df) %in% "Qnatural")]#remove Qnatural col from Fac dataset if present
   
   dat_join <- sqldf(paste("SELECT *
                           FROM rseg_df AS a
@@ -611,54 +623,56 @@ for (i in 1:length(batch_list)) {
                           ON a.date = b.date")
                     )
   ########################################################################################
-  # FLOW DURATION CURVE PLOTS
-  fdc_plot <- hydroTSM::fdc(
-                          #cbind(dat_join$Qnatural, dat_join$Qout),
-                          cbind(dat_join$available_mgd, dat_join$Qout),
-                          yat = c(0.10,1,5,10,25,100,400),
-                          #leg.txt = c("Flow (Natural)",legend_text_i),
-                          leg.txt = c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
-                          ylab = "Q, [cfs]",
-                          ylim=c(1.0, 5000)
-                        )
-  print(fdc_plot)
-  ########################################################################################
-  # DROUGHT PERIOD PLOT 
-  xmn <- as.Date('1999-01-01')
-  xmx <- as.Date('1999-12-31')
-  ymn <- 0
-  ymx <- 1000
-  par(mar = c(5,5,2,5))
-  hydrograph_dry <- plot(as.numeric(dat_join$available_mgd)~as.Date(dat_join$date),
-                            type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
-                            ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
-                            main = "Hydrograph: Dry Period")
-  par(new = TRUE)
-  plot(as.numeric(dat_join$Qout)~as.Date(dat_join$date),type = "l",col='brown3', lwd = 2, 
-        axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
-  legend("topright",legend=c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
-         col=c("black","brown3"), 
-         lty=c(2,1), lwd=c(1,2), cex=1)
-  print(hydrograph_dry)
-  ########################################################################################
-  # WET PERIOD PLOT
-  xmn <- as.Date('2003-01-01')
-  xmx <- as.Date('2003-12-31')
-  ymn <- 0
-  ymx <- 5000
-  par(mar = c(5,5,2,5))
-  hydrograph_wet <- plot(as.numeric(dat_join$available_mgd)~as.Date(dat_join$date),
-                            type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
-                            ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
-                            main = "Hydrograph: Wet Period")
-  par(new = TRUE)
-  plot(as.numeric(dat_join$Qout)~as.Date(dat_join$date),type = "l",col='brown3', lwd = 2, 
-        axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
-  legend("topright",legend=c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
-         col=c("black","brown3"), 
-         lty=c(2,1), lwd=c(1,2), cex=1)
-  print(hydrograph_wet)
-  
+  if (is.null(dat_join$Qnatural) == FALSE) {
+    # FLOW DURATION CURVE PLOTS
+    fdc_plot <- hydroTSM::fdc(
+                            cbind(dat_join[names(dat_join)== base_var], dat_join[names(dat_join)== comp_var]),
+                            yat = c(0.10,1,5,10,25,100,400),
+                            leg.txt = legend_text,
+                            main = "Flow Duration Curve",
+                            sub = title_text_i,
+                            ylab = "Q, [cfs]",
+                            ylim=c(1.0, 5000)
+                          )
+    print(fdc_plot)
+
+    ########################################################################################
+    # DROUGHT PERIOD PLOT 
+    xmn <- as.Date('1999-01-01')
+    xmx <- as.Date('1999-12-31')
+    ymn <- 0
+    ymx <- 1000
+    par(mar = c(5,5,2,5))
+    hydrograph_dry <- plot(as.numeric(unlist(dat_join[names(dat_join)== base_var]))~as.Date(dat_join$date),
+                              type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
+                              ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
+                              main = "Hydrograph: Dry Period",
+                              sub = title_text_i
+                           )
+    par(new = TRUE)
+    plot(as.numeric(unlist(dat_join[names(dat_join)== comp_var]))~as.Date(dat_join$date),type = "l",col='brown3', lwd = 2, 
+          axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
+    legend("topright",legend=legend_text,col=c("black","brown3"), lty=c(2,1), lwd=c(1,2), cex=1)
+    print(hydrograph_dry)
+    ########################################################################################
+    # WET PERIOD PLOT
+    xmn <- as.Date('2003-01-01')
+    xmx <- as.Date('2003-12-31')
+    ymn <- 0
+    ymx <- 5000
+    par(mar = c(5,5,2,5))
+    hydrograph_wet <- plot(as.numeric(unlist(dat_join[names(dat_join)== base_var]))~as.Date(dat_join$date),
+                              type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
+                              ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
+                              main = "Hydrograph: Wet Period",
+                              sub = title_text_i
+                            )
+    par(new = TRUE)
+    plot(as.numeric(unlist(dat_join[names(dat_join)== comp_var])),type = "l",col='brown3', lwd = 2,
+          axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
+    legend("topright",legend=legend_text,col=c("black","brown3"),lty=c(2,1), lwd=c(1,2), cex=1)
+    print(hydrograph_wet)
+  } #skip making plot if theres no Qnatural on the reseg model for a given runid
 } #CLOSE FOR LOOP
 
 ```
