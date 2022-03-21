@@ -22,6 +22,9 @@ wdata_file <- 'https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/wsp/
 wdata_original<- read.csv(file=wdata_file,header = T, sep = ",",
                  na.strings=c("","NA")) #Permiting Issuing Authority-All
 
+wdata_psql <- read.csv(
+  'https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/wsp/wsp2020/exempt_psql.txt',
+  header = T, sep="\t")
 
 #removing the duplicate entries based on mp_hydroid
 
