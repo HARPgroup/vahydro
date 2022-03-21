@@ -1,4 +1,4 @@
-\set thisyear 2019
+\set thisyear 2022
 copy (
   select gage_name as name, gage_hydrocode as hydrocode, gage_hydroid as hydroid, 'drought_status_mllr' as varkey, thisyear, mllr_prob_pct10 as tsvalue
   from (
