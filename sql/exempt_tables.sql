@@ -1,6 +1,63 @@
 
-create or replace view tmp_mp_riverseg as (  select fac.hydroid as fac_hydroid, mp.hydroid as hydroid,    fac.ftype, mp.name,    max(substr(rseg.hydrocode, 17)) as riverseg,    CASE      WHEN max(rseg.hydrocode) like 'vahydrosw_wshed_O%' THEN 'non-tidal'      WHEN max(rseg.hydrocode) like 'vahydrosw_wshed_B%' THEN 'non-tidal'      WHEN max(rseg.hydrocode) like 'vahydrosw_wshed_T%' THEN 'non-tidal'      WHEN max(rseg.hydrocode) like '%0000%' THEN 'tidal'      ELSE 'non-tidal'    END as tnt  from dh_feature as fac   left outer join field_data_dh_link_facility_mps as lnk  on (    lnk.entity_type = 'dh_feature'    and lnk.dh_link_facility_mps_target_id = fac.hydroid  )  left outer join dh_feature as mp   on (mp.hydroid = lnk.entity_id)  left outer join field_data_dh_geofield as mpg   on (    mpg.entity_type = 'dh_feature'    and mpg.entity_id = mp.hydroid  )  left outer join field_data_dh_geofield as rg  on (    rg.entity_type = 'dh_feature'    and rg.bundle = 'watershed'    and st_contains(      st_setsrid(rg.dh_geofield_geom,4326), st_setsrid(mpg.dh_geofield_geom,4326)     )  )   left outer join dh_feature as rseg   on (rseg.hydroid = rg.entity_id)  where rseg.hydroid is not null    and rseg.ftype = 'vahydro'  -- limit to a single facility for testing  --  and fac.hydroid = 71956     and mp.bundle = 'intake'    and mp.fstatus <> 'abandoned'  group by fac.hydroid, mp.hydroid, fac.ftype, mp.name);
+create or replace view tmp_mp_riverseg as (
+  select fac.hydroid as fac_hydroid, mp.hydroid as hydroid,
+  fac.ftype, mp.name,
+  max(substr(rseg.hydrocode, 17)) as riverseg,
+  CASE
+    WHEN max(rseg.hydrocode) like 'vahydrosw_wshed_O%' THEN 'non-tidal'
+    WHEN max(rseg.hydrocode) like 'vahydrosw_wshed_B%' THEN 'non-tidal'
+    WHEN max(rseg.hydrocode) like 'vahydrosw_wshed_T%' THEN 'non-tidal'
+    WHEN max(rseg.hydrocode) like '%0000%' THEN 'tidal'
+    ELSE 'non-tidal'
+  END as tnt
+  from dh_feature as fac
+  left outer join field_data_dh_link_facility_mps as lnk
+  on (
+    lnk.entity_type = 'dh_feature'
+    and lnk.dh_link_facility_mps_target_id = fac.hydroid
+  )
+  left outer join dh_feature as mp
+  on (mp.hydroid = lnk.entity_id)
+  left outer join field_data_dh_geofield as mpg
+  on (
+    mpg.entity_type = 'dh_feature'
+    and mpg.entity_id = mp.hydroid
+  )
+  left outer join field_data_dh_geofield as rg
+  on (
+    rg.entity_type = 'dh_feature'
+    and rg.bundle = 'watershed'
+    and st_contains(st_setsrid(rg.dh_geofield_geom,4326), st_setsrid(mpg.dh_geofield_geom,4326))
+  )
+  left outer join dh_feature as rseg
+  on (rseg.hydroid = rg.entity_id)
+  where rseg.hydroid is not null
+  and rseg.ftype = 'vahydro'  
+  -- limit to a single facility for testing  
+  --  and fac.hydroid = 71956
+  and mp.bundle = 'intake'
+  and mp.fstatus <> 'abandoned'
+  and mp.fstatus <> 'duplicate'
+  group by fac.hydroid, mp.hydroid, fac.ftype, mp.name
+);
 
+create temp table tmp_exemption_mp_values as (
+  select b.*, a.propvalue as exempt_value
+  from tmp_mp_riverseg as b
+  left outer join dh_properties as a 
+  on (  
+    a.featureid = b.hydroid   and a.entity_type = 'dh_feature'
+  ) 
+  left outer join dh_feature as c 
+  on (
+    c.hydroid = b.hydroid
+  )
+  where propname = 'vwp_exempt_mgd'   
+  and entity_type = 'dh_feature'   
+  and c.bundle = 'intake' 
+);
+  
+    
 create or replace temp view tmp_exemption_category as select a.propcode,
   case 
     when b.fstatus = 'abandoned' then b.fstatus 
@@ -26,7 +83,7 @@ group by propcode, pnp, b.fstatus, c.tnt
 order by pnp, propcode, b.fstatus DESC;
 
 -- total by category of exempt/permitted max value
-create temp view tmp_exempt_formatted as 
+create or replace temp view tmp_exempt_formatted as 
 select pnp, fstatus, sum(num_intakes) as num_intakes,  
   CASE     
     WHEN propcode like '401%' THEN '401 Certification'    
