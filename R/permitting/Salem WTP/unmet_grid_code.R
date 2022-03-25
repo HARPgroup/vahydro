@@ -30,9 +30,10 @@ library(dplyr)
 # runid <- as.integer(argst[3])
 #omsite <- "http://deq1.bse.vt.edu"
 
-pid <- 4827216
-elid <- 306768
-runid <- 6011
+pid <- 4827216 #Fac:Rseg model pid
+elid <- 306768 #Fac:Rseg model om_element_connection
+#runid <- 6011
+runid <- 600
 
 #facdat <- om_get_rundata(elid, runid, site = omsite)
 
@@ -407,7 +408,6 @@ yrmodat <- sqldf("SELECT month months,
                   WHERE final_unmet_demand_mgd > 0
                   GROUP BY month, year") #Counts sum of unmet_days by month and year
 
-
 #converts unmet_mgd sums to averages for cells
 yrmodat$avg_unmet <- yrmodat$sum_unmet / yrmodat$count
 
@@ -423,10 +423,23 @@ yrmodat[is.na(yrmodat)] = 0
 mosum <- sqldf("SELECT  month, sum(count_unmet_days) count_unmet_days FROM yrmodat GROUP BY month")
 mosum$year <- rep(num_eyear+1,12)
 
+
+#JK addition 3/25/22: Cell of total days unmet in simulation period
+total_unmet_days <- sum(yrmodat$count_unmet_days)
+total_unmet_days_cell <- data.frame("month" = 13,
+                                    "count_unmet_days" = as.numeric(total_unmet_days),
+                                    "year" = num_eyear+1)
+
+
 #yearly sum
 yesum <-  sqldf("SELECT year, sum(count_unmet_days) count_unmet_days FROM yrmodat GROUP BY year")
 yesum$month <- rep(13,length(yesum$year))
 
+# yesum <- rbind(yesum,data.frame(year = "Total",
+#                                 count_unmet_days = 999,
+#                                 month = 13))
+
+ 
 # create monthly averages
 moavg<- sqldf('SELECT * FROM mosum')
 moavg$year <- moavg$year + 1
@@ -470,8 +483,12 @@ if (sum(mosum$count_unmet_days) == 0) {
     scale_fill_gradient2(low = "#63D1F4", high = "#8A2BE2", mid="#63D1F4",
                          midpoint = mean(mosum$count_unmet_days), name= 'Total Unmet Days')
   
+  total <- unmet + new_scale_fill() +
+    geom_tile(data = total_unmet_days_cell, color='black',fill="grey",aes(x = month, y = year, fill = count_unmet_days)) +
+    geom_text(data = total_unmet_days_cell, size = 3.5, color='black', aes(x = month, y = year, label = count_unmet_days))
   
-  unmet_avg <- unmet + new_scale_fill()+
+  #unmet_avg <- unmet + new_scale_fill()+
+  unmet_avg <- total + new_scale_fill()+
     geom_tile(data = yeavg, color='black', aes(x = month, y = year, fill = avg)) +
     geom_tile(data = moavg, color='black', aes(x = month, y = year, fill = avg)) +
     geom_text(data = yeavg, size = 3.5, color='black', aes(x = month, y = year, label = avg)) +
@@ -501,8 +518,12 @@ if (sum(mosum$count_unmet_days) == 0) {
     scale_fill_gradient2(low = "#63D1F4", high = "#8A2BE2", mid='#CAB8FF',
                          midpoint = mean(mosum$count_unmet_days), name= 'Total Unmet Days')
   
+  total <- unmet + new_scale_fill() +
+    geom_tile(data = total_unmet_days_cell, color='black',fill="grey",aes(x = month, y = year, fill = count_unmet_days)) +
+    geom_text(data = total_unmet_days_cell, size = 3.5, color='black', aes(x = month, y = year, label = count_unmet_days))
   
-  unmet_avg <- unmet + new_scale_fill()+
+  #unmet_avg <- unmet + new_scale_fill()+
+  unmet_avg <- total + new_scale_fill()+  
     geom_tile(data = yeavg, color='black', aes(x = month, y = year, fill = avg)) +
     geom_tile(data = moavg, color='black', aes(x = month, y = year, fill = avg)) +
     geom_text(data = yeavg, size = 3.5, color='black', aes(x = month, y = year, label = avg)) +
@@ -548,8 +569,12 @@ if (sum(mosum$count_unmet_days) == 0) {
     scale_fill_gradient2(low = "#63D1F4", high = "#8A2BE2", mid="#63D1F4",
                          midpoint = mean(mosum$count_unmet_days), name= 'Total Unmet Days')
   
+  total <- unmet + new_scale_fill() +
+    geom_tile(data = total_unmet_days_cell, color='black',fill="grey",aes(x = month, y = year, fill = count_unmet_days)) +
+    geom_text(data = total_unmet_days_cell, size = 3.5, color='black', aes(x = month, y = year, label = count_unmet_days))
   
-  unmet_avg <- unmet + new_scale_fill()+
+  #unmet_avg <- unmet + new_scale_fill()+
+  unmet_avg <- total + new_scale_fill()+
     geom_tile(data = yeavg, color='black', aes(x = month, y = year, fill = avg)) +
     geom_tile(data = moavg, color='black', aes(x = month, y = year, fill = avg)) +
     geom_text(data = yeavg, size = 3.5, color='black', aes(x = month, y = year, label = avg)) +
@@ -580,8 +605,12 @@ if (sum(mosum$count_unmet_days) == 0) {
     scale_fill_gradient2(low = "#63D1F4", high = "#8A2BE2", mid='#CAB8FF',
                          midpoint = mean(mosum$count_unmet_days), name= 'Total Unmet Days')
   
+  total <- unmet + new_scale_fill() +
+    geom_tile(data = total_unmet_days_cell, color='black',fill="grey",aes(x = month, y = year, fill = count_unmet_days)) +
+    geom_text(data = total_unmet_days_cell, size = 3.5, color='black', aes(x = month, y = year, label = count_unmet_days))
   
-  unmet_avg <- unmet + new_scale_fill()+
+  #unmet_avg <- unmet + new_scale_fill()+
+  unmet_avg <- total + new_scale_fill()+ 
     geom_tile(data = yeavg, color='black', aes(x = month, y = year, fill = avg)) +
     geom_tile(data = moavg, color='black', aes(x = month, y = year, fill = avg)) +
     geom_text(data = yeavg, size = 3.5, color='black', aes(x = month, y = year, label = avg)) +
