@@ -23,6 +23,7 @@ params:
   intake_stats_runid: 11
   intake_stats_varname: "Qintake"
   preferred_runid: "runid_600"
+  fdc_vars: [ "Qnatural","Qout" ]
   impoundment_fid: FALSE
   upstream_rseg_ids: FALSE
   downstream_rseg_ids: FALSE
@@ -76,6 +77,7 @@ intake_stats_fid <- params$intake_stats_fid
 intake_stats_runid <- params$intake_stats_runid
 intake_stats_varname <- params$intake_stats_varname
 preferred_runid <- params$preferred_runid
+fdc_vars <- params$fdc_vars
 impoundment_fid <- params$impoundment_fid
 upstream_rseg_ids <- params$upstream_rseg_ids
 downstream_rseg_ids <- params$downstream_rseg_ids
@@ -390,6 +392,35 @@ if (is.null(run_info$reports)) {
 
 ```{r LoadStatsTable, include=FALSE}
 #-------------------------------------------------------------------------------
+fac_table <- om_model_table(model_info = fac_model_info,
+                            runid.list = runid.list,
+                            metric.list = fac.metric.list,
+                            site = site,
+                            site_base = omsite
+)
+fac_table <- cbind(rownames(fac_table),fac_table)
+names(fac_table)[names(fac_table) == 'rownames(fac_table)'] <- 'Desc'
+fac_table_raw <- fac_table
+
+fac_table_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "model" THEN "Facility Model Statistics:"
+                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (MGD)"
+                    WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (MGY)"
+                    WHEN "Desc" = "wd_mgy" THEN "Withdrawal (MGY)"
+                    WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (MGY)"
+                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (MGD)"
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (MGD)"
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"
+                    WHEN "Desc" = "gw_demand_mgd" THEN "Groundwater Demand (MGD)"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM fac_table_raw
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","runid")
+                 ',sep='')
+fac_table <- sqldf(fac_table_sql)
+fac_table <- fac_table[,-2]
+#-------------------------------------------------------------------------------
 rseg_table <- om_model_table(model_info = rseg_model_info,
                              runid.list = runid.list,
                              metric.list = rseg.metric.list,
@@ -417,39 +448,11 @@ rseg_table_sql <- paste('SELECT
                     ELSE Desc
                   END AS Description, *
                  FROM rseg_table_raw
-                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","richness_change_abs","richness_change_pct")
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","richness_change_abs","richness_change_pct","runid")
                  ',sep='')
 rseg_table <- sqldf(rseg_table_sql)
 rseg_table <- rseg_table[,-2]
-#-------------------------------------------------------------------------------
-fac_table <- om_model_table(model_info = fac_model_info,
-                            runid.list = runid.list,
-                            metric.list = fac.metric.list,
-                            site = site,
-                            site_base = omsite
-)
-fac_table <- cbind(rownames(fac_table),fac_table)
-names(fac_table)[names(fac_table) == 'rownames(fac_table)'] <- 'Desc'
-fac_table_raw <- fac_table
-
-fac_table_sql <- paste('SELECT
-                  CASE
-                    WHEN "Desc" = "model" THEN "Facility Model Statistics:"
-                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (MGD)"
-                    WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (MGY)"
-                    WHEN "Desc" = "wd_mgy" THEN "Withdrawal (MGY)"
-                    WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (MGY)"
-                    WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (MGD)"
-                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (MGD)"
-                    WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"
-                    WHEN "Desc" = "gw_demand_mgd" THEN "Groundwater Demand (MGD)"
-                    ELSE Desc
-                  END AS Description, *
-                 FROM fac_table_raw
-                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime")
-                 ',sep='')
-fac_table <- sqldf(fac_table_sql)
-fac_table <- fac_table[,-2]
+colnames(rseg_table) <- colnames(fac_table) #Col names need to match before rbind
 #-------------------------------------------------------------------------------
 statsdf <- rbind(rseg_table,fac_table)
 ```
@@ -581,21 +584,34 @@ for (i in 1:length(runid.list)){
 
 ```{r FDCplots,fig.width=6.25,fig.height=4.8,echo=FALSE,results='hide', warning = FALSE, message=FALSE}
 
-#runid.list
+base_var <- fdc_vars[1] #BASE VARIABLE USED IN FDCs AND HYDROGRAPHS
+comp_var <- fdc_vars[2] #VARIABLE TO COMPARE AGAINST BASE VARIABLE, TYPICALLY Qout
+# base_var <- "Qnatural"
+# comp_var <- "Qout"
 ########################################################## 
 batch_list <- list()
 for (i in 1:length(runid.list)) {
   runid_i <- runid.list[i]
+  #--------------------------------------------------    
+    run_info.fac <- find_name(fac_model_info,runid_i)
+    if (is.null(run_info.fac$reports)) {
+      scenario_short_name.i <- runid.i
+    } else {
+      ri <- run_info.fac$reports
+      scenario_short_name.i <- as.character(ri$scenario_short_name$value)
+    }
+  #-------------------------------------------------- 
   runid_i <- sub("runid_", "", runid_i)  
-  batch_list_i <- list(list(runid = runid_i,legend_text = paste("Flow (Qout: ",runid_i,")",sep="")))
+  batch_list_i <- list(list(runid = runid_i,title_text = scenario_short_name.i))
   batch_list <- append(batch_list, batch_list_i)
 }
 ########################################################## 
-
+legend_text = c(paste("Flow (",base_var,")",sep=""),paste("Flow (",comp_var,")",sep=""))
 #i <- 3
+
 for (i in 1:length(batch_list)) {
   runid_i <- batch_list[[i]]$runid
-  legend_text_i <- batch_list[[i]]$legend_text
+  title_text_i <- batch_list[[i]]$title_text
 
   ########################################################################################
   # RETRIEVE RSEG AND FAC DATA, JOIN INTO ONE TABLE
@@ -606,6 +622,7 @@ for (i in 1:length(batch_list)) {
   fac_dat <- om_get_rundata(fac.elid, runid_i, site = omsite)
   fac_df <- data.frame(fac_dat)
   fac_df <- cbind("date" = rownames(fac_df),fac_df)
+  fac_df <- fac_df[ , !(names(fac_df) %in% "Qnatural")]#remove Qnatural col from Fac dataset if present
   
   dat_join <- sqldf(paste("SELECT *
                           FROM rseg_df AS a
@@ -613,54 +630,55 @@ for (i in 1:length(batch_list)) {
                           ON a.date = b.date")
                     )
   ########################################################################################
-  # FLOW DURATION CURVE PLOTS
-  fdc_plot <- hydroTSM::fdc(
-                          #cbind(dat_join$Qnatural, dat_join$Qout),
-                          cbind(dat_join$available_mgd, dat_join$Qout),
-                          yat = c(0.10,1,5,10,25,100,400),
-                          #leg.txt = c("Flow (Natural)",legend_text_i),
-                          leg.txt = c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
-                          ylab = "Q, [cfs]",
-                          ylim=c(1.0, 5000)
-                        )
-  print(fdc_plot)
-  ########################################################################################
-  # DROUGHT PERIOD PLOT 
-  xmn <- as.Date('1999-01-01')
-  xmx <- as.Date('1999-12-31')
-  ymn <- 0
-  ymx <- 1000
-  par(mar = c(5,5,2,5))
-  hydrograph_dry <- plot(as.numeric(dat_join$available_mgd)~as.Date(dat_join$date),
-                            type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
-                            ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
-                            main = "Hydrograph: Dry Period")
-  par(new = TRUE)
-  plot(as.numeric(dat_join$Qout)~as.Date(dat_join$date),type = "l",col='brown3', lwd = 2, 
-        axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
-  legend("topright",legend=c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
-         col=c("black","brown3"), 
-         lty=c(2,1), lwd=c(1,2), cex=1)
-  print(hydrograph_dry)
-  ########################################################################################
-  # WET PERIOD PLOT
-  xmn <- as.Date('2003-01-01')
-  xmx <- as.Date('2003-12-31')
-  ymn <- 0
-  ymx <- 5000
-  par(mar = c(5,5,2,5))
-  hydrograph_wet <- plot(as.numeric(dat_join$available_mgd)~as.Date(dat_join$date),
-                            type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
-                            ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
-                            main = "Hydrograph: Wet Period")
-  par(new = TRUE)
-  plot(as.numeric(dat_join$Qout)~as.Date(dat_join$date),type = "l",col='brown3', lwd = 2, 
-        axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
-  legend("topright",legend=c(paste("Flow (available_mgd: ",runid_i,")",sep=""),legend_text_i),
-         col=c("black","brown3"), 
-         lty=c(2,1), lwd=c(1,2), cex=1)
-  print(hydrograph_wet)
-  
+  if (is.null(dat_join$Qnatural) == FALSE) {
+    # FLOW DURATION CURVE PLOTS
+    fdc_plot <- hydroTSM::fdc(
+                            cbind(dat_join[names(dat_join)== base_var], dat_join[names(dat_join)== comp_var]),
+                            yat = c(0.10,1,5,10,25,100,400),
+                            leg.txt = legend_text,
+                            main = "Flow Duration Curve",
+                            sub = title_text_i,
+                            ylab = "Q, [cfs]",
+                            ylim=c(1.0, 5000)
+                          )
+    print(fdc_plot)
+    ########################################################################################
+    # DROUGHT PERIOD PLOT 
+    xmn <- as.Date('1999-01-01')
+    xmx <- as.Date('1999-12-31')
+    ymn <- 0
+    ymx <- 1000
+    par(mar = c(5,5,2,5))
+    hydrograph_dry <- plot(as.numeric(unlist(dat_join[names(dat_join)== base_var]))~as.Date(dat_join$date),
+                              type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
+                              ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
+                              main = "Hydrograph: Dry Period",
+                              sub = title_text_i
+                           )
+    par(new = TRUE)
+    plot(as.numeric(unlist(dat_join[names(dat_join)== comp_var]))~as.Date(dat_join$date),type = "l",col='brown3', lwd = 2, 
+          axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
+    legend("topright",legend=legend_text,col=c("black","brown3"), lty=c(2,1), lwd=c(1,2), cex=1)
+    print(hydrograph_dry)
+    ########################################################################################
+    # WET PERIOD PLOT
+    xmn <- as.Date('2003-01-01')
+    xmx <- as.Date('2003-12-31')
+    ymn <- 0
+    ymx <- 5000
+    par(mar = c(5,5,2,5))
+    hydrograph_wet <- plot(as.numeric(unlist(dat_join[names(dat_join)== base_var]))~as.Date(dat_join$date),
+                              type = "l", lty=2, lwd = 1,ylim=c(ymn,ymx),xlim=c(xmn,xmx),
+                              ylab="Flow (cfs)",xlab=paste("\nDate\n",xmn,"to",xmx),
+                              main = "Hydrograph: Wet Period",
+                              sub = title_text_i
+                            )
+    par(new = TRUE)
+    plot(as.numeric(unlist(dat_join[names(dat_join)== comp_var])),type = "l",col='brown3', lwd = 2,
+          axes=FALSE,ylim=c(ymn,ymx),xlim=c(xmn,xmx),ylab="",xlab="")
+    legend("topright",legend=legend_text,col=c("black","brown3"),lty=c(2,1), lwd=c(1,2), cex=1)
+    print(hydrograph_wet)
+  } #skip making plot if theres no Qnatural on the reseg model for a given runid
 } #CLOSE FOR LOOP
 
 ```
