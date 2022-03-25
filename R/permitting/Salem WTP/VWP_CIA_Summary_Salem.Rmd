@@ -553,6 +553,13 @@ for (i in 1:length(runid.list)){
     cat("\n\n#### Heatmap: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
   }
+  fig_prop <- invisible(find_name(fac_run, "fig.unmet_heatmap_amt_gw"))
+  if (!(is.null(fig_prop))) {
+    fig_path <- fig_prop$code
+    # we have an image, show it 
+    cat("\n\n#### Heatmap: ",short_names[[runid.i]],"\n(Utilizing gw to offset unmet demand)\n")
+    cat(paste0("![](",fig_path,")"),"\n")
+  }
   fig_prop <- invisible(find_name(fac_run, "fig.30daymax_unmet"))
   if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$code
