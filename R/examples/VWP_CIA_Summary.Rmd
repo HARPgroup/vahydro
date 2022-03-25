@@ -23,6 +23,7 @@ params:
   intake_stats_runid: 11
   intake_stats_varname: "Qintake"
   preferred_runid: "runid_600"
+  fdc_vars: [ "Qnatural","Qout" ]
   impoundment_fid: FALSE
   upstream_rseg_ids: FALSE
   downstream_rseg_ids: FALSE
@@ -76,6 +77,7 @@ intake_stats_fid <- params$intake_stats_fid
 intake_stats_runid <- params$intake_stats_runid
 intake_stats_varname <- params$intake_stats_varname
 preferred_runid <- params$preferred_runid
+fdc_vars <- params$fdc_vars
 impoundment_fid <- params$impoundment_fid
 upstream_rseg_ids <- params$upstream_rseg_ids
 downstream_rseg_ids <- params$downstream_rseg_ids
@@ -579,9 +581,10 @@ for (i in 1:length(runid.list)){
 
 ```{r FDCplots,fig.width=6.25,fig.height=4.8,echo=FALSE,results='hide', warning = FALSE, message=FALSE}
 
-base_var <- "Qnatural" #BASE VARIABLE USED IN FDCs AND HYDROGRAPHS
-comp_var <- "Qout" #VARIABLE TO COMPARE AGAINST BASE VARIABLE, TYPICALLY Qout
-
+base_var <- fdc_vars[1] #BASE VARIABLE USED IN FDCs AND HYDROGRAPHS
+comp_var <- fdc_vars[2] #VARIABLE TO COMPARE AGAINST BASE VARIABLE, TYPICALLY Qout
+# base_var <- "Qnatural"
+# comp_var <- "Qout"
 ########################################################## 
 batch_list <- list()
 for (i in 1:length(runid.list)) {
@@ -602,6 +605,7 @@ for (i in 1:length(runid.list)) {
 ########################################################## 
 legend_text = c(paste("Flow (",base_var,")",sep=""),paste("Flow (",comp_var,")",sep=""))
 #i <- 3
+
 for (i in 1:length(batch_list)) {
   runid_i <- batch_list[[i]]$runid
   title_text_i <- batch_list[[i]]$title_text
@@ -635,7 +639,6 @@ for (i in 1:length(batch_list)) {
                             ylim=c(1.0, 5000)
                           )
     print(fdc_plot)
-
     ########################################################################################
     # DROUGHT PERIOD PLOT 
     xmn <- as.Date('1999-01-01')
