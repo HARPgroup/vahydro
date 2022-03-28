@@ -701,7 +701,9 @@ fig_path = FALSE
 elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
 if (!is.logical(elfgen_EDAS_huc8)) {
   fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
-  fig_path <- fig.elfgen$propcode
+  if (!is.logical(fig.elfgen)) {
+    fig_path <- fig.elfgen$propcode
+  }
 }
 ``` 
 
