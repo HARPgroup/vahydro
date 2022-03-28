@@ -32,6 +32,21 @@ wdata = wdata_original[order(wdata_original[,'mp_hydroid'],-wdata_original[,'mp_
 wdata = wdata_original[!duplicated(wdata_original$mp_hydroid),]
 duplicate<-wdata_original[duplicated(wdata_original$mp_hydroid),]
 
+wdata<-dplyr::filter(wdata, Facility_Status != "duplicate")
+
+wdata_comp <- sqldf::sqldf("
+  select a.hydroid, b.mp_hydroid,
+    a.exempt_value,
+    b.final_exempt_propvalue_mgd
+  from wdata_psql as a
+  left outer join wdata as b
+  on (
+     a.hydroid = b.mp_hydroid
+  )
+  where b.mp_hydroid is null
+  or a.exempt_value <> b.final_exempt_propvalue_mgd
+  "
+)
 
 # #seperate power and non power
 # target <- c("fossilpower", "nuclearpower")
