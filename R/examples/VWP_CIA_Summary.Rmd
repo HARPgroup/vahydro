@@ -758,8 +758,18 @@ ft <- qflextable(elfgen_df)
 
 
 ```{r LoadRsegWithdrawalsTable, include=FALSE}
-    runid <- last(runid.list)
-    col_header <- paste(runid,": ",users_metric,sep="")
+    #runid <- last(runid.list) #Old option for using the last runid in the runid.list
+    runid <- preferred_runid #New method for using the preferred_runid
+    #-------------------------------------------------------------------
+    run_info.fac <- find_name(fac_model_info,runid)
+    if (is.null(run_info.fac$reports)) {
+      scenario_short_name <- runid
+    } else {
+      scenario_short_name <- as.character(run_info.fac$reports$scenario_short_name$value)
+    }
+    #-----------------------------------------------------------------
+    #col_header <- paste(runid,": ",users_metric,sep="")
+    col_header <- paste(scenario_short_name,": ",users_metric,sep="")
 #if (length(upstream_rseg_ids) > 0 & length(downstream_rseg_ids) > 0) {
 if (isFALSE(upstream_rseg_ids) == FALSE & length(upstream_rseg_ids) > 0 & isFALSE(downstream_rseg_ids) == FALSE & length(downstream_rseg_ids) > 0) {  
     users_up_df <- read.csv(paste(site,"/contains-mps-model-summary-export/",rseg.hydroid,",",gsub(" ","",toString(upstream_rseg_ids)),sep=""))
