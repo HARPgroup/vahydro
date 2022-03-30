@@ -2,7 +2,7 @@ library('hydrotools')
 library('zoo')
 basepath='/var/www/R';
 source("/var/www/R/config.R")
-# rmarkdown::render('C:/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', params = list( rseg.hydroid = 68113, fac.hydroid = 73024, runid.list = c("runid_400","runid_600"), intake_stats_runid = 11,additional_rseg_ids=c(68113) ))
+# rmarkdown::render('C:/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', params = list( rseg.hydroid = 68113, fac.hydroid = 73024, runid.list = c("runid_400","runid_600"), intake_stats_runid = 11,upstream_rseg_ids=c(68113) ))
 # river
 rpid = 4708283
 rhid = 68113
