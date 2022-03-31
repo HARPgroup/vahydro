@@ -1,7 +1,7 @@
 ---
 date: "`r format(Sys.time(), '%m/%d/%Y')`"
 author: ""
-title: "VWP CIA Summary - [INSERT PROJECT NAME HERE]"
+title: "`r params$doc_title`"
 output: 
   officedown::rdocx_document:
     mapstyles:
@@ -14,6 +14,7 @@ output:
       header: 0.0
       footer: 0.0
 params: 
+  doc_title: "VWP CIA Summary - [INSERT PROJECT NAME HERE]"
   rseg.hydroid: 68327 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
   fac.hydroid: 73112 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "runid_6014"
   runid.list: [ "runid_400","runid_600" ]
