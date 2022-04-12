@@ -319,7 +319,7 @@ ft <- bg(ft, bg = "#EFEFEF", part = "header")
 cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show the minimum (Min) and average (Mean) modeled flow, and a range of non-exceedance flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the", paste0("\"",ex_col, "\""), "states that only", ex_col, "of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.", non_ex_text) )
 ft
 if (!is.null(demand_url)) {
-    cat("\n\n## Facility Base Demand Before Conservation: ", short_names[[runid.i]],"\n\n")
+    cat("\n\n## Current Facility Base Demand Before Conservation: ", drun_info$reports$scenario_name$value,"\n\n")
     cat(paste0("![](",demand_url,")"),"\n")
     cat("\n\n\\pagebreak\n")
 } else {
@@ -376,6 +376,16 @@ if (is.null(run_info$reports)) {
       ),
       "-",run_info$reports$conclusions$value,"\n")
     )
+}
+
+demand_url <- run_info$fig.monthly_demand$code
+if (!is.null(demand_url)) {
+    cat("\n\n## Facility Base Demand Before Conservation: ", run_info$reports$scenario_name$value,"\n\n")
+    cat(paste0("![](",demand_url,")"),"\n")
+    cat("\n\n\\pagebreak\n")
+} else {
+  #cat("NULL demand_url\n")
+  cat(" ")
 }
 
 ```
@@ -453,10 +463,21 @@ statsdf <- rbind(rseg_table,fac_table)
 The following "Summary of Results" table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project. The section entitled “River Segment Model Statistics” contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated Consumptive Use Fraction (See description below) as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed. Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Total Number of Days with Storage < 50% describes the number of days in the simulation in which reservoir levels fall below 50% of full storage. The section entitled “Facility Model Statistics” shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect. There will be one or more columns in this table representing each scenario considered for this analysis.
 
 ### Glossary of Cumulative Impact Modeling Terms
+- 30 Day Low Flow (l30):  Describes the lowest consecutive 30 day average daily streamflow over the simulation period. This metric is a representation of a short-term, or acute drought.
+- 90 Day Low Flow (l90): Represents the lowest consecutive 90 day average daily streamflow over the simulation period. This would represent a prolonged drought.
+- Base Demand / Requested Demand: The demand simulated for a facility/intake prior to any reductions due to conservation, depleted storage, or adherence to Minimum Instream Flow operational rules (MIF).  In this document, *Base Demand* is expressed as *MGY*, and Requested Demand is given in *MGD*.
+- CFS: Cubic Feet Per Second, a common unit of measuring stream flow.
 - Consumptive Use Fraction (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline.
-- 30 Day Low Flow: *DESCRIPTION NEEDED
-- 90 Day Low Flow: *DESCRIPTION NEEDED
-- *Additional DESCRIPTIONS NEEDED for other table metrics that aren't clearly understood
+- Cumulative Withdrawal: The amount of water withdrawn by all intakes in a given river segment sub-watershed, and all upstream sub-watersheds. See also: *Cumulative Withdrawal*.
+- Days of Storage Remaining: For reservoir models, the quotient of the volume of water in a reservoir divided by the daily rate of withdrawal, calculated at each time step of the entire simulation period.
+- Maximum 30 day potential unmet demand (MGD): The largest difference between *Requested Demand* and *Withdrawal Met* that results during a continuous 30-day simulation period.
+- MGD: Millions of Gallons per Day, a common unit of measuring withdrawal and discharge.
+- MGY: Millions of Gallons per Year, a common unit for expressing annual facility demand.
+- Minimum Days of Storage Remaining: The minimum simulated *Days of Storage Remaining* in a reservoir.
+- Point Source: Water returned to the stream as treated wastewater.
+- Withdrawal: The amount of water withdrawn by a single facility, or the total amount of water withdrawn within a single simulated river segment sub-watershed. See also: *Cumulative Withdrawal*.
+- Withdrawal Met: The amoiunt of requested demand that was met, on average, throughout the entire simulation period.
+- Unmet Demand: The difference between *Base Demand* and *Withdrawal Met*, on average, throughout the entire simulation period.
 
 <!---BLOCK_LANDSCAPE_START--->
 ### Summary of Results:
