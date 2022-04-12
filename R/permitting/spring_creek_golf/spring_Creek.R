@@ -6,7 +6,8 @@ source("/var/www/R/config.R")
 # river
 rpid = 4708283
 rhid = 68113
-relid = 279187
+relid = 207775 # north anna element
+lrelid = 352171 # camp creek local element
 # facility
 fpid = 4827020
 fhid = 73024
@@ -18,6 +19,8 @@ datr11 <- om_get_rundata(relid, 11, site = omsite)
 quantile(datr11$Runit)
 datr401 <- om_get_rundata(relid, 401, site = omsite)
 datr601 <- om_get_rundata(relid, 601, site = omsite)
+datr801 <- om_get_rundata(relid, 801, site = omsite)
+datlr801 <- om_get_rundata(lrelid, 801, site = omsite)
 bccc <- as.data.frame(
   datbc602[,
     c("impoundment_use_remain_mg",
@@ -29,8 +32,9 @@ bccc <- as.data.frame(
 
 datf11 <- om_get_rundata(felid, 11, site = omsite)
 datf13 <- om_get_rundata(felid, 13, site = omsite)
-datf401 <- om_get_rundata(felid, 801, site = omsite)
+datf401 <- om_get_rundata(felid, 401, site = omsite)
 datf601 <- om_get_rundata(felid, 601, site = omsite)
+datf801 <- om_get_rundata(felid, 801, site = omsite)
 quantile(datf601$Qreach,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
 quantile(datf601$Qintake,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
 
