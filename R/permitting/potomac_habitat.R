@@ -24,16 +24,18 @@ pctile <- 0.1
 
 ################################################################################################
 # RETRIEVE RSEG MODEL
-wshed_model <- om_get_model(base_url, wshed_featureid, 'dh_feature', 'vahydro-1.0', 'any')
-elid <- om_get_model_elementid(base_url, wshed_model$pid) 
+ds <- RomDataSource$new(site, 'restws_admin')
+ds$get_token(rest_pw)
+wshed_model <- RomProperty$new(ds,list(featureid = wshed_featureid, entity_type = 'dh_feature', propcode = 'vahydro-1.0'), TRUE)
+elid <- om_get_model_elementid(base_url, wshed_model$pid)
 
 ################################################################################################
-# RETRIEVE IFIM SITE FEATURE 
+# RETRIEVE IFIM SITE FEATURE
 ifim_site <- getFeature(list(hydroid = ifim_featureid), token, site, feature)
 ifim_site_name <- as.character(ifim_site$name)
 
 ################################################################################################
-# RETRIEVE WUA TABLE 
+# RETRIEVE WUA TABLE
 ifim_dataframe <- vahydro_prop_matrix(ifim_featureid, 'dh_feature','ifim_habitat_table')
 WUA.df <- t(ifim_dataframe)
 targets <- colnames(WUA.df)[-1]
@@ -59,21 +61,21 @@ if (weighting_factor == 0) {
 model_flows_6 <- om_get_rundata(elid, pprunid, omsite)
 model_flows_6$Qbaseline <- model_flows_6$Qout + (model_flows_6$wd_cumulative_mgd - model_flows_6$ps_cumulative_mgd ) * 1.547
 ts3 <- as.data.frame(model_flows_6[,c('thisdate', 'Qout')])
-ts3$thisdate <- as.character(as.Date(index(model_flows_6))) 
+ts3$thisdate <- as.character(as.Date(index(model_flows_6)))
 names(ts3) <- c('Date', 'Flow')
 ts3 <- ts3
 ts3$Flow <- (as.numeric(ts3$Flow)*weighting_factor) #ADJUST MODEL FLOW USING WEIGHTING FACTOR
 
 ts3base <- as.data.frame(model_flows_6[,c('thisdate', 'Qbaseline')])
-ts3base$thisdate <- as.character(as.Date(index(model_flows_6))) 
+ts3base$thisdate <- as.character(as.Date(index(model_flows_6)))
 names(ts3base) <- c('Date', 'Flow')
-ts3base$Flow <- (as.numeric(ts3base$Flow)*weighting_factor) 
+ts3base$Flow <- (as.numeric(ts3base$Flow)*weighting_factor)
 
 
 # Plot the changes for the 20% since it is not a short run
 ifim_plot6_20 <- ifim_wua_change_plot(ts3base, ts3, WUA.df, pctile,"ifim_da_sqmi" = ifim_da_sqmi,runid_a = "6",metric_a = "Qbaseline",runid_b = "6",metric_b = "Qout")
 ifim_plot6_20 +
-  labs(title = "Habitat Change, Full Permitted + Proposed") + 
+  labs(title = "Habitat Change, Full Permitted + Proposed") +
   ylim(c(-50,50))
 # TBD: this could be part of the analysis script since it could produce a nicely formatted summary
 #      that would be returned in the single ggplot object without penalty
@@ -86,7 +88,7 @@ ifim_plot6_20$data.formatted
 names(ifim_plot6_20$data.formatted)
 # Note: must manually edit this to add the "Species" column label.
 write.table(
-  ifim_plot6_20$data.formatted, 
+  ifim_plot6_20$data.formatted,
   file = paste(export_path,'ifim_table_6Qbaseline_6Qout_20_',elid,'.csv',sep=""),
   sep = ","
 )
@@ -99,7 +101,7 @@ ggsave(paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_20_',elid,'.png',sep="")
 # Plot the changes for the 20% since it is not a short run
 ifim_plot6_20 <- ifim_wua_change_plot(ts3base, ts3, WUA.df, 0.05,"ifim_da_sqmi" = ifim_da_sqmi,runid_a = "6",metric_a = "Qbaseline",runid_b = "6",metric_b = "Qout")
 ifim_plot6_20 +
-  labs(title = "Habitat Change, Full Permitted + Proposed") + 
+  labs(title = "Habitat Change, Full Permitted + Proposed") +
   ylim(c(-50,50))
 # TBD: this could be part of the analysis script since it could produce a nicely formatted summary
 #      that would be returned in the single ggplot object without penalty
@@ -112,7 +114,7 @@ tbls5pct <- as.data.frame(ifim_plot6_20$data.formatted)
 names(ifim_plot6_20$data.formatted)
 # Note: must manually edit this to add the "Species" column label.
 write.table(
-  ifim_plot6_20$data.formatted, 
+  ifim_plot6_20$data.formatted,
   file = paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_05_',elid,'.csv',sep=""),
   sep = ","
 )

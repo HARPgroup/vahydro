@@ -1,4 +1,6 @@
-# install.packages('https://github.com/HARPgroup/openmi-om/raw/master/R/openmi.om_0.0.0.9105.tar.gz', repos = NULL, type="source")
+# This is a test to see what can be migrated via an R script
+# it is fine, though the real migration is in:
+# https://github.com/HARPgroup/om/blob/master/drupal/om/src/om.convert.vwp-model.php
 
 library("rjson")
 library("hydrotools")
