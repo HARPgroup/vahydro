@@ -156,6 +156,9 @@ fac_default_info = list(
   ),
   intake_name = list(
     "value"  = "un-named intake"
+  ),
+  project_intro = list(
+    "value" = "General information about facility & intake (non-model specific)"
   )
 )
 rseg_default_info = list(
@@ -218,18 +221,9 @@ The goal of the following analysis is to estimate the potential impacts of the p
 \newpage
 # Project Introduction
 
-This project consists of an existing water intake constructed in the 1960's with an upgrade in the early 1980's. The Town owns and operates the Big Cherry Dam located approximately 3 miles upstream from the intake structure. The Town's water treatment plant operators control the amount of water discharging the dam into the Powell River and all of the stream by-pass flow to meet the previous permit requirements of 4.0 MOD of maximum withdrawal and 0.50 MGD of by-pass flow. This is always true unless the dam is overflowing exceeding the amount of water required from various rainfall events. Therefore, the existing/proposed maximum withdrawal amounts will not have an impact on the stream in terms of rates, volumes, frequency, etc. This is a daily activity as it serves the existing water treatment plant.
-
-Permit: Big Cherry Dam, 01-0688  
-Permit Dates: 2003-08-23 to 2018-08-22  
-
-* **Annual Withdrawal Limit** = 1168 MG/yr (3.2 MGD)
-    + (historically they withdraw ~2 MGD on average)
-* **Daily Withdrawal Limit** = 4 MGD 
-* **Flow-by** = 0.5 MGD 
-<br>
-<br>
-<br>
+```{r ProjectIntro, echo=FALSE, results = "asis"}
+cat(paste(fac_report_info$project_intro$value,"\n\n"))
+```
 
 ## Location Map
 
