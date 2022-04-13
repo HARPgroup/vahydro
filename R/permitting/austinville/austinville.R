@@ -6,11 +6,11 @@ source("/var/www/R/config.R")
 # river
 rpid = 4708935
 rhid = 68144
-relid = 277694  
+relid = 277694
 # facility
 fpid = 4825354
 fhid = 72194
-felid = 277738 
+felid = 277738
 # runoff (for checking)
 roelid = 276234
 
@@ -33,15 +33,15 @@ quantile(datf601$Qreach,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
 quantile(datf601$Qintake,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
 
 rmarkdown::render(
-  '/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', 
-  params = list( 
-    rseg.hydroid = rhid, fac.hydroid = fhid, 
-    runid.list = c("runid_11", "runid_401", "runid_601"), 
+  '/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd',
+  params = list(
+    rseg.hydroid = rhid, fac.hydroid = fhid,
+    runid.list = c("runid_11", "runid_401", "runid_601"),
     intake_stats_runid = 11
-  ) 
+  )
 )
 
-datrof401 <- om_get_rundata(roelid, 401, site = omsite)
+datrof201 <- om_get_rundata(roelid, 201, site = omsite)
 
 dev.off()
 hydroTSM::fdc(
