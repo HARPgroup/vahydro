@@ -203,7 +203,7 @@ class dHDataQAed extends dHVariablePluginDefault {
   }
   
   public function force_year(&$entity) {
-    $year = date('Y', $entity->tstime);
+    $year = $entity->tstime;
     dpm($year, 'year');
     $entity->tstime = dh_handletimestamp("$year-01-01");
     $entity->tsendtime = dh_handletimestamp("$year-12-31");
@@ -212,34 +212,19 @@ class dHDataQAed extends dHVariablePluginDefault {
   public function formRowEdit(&$form, $entity) {
     parent::formRowEdit($form, $entity);
     // apply custom settings here
-    dpm($entity,'ts');
     $params = drupal_get_query_parameters();
-    dpm($params,'params');
     if ($entity->is_new === TRUE) {
       if (isset($params['tstime'])) {
         $year = $params['tstime'];
         $entity->tstime = dh_handletimestamp("$year-01-01");
       }
     }
-    dpm($entity,'ts');
     $form['tstime']['#title'] = t('Year of Withdrawal.');
     $form['tstime']['#type'] = 'date_select';
     $form['tstime']['#date_format'] = 'Y';
     $form['tstime']['#default_value'] = date('Y',$entity->tstime);
     $form['tstime']['#weight'] = 1;
     $form['tstime']['#description'] = t('The water withdrawal for which QA should be performed.');
-    /*
-    $form['tstime'] = array(
-      '#title' => 'Custom Year',
-      '#type' => 'date_select',
-      '#date_year_range' => '-10:+5',
-      '#date_format' => $date_format,
-      '#default_value' => empty($entity->startdate)
-        ? '' 
-        : date($date_format,$entity->startdate),
-      //'#required' => TRUE,
-    );
-    */
     $form['featureid']['#title'] = 'Hydroid of Well or Intake needing review';
     $form['featureid']['#disabled'] = TRUE;
     $form['featureid']['#weight'] = 2;
