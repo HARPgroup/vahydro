@@ -238,7 +238,7 @@ class dHDataQAed extends dHVariablePluginDefault {
   
   public function formRowSave(&$form_values, &$entity) {
     // handle the year selector
-    parent::formRowSave($form_values, &$entity);
+    parent::formRowSave($form_values, $entity);
     if (!($form_values['startdate'] == NULL)) {
       $form_values['startdate'] = $form_values['startdate'] . "-01-01";
       $entity->startdate = dh_handletimestamp($form_values['startdate']);
