@@ -214,6 +214,7 @@ class dHDataQAed extends dHVariablePluginDefault {
     }
     dpm($entity,'ts');
     $form['tstime']['#description'] = t('Year of Withdrawal.');
+    $form['tstime']['#type'] = 'date_select';
     $form['tstime']['#date_format'] = 'Y';
     $form['tstime']['#weight'] = 1;
     /*
