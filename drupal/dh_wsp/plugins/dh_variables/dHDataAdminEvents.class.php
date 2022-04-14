@@ -184,6 +184,12 @@ class dHDataQAed extends dHVariablePluginDefault {
     return $hidden;
   }
   
+  public function save(&$entity) {
+    dpm($entity,'entity');
+    $this->force_year($entity);
+    parent::save($entity);
+  }
+  
   public function update(&$entity) {
     dpm($entity,'entity');
     $this->force_year($entity);
@@ -193,7 +199,7 @@ class dHDataQAed extends dHVariablePluginDefault {
   public function insert(&$entity) {
     dpm($entity,'entity');
     $this->force_year($entity);
-    parent::update($entity);
+    parent::insert($entity);
   }
   
   public function force_year(&$entity) {
@@ -216,11 +222,12 @@ class dHDataQAed extends dHVariablePluginDefault {
       }
     }
     dpm($entity,'ts');
-    $form['tstime']['#description'] = t('Year of Withdrawal.');
+    $form['tstime']['#title'] = t('Year of Withdrawal.');
     $form['tstime']['#type'] = 'date_select';
     $form['tstime']['#date_format'] = 'Y';
     $form['tstime']['#default_value'] = date('Y',$entity->tstime);
     $form['tstime']['#weight'] = 1;
+    $form['tstime']['#description'] = t('The water withdrawal for which QA should be performed.');
     /*
     $form['tstime'] = array(
       '#title' => 'Custom Year',
@@ -230,7 +237,6 @@ class dHDataQAed extends dHVariablePluginDefault {
       '#default_value' => empty($entity->startdate)
         ? '' 
         : date($date_format,$entity->startdate),
-      '#description' => t('The water withdrawal for which QA should be performed.'),
       //'#required' => TRUE,
     );
     */
@@ -267,11 +273,11 @@ class dHDataQAed extends dHVariablePluginDefault {
   
   public function formRowSave(&$form_values, &$entity) {
     // handle the year selector
-    parent::formRowSave($form_values, $entity);
     if (!($form_values['startdate'] == NULL)) {
       $form_values['startdate'] = $form_values['startdate'] . "-01-01";
       $entity->startdate = dh_handletimestamp($form_values['startdate']);
     }
+    parent::formRowSave($form_values, $entity);
   }
 
   
