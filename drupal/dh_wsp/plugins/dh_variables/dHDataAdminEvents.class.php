@@ -180,7 +180,7 @@ class dHPermitStatusReview extends dHVariablePluginDefault {
 class dHDataQAed extends dHVariablePluginDefault {
   
   public function hiddenFields() {
-    $hidden = array('tid', 'tsvalue', 'tsendtime') + parent::hiddenFields();
+    $hidden = array('tid', 'varid', 'tsvalue', 'tsendtime', 'tsvalue') + parent::hiddenFields();
     return $hidden;
   }
   
@@ -201,9 +201,12 @@ class dHDataQAed extends dHVariablePluginDefault {
   
   public function formRowEdit(&$rowform, $row) {
     // apply custom settings here
+    $rowform['tstime']['#description'] = t('Year of Withdrawal.');
+    $rowform['tstime']['#date_format'] = 'Y';
+    $rowform['tstime']['#weight'] = 1;
     $rowform['featureid']['#title'] = 'Hydroid/Adminid of Entity needing review';
     $rowform['featureid']['#disabled'] = TRUE;
-    $rowform['featureid']['#weight'] = 1;
+    $rowform['featureid']['#weight'] = 2;
     $rowform['featureid']['#type'] = 'textfield';
     $opts = array(
       'needs_review' => 'Needs QA',
@@ -216,7 +219,7 @@ class dHDataQAed extends dHVariablePluginDefault {
       '#options' => $opts,
       '#default_value' => $row->tscode,
       '#size' => 1,
-      '#weight' => 2,
+      '#weight' => 3,
     );
     $rowform['tid'] = array(
       '#type' => 'hidden',
@@ -230,9 +233,6 @@ class dHDataQAed extends dHVariablePluginDefault {
       '#type' => 'hidden',
       '#default_value' => $row->entity_type,
     );
-    $rowform['tstime']['#description'] = t('Year of Withdrawal.');
-    $rowform['tstime']['#date_format'] = 'Y';
-    $rowform['tstime']['#weight'] = 3;
   }
   
 }
