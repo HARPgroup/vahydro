@@ -199,21 +199,21 @@ class dHDataQAed extends dHVariablePluginDefault {
     $entity->tsendtime = dh_handletimestamp("$year-12-31");
   }
   
-  public function formRowEdit(&$rowform, $row) {
-    parent::formRowEdit($rowform, $row);
+  public function formRowEdit(&$form, $entity) {
+    parent::formRowEdit($form, $entity);
     // apply custom settings here
-    dpm($row,'ts');
+    dpm($entity,'ts');
     $params = drupal_get_query_parameters();
-    if ($row->is_new === TRUE) {
+    if ($entity->is_new === TRUE) {
       if (isset($params['year'])) {
         $year = $params['year'];
         $entity->tstime = dh_handletimestamp("$year-01-01");
       }
     } else {
     }
-    $rowform['tstime']['#description'] = t('Year of Withdrawal.');
-    $rowform['tstime']['#date_format'] = 'Y';
-    $rowform['tstime']['#weight'] = 1;
+    $form['tstime']['#description'] = t('Year of Withdrawal.');
+    $form['tstime']['#date_format'] = 'Y';
+    $form['tstime']['#weight'] = 1;
     /*
     $form['tstime'] = array(
       '#title' => 'Custom Year',
@@ -227,34 +227,34 @@ class dHDataQAed extends dHVariablePluginDefault {
       //'#required' => TRUE,
     );
     */
-    $rowform['featureid']['#title'] = 'Hydroid of Well or Intake needing review';
-    $rowform['featureid']['#disabled'] = TRUE;
-    $rowform['featureid']['#weight'] = 2;
-    $rowform['featureid']['#type'] = 'textfield';
+    $form['featureid']['#title'] = 'Hydroid of Well or Intake needing review';
+    $form['featureid']['#disabled'] = TRUE;
+    $form['featureid']['#weight'] = 2;
+    $form['featureid']['#type'] = 'textfield';
     $opts = array(
       'needs_review' => 'Needs QA',
       'closed_no_action' => 'QA Complete, Un-Changed',
       'closed_status_changed' => 'QA Complete, Changed',
     );
-    $rowform['tscode'] = array(
+    $form['tscode'] = array(
       '#title' => 'QA Status',
       '#type' => 'select',
       '#options' => $opts,
-      '#default_value' => $row->tscode,
+      '#default_value' => $entity->tscode,
       '#size' => 1,
       '#weight' => 3,
     );
-    $rowform['tid'] = array(
+    $form['tid'] = array(
       '#type' => 'hidden',
-      '#default_value' => $row->tid,
+      '#default_value' => $entity->tid,
     );
-    $rowform['varid'] = array(
+    $form['varid'] = array(
       '#type' => 'hidden',
-      '#default_value' => $row->varid,
+      '#default_value' => $entity->varid,
     );
-    $rowform['entity_type'] = array(
+    $form['entity_type'] = array(
       '#type' => 'hidden',
-      '#default_value' => $row->entity_type,
+      '#default_value' => $entity->entity_type,
     );
   }
   
