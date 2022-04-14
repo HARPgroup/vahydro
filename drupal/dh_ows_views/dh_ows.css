@@ -1,0 +1,289 @@
+'
+/**
+ * @file
+ * Stuff for CSS (Leaflet CSS)
+ */
+
+.leaflet-div-icon2
+{
+  background:red;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:30px;
+}
+
+.leaflet-div-field
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:30px;
+  line-width:30px;
+  height:30px;
+  width:30px;
+}
+
+.leaflet-div-USGSGage
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:24px;
+  line-width:24px;
+  width:12px;
+  height:12px;
+}
+
+.leaflet-div-drought-site {
+  background: repeating-linear-gradient(
+    45deg,
+    #0000ff,
+    #0000ff 5px,
+    #badbad 5px,
+    #badbad 10px
+  );
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:24px;
+  line-width:24px;
+  width:16px;
+  height:16px;
+}
+
+.leaflet-div-WaterLine
+{
+  background:green;
+  border:5px solid rgba(255,255,255,0.5);
+  color:green;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:30px;
+  width:20px;
+  height:20px;
+}
+
+
+.leaflet-div-drought-normal
+{
+  background:green;
+  border:5px solid rgba(255,255,255,0.5);
+  color:green;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:10px;
+  width:10px;
+  height:10px;
+}
+
+.leaflet-div-drought-watch
+{
+  background:yellow;
+  border:5px solid rgba(255,255,255,0.5);
+  color:yellow;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:10px;
+  width:10px;
+  height:10px;
+}
+.leaflet-div-drought-warning
+{
+  background:orange;
+  border:5px solid rgba(255,255,255,0.5);
+  color:orange;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:10px;
+  width:10px;
+  height:10px;
+}
+.leaflet-div-drought-emergency
+{
+  background:red;
+  border:5px solid rgba(255,255,255,0.5);
+  color:red;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:10px;
+  width:10px;
+  height:10px;
+}
+
+
+.leaflet-div-sizeclass-0
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:6px;
+  width:6px;
+  height:6px;
+}
+
+
+.leaflet-div-sizeclass-1
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:6px;
+  width:6px;
+  height:6px;
+}
+
+.leaflet-div-sizeclass-2
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:8px;
+  width:8px;
+  height:8px;
+}
+
+.leaflet-div-sizeclass-3
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:10px;
+  width:10px;
+  height:10px;
+}
+
+.leaflet-div-sizeclass-4
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:12px;
+  width:12px;
+  height:12px;
+}
+
+.leaflet-div-sizeclass-5
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:14px;
+  width:14px;
+  height:14px;
+}
+
+.leaflet-div-sizeclass-5
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:16px;
+  width:16px;
+  height:16px;
+}
+
+.leaflet-div-sizeclass-6
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:18px;
+  width:18px;
+  height:18px;
+}
+
+.leaflet-div-sizeclass-7
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:30px;
+  line-width:30px;
+  width:20px;
+  height:20px;
+}
+
+.leaflet-div-sizeclass-8
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:22px;
+  width:22px;
+  height:22px;
+}
+
+.leaflet-div-sizeclass-9
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:2px;
+  line-width:2px;
+  width:24px;
+  height:24px;
+}
+
+.leaflet-div-sizeclass-10
+{
+  background:blue;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:2px;
+  line-width:2px;
+  width:26px;
+  height:26px;
+}
+

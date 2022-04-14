@@ -1,0 +1,312 @@
+<?php
+// Create water quality form
+
+
+/**
+ * Implements hook_view_data_alter().
+ */
+function dh_ows_views_views_data_alter(&$data) {
+
+  $base = $_SERVER['DOCUMENT_ROOT'] . base_path() . drupal_get_path('module', 'dh_ows_views') ;
+  
+  // **********************
+  // Well Layer for export
+  // **********************
+  
+  $q = "drop view if exists {view_dh_ows_wells}";
+  db_query($q);
+  $q = file_get_contents($base . "/sql/ows_wells_shape.sql");
+  // not yet ready
+  //db_query($q);
+
+  // ******************************************************
+  //  Compliance Due
+  // ******************************************************
+  // dh feature vars - creates a matrix of features and variables for use 
+  // in present/absent tables
+  //drupal_set_message("Calling file_get_contents( " . $base . "/sql/compliance_due.sql");
+  $q = "drop view if exists {view_dh_ows_compliance_due}";
+  db_query($q);
+  $q = file_get_contents($base . "/sql/compliance_due.sql");
+  db_query($q);
+  $string_cols = array('propname','proptext');
+  $number_cols = array('varid', 'adminid', 'propvalue', 'tid', 'pid', 'due_quarter', 'due_year', 'due_day', 'due_week', 'due_month');
+  $date_cols = array('due_date', 'date_received', 'due_start', 'due_end');
+  $group_name = 'dH OWS - GWPermit Views';
+  $view_name = 'view_dh_ows_compliance_due';
+ 
+  // dh_variabledefinition to dh_feature extra join
+  $data[$view_name]['table'] = array(
+    'group' => $group_name,
+    'title' => t($view_name),
+    'help' => t($view_name)
+  );
+  $data[$view_name] += dh_ows_views_addcols($view_name, $string_cols, 'string');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $number_cols, 'numeric');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $date_cols, 'date');
+  //drupal_set_message(print_r($data[$view_name],1));  
+  $data[$view_name]['join']['dh_variabledefinition'] = array(
+    'left_table' => 'dh_variabledefinition',
+    'left_field' => 'hydroid',
+    'field' => 'varid'
+  );
+	// join to dH AdminReg Features
+  $data[$view_name]['table']['join']['dh_adminreg_feature'] = array(
+     'left_field' => 'adminid',
+     'field' => 'adminid'
+   );
+	// join to dH TimeSeries
+  $data[$view_name]['table']['join']['dh_timeseries'] = array(
+    'left_field' => 'tid',
+    'field' => 'tid'
+   );
+	// join to dH TimeSeries
+  $data[$view_name]['table']['join']['dh_properties'] = array(
+    'left_field' => 'pid',
+    'field' => 'pid'
+  );
+  
+
+  // ******************************************************
+  //  Annual Compliance Total
+  // ******************************************************
+  //drupal_set_message("Calling file_get_contents( " . $base . "/sql/compliance_due.sql");
+  $q = "drop view if exists {view_dh_ows_annual_permit_use}";
+  db_query($q);
+  $q = file_get_contents($base . "/sql/annual_permit_use.sql");
+  db_query($q);
+  $string_cols = array('propname','proptext','varkey','rep_varkey');
+  $number_cols = array('varid', 'adminid', 'propvalue', 'tid', 'pid', 'limit_gpy', 'total_gpy', 'cal_year');
+  $date_cols = array('year_start', 'year_end');
+  $group_name = 'dH OWS - GWPermit Views';
+  $view_name = 'view_dh_ows_annual_permit_use';
+ 
+  // dh_variabledefinition to dh_feature extra join
+  $data[$view_name]['table'] = array(
+    'group' => $group_name,
+    'title' => t($view_name),
+    'help' => t($view_name)
+  );
+  $data[$view_name] += dh_ows_views_addcols($view_name, $string_cols, 'string');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $number_cols, 'numeric');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $date_cols, 'date');
+  //drupal_set_message(print_r($data[$view_name],1));  
+  $data[$view_name]['join']['dh_variabledefinition'] = array(
+    'left_table' => 'dh_variabledefinition',
+    'left_field' => 'hydroid',
+    'field' => 'varid'
+  );
+	// join to dH AdminReg Features
+  $data[$view_name]['table']['join']['dh_adminreg_feature'] = array(
+     'left_field' => 'adminid',
+     'field' => 'adminid'
+   );
+	// join to dH TimeSeries
+  $data[$view_name]['table']['join']['dh_timeseries'] = array(
+    'left_field' => 'tid',
+    'field' => 'tid'
+   );
+	// join to dH TimeSeries
+  $data[$view_name]['table']['join']['dh_properties'] = array(
+    'left_field' => 'pid',
+    'field' => 'pid'
+  );
+  
+
+  // ******************************************************
+  //  Monthly Compliance Total
+  // ******************************************************
+  //drupal_set_message("Calling file_get_contents( " . $base . "/sql/compliance_due.sql");
+  $q = "drop view if exists {view_dh_ows_monthly_permit_use}";
+  db_query($q);
+  $q = file_get_contents($base . "/sql/monthly_permit_use.sql");
+  db_query($q);
+  $string_cols = array('propname','proptext','varkey','rep_varkey');
+  $number_cols = array('varid', 'adminid', 'propvalue', 'tid', 'pid', 'limit_gpmo', 'total_gpmo', 'cal_year', 'cal_month');
+  $date_cols = array('month_start', 'month_end');
+  $group_name = 'dH OWS - GWPermit Views';
+  $view_name = 'view_dh_ows_monthly_permit_use';
+ 
+  // dh_variabledefinition to dh_feature extra join
+  $data[$view_name]['table'] = array(
+    'group' => $group_name,
+    'title' => t($view_name),
+    'help' => t($view_name)
+  );
+  $data[$view_name] += dh_ows_views_addcols($view_name, $string_cols, 'string');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $number_cols, 'numeric');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $date_cols, 'date');
+  //drupal_set_message(print_r($data[$view_name],1));  
+  $data[$view_name]['join']['dh_variabledefinition'] = array(
+    'left_table' => 'dh_variabledefinition',
+    'left_field' => 'hydroid',
+    'field' => 'varid'
+  );
+	// join to dH AdminReg Features
+  $data[$view_name]['table']['join']['dh_adminreg_feature'] = array(
+     'left_field' => 'adminid',
+     'field' => 'adminid'
+   );
+	// join to dH TimeSeries
+  $data[$view_name]['table']['join']['dh_timeseries'] = array(
+    'left_field' => 'tid',
+    'field' => 'tid'
+   );
+	// join to dH TimeSeries
+  $data[$view_name]['table']['join']['dh_properties'] = array(
+    'left_field' => 'pid',
+    'field' => 'pid'
+  );
+  
+
+  // ******************************************************
+  //  Monthly Compliance GRoup Total
+  // ******************************************************
+  //drupal_set_message("Calling file_get_contents( " . $base . "/sql/compliance_due.sql");
+  $q = "drop view if exists {view_dh_ows_monthly_group_permit_use}";
+  db_query($q);
+  $q = file_get_contents($base . "/sql/group_monthly_permit_use.sql");
+  db_query($q);
+  $string_cols = array('propname','proptext','varkey','rep_varkey');
+  $number_cols = array('varid', 'adminid', 'propvalue', 'tid', 'pid', 'limit_gpmo', 'total_gpmo', 'cal_year', 'cal_month');
+  $date_cols = array('month_start', 'month_end');
+  $group_name = 'dH OWS - GWPermit Views';
+  $view_name = 'view_dh_ows_monthly_group_permit_use';
+  $view_title = 'Monthly Well Groups';
+ 
+  // dh_variabledefinition to dh_feature extra join
+  $data[$view_name]['table'] = array(
+    'group' => $group_name,
+    'title' => t($view_title),
+    'help' => t($view_title)
+  );
+  $data[$view_name] += dh_ows_views_addcols($view_name, $string_cols, 'string');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $number_cols, 'numeric');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $date_cols, 'date');
+  //drupal_set_message(print_r($data[$view_name],1));  
+  $data[$view_name]['join']['dh_variabledefinition'] = array(
+    'left_table' => 'dh_variabledefinition',
+    'left_field' => 'hydroid',
+    'field' => 'varid'
+  );
+	// join to dH AdminReg Features
+  $data[$view_name]['table']['join']['dh_adminreg_feature'] = array(
+     'left_field' => 'adminid',
+     'field' => 'adminid'
+   );
+	// join to dH TimeSeries
+  $data[$view_name]['table']['join']['dh_timeseries'] = array(
+    'left_field' => 'tid',
+    'field' => 'tid'
+   );
+	// join to dH TimeSeries
+  $data[$view_name]['table']['join']['dh_properties'] = array(
+    'left_field' => 'pid',
+    'field' => 'pid'
+  );
+  
+  // ******************************************************
+  //  Well Search Info
+  // ******************************************************
+  //drupal_set_message("Calling file_get_contents( " . $base . "/sql/well_search_info.sql");
+  $q = "drop view if exists {view_dh_ows_wellinfo}";
+  db_query($q);
+  $q = file_get_contents($base . "/sql/well_search_info.sql");
+  db_query($q);
+  $string_cols = array('usgs_local','deq_wellno','vdh_hdin','vdh_pwsid');
+  $number_cols = array('hydroid');
+  $date_cols = array();
+  $group_name = 'dH OWS - GWPermit Views';
+  $view_name = 'view_dh_ows_wellinfo';
+ 
+  // dh_variabledefinition to dh_feature extra join
+  $data[$view_name]['table'] = array(
+    'group' => $group_name,
+    'title' => t($view_name),
+    'help' => t($view_name)
+  );
+  $data[$view_name] += dh_ows_views_addcols($view_name, $string_cols, 'string');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $number_cols, 'numeric');
+  $data[$view_name] += dh_ows_views_addcols($view_name, $date_cols, 'date');
+  //drupal_set_message(print_r($data[$view_name],1));  
+	// join to dH AdminReg Features
+  $data[$view_name]['table']['join']['dh_feature'] = array(
+     'left_field' => 'hydroid',
+     'field' => 'hydroid'
+  );
+}
+
+function dh_ows_views_addcols($view_name, $cols, $deftype = 'string') {
+  $ret = array();
+  $defaults = dh_ows_views_coldefs();
+   
+  foreach ($cols as $thiscol) {
+    $ret[$thiscol] = $defaults[$deftype];
+    $ret[$thiscol]['title'] = "$thiscol ($view_name)";
+    $ret[$thiscol]['help'] = "$thiscol ($view_name)";
+    if ($deftype == 'date') {
+      $ret[$thiscol]['argument']['real field'] = $thiscol;
+    }
+  }
+  return $ret;
+}
+
+
+function dh_ows_views_coldefs() {
+  $defaults = array();
+  // do date setups
+  $defaults['date'] = array(
+    'field' => array(
+    'handler' => 'views_handler_field_date',
+    'click sortable' => TRUE,
+    ),
+    'sort' => array(
+    'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+    'handler' => 'views_handler_filter_date',
+    ),
+    'argument' => array(
+    'handler' => 'views_handler_argument_numeric',
+    //'handler' => 'views_handler_argument_date',
+    ),
+  );
+  $defaults['numeric'] = array(
+    'title' => t('Numeric Field'),
+    'help' => t('Numeric Field.'), // The help that appears on the UI,
+    'argument' => array(
+       'handler' => 'views_handler_argument_numeric',
+    ),
+    'field' => array(
+       'handler' => 'views_handler_field_numeric',
+       'click sortable' => TRUE,
+    'float' => TRUE, // enables advanced formatting options
+    ),
+    'filter' => array(
+       'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+       'handler' => 'views_handler_sort',
+    )
+  );
+  $defaults['string'] = array(
+      'title' => t('String Field'),
+      'help' => t('String Field.'), // The help that appears on the UI,
+      'argument' => array(
+         'handler' => 'views_handler_argument_string',
+      ),
+      'field' => array(
+         'handler' => 'views_handler_field',
+         'click sortable' => TRUE,
+      ),
+      'filter' => array(
+         'handler' => 'views_handler_filter_string',
+      ),
+      'sort' => array(
+         'handler' => 'views_handler_sort',
+      )
+  );
+  return $defaults;
+}
+
+?>
