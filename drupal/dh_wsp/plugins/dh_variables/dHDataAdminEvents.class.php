@@ -187,11 +187,13 @@ class dHDataQAed extends dHVariablePluginDefault {
   public function update(&$entity) {
     dpm($entity,'entity');
     $this->force_year($entity);
+    parent::update($entity);
   }
   
   public function insert(&$entity) {
     dpm($entity,'entity');
     $this->force_year($entity);
+    parent::update($entity);
   }
   
   public function force_year(&$entity) {
