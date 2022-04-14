@@ -203,7 +203,13 @@ class dHDataQAed extends dHVariablePluginDefault {
     parent::formRowEdit($rowform, $row);
     // apply custom settings here
     dpm($row,'ts');
-    $entity->tstime = dh_handletimestamp("$year-01-01");
+    if ($row->is_new === TRUE) {
+      if (isset($params['year'])) {
+        $year = $params['year'];
+        $entity->tstime = dh_handletimestamp("$year-01-01");
+      }
+    } else {
+    }
     $rowform['tstime']['#description'] = t('Year of Withdrawal.');
     $rowform['tstime']['#date_format'] = 'Y';
     $rowform['tstime']['#weight'] = 1;
