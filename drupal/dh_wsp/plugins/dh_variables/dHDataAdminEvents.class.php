@@ -203,6 +203,7 @@ class dHDataQAed extends dHVariablePluginDefault {
     parent::formRowEdit($rowform, $row);
     // apply custom settings here
     dpm($row,'ts');
+    $params = drupal_get_query_parameters();
     if ($row->is_new === TRUE) {
       if (isset($params['year'])) {
         $year = $params['year'];
