@@ -195,17 +195,32 @@ class dHDataQAed extends dHVariablePluginDefault {
   public function force_year(&$entity) {
     $year = date('Y', $entity->tstime);
     dpm($year, 'year');
-    $entity->tsendtime = dh_handletimestamp("$year-01-01");
+    $entity->tstime = dh_handletimestamp("$year-01-01");
     $entity->tsendtime = dh_handletimestamp("$year-12-31");
   }
   
   public function formRowEdit(&$rowform, $row) {
     parent::formRowEdit($rowform, $row);
     // apply custom settings here
+    dpm($row,'ts');
+    $entity->tstime = dh_handletimestamp("$year-01-01");
     $rowform['tstime']['#description'] = t('Year of Withdrawal.');
     $rowform['tstime']['#date_format'] = 'Y';
     $rowform['tstime']['#weight'] = 1;
-    $rowform['featureid']['#title'] = 'Hydroid/Adminid of Entity needing review';
+    /*
+    $form['tstime'] = array(
+      '#title' => 'Custom Year',
+      '#type' => 'date_select',
+      '#date_year_range' => '-10:+5',
+      '#date_format' => $date_format,
+      '#default_value' => empty($entity->startdate)
+        ? '' 
+        : date($date_format,$entity->startdate),
+      '#description' => t('The water withdrawal for which QA should be performed.'),
+      //'#required' => TRUE,
+    );
+    */
+    $rowform['featureid']['#title'] = 'Hydroid of Well or Intake needing review';
     $rowform['featureid']['#disabled'] = TRUE;
     $rowform['featureid']['#weight'] = 2;
     $rowform['featureid']['#type'] = 'textfield';
