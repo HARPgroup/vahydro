@@ -898,6 +898,9 @@ class dHReleaseMGM extends dHAnnualWithdrawalMonthly {
 }
 
 class dHAnnualWithdrawalMGY extends dHVariablePluginDefault {
+  public function hiddenFields() {
+    return array('tid', 'varid', 'featureid', 'entity_type', 'bundle');
+  }
 }
 
 ?>

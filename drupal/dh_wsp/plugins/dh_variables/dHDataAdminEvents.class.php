@@ -176,4 +176,65 @@ class dHPermitStatusReview extends dHVariablePluginDefault {
   
 }
 
+
+class dHDataQAed extends dHVariablePluginDefault {
+  
+  public function hiddenFields() {
+    $hidden = array('tid', 'tsvalue', 'tsendtime') + parent::hiddenFields();
+    return $hidden;
+  }
+  
+  public function update(&$entity) {
+    $this->force_year($entity);
+  }
+  
+  public function insert(&$entity) {
+    $this->force_year($entity);
+  }
+  
+  public function force_year(&$entity) {
+    $year = date('Y', $entity->tstime);
+    dpm($year, 'year');
+    $entity->tsendtime = dh_handletimestamp("$year-01-01");
+    $entity->tsendtime = dh_handletimestamp("$year-12-31");
+  }
+  
+  public function formRowEdit(&$rowform, $row) {
+    // apply custom settings here
+    $rowform['featureid']['#title'] = 'Hydroid/Adminid of Entity needing review';
+    $rowform['featureid']['#disabled'] = TRUE;
+    $rowform['featureid']['#weight'] = 1;
+    $rowform['featureid']['#type'] = 'textfield';
+    $opts = array(
+      'needs_review' => 'Needs QA',
+      'closed_no_action' => 'QA Complete, Un-Changed',
+      'closed_status_changed' => 'QA Complete, Changed',
+    );
+    $rowform['tscode'] = array(
+      '#title' => 'QA Status',
+      '#type' => 'select',
+      '#options' => $opts,
+      '#default_value' => $row->tscode,
+      '#size' => 1,
+      '#weight' => 2,
+    );
+    $rowform['tid'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $row->tid,
+    );
+    $rowform['varid'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $row->varid,
+    );
+    $rowform['entity_type'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $row->entity_type,
+    );
+    $rowform['tstime']['#description'] = t('Year of Withdrawal.');
+    $rowform['tstime']['#date_format'] = 'Y';
+    $rowform['tstime']['#weight'] = 3;
+  }
+  
+}
+
 ?>
