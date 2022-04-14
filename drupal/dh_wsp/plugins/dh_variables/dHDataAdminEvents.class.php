@@ -204,6 +204,7 @@ class dHDataQAed extends dHVariablePluginDefault {
     // apply custom settings here
     dpm($entity,'ts');
     $params = drupal_get_query_parameters();
+    dpm($params,'params');
     if ($entity->is_new === TRUE) {
       if (isset($params['year'])) {
         $year = $params['year'];
@@ -211,6 +212,7 @@ class dHDataQAed extends dHVariablePluginDefault {
       }
     } else {
     }
+    dpm($entity,'ts');
     $form['tstime']['#description'] = t('Year of Withdrawal.');
     $form['tstime']['#date_format'] = 'Y';
     $form['tstime']['#weight'] = 1;
