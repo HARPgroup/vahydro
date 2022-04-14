@@ -208,6 +208,7 @@ class dHDataQAed extends dHVariablePluginDefault {
   public function formRowEdit(&$form, $entity) {
     parent::formRowEdit($form, $entity);
     // apply custom settings here
+    dpm($entity,'entity');
     $params = drupal_get_query_parameters();
     if ($entity->is_new === TRUE) {
       if (isset($params['tstime'])) {
