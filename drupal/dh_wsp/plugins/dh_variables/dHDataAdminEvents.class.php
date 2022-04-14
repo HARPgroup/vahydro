@@ -184,31 +184,9 @@ class dHDataQAed extends dHVariablePluginDefault {
     return $hidden;
   }
   
-  public function save(&$entity) {
-    dpm($entity,'entity');
-    parent::save($entity);
-  }
-  
-  public function update(&$entity) {
-    dpm($entity,'entity');
-    parent::update($entity);
-  }
-  
-  public function insert(&$entity) {
-    dpm($entity,'entity');
-    parent::insert($entity);
-  }
-  
-  public function force_year(&$entity) {
-    $year = $entity->tstime;
-    $entity->tstime = dh_handletimestamp("$year-01-01");
-    $entity->tsendtime = dh_handletimestamp("$year-12-31");
-  }
-  
   public function formRowEdit(&$form, $entity) {
     parent::formRowEdit($form, $entity);
     // apply custom settings here
-    dpm($entity,'entity');
     $params = drupal_get_query_parameters();
     if ($entity->is_new === TRUE) {
       if (isset($params['tstime'])) {
@@ -262,8 +240,6 @@ class dHDataQAed extends dHVariablePluginDefault {
       $entity->tstime = dh_handletimestamp($form_values['tstime']);
       $entity->tsendtime = dh_handletimestamp($form_values['tsendtime']);
     }
-    dpm($form_values,'form_values');
-    dpm($entity,'entity');
     parent::formRowSave($form_values, $entity);
   }
 
