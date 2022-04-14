@@ -180,7 +180,7 @@ class dHPermitStatusReview extends dHVariablePluginDefault {
 class dHDataQAed extends dHVariablePluginDefault {
   
   public function hiddenFields() {
-    $hidden = array('tid', 'varid', 'tsvalue', 'tsendtime', 'tsvalue') + parent::hiddenFields();
+    $hidden = array('tid', 'varid', 'tsvalue', 'tsendtime', 'tsvalue');
     return $hidden;
   }
   
