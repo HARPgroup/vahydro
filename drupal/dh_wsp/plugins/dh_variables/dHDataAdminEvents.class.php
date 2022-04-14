@@ -200,6 +200,7 @@ class dHDataQAed extends dHVariablePluginDefault {
   }
   
   public function formRowEdit(&$rowform, $row) {
+    parent::formRowEdit($rowform, $row);
     // apply custom settings here
     $rowform['tstime']['#description'] = t('Year of Withdrawal.');
     $rowform['tstime']['#date_format'] = 'Y';
