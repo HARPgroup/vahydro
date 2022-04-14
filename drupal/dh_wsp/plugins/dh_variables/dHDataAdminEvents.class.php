@@ -189,6 +189,7 @@ class dHDataQAed extends dHVariablePluginDefault {
   }
   
   public function insert(&$entity) {
+    dpm($entity,'entity');
     $this->force_year($entity);
   }
   
@@ -216,6 +217,7 @@ class dHDataQAed extends dHVariablePluginDefault {
     $form['tstime']['#description'] = t('Year of Withdrawal.');
     $form['tstime']['#type'] = 'date_select';
     $form['tstime']['#date_format'] = 'Y';
+    $form['tstime']['#default_value'] = date('Y',$entity->tstime);
     $form['tstime']['#weight'] = 1;
     /*
     $form['tstime'] = array(
