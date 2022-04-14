@@ -210,8 +210,8 @@ class dHDataQAed extends dHVariablePluginDefault {
     $params = drupal_get_query_parameters();
     dpm($params,'params');
     if ($entity->is_new === TRUE) {
-      if (isset($params['year'])) {
-        $year = $params['year'];
+      if (isset($params['tstime'])) {
+        $year = $params['tstime'];
         $entity->tstime = dh_handletimestamp("$year-01-01");
       }
     }
