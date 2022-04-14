@@ -176,4 +176,74 @@ class dHPermitStatusReview extends dHVariablePluginDefault {
   
 }
 
+
+class dHDataQAed extends dHVariablePluginDefault {
+  
+  public function hiddenFields() {
+    $hidden = array('tid', 'varid', 'tsvalue', 'tsendtime', 'tsvalue');
+    return $hidden;
+  }
+  
+  public function formRowEdit(&$form, $entity) {
+    parent::formRowEdit($form, $entity);
+    // apply custom settings here
+    $params = drupal_get_query_parameters();
+    if ($entity->is_new === TRUE) {
+      if (isset($params['tstime'])) {
+        $year = $params['tstime'];
+        $entity->tstime = dh_handletimestamp("$year-01-01");
+      }
+    }
+    $form['tstime']['#title'] = t('Year of Withdrawal.');
+    $form['tstime']['#type'] = 'date_select';
+    $form['tstime']['#date_format'] = 'Y';
+    $form['tstime']['#default_value'] = date('Y',$entity->tstime);
+    $form['tstime']['#weight'] = 1;
+    $form['tstime']['#description'] = t('The water withdrawal for which QA should be performed.');
+    $form['featureid']['#title'] = 'Hydroid of Well or Intake needing review';
+    $form['featureid']['#disabled'] = TRUE;
+    $form['featureid']['#weight'] = 2;
+    $form['featureid']['#type'] = 'textfield';
+    $opts = array(
+      'needs_review' => 'Needs QA',
+      'closed_no_action' => 'QA Complete, Un-Changed',
+      'closed_status_changed' => 'QA Complete, Changed',
+    );
+    $form['tscode'] = array(
+      '#title' => 'QA Status',
+      '#type' => 'select',
+      '#options' => $opts,
+      '#default_value' => $entity->tscode,
+      '#size' => 1,
+      '#weight' => 3,
+    );
+    $form['tid'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $entity->tid,
+    );
+    $form['varid'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $entity->varid,
+    );
+    $form['entity_type'] = array(
+      '#type' => 'hidden',
+      '#default_value' => $entity->entity_type,
+    );
+  }
+  
+  public function formRowSave(&$form_values, &$entity) {
+    // handle the year selector
+    if (!($form_values['tstime'] == NULL)) {
+      $year = $form_values['tstime'];
+      $form_values['tstime'] = $year . "-01-01";
+      $form_values['tsendtime'] = $year . "-01-01";
+      $entity->tstime = dh_handletimestamp($form_values['tstime']);
+      $entity->tsendtime = dh_handletimestamp($form_values['tsendtime']);
+    }
+    parent::formRowSave($form_values, $entity);
+  }
+
+  
+}
+
 ?>
