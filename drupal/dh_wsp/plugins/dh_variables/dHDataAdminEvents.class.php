@@ -186,25 +186,21 @@ class dHDataQAed extends dHVariablePluginDefault {
   
   public function save(&$entity) {
     dpm($entity,'entity');
-    $this->force_year($entity);
     parent::save($entity);
   }
   
   public function update(&$entity) {
     dpm($entity,'entity');
-    $this->force_year($entity);
     parent::update($entity);
   }
   
   public function insert(&$entity) {
     dpm($entity,'entity');
-    $this->force_year($entity);
     parent::insert($entity);
   }
   
   public function force_year(&$entity) {
     $year = $entity->tstime;
-    dpm($year, 'year');
     $entity->tstime = dh_handletimestamp("$year-01-01");
     $entity->tsendtime = dh_handletimestamp("$year-12-31");
   }
@@ -258,10 +254,15 @@ class dHDataQAed extends dHVariablePluginDefault {
   
   public function formRowSave(&$form_values, &$entity) {
     // handle the year selector
-    if (!($form_values['startdate'] == NULL)) {
-      $form_values['startdate'] = $form_values['startdate'] . "-01-01";
-      $entity->startdate = dh_handletimestamp($form_values['startdate']);
+    if (!($form_values['tstime'] == NULL)) {
+      $year = $form_values['tstime'];
+      $form_values['tstime'] = $year . "-01-01";
+      $form_values['tsendtime'] = $year . "-01-01";
+      $entity->tstime = dh_handletimestamp($form_values['tstime']);
+      $entity->tsendtime = dh_handletimestamp($form_values['tsendtime']);
     }
+    dpm($form_values,'form_values');
+    dpm($entity,'entity');
     parent::formRowSave($form_values, $entity);
   }
 
