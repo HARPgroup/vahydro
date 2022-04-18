@@ -46,6 +46,7 @@ ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
 ds$get_token(rest_pw)
 
 #source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
+#source(paste(github_location,"/hydro-tools/R/om_demand_table.R",sep="")) #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
@@ -280,6 +281,55 @@ for (i in 1:length(runid.list)){
 }
 
 ```
+
+
+
+```{r LoadDemandTable, include=FALSE}
+#-------------------------------------------------------------------------------
+# fac_table <- om_model_table(model_info = fac_model_info,
+#                             runid.list = runid.list,
+#                             metric.list = fac.metric.list,
+#                             site = site,
+#                             site_base = omsite
+# )
+
+demand_table <- om_demand_table(model_info = fac_model_info,
+                            runid.list =  runid.list)
+
+demand_table <- cbind(rownames(demand_table),demand_table)
+names(demand_table)[names(demand_table) == 'rownames(demand_table)'] <- 'Desc'
+demand_table_raw <- demand_table
+
+demand_table_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "model" THEN "Facility Model Statistics:"
+                    WHEN "Desc" = "avg_day_mgd" THEN "Average Daily Volume (MGD)"
+                    WHEN "Desc" = "max_day_limit_mgd" THEN "Peak Day Volume (MGD)"
+                    WHEN "Desc" = "max_ann_limit_mgy" THEN "Maximum Annual Volume (MG)"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM demand_table_raw
+                 WHERE Desc NOT IN ("runid","model")
+                 ',sep='')
+demand_table <- sqldf(demand_table_sql)
+demandsdf <- demand_table[,-2]
+```
+
+## Table of Modeled Demand Limits:
+```{r DemandsTable, echo=FALSE}
+demands <- qflextable(demandsdf)
+# Set column widths
+demands <- width(demands, j = 2:length(demandsdf[1,]), width = 1.7)
+demands <- width(demands, j = 1, width = 1.9)
+# Set theme
+demands <- theme_box(demands)
+# Set background color of select rows --------------------------------------------------------------
+demands <- bg(demands, bg = "#EFEFEF", part = "header")
+demands <-fontsize(demands, size = 10, part = "header")
+fontsize(demands, size = 9)
+```
+
+
 
 \newpage  
 __Historical Intake Flows and Drought Flow Indicators__  
