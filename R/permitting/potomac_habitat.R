@@ -128,9 +128,15 @@ ggsave(paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_05_',elid,'.png',sep="")
 
 # load PoR time series from Gage and ICPRB
 # compare PoR gage time series with
+icprb_monthly_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/lfalls_nat_monthly_data.csv")
 # monthly mean flows from ICPRB
+da_por <- 9651.0 # https://waterdata.usgs.gov/nwis/uv?site_no=01638500
+da_gf <- 11549.4 # d.dh/admin/content/dh_features/manage/68346/dh_properties
+da_lf <- 11586.6 # d.dh/admin/content/dh_features/manage/68363/dh_properties
 
-# WUA time series
+nat_gf <-
+
+# WUA time series - flow ts should be 2 columns: Date, Flow
 wua_ts1 <- wua.at.q_fxn(ts3,WUA.df)
 #wua_ts1 <- wua.at.q_fxn(ts3)
 wua_ts1 <- data.frame(ts3,wua_ts1)
@@ -138,11 +144,28 @@ wua_ts1$month <- month(wua_ts1$Date)
 wua_ts1$year <- year(wua_ts1$Date)
 wua_ts1$month <- month(wua_ts1$Date)
 
-usgs1930 <- sqldf(
+usgs_monthly <- sqldf(
  "
-  select year, month, avg(X_00060_00003)
+  select year, month, avg(X_00060_00003) as usgs_por
   from historic
-  where year = 1930
   group by year, month
 "
+)
+
+
+sqldf(
+  "
+   select a.month, avg(usgs_por) as usgs_por,
+     avg(b.lfalls_nat) as icprb_lfalls,
+     avg(b.lfalls_nat)/avg(usgs_por) as da_fact
+   from usgs_monthly as a
+   left outer join icprb_monthly_lf as b
+   on (
+     a.year = b.cyear
+     and a.month = b.month
+   )
+   where a.year = 1930
+   group by a.month
+   order by a.month
+  "
 )
