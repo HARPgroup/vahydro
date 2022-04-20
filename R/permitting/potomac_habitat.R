@@ -14,6 +14,7 @@ source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_uti
 gageid = '01638500'
 historic <- dataRetrieval::readNWISdv(gageid,'00060')
 historic$month <- month(historic$Date)
+historic$year <- year(historic$Date)
 gage_sum_historic <- om_flow_table(historic, "X_00060_00003")
 
 # INPUTS #######################################################################################
@@ -120,3 +121,28 @@ write.table(
 )
 
 ggsave(paste(export_path,'ifim_boxplot_6Qbaseline_6Qout_05_',elid,'.png',sep=""), width = 7, height = 4)
+
+
+
+
+
+# load PoR time series from Gage and ICPRB
+# compare PoR gage time series with
+# monthly mean flows from ICPRB
+
+# WUA time series
+wua_ts1 <- wua.at.q_fxn(ts3,WUA.df)
+#wua_ts1 <- wua.at.q_fxn(ts3)
+wua_ts1 <- data.frame(ts3,wua_ts1)
+wua_ts1$month <- month(wua_ts1$Date)
+wua_ts1$year <- year(wua_ts1$Date)
+wua_ts1$month <- month(wua_ts1$Date)
+
+usgs1930 <- sqldf(
+ "
+  select year, month, avg(X_00060_00003)
+  from historic
+  where year = 1930
+  group by year, month
+"
+)
