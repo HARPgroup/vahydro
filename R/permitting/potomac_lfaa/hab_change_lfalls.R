@@ -55,27 +55,6 @@ allplot + ylim(c(-50,50))
 p20_plot + ylim(c(-50,50))
 q500_plot + ylim(c(-50,50))
 
-# Box Plot for 2002
-nat_lf_2002 <- sqldf("select * from nat_lf where year = 2002")
-alt_lf_2002 <- sqldf("select * from alt_lf where year = 2002")
-
-# just look at the box plot
-ifim_icprb_maxwd_lf <- ifim_wua_change_plot(
-  nat_lf_2002[c('Date', 'Flow')],
-  alt_lf_2002[c('Date', 'Flow')],
-  wua_lf, 1.0,
-  "ifim_da_sqmi" = ifim_da_sqmi,
-  runid_a = "6",
-  metric_a = "Qbaseline",
-  runid_b = "6",metric_b = "Qout"
-)
-ifim_icprb_maxwd_lf +
-  labs(title = "Habitat Change, ICPRB Max Demand Little Falls, 2002 only.") +
-  ylim(c(-50,50))
-
-nat_flow_table <- om_flow_table(nat_lf, "Flow")
-alt_flow_table <- om_flow_table(alt_lf, "Flow")
-
 yrs = c(1930, 2002, 2007, 2008, 2015, 2016,2019)
 for (yr in yrs) {
   # Box Plot for 1931
