@@ -9,16 +9,16 @@ source <- "wsp2020.mp.all.csv"
 folder <- "U:/OWS/foundation_datasets/wsp/wsp2020/"
 data_raw <- read.csv(paste(folder,source,sep=""))
 data_sp <- data_raw
-
+data_sp <- facility_status_MGY
 
 #LOAD FUNCTIONS AND GDB FILES
 source("/var/www/R/config.local.private"); 
-source(paste(hydro_tools_location,'/GIS_LAYERS/GIS_functions.R', sep = ''));
+source(paste(hydro_tools_location,'/GIS_functions/GIS_functions.R', sep = ''));
 
-MinorBasins_path <- paste(hydro_tools_location,'/GIS_LAYERS/MinorBasins.gdb', sep = '')
+MinorBasins_path <- paste(github_location,'/HARParchive/GIS_layers/MinorBasins.gdb', sep = '')
 MinorBasins_layer <- 'MinorBasins'
 
-VAHydro_RSegs_path <- paste(hydro_tools_location,'/GIS_LAYERS/VAHydro_RSegs.gdb', sep = '')
+VAHydro_RSegs_path <- paste(github_location,'/HARParchive/GIS_layers/VAHydro_RSegs.gdb', sep = '')
 VAHydro_RSegs_layer <- 'VAHydro_RSegs'
 
 # tidal_boundary_path <- 'hydro-tools/GIS_LAYERS/'
@@ -28,7 +28,7 @@ VAHydro_RSegs_layer <- 'VAHydro_RSegs'
 fips_centroids <- read.csv(paste("https://deq1.bse.vt.edu/d.dh/usafips_centroid_export",sep=""))
 ###########################################################################
 # join fips centroids - explicitly name columns
-fips_join <- paste("SELECT a.*,
+fips_join <- paste('SELECT a.*,
                   b.fips_hydroid,
                   b.fips_name,
                   b.fips_latitude,
@@ -36,7 +36,7 @@ fips_join <- paste("SELECT a.*,
                   b.fips_centroid
                   FROM data_sp AS a
                   LEFT OUTER JOIN fips_centroids AS b
-                  ON (a.fips_code = b.fips_code)")  
+                  ON (a."FIPS Code" = b.fips_code)')  
 fips_join <- sqldf(fips_join)
 #-----------------------------------------------------------------
 
@@ -76,6 +76,9 @@ data_sp_cont <- data.frame(data_sp_cont)
 ###########################################################################
 ###########################################################################
 ###########################################################################
-write.csv(data_sp_cont, paste(folder,(str_remove(source,'.csv')),".MinorBasins_RSegs.csv",sep=""), row.names = F)
+#write.csv(data_sp_cont, paste(folder,(str_remove(source,'.csv')),".MinorBasins_RSegs.csv",sep=""), row.names = F)
+
+write.csv(data_sp_cont, paste0(export_path,"annual_reporter_submission_status.csv"), row.names = F)
+
 ###########################################################################
 ###########################################################################
