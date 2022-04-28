@@ -1,8 +1,8 @@
 # :ittle Falls Habitat data
 
 # INPUTS #######################################################################################
-ifim_featureid <- 397296 #Potomac 11&12
-wshed_featureid <- 68363 #Potomac River Great Falls
+ifim_featureid <- 397295 #Potomac 8&9
+wshed_featureid <- 68346 #Potomac River Great Falls
 pprunid <- 13 # will have this set to 6 once draft run is confirmed
 pctile <- 0.1
 
@@ -21,14 +21,13 @@ ifim_site_name <- as.character(ifim_site$name)
 ################################################################################################
 # RETRIEVE WUA TABLE
 ifim_dataframe <- vahydro_prop_matrix(ifim_featureid, 'dh_feature','ifim_habitat_table')
-wua_lf <- t(ifim_dataframe)
-targets <- colnames(wua_lf)[-1]
+wua_gf <- t(ifim_dataframe)
+targets <- colnames(wua_gf)[-1]
 write.table(
-  wua_lf,
-  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'wua_lf','.csv',sep=""),
+  wua_gf,
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'wua_gf','.csv',sep=""),
   sep = ","
 )
-
 ################################################################################################
 # DERIVE MULTIPLYING FACTOR FOR AREA-WEIGHTING FLOWS AT MODEL OUTLET TO IFIM SITE LOCATION
 

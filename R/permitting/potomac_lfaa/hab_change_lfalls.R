@@ -36,6 +36,13 @@ pothab_plot <- function (
   return(ifim_icprb_maxwd_lf)
 }
 
+curr_plot100 <- pothab_plot(
+  wua_lf, alt_lf, "Flow", "Flow_curr",
+  1.0, ifim_da_sqmi,
+  "Little Falls", "Current"
+)
+
+
 allplot <- pothab_plot(
   wua_lf, alt_lf, "Flow", "Flow_curr",
   0.1, ifim_da_sqmi,
@@ -51,31 +58,62 @@ p20_plot <- pothab_plot(
   0.1, ifim_da_sqmi,
   "Little Falls", "Current"
 )
+
+p20_plot100 <- pothab_plot(
+  wua_lf, alt_lf, "Flow", "Flow_p20",
+  1.0, ifim_da_sqmi,
+  "Little Falls", "Current"
+)
+q500_plot100 <- pothab_plot(
+  wua_lf, alt_lf, "Flow", "Flow_q500",
+  1.0, ifim_da_sqmi,
+  "Little Falls", "Current"
+)
+p20_plot100 + ylim(c(-50,50)) + labs(title = paste("Habitat Change, Little Falls, 80% flowby") )
+curr_plot100 + ylim(c(-50,50)) + labs(title = paste("Habitat Change, Little Falls, 100mgd flowby") )
+q500_plot100 + ylim(c(-50,50)) + labs(title = paste("Habitat Change, Little Falls, 500mgd flowby") )
+
+
 allplot + ylim(c(-50,50))
 p20_plot + ylim(c(-50,50))
 q500_plot + ylim(c(-50,50))
+write.table(
+  allplot$all_pctile_data,
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_chg_current_',elid,'.csv',sep=""),
+  sep = ","
+)
+# need change
+need_lf <- sqldf(
+  "
+    select year,
+      sum(need_curr_mgd) as need_curr_mgd,
+      sum(need_q500_mgd) as need_q500_mgd,
+      sum(need_p20_mgd) as need_p20_mgd
+    from alt_lf
+    group by year
+    order by year
+  "
+)
 
 yrs = c(1930, 2002, 2007, 2008, 2015, 2016,2019)
+yrs = c(1930)
+
 for (yr in yrs) {
   # Box Plot for 1931
-  nat_lf_yr <- sqldf(paste("select * from nat_lf where year = ", yr))
   alt_lf_yr <- sqldf(paste("select * from alt_lf where year = ", yr))
-  plot(nat_lf_yr$Flow ~ nat_lf_yr$Date, col='blue', ylim=c(0,5000))
-  points(alt_lf_yr$Flow ~ nat_lf_yr$Date, col='red')
 
   # just look at the box plot
-  ifim_icprb_maxwd_lf_yr <- ifim_wua_change_plot(
-    nat_lf_yr[c('Date', 'Flow')],
-    alt_lf_yr[c('Date', 'Flow')],
-    wua_lf, 1.0,
-    "ifim_da_sqmi" = ifim_da_sqmi,
-    runid_a = "6",
-    metric_a = "Qbaseline",
-    runid_b = "6",metric_b = "Qout"
+  yrplot <- pothab_plot(
+    wua_lf, alt_lf_yr, "Flow", "Flow_curr",
+    1.0, ifim_da_sqmi,
+    "Little Falls", "Current"
   )
-  ifim_icprb_maxwd_lf_yr +
+  yrplot +
     labs(title = paste("Habitat Change, ICPRB Max Demand Little Falls,", yr, "only.") )
   + ylim(c(-50,50))
+
+  plot(alt_lf_yr$Flow ~ nat_lf_yr$Date, col='blue', ylim=c(0,5000))
+  points(alt_lf_yr$Flow_curr ~ alt_lf_yr$Date, col='red')
 
   pd_nat_flow_table <- om_flow_table(nat_lf_yr, "Flow")
   pd_alt_flow_table <- om_flow_table(alt_lf_yr, "Flow")
