@@ -91,31 +91,49 @@ write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset
 mp_all <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',year.range[1],'","',year.range[2],'","',year.range[3],'","',year.range[4],'","',year.range[5],'"
                 FROM mp_foundation_dataset
                 WHERE "Use Type" NOT LIKE "%power%"'))
-write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_",syear,"-",eyear,".csv"), row.names = F)  
+write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_mgy_",syear,"-",eyear,".csv"), row.names = F)  
 
 #POWER
 mp_all_power <-  sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',year.range[1],'","',year.range[2],'","',year.range[3],'","',year.range[4],'","',year.range[5],'"
                 FROM mp_foundation_dataset
                 WHERE "Use Type" LIKE "%power%"'))
-write.csv(mp_all, paste0(export_path,eyear+1,"/mp_power_",syear,"-",eyear,".csv"), row.names = F)  
+write.csv(mp_all, paste0(export_path,eyear+1,"/mp_power_mgy_",syear,"-",eyear,".csv"), row.names = F)  
 
 # TABLE 1 SUMMARY -----------------------------------------------------------------------------------
-cat_table <- sqldf(paste0('SELECT "Source Type", 
-"Use Type",
-round(SUM("',year.range[1],'")/365,2),
+sql_year_calc <- paste0('round(SUM("',year.range[1],'")/365,2),
 round(SUM("',year.range[2],'")/365,2),
 round(SUM("',year.range[3],'")/365,2),
 round(SUM("',year.range[4],'")/365,2),
-round(SUM("',year.range[5],'")/365,2)
+round(SUM("',year.range[5],'")/365,2)')
+
+cat_table <- sqldf(paste0('SELECT "Source Type", 
+"Use Type",',sql_year_calc,'
                        FROM mp_all
                        GROUP BY "Source Type", "Use Type"'))
-multi_yr_avg <- round((rowMeans(cat_table[3:(length(year.range)+2)], na.rm = FALSE, dims = 1)),2)
 
-cat_table <- cbind(cat_table,multi_yr_avg)
+cat_table_aggreg <- sqldf(paste0('SELECT "Total (GW + SW)" AS "Source Type", 
+"Use Type",',sql_year_calc,'
+                       FROM mp_all
+                       GROUP BY "Use Type"'))
+
+cat_table_gw <- sqldf(paste0('SELECT " " AS "Source Type", 
+"Total Groundwater" AS "Use Type",', sql_year_calc,'
+                       FROM mp_all
+                       WHERE "Source Type" LIKE "Groundwater"'))
+cat_table_sw <- sqldf(paste0('SELECT " " AS "Source Type", 
+"Total Surface Water" AS "Use Type",', sql_year_calc,'
+                       FROM mp_all
+                       WHERE "Source Type" LIKE "Surface Water"'))
+cat_table_totals <- sqldf(paste0('SELECT " " AS "Source Type", 
+"Total (GW + SW)" AS "Use Type",', sql_year_calc,'
+                       FROM mp_all'))
+
+cat_table <- rbind(cat_table,cat_table_aggreg, cat_table_gw, cat_table_sw, cat_table_totals)
+
+multi_yr_avg <- round((rowMeans(cat_table[3:(length(year.range)+2)], na.rm = FALSE, dims = 1)),2)
+cat_table <- cbind(cat_table, multi_yr_avg)
 
 colnames(cat_table) <- c('Source Type', 'Category',year.range,'multi_yr_avg')
-#cat_table <- rbind(cat_table,gw_sums, sw_sums)
-
 
 pct_chg <- round(((cat_table[paste(eyear)]-cat_table["multi_yr_avg"])/cat_table["multi_yr_avg"])*100, 1)
 names(pct_chg) <- paste('% Change',eyear,'to Avg.')
@@ -314,7 +332,7 @@ print(cat_table)
 #save the cat_table to use for data reference - we can refer to that csv when asked questions about the data
 
 #write.csv(cat_table, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\Table1_",syear,"-",eyear,".csv",sep = ""), row.names = F)
-write.csv(cat_table, paste("C:\\Users\\maf95834\\Documents\\awrr\\",eyear+1,"\\testTable1_",syear,"-",eyear,".csv",sep = ""), row.names = F)
+write.csv(cat_table, paste("C:\\Users\\maf95834\\Documents\\awrr\\",eyear+1,"\\Table1_",syear,"-",eyear,".csv",sep = ""), row.names = F)
 
 #Join in FIPS name to data
 fips <- read.csv(file = "C:\\Users\\maf95834\\Documents\\Github\\vahydro\\R\\wsp\\wsp2020\\FoundationDataset\\fips_codes.csv")
