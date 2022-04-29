@@ -4,7 +4,7 @@ library(sqldf)
 options(scipen = 20)
 #Purpose: Compare the new draft (wd_current_draft_mgy; 2017-2021) that has been set to the previous year's set 5-year avg (wd_current_mgy; 2016-2020)
 cyear <- format(Sys.time(), "%Y")
-syear <- as.numeric(cyear)-6
+syear <- as.numeric(cyear)-5
 eyear <- as.numeric(cyear)-1
 
 draft_qa <- read.csv("https://deq1.bse.vt.edu/d.dh/current-average-use-workflow-compare-export?hydroid_op=%3D&hydroid%5Bvalue%5D=&hydroid%5Bmin%5D=&hydroid%5Bmax%5D=&name_op=contains&name=&bundle_op=in&bundle=All")
