@@ -1,57 +1,18 @@
+# Load the baseline flow time series
+# into dataframe nat_lf
 # usgs based
 source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls.R")
-# icprb synthetic
+# icprb Monthly
 #source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls_icprb.R")
+# icprb Daily, 2025
 
+# now do the flowby and CU calcs
+# setting values in dataframe alt_lf
+source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/alt_lf.R")
 
-# now calc wua separately so we can look at a single species
-wua_nat_lf <- wua.at.q_fxn(nat_lf[c("Date", "Flow")],wua_lf)
-wua_nat_lf$Date <- nat_lf$Date
-wua_nat_lf$Flow <- nat_lf$Flow
-wua_alt_lf <- as.data.frame(wua.at.q_fxn(alt_lf[c("Date", "Flow")],wua_lf))
-wua_alt_lf$Date <- alt_lf$Date
-wua_alt_lf$Flow <- alt_lf$Flow
-wua_alt_lf$month <- alt_lf$month
-wua_alt_lf$year <- alt_lf$year
+# Load plotting helper functions
+source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/hab_plot.R")
 
-pothab_plot <- function (
-  wua_dat, all_dat, nat_col, alt_col,
-  flow_pct, ifim_da_sqmi,
-  site_name, scenario
-  ) {
-  # format the input data
-  udat <- all_dat[c('Date', nat_col)]
-  names(udat) <- c('Date', 'Flow')
-  adat <- all_dat[c('Date', alt_col)]
-  names(adat) <- c('Date', 'Flow')
-  # just look at the box plot
-  ifim_icprb_maxwd_lf <- ifim_wua_change_plot(
-    udat,
-    adat,
-    wua_dat, flow_pct,
-    "ifim_da_sqmi" = ifim_da_sqmi,
-    runid_a = "6",
-    metric_a = "Qbaseline",
-    runid_b = "6",metric_b = "Qout"
-  )
-  ifim_icprb_maxwd_lf +
-    labs(
-      title = paste("Habitat Change,", site_name,",",flow_pct,"%ile")
-      ) + ylim(c(-100,100))
-  return(ifim_icprb_maxwd_lf)
-}
-
-hab_alt_tbl <- function(yrplot) {
-
-  yrplot$data$pctchg <- round(yrplot$data$pctchg, 2)
-  yrplot$data[is.na(yrplot$data$pctchg),]$pctchg <- 0.0
-  ifim_sumdata_yr <- xtabs(pctchg ~ metric + flow, data = yrplot$data)
-  ifim_mat <- as.data.frame.matrix(ifim_sumdata_yr)
-  ifim_mat <- cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
-  tbls5pct <-  cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
-  tbls5pct <- as.data.frame(tbls5pct)
-  return(tbls5pct)
-}
 
 curr_plot100 <- pothab_plot(
   wua_lf, alt_lf, "Flow", "Flow_curr",
