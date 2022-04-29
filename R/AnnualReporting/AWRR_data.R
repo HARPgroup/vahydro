@@ -34,6 +34,7 @@ source(paste0(basepath,'/config.R'))
 ds <- RomDataSource$new(site)
 ds$get_token()
 
+export_path <- "Y:/OWS/foundation_datasets/awrr/"
 #---------------------------------------------------------------------------------------------
 if (file_extension == ".html") {
   options(knitr.table.format = "html") #"html" for viewing in Rstudio Viewer pane
@@ -54,6 +55,8 @@ tsdef_url <- paste0(site,"ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_
 
 #NOTE: this takes 5-8 minutes (grab a snack; stay hydrated)
 multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
+#exclude dalecarlia
+multi_yr_data <- multi_yr_data[-which(multi_yr_data$Facility=='DALECARLIA WTP'),]
 #backup<- multi_yr_data
 
 # duplicate_check <- sqldf('SELECT MP_hydroid, "MP Name", "Facility", "FIPS Code", "OWS Planner", count(MP_hydroid)
@@ -70,21 +73,30 @@ multi_yr_data <- sqldf('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Nam
 
 mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner"), names_from = "Year", values_from = "Water Use MGY", names_sort = T)
 
+write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_MGY_1982-",eyear,".csv"), row.names = F)
 #split into 2 datasets: POWER & NON-POWER
 
-mp_all <- sqldf('SELECT *
+mp_all <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',year.range[1],'","',year.range[2],'","',year.range[3],'","',year.range[4],'","',year.range[5],'"
                 FROM mp_foundation_dataset
-                WHERE "Use Type" NOT LIKE "%power%"')
-  
-mp_all_power <-  sqldf('SELECT *
+                WHERE "Use Type" NOT LIKE "%power%"'))
+write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_",syear,"-",eyear,".csv"), row.names = F)  
+
+mp_all_power <-  sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',year.range[1],'","',year.range[2],'","',year.range[3],'","',year.range[4],'","',year.range[5],'"
                 FROM mp_foundation_dataset
-                WHERE "Use Type" LIKE "%power%"') 
+                WHERE "Use Type" LIKE "%power%"'))
+write.csv(mp_all, paste0(export_path,eyear+1,"/mp_power_",syear,"-",eyear,".csv"), row.names = F)  
 
-
-
-
-
-
+# TABLE 1 SUMMARY -----------------------------------------------------------------------------------
+table1 <- sqldf(paste0('SELECT "Source Type", 
+"Use Type",
+round("',year.range[1],'",2),
+round("',year.range[2],'",2),
+round("',year.range[3],'",2),
+round("',year.range[4],'",2),
+round("',year.range[5],'",2),
+AS multi_yr_avg
+                       FROM mp_all
+                       GROUP BY "Source Type", "Use Type"'))
 #-----------------------------------------------------------------------------------
 a <- c(
   'agricultural', 
