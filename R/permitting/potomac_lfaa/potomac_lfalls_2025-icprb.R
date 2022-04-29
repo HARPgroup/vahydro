@@ -29,31 +29,6 @@ icprb_monthly_prod <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahy
 icprb_monthly_prod$month <- month(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
 icprb_monthly_prod$year <- year(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
 
-# monthly mean flows from ICPRB
-da_por <- 9651.0 # https://waterdata.usgs.gov/nwis/uv?site_no=01638500
-da_lf <- 11586.6 # d.dh/admin/content/dh_features/manage/68363/dh_properties
-
-nat_lf <- historic[c("Date", "X_00060_00003", "year", "month")]
-colnames(nat_lf) <- c('Date', 'Flow', "year", "month")
-nat_lf$Flow <- (da_lf / da_por) * nat_lf$Flow
-
-QLF_usgs <- historic
-QLF_usgs$X_00060_00003 <- QLF_usgs$X_00060_00003 * 1.20056
-Qmonth_LF_usgs <- sqldf("select month, year, avg(X_00060_00003) as Flow from QLF_usgs group by year, month")
-Qmonth_diff <- sqldf(
-  "
-    select a.year as year, a.month, (b.lfalls_nat - Flow) as dQ
-    from Qmonth_LF_usgs as a
-    left outer join icprb_monthly_lf as b
-    on (
-      a.month = b.month
-      and a.year = b.cyear
-    )
-    order by a.year, a.month
-  "
-)
-
-
 icprb_prod_max <- sqldf(
   "
    select month,
@@ -67,8 +42,11 @@ icprb_prod_max <- sqldf(
    group by month
   "
 )
-
-
+nat_lf <- as.data.frame(icprb_daily_2025_lf)
+nat_lf$Date <- as.Date(nat_lf$Date)
+nat_lf$month <- month(nat_lf$Date)
+nat_lf$year <- year(nat_lf$Date)
+nat_lf$Flow <- nat_lf$lfalss_nat * 1.547
 
 alt_lf <- sqldf(
   "
@@ -84,27 +62,11 @@ alt_lf <- sqldf(
   "
 )
 
-# now adjust for difference btwn USGS and ICPRB monthly
-alt_lf <- sqldf(
-  "
-    select a.*, b.dQ
-    from alt_lf as a
-    left outer join Qmonth_diff as b
-    on (
-      a.year = b.year
-      and a.month = b.month
-    )
-    where b.dQ is not null
-    order by a.Date
-  "
-)
-alt_lf$Flow <- alt_lf$Flow - alt_lf$dQ
-quantile(alt_lf$Flow, probs=c(0.001,0.01,0.05,0.1,0.25))
-
 alt_lf <- sqldf(
   "
     select *,
       (Flow * 0.2)/1.547 as avail_p20_mgd,
+      (Flow * 0.3)/1.547 as avail_p30_mgd,
       CASE
         WHEN Flow >= (100.0 * 1.547)
           THEN (Flow - (100.0 * 1.547))/1.547
@@ -132,6 +94,10 @@ alt_lf <- sqldf(
         ELSE demand_mgd
       END as wd_p20_mgd,
       CASE
+        WHEN demand_mgd > avail_p30_mgd THEN avail_p30_mgd
+        ELSE demand_mgd
+      END as wd_p30_mgd,
+      CASE
         WHEN demand_mgd > avail_q500_mgd THEN avail_q500_mgd
         ELSE demand_mgd
       END as wd_q500_mgd
@@ -146,15 +112,32 @@ alt_lf <- sqldf(
     select a.*,
       demand_mgd - wd_curr_mgd as need_curr_mgd,
       demand_mgd - wd_p20_mgd as need_p20_mgd,
+      demand_mgd - wd_p30_mgd as need_p30_mgd,
       demand_mgd - wd_q500_mgd as need_q500_mgd,
       Flow - wd_curr_mgd * 1.547 as Flow_curr,
       Flow - wd_p20_mgd * 1.547 as Flow_p20,
+      Flow - wd_p30_mgd * 1.547 as Flow_p30,
       Flow - wd_q500_mgd * 1.547 as Flow_q500
     from alt_lf as a
     order by Date
   "
 )
 
-quantile(alt_lf$need_curr_mgd, probs=c(0.5,0.75,0.8,0.9,0.95,0.99,1.0))
-quantile(alt_lf$need_q500_mgd, probs=c(0.5,0.75,0.8,0.9,0.95,0.99,1.0))
-quantile(alt_lf$need_p20_mgd, probs=c(0.5,0.75,0.8,0.9,0.95,0.99,1.0))
+# calculate release needed
+need_lf <- sqldf(
+  "
+    select year, sum(need_curr_mgd) as need_curr_mgd,
+      sum(need_p20_mgd) as need_p20_mgd,
+      sum(need_p30_mgd) as need_p30_mgd,
+      sum(need_q500_mgd) as need_q500_mgd
+    from alt_lf
+    group by year
+  "
+)
+
+rbind(
+  round(quantile(need_lf$need_curr_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
+  round(quantile(need_lf$need_q500_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
+  round(quantile(need_lf$need_p20_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
+  round(quantile(need_lf$need_p30_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0)))
+)
