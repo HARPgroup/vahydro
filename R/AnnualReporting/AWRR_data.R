@@ -1,25 +1,40 @@
-#Annual Reporting PART 1 - Load and save the foundational datasets
-### This script generates:
+# Annual Reporting PART 1 - Load and save the foundational datasets --------------------------------------------
+# MUST BE ON VPN
+
+# This script generates:
 #### mp_all_XXXX-XXXX
 #### mp_all_1982-current
 #### mp_all_wide_XXXX-XXXX
 #### mp_permitted_XXXX
 
-#library("readxl")
-library("dplyr")
-library("tidyr")
+library('tidyverse') #loads in tidyr, dplyr, ggplot2, etc
 library('httr')
 library('stringr')
 library("kableExtra")
 library('stringr')
-library('ggplot2')
 library('sqldf')
+library("hydrotools")
+
 options(scipen = 999)
 
+#NOTE: The start and end year need to be updated every year
+syear = 1982
+eyear = 2021
+
+#NOTE: switch between file types to save in common drive folder; html or latex
 #file_extension <- ".html"
 file_extension <- ".tex"
 
-#switch between file types to save in common drive folder; html or latex
+#---------------------------------------------------------------------------------------
+#Generate REST token for authentication
+rest_uname = FALSE
+rest_pw = FALSE
+basepath ='/var/www/R'
+source(paste0(basepath,'/config.R'))
+ds <- RomDataSource$new(site)
+ds$get_token()
+
+#---------------------------------------------------------------------------------------------
 if (file_extension == ".html") {
   options(knitr.table.format = "html") #"html" for viewing in Rstudio Viewer pane
   file_ext <- ".html" #view in R or browser
@@ -30,12 +45,47 @@ if (file_extension == ".html") {
 #Kable Styling
 latexoptions <- c("scale_down")
 
-
-syear = 2016
-eyear = 2020
 year.range <- syear:eyear
 
+
 ############### PULL DIRECTLY FROM VAHYDRO ###################################################
+#load in MGY from Annual Map Exports view
+tsdef_url <- paste0(site,"ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
+
+#NOTE: this takes 5-8 minutes (grab a snack; stay hydrated)
+multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
+#backup<- multi_yr_data
+
+# duplicate_check <- sqldf('SELECT MP_hydroid, "MP Name", "Facility", "FIPS Code", "OWS Planner", count(MP_hydroid)
+#       FROM multi_yr_data
+#       GROUP BY MP_hydroid, Year
+#       HAVING count(MP_hydroid) > 1')
+
+#Group the MPs by HydroID, Year to account for MPs that are linked to multiple Facilities (GW2 & Permitted) 
+multi_yr_data <- sqldf('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", MAX("Year") AS Year, MAX("Water Use MGY") AS "Water Use MGY"
+      FROM multi_yr_data
+      WHERE "Use Type" NOT LIKE "gw2_%"
+      GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", "Year"
+      ')
+
+mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner"), names_from = "Year", values_from = "Water Use MGY", names_sort = T)
+
+#split into 2 datasets: POWER & NON-POWER
+
+mp_all <- sqldf('SELECT *
+                FROM mp_foundation_dataset
+                WHERE "Use Type" NOT LIKE "%power%"')
+  
+mp_all_power <-  sqldf('SELECT *
+                FROM mp_foundation_dataset
+                WHERE "Use Type" LIKE "%power%"') 
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------
 a <- c(
   'agricultural', 
   'commercial', 
@@ -224,7 +274,9 @@ cat_table <- rbind(cat_table,catsum.sums)
 cat_table$Category <- str_to_title(cat_table$Category)
 print(cat_table)
 
+############################################################################################################
 #save the cat_table to use for data reference - we can refer to that csv when asked questions about the data
+
 #write.csv(cat_table, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\Table1_",syear,"-",eyear,".csv",sep = ""), row.names = F)
 write.csv(cat_table, paste("C:\\Users\\maf95834\\Documents\\awrr\\",eyear+1,"\\testTable1_",syear,"-",eyear,".csv",sep = ""), row.names = F)
 
