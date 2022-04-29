@@ -37,6 +37,7 @@ ifim_da_sqmi <- as.numeric(ifim_da_sqmi$propvalue)
 # RETRIEVE RSEG DA SQMI
 rseg_da_sqmi <- getProperty(list(varkey = 'wshed_drainage_area_sqmi',featureid = wshed_featureid,entity_type = 'dh_feature'),site,prop)
 rseg_da_sqmi <- as.numeric(rseg_da_sqmi$propvalue)
+gf_da_sqmi = rseg_da_sqmi
 
 weighting_factor <- ifim_da_sqmi/rseg_da_sqmi
 if (weighting_factor == 0) {

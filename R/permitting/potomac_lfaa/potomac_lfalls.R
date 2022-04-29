@@ -37,6 +37,21 @@ nat_lf <- historic[c("Date", "X_00060_00003", "year", "month")]
 colnames(nat_lf) <- c('Date', 'Flow', "year", "month")
 nat_lf$Flow <- (da_lf / da_por) * nat_lf$Flow
 
+QLF_usgs <- historic
+QLF_usgs$X_00060_00003 <- QLF_usgs$X_00060_00003 * 1.20056
+Qmonth_LF_usgs <- sqldf("select month, year, avg(X_00060_00003) as Flow from QLF_usgs group by year, month")
+Qmonth_diff <- sqldf(
+  "
+    select a.year as year, a.month, (b.lfalls_nat - Flow) as dQ
+    from Qmonth_LF_usgs as a
+    left outer join icprb_monthly_lf as b
+    on (
+      a.month = b.month
+      and a.year = b.cyear
+    )
+    order by a.year, a.month
+  "
+)
 
 
 icprb_prod_max <- sqldf(
@@ -71,6 +86,7 @@ alt_lf <- sqldf(
   "
     select *,
       (Flow * 0.2)/1.547 as avail_p20_mgd,
+      (Flow * 0.3)/1.547 as avail_p30_mgd,
       CASE
         WHEN Flow >= (100.0 * 1.547)
           THEN (Flow - (100.0 * 1.547))/1.547
@@ -98,6 +114,10 @@ alt_lf <- sqldf(
         ELSE demand_mgd
       END as wd_p20_mgd,
       CASE
+        WHEN demand_mgd > avail_p30_mgd THEN avail_p30_mgd
+        ELSE demand_mgd
+      END as wd_p30_mgd,
+      CASE
         WHEN demand_mgd > avail_q500_mgd THEN avail_q500_mgd
         ELSE demand_mgd
       END as wd_q500_mgd
@@ -112,15 +132,59 @@ alt_lf <- sqldf(
     select a.*,
       demand_mgd - wd_curr_mgd as need_curr_mgd,
       demand_mgd - wd_p20_mgd as need_p20_mgd,
+      demand_mgd - wd_p30_mgd as need_p30_mgd,
       demand_mgd - wd_q500_mgd as need_q500_mgd,
       Flow - wd_curr_mgd * 1.547 as Flow_curr,
       Flow - wd_p20_mgd * 1.547 as Flow_p20,
+      Flow - wd_p30_mgd * 1.547 as Flow_p30,
       Flow - wd_q500_mgd * 1.547 as Flow_q500
     from alt_lf as a
     order by Date
   "
 )
 
-quantile(alt_lf$need_curr_mgd, probs=c(0.5,0.75,0.8,0.9,0.95,0.99,1.0))
-quantile(alt_lf$need_q500_mgd, probs=c(0.5,0.75,0.8,0.9,0.95,0.99,1.0))
-quantile(alt_lf$need_p20_mgd, probs=c(0.5,0.75,0.8,0.9,0.95,0.99,1.0))
+# calculate release needed
+need_lf <- sqldf(
+  "
+    select year, sum(need_curr_mgd) as need_curr_mgd,
+      sum(need_p20_mgd) as need_p20_mgd,
+      sum(need_p30_mgd) as need_p30_mgd,
+      sum(need_q500_mgd) as need_q500_mgd
+    from alt_lf
+    group by year
+  "
+)
+
+rbind(
+  round(quantile(need_lf$need_curr_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
+  round(quantile(need_lf$need_q500_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
+  round(quantile(need_lf$need_p20_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
+  round(quantile(need_lf$need_p30_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0)))
+)
+
+
+usgs_monthly <- sqldf(
+  "
+  select year, month, avg(X_00060_00003) as usgs_por
+  from historic
+  group by year, month
+"
+)
+
+
+sqldf(
+  "
+   select a.month, avg(usgs_por) as usgs_por,
+     avg(b.lfalls_nat) as icprb_lfalls,
+     avg(b.lfalls_nat)/avg(usgs_por) as da_fact
+   from usgs_monthly as a
+   left outer join icprb_monthly_lf as b
+   on (
+     a.year = b.cyear
+     and a.month = b.month
+   )
+   where a.year = 1930
+   group by a.month
+   order by a.month
+  "
+)

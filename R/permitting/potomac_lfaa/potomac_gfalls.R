@@ -25,7 +25,8 @@ source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/ifim_data_gfalls
 # load PoR time series from Gage and ICPRB
 # compare PoR gage time series with
 icprb_monthly_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/lfalls_nat_monthly_data.csv")
-icprb_monthly_gf <-
+icprb_monthly_gf <- icprb_monthly_lf
+icprb_monthly_gf$gfalls <-
 icprb_monthly_prod <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/wma_production.csv")
 icprb_monthly_prod$month <- month(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
 icprb_monthly_prod$year <- year(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
