@@ -37,23 +37,6 @@ nat_lf <- historic[c("Date", "X_00060_00003", "year", "month")]
 colnames(nat_lf) <- c('Date', 'Flow', "year", "month")
 nat_lf$Flow <- (da_lf / da_por) * nat_lf$Flow
 
-QLF_usgs <- historic
-QLF_usgs$X_00060_00003 <- QLF_usgs$X_00060_00003 * 1.20056
-Qmonth_LF_usgs <- sqldf("select month, year, avg(X_00060_00003) as Flow from QLF_usgs group by year, month")
-Qmonth_diff <- sqldf(
-  "
-    select a.year as year, a.month, (b.lfalls_nat - Flow) as dQ
-    from Qmonth_LF_usgs as a
-    left outer join icprb_monthly_lf as b
-    on (
-      a.month = b.month
-      and a.year = b.cyear
-    )
-    order by a.year, a.month
-  "
-)
-
-
 icprb_prod_max <- sqldf(
   "
    select month,
@@ -83,21 +66,6 @@ alt_lf <- sqldf(
 )
 alt_lf$Date <- paste0(alt_lf$year,'-',alt_lf$month,'-01')
 
-# now adjust for difference btwn USGS and ICPRB monthly
-alt_lf <- sqldf(
-  "
-    select a.*, b.dQ
-    from alt_lf as a
-    left outer join Qmonth_diff as b
-    on (
-      a.year = b.year
-      and a.month = b.month
-    )
-    order by a.Date
-  "
-)
-alt_lf$Flow <- alt_lf$Flow - alt_lf$dQ
-quantile(alt_lf$Flow)
 
 alt_lf <- sqldf(
   "
