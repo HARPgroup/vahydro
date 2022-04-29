@@ -254,29 +254,3 @@ wua_ts1 <- data.frame(ts3,wua_ts1)
 wua_ts1$month <- month(wua_ts1$Date)
 wua_ts1$year <- year(wua_ts1$Date)
 wua_ts1$month <- month(wua_ts1$Date)
-
-usgs_monthly <- sqldf(
- "
-  select year, month, avg(X_00060_00003) as usgs_por
-  from historic
-  group by year, month
-"
-)
-
-
-sqldf(
-  "
-   select a.month, avg(usgs_por) as usgs_por,
-     avg(b.lfalls_nat) as icprb_lfalls,
-     avg(b.lfalls_nat)/avg(usgs_por) as da_fact
-   from usgs_monthly as a
-   left outer join icprb_monthly_lf as b
-   on (
-     a.year = b.cyear
-     and a.month = b.month
-   )
-   where a.year = 1930
-   group by a.month
-   order by a.month
-  "
-)

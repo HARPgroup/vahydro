@@ -1,13 +1,18 @@
+# usgs based
 source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls.R")
+# icprb synthetic
+#source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls_icprb.R")
 
 
 # now calc wua separately so we can look at a single species
 wua_nat_lf <- wua.at.q_fxn(nat_lf[c("Date", "Flow")],wua_lf)
 wua_nat_lf$Date <- nat_lf$Date
 wua_nat_lf$Flow <- nat_lf$Flow
-wua_alt_lf <- wua.at.q_fxn(alt_lf[c("Date", "Flow")],wua_lf)
+wua_alt_lf <- as.data.frame(wua.at.q_fxn(alt_lf[c("Date", "Flow")],wua_lf))
 wua_alt_lf$Date <- alt_lf$Date
 wua_alt_lf$Flow <- alt_lf$Flow
+wua_alt_lf$month <- alt_lf$month
+wua_alt_lf$year <- alt_lf$year
 
 pothab_plot <- function (
   wua_dat, all_dat, nat_col, alt_col,
@@ -32,8 +37,20 @@ pothab_plot <- function (
   ifim_icprb_maxwd_lf +
     labs(
       title = paste("Habitat Change,", site_name,",",flow_pct,"%ile")
-      ) + ylim(c(-50,50))
+      ) + ylim(c(-100,100))
   return(ifim_icprb_maxwd_lf)
+}
+
+hab_alt_tbl <- function(yrplot) {
+
+  yrplot$data$pctchg <- round(yrplot$data$pctchg, 2)
+  yrplot$data[is.na(yrplot$data$pctchg),]$pctchg <- 0.0
+  ifim_sumdata_yr <- xtabs(pctchg ~ metric + flow, data = yrplot$data)
+  ifim_mat <- as.data.frame.matrix(ifim_sumdata_yr)
+  ifim_mat <- cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
+  tbls5pct <-  cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
+  tbls5pct <- as.data.frame(tbls5pct)
+  return(tbls5pct)
 }
 
 curr_plot100 <- pothab_plot(
@@ -43,7 +60,7 @@ curr_plot100 <- pothab_plot(
 )
 
 
-allplot <- pothab_plot(
+curr_plot <- pothab_plot(
   wua_lf, alt_lf, "Flow", "Flow_curr",
   0.1, ifim_da_sqmi,
   "Little Falls", "Current"
@@ -58,9 +75,19 @@ p20_plot <- pothab_plot(
   0.1, ifim_da_sqmi,
   "Little Falls", "Current"
 )
+p30_plot <- pothab_plot(
+  wua_lf, alt_lf, "Flow", "Flow_p30",
+  0.1, ifim_da_sqmi,
+  "Little Falls", "Current"
+)
 
 p20_plot100 <- pothab_plot(
   wua_lf, alt_lf, "Flow", "Flow_p20",
+  1.0, ifim_da_sqmi,
+  "Little Falls", "Current"
+)
+p30_plot100 <- pothab_plot(
+  wua_lf, alt_lf, "Flow", "Flow_p30",
   1.0, ifim_da_sqmi,
   "Little Falls", "Current"
 )
@@ -69,19 +96,28 @@ q500_plot100 <- pothab_plot(
   1.0, ifim_da_sqmi,
   "Little Falls", "Current"
 )
-p20_plot100 + ylim(c(-50,50)) + labs(title = paste("Habitat Change, Little Falls, 80% flowby") )
-curr_plot100 + ylim(c(-50,50)) + labs(title = paste("Habitat Change, Little Falls, 100mgd flowby") )
-q500_plot100 + ylim(c(-50,50)) + labs(title = paste("Habitat Change, Little Falls, 500mgd flowby") )
+curr_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 100mgd flowby (10%)") )
+q500_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 500mgd flowby (10%)") )
+p20_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 80% flowby (10%)") )
+p30_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 70% flowby (10%)") )
 
 
-allplot + ylim(c(-50,50))
-p20_plot + ylim(c(-50,50))
-q500_plot + ylim(c(-50,50))
+curr_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 100mgd flowby (all)") )
+q500_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 500mgd flowby (all)") )
+p20_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 80% flowby (all)") )
+p30_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 70% flowby (all)") )
+
+# export all data for review
 write.table(
-  allplot$all_pctile_data,
+  curr_plot$all_pctile_data,
   file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_chg_current_',elid,'.csv',sep=""),
   sep = ","
 )
+
+curr_plot_alt_tbl <- hab_alt_tbl(curr_plot)
+curr_plot_alt_tbl <- hab_alt_tbl(curr_plot)
+curr_plot_alt_tbl <- hab_alt_tbl(curr_plot)
+
 # need change
 need_lf <- sqldf(
   "
@@ -110,7 +146,7 @@ for (yr in yrs) {
   )
   yrplot +
     labs(title = paste("Habitat Change, ICPRB Max Demand Little Falls,", yr, "only.") )
-  + ylim(c(-50,50))
+  + ylim(c(-100,100))
 
   plot(alt_lf_yr$Flow ~ nat_lf_yr$Date, col='blue', ylim=c(0,5000))
   points(alt_lf_yr$Flow_curr ~ alt_lf_yr$Date, col='red')
@@ -119,13 +155,13 @@ for (yr in yrs) {
   pd_alt_flow_table <- om_flow_table(alt_lf_yr, "Flow")
 
 
-  ifim_icprb_maxwd_lf_yr$data$pctchg <- round(ifim_plot6_20$data$pctchg, 2)
-  ifim_icprb_maxwd_lf_yr$data[is.na(ifim_icprb_maxwd_lf_yr$data$pctchg),]$pctchg <- 0.0
-  ifim_sumdata_yr <- xtabs(pctchg ~ metric + flow, data = ifim_icprb_maxwd_lf_yr$data)
+  yrplot$data$pctchg <- round(yrplot$data$pctchg, 2)
+  yrplot$data[is.na(yrplot$data$pctchg),]$pctchg <- 0.0
+  ifim_sumdata_yr <- xtabs(pctchg ~ metric + flow, data = yrplot$data)
   ifim_mat <- as.data.frame.matrix(ifim_sumdata_yr)
   ifim_mat <- cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
-  ifim_icprb_maxwd_lf_yr$data.formatted <-  cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
-  tbls5pct <- as.data.frame(ifim_icprb_maxwd_lf_yr$data.formatted)
+  yrplot$data.formatted <-  cbind(MAF = ifim_mat[,"MAF"], ifim_mat[,month.abb])
+  tbls5pct <- as.data.frame(yrplot$data.formatted)
   write.table(
     tbls5pct$data.formatted,
     file = paste(export_path,'ifim_wua_chg',yr,elid,'.csv',sep=""),
@@ -144,29 +180,3 @@ wua_ts1 <- data.frame(ts3,wua_ts1)
 wua_ts1$month <- month(wua_ts1$Date)
 wua_ts1$year <- year(wua_ts1$Date)
 wua_ts1$month <- month(wua_ts1$Date)
-
-usgs_monthly <- sqldf(
-  "
-  select year, month, avg(X_00060_00003) as usgs_por
-  from historic
-  group by year, month
-"
-)
-
-
-sqldf(
-  "
-   select a.month, avg(usgs_por) as usgs_por,
-     avg(b.lfalls_nat) as icprb_lfalls,
-     avg(b.lfalls_nat)/avg(usgs_por) as da_fact
-   from usgs_monthly as a
-   left outer join icprb_monthly_lf as b
-   on (
-     a.year = b.cyear
-     and a.month = b.month
-   )
-   where a.year = 1930
-   group by a.month
-   order by a.month
-  "
-)
