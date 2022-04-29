@@ -58,14 +58,25 @@ multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
 #exclude dalecarlia
 multi_yr_data <- multi_yr_data[-which(multi_yr_data$Facility=='DALECARLIA WTP'),]
 #backup<- multi_yr_data
-
+multi_yr_data <- backup
 # duplicate_check <- sqldf('SELECT MP_hydroid, "MP Name", "Facility", "FIPS Code", "OWS Planner", count(MP_hydroid)
 #       FROM multi_yr_data
 #       GROUP BY MP_hydroid, Year
 #       HAVING count(MP_hydroid) > 1')
 
 #Group the MPs by HydroID, Year to account for MPs that are linked to multiple Facilities (GW2 & Permitted) 
-multi_yr_data <- sqldf('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", MAX("Year") AS Year, MAX("Water Use MGY") AS "Water Use MGY"
+multi_yr_data <- sqldf('SELECT "MP_hydroid", "Hydrocode", 
+CASE
+WHEN LOWER("Source Type") LIKE "%well%" THEN "Groundwater"
+WHEN LOWER("Source Type") LIKE "%intake%" THEN "Surface Water"
+ELSE LOWER("Source Type")
+END AS "Source Type", 
+"MP Name", "Facility_hydroid", "Facility", 
+CASE 
+WHEN LOWER("Use Type") LIKE "%agriculture%" THEN "agriculture"
+WHEN LOWER("Use Type") LIKE "%industrial%" THEN "manufacturing"
+ELSE LOWER("Use Type")
+END AS "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", MAX("Year") AS Year, MAX("Water Use MGY") AS "Water Use MGY"
       FROM multi_yr_data
       WHERE "Use Type" NOT LIKE "gw2_%"
       GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", "Year"
@@ -76,11 +87,13 @@ mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydro
 write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_MGY_1982-",eyear,".csv"), row.names = F)
 #split into 2 datasets: POWER & NON-POWER
 
+#NON-POWER
 mp_all <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',year.range[1],'","',year.range[2],'","',year.range[3],'","',year.range[4],'","',year.range[5],'"
                 FROM mp_foundation_dataset
                 WHERE "Use Type" NOT LIKE "%power%"'))
 write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_",syear,"-",eyear,".csv"), row.names = F)  
 
+#POWER
 mp_all_power <-  sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',year.range[1],'","',year.range[2],'","',year.range[3],'","',year.range[4],'","',year.range[5],'"
                 FROM mp_foundation_dataset
                 WHERE "Use Type" LIKE "%power%"'))
@@ -89,16 +102,24 @@ write.csv(mp_all, paste0(export_path,eyear+1,"/mp_power_",syear,"-",eyear,".csv"
 # TABLE 1 SUMMARY -----------------------------------------------------------------------------------
 cat_table <- sqldf(paste0('SELECT "Source Type", 
 "Use Type",
-round("',year.range[1],'",2),
-round("',year.range[2],'",2),
-round("',year.range[3],'",2),
-round("',year.range[4],'",2),
-round("',year.range[5],'",2)
+round(SUM("',year.range[1],'")/365,2),
+round(SUM("',year.range[2],'")/365,2),
+round(SUM("',year.range[3],'")/365,2),
+round(SUM("',year.range[4],'")/365,2),
+round(SUM("',year.range[5],'")/365,2)
                        FROM mp_all
                        GROUP BY "Source Type", "Use Type"'))
 multi_yr_avg <- round((rowMeans(cat_table[3:(length(year.range)+2)], na.rm = FALSE, dims = 1)),2)
-#names(multi_yr_avg) <- paste(length(year.range)," Year Avg.",sep="")
+
 cat_table <- cbind(cat_table,multi_yr_avg)
+
+colnames(cat_table) <- c('Source Type', 'Category',year.range,'multi_yr_avg')
+#cat_table <- rbind(cat_table,gw_sums, sw_sums)
+
+
+pct_chg <- round(((cat_table[paste(eyear)]-cat_table["multi_yr_avg"])/cat_table["multi_yr_avg"])*100, 1)
+names(pct_chg) <- paste('% Change',eyear,'to Avg.')
+cat_table <- cbind(cat_table,'pct_chg' = pct_chg)
 
 #-----------------------------------------------------------------------------------
 a <- c(
