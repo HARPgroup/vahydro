@@ -87,16 +87,19 @@ mp_all_power <-  sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", 
 write.csv(mp_all, paste0(export_path,eyear+1,"/mp_power_",syear,"-",eyear,".csv"), row.names = F)  
 
 # TABLE 1 SUMMARY -----------------------------------------------------------------------------------
-table1 <- sqldf(paste0('SELECT "Source Type", 
+cat_table <- sqldf(paste0('SELECT "Source Type", 
 "Use Type",
 round("',year.range[1],'",2),
 round("',year.range[2],'",2),
 round("',year.range[3],'",2),
 round("',year.range[4],'",2),
-round("',year.range[5],'",2),
-AS multi_yr_avg
+round("',year.range[5],'",2)
                        FROM mp_all
                        GROUP BY "Source Type", "Use Type"'))
+multi_yr_avg <- round((rowMeans(cat_table[3:(length(year.range)+2)], na.rm = FALSE, dims = 1)),2)
+#names(multi_yr_avg) <- paste(length(year.range)," Year Avg.",sep="")
+cat_table <- cbind(cat_table,multi_yr_avg)
+
 #-----------------------------------------------------------------------------------
 a <- c(
   'agricultural', 
