@@ -1,11 +1,14 @@
 # Load the baseline flow time series
 # into dataframe nat_lf
 # usgs based
-source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls.R")
+#source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls.R")
 # icprb Monthly
 #source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls_monthly-icprb.R")
 # icprb Daily, 2025
-#source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls_2025-icprb.R")
+source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/potomac_lfalls_2025-icprb.R")
+
+# load the demand time series
+source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/demands.R")
 
 
 # now do the flowby and CU calcs

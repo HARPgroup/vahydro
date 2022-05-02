@@ -23,7 +23,8 @@ demand_lf <- sqldf(
    select a.Date, a.year, a.month,
     (b.wssc_pot + b.wa_gf + b.wa_lf
       + b.fw_pot + b.rville) as demand_max_mgd,
-      c.wd_pot_mgd as demand_2025_mgd,
+      c.wd_pot_mgd as demand_2025_old_mgd,
+      d.lfalls_wd_mgd as demand_2025_mgd,
       a.Flow
    from nat_lf as a
    left outer join icprb_prod_max as b
@@ -34,10 +35,19 @@ demand_lf <- sqldf(
    on (
      c.Date = a.Date
    )
+   left outer join icprb_daily_nat_lf as d
+   on (
+     d.Date = a.Date
+   )
   "
 )
 
+icprb_daily_nat_lf
+demand_lf <- sqldf("select * from demand_lf where demand_2025_mgd is not null")
+sqldf("select a.Date from nat_lf as a")
+
 rbind(
   quantile(demand_lf$demand_mgd),
+  quantile(demand_lf$demand_2025_old_mgd),
   quantile(demand_lf$demand_2025_mgd)
 )

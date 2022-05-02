@@ -29,6 +29,7 @@ icprb_monthly_prod <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahy
 icprb_monthly_prod$month <- month(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
 icprb_monthly_prod$year <- year(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
 
+# area
 # monthly mean flows from ICPRB
 da_por <- 9651.0 # https://waterdata.usgs.gov/nwis/uv?site_no=01638500
 da_lf <- 11586.6 # d.dh/admin/content/dh_features/manage/68363/dh_properties
