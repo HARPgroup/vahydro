@@ -1,3 +1,9 @@
+# load the Weighted Usable Area Table
+wua_lf <- read.table(
+  "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/wua_lf.csv"
+  , header=TRUE, sep=","
+)
+
 # Load the baseline flow time series
 # into dataframe nat_lf
 # usgs based
