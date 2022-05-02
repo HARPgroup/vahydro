@@ -11,13 +11,6 @@ source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
 
-# Load the gage flow record
-gageid = '01638500'
-historic <- dataRetrieval::readNWISdv(gageid,'00060')
-historic$month <- month(historic$Date)
-historic$year <- year(historic$Date)
-gage_sum_historic <- om_flow_table(historic, "X_00060_00003")
-
 # Load the IFIM feature and data
 # to do: put this on github as json data
 source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/ifim_data_lfalls.R")
@@ -25,23 +18,11 @@ source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/ifim_data_lfalls
 # load PoR time series from Gage and ICPRB
 # compare PoR gage time series with
 icprb_daily_2025_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/PRRISM_2025_nocc_for_vadeq.csv")
-icprb_monthly_prod <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/wma_production.csv")
-icprb_monthly_prod$month <- month(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
-icprb_monthly_prod$year <- year(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
+# before revision, had data thru 2018 which was nice
+#icprb_daily_nat_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/PRRISM_2025_nocc_for_vadeq.csv")
+# revised is C.Schultz best timeseries, only goes thru 2009
+icprb_daily_nat_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/PRRISM_2025_nocc_for_vadeq-revised.csv")
 
-icprb_prod_max <- sqldf(
-  "
-   select month,
-     max(wssc_pot) as wssc_pot,
-     max(wa_gf) as  wa_gf,
-     max(wa_lf) as wa_lf,
-     max(fw_pot) as fw_pot,
-     max(rville) as rville,
-     max(up_cu) as up_cu
-   from icprb_monthly_prod where year >= 2015
-   group by month
-  "
-)
 nat_lf <- as.data.frame(icprb_daily_2025_lf)
 nat_lf$Date <- as.Date(nat_lf$Date)
 nat_lf$month <- month(nat_lf$Date)

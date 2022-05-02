@@ -1,18 +1,22 @@
 # calculate flow & demands against nat_lf + flowby scens
 
+# choose
+#   b.demand_max_mgd as demand_mgd
+# OR
+#  b.demand_2025_mgd as demand_mgd
 alt_lf <- sqldf(
   "
    select a.Date, a.year, a.month,
-    (b.wssc_pot + b.wa_gf + b.wa_lf
-      + b.fw_pot + b.rville) as demand_mgd,
+    b.demand_max_mgd as demand_mgd,
       a.Flow
    from nat_lf as a
-   left outer join icprb_prod_max as b
+   left outer join demand_lf as b
    on (
-     a.month = b.month
+     a.Date = b.Date
    )
   "
 )
+alt_lf <- sqldf("select * from alt_lf where demand_mgd is not null")
 
 alt_lf <- sqldf(
   "
@@ -87,9 +91,22 @@ need_lf <- sqldf(
   "
 )
 
+# gives total annual releases needed in MGY
+nprobs <- c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0)
 rbind(
-  round(quantile(need_lf$need_curr_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
-  round(quantile(need_lf$need_q500_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
-  round(quantile(need_lf$need_p20_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0))),
-  round(quantile(need_lf$need_p30_mgd, probs=c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0)))
+  round(quantile(need_lf$need_curr_mgd, probs=nprobs)),
+  round(quantile(need_lf$need_q500_mgd, probs=nprobs)),
+  round(quantile(need_lf$need_p20_mgd, probs=nprobs)),
+  round(quantile(need_lf$need_p30_mgd, probs=nprobs))
+)
+
+
+# gives total annual releases needed in MGY
+fprobs <- c(0,0.01,0.05,0.1,0.25,0.5,0.99,1.0)
+rbind(
+  round(quantile(alt_lf$Flow, probs=fprobs)),
+  round(quantile(alt_lf$Flow_curr, probs=fprobs)),
+  round(quantile(alt_lf$Flow_q500, probs=fprobs)),
+  round(quantile(alt_lf$Flow_p20, probs=fprobs)),
+  round(quantile(alt_lf$Flow_p30, probs=fprobs))
 )
