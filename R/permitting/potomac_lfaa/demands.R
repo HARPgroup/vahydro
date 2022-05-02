@@ -42,9 +42,7 @@ demand_lf <- sqldf(
   "
 )
 
-icprb_daily_nat_lf
 demand_lf <- sqldf("select * from demand_lf where demand_2025_mgd is not null")
-sqldf("select a.Date from nat_lf as a")
 
 rbind(
   quantile(demand_lf$demand_mgd),
