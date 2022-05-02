@@ -1,15 +1,3 @@
-#----------------------------------------------
-site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
-#----------------------------------------------
-# Load Libraries
-library(hydrotools)
-basepath='/var/www/R';
-source(paste(basepath,'config.R',sep='/'))
-source(paste("https://raw.githubusercontent.com/HARPgroup/r-dh-ecohydro",'master/Analysis/habitat','ifim_wua_change_plot.R',sep='/'))
-source(paste("https://raw.githubusercontent.com/HARPgroup/r-dh-ecohydro",'master/Analysis/habitat','hab_ts_functions.R',sep='/'))
-source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
-source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
-source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
 
 # Load the IFIM feature and data
 # to do: put this on github as json data
@@ -30,5 +18,11 @@ nat_lf <- icprb_daily_nat_lf
 nat_lf$month <- month(nat_lf$Date)
 nat_lf$year <- year(nat_lf$Date)
 nat_lf$Flow <- nat_lf$lfalls_nat * 1.547
+# clean up in case csv is hinky
+nat_lf <- sqldf("select * from nat_lf where Flow is not null")
 
-
+# from IFIM survey:
+# - DA at Great Falls IFIM site is 11515.76 square miles
+# - DA at Little Falls site is 11562.79
+nat_gf <- nat_lf
+nat_gf$Flow <- nat_gf$lfalls_nat * 1.547 * (11515.76 / 11562.79)
