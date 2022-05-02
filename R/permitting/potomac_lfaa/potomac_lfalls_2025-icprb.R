@@ -23,8 +23,10 @@ source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/ifim_data_lfalls
 # revised is C.Schultz best timeseries, only goes thru 2009
 icprb_daily_nat_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/PRRISM_2025_nocc_for_vadeq-revised.csv")
 
-nat_lf <- as.data.frame(icprb_daily_nat_lf)
-nat_lf$Date <- as.Date(nat_lf$Date)
+icprb_daily_nat_lf <- as.data.frame(icprb_daily_nat_lf)
+# may change to need format="%m/%d/%Y"
+icprb_daily_nat_lf$Date <- as.Date(icprb_daily_nat_lf$Date, format="%Y/%m/%d")
+nat_lf <- icprb_daily_nat_lf
 nat_lf$month <- month(nat_lf$Date)
 nat_lf$year <- year(nat_lf$Date)
 nat_lf$Flow <- nat_lf$lfalls_nat * 1.547
