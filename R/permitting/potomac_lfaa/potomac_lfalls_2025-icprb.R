@@ -17,18 +17,16 @@ source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/ifim_data_lfalls
 
 # load PoR time series from Gage and ICPRB
 # compare PoR gage time series with
-icprb_daily_2025_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/PRRISM_2025_nocc_for_vadeq.csv")
+# icprb_daily_2025_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/PRRISM_2025_nocc_for_vadeq.csv")
 # before revision, had data thru 2018 which was nice
 #icprb_daily_nat_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/PRRISM_2025_nocc_for_vadeq.csv")
 # revised is C.Schultz best timeseries, only goes thru 2009
 icprb_daily_nat_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/PRRISM_2025_nocc_for_vadeq-revised.csv")
 
-nat_lf <- as.data.frame(icprb_daily_2025_lf)
+nat_lf <- as.data.frame(icprb_daily_nat_lf)
 nat_lf$Date <- as.Date(nat_lf$Date)
 nat_lf$month <- month(nat_lf$Date)
 nat_lf$year <- year(nat_lf$Date)
-nat_lf$Flow <- nat_lf$lfalss_nat * 1.547
+nat_lf$Flow <- nat_lf$lfalls_nat * 1.547
 
-# now do the flowby and CU calcs
-source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/alt_lf.R")
 
