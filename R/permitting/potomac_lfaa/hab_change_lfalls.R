@@ -82,7 +82,7 @@ p20_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls,
 # export all data for review
 write.table(
   curr_plot$all_pctile_data,
-  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_chg_current_',elid,'.csv',sep=""),
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_chg_current_little_falls','.csv',sep=""),
   sep = ","
 )
 

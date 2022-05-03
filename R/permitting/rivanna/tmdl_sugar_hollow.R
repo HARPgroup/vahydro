@@ -1,7 +1,8 @@
 # Moormans
 # Sugar
-datsh <- om_get_rundata(337718,11,site=omsite)
-dat <-  om_get_rundata(337718,11,site=omsite)
+runid = 901
+datsh <- om_get_rundata(337718,runid,site=omsite)
+dat <-  om_get_rundata(337718,runid,site=omsite)
 
 dat$storage_pct <- dat$impoundment_use_remain_mg * 3.07 / dat$impoundment_max_usable
 #
@@ -30,8 +31,8 @@ if (is.na(impoundment_days_remaining)) {
 
 # this has an impoundment.  Plot it up.
 # Now zoom in on critical drought period
-pdstart = as.Date(paste0(2008,"-07-01") )
-pdend = as.Date(paste0(2009, "-03-31") )
+pdstart = as.Date(paste0(2015,"-07-01") )
+pdend = as.Date(paste0(2016, "-03-31") )
 datpd <- window(
   dat,
   start = pdstart,

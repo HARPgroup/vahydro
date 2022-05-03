@@ -42,7 +42,7 @@ demand_lf <- sqldf(
   "
 )
 
-demand_lf <- sqldf("select * from demand_lf where demand_2025_mgd is not null")
+demand_lf <- sqldf("select * from demand_lf where demand_mgd is not null")
 
 rbind(
   quantile(demand_lf$demand_mgd),
