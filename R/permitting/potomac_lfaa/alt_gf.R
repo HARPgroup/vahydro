@@ -91,22 +91,57 @@ need_gf <- sqldf(
   "
 )
 
+alt_gf_p10 <- sqldf("select * from alt_gf where Flow <= 2103")
+
+
 # gives total annual releases needed in MGY
 nprobs <- c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0)
-rbind(
+needs_gf <- as.data.frame(rbind(
   round(quantile(need_gf$need_curr_mgd, probs=nprobs)),
   round(quantile(need_gf$need_q500_mgd, probs=nprobs)),
-  round(quantile(need_gf$need_p20_mgd, probs=nprobs)),
+  #  round(quantile(need_gf$need_p20_mgd, probs=nprobs)),
   round(quantile(need_gf$need_p30_mgd, probs=nprobs))
-)
-
+))
 
 # gives total annual releases needed in MGY
 fprobs <- c(0,0.01,0.05,0.1,0.25,0.5,0.99,1.0)
-rbind(
+gf_flows_stats <- as.data.frame(rbind(
   round(quantile(alt_gf$Flow, probs=fprobs)),
   round(quantile(alt_gf$Flow_curr, probs=fprobs)),
   round(quantile(alt_gf$Flow_q500, probs=fprobs)),
   round(quantile(alt_gf$Flow_p20, probs=fprobs)),
   round(quantile(alt_gf$Flow_p30, probs=fprobs))
+))
+
+mean(alt_gf$demand_mgd)
+
+gf_flows_stats_current <- rbind(
+  cbind(
+    scenario = "Baseline", gf_flows_stats[1,]
+  ),
+  cbind(
+    scenario = "Post WD", gf_flows_stats[2,]
+  )
+)
+
+hydroTSM::fdc(
+  cbind(
+    alt_gf_p10$Flow,
+    alt_gf_p10$Flow_curr
+  ),
+  yat = c(100,500,1000,1500,2000,2500),
+  main = "Flow Duration Curve",
+  sub = "",
+  ylab = "Q, [cfs]",
+)
+
+hydroTSM::fdc(
+  cbind(
+    alt_gf$Flow,
+    alt_gf$Flow_curr
+  ),
+  yat = c(100,500,1000,1500,2000,2500),
+  main = "Flow Duration Curve",
+  sub = "",
+  ylab = "Q, [cfs]",
 )

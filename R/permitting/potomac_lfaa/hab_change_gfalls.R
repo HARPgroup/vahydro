@@ -68,16 +68,16 @@ q500_plot100 <- pothab_plot(
   1.0, ifim_da_sqmi,
   "Great Falls", "Current"
 )
-curr_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (10%)") )
-q500_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 500mgd flowby (10%)") )
-p30_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 70% flowby (10%)") )
-p20_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 80% flowby (10%)") )
+curr_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (all)") )
+q500_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 500mgd flowby (all)") )
+p30_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 70% flowby (all)") )
+p20_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 80% flowby (all)") )
 
 
-curr_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (all)") )
-q500_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 500mgd flowby (all)") )
-p30_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 70% flowby (all)") )
-p20_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 80% flowby (all)") )
+curr_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (drought)") )
+q500_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 500mgd flowby (drought)") )
+p30_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 70% flowby (drought)") )
+p20_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 80% flowby (drought)") )
 
 # export all data for review
 write.table(

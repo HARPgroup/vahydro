@@ -79,6 +79,8 @@ alt_lf <- sqldf(
   "
 )
 
+alt_lf_p10 <- sqldf("select * from alt_lf where Flow <= 2103")
+
 # calculate release needed
 need_lf <- sqldf(
   "
@@ -93,20 +95,37 @@ need_lf <- sqldf(
 
 # gives total annual releases needed in MGY
 nprobs <- c(0,0.25,0.5,0.75,0.9,0.95,0.99,1.0)
-rbind(
+needs_lf <- as.data.frame(rbind(
   round(quantile(need_lf$need_curr_mgd, probs=nprobs)),
   round(quantile(need_lf$need_q500_mgd, probs=nprobs)),
-  round(quantile(need_lf$need_p20_mgd, probs=nprobs)),
+#  round(quantile(need_lf$need_p20_mgd, probs=nprobs)),
   round(quantile(need_lf$need_p30_mgd, probs=nprobs))
-)
-
+))
 
 # gives total annual releases needed in MGY
 fprobs <- c(0,0.01,0.05,0.1,0.25,0.5,0.99,1.0)
-rbind(
+lf_flows_stats <- as.data.frame(rbind(
   round(quantile(alt_lf$Flow, probs=fprobs)),
   round(quantile(alt_lf$Flow_curr, probs=fprobs)),
   round(quantile(alt_lf$Flow_q500, probs=fprobs)),
   round(quantile(alt_lf$Flow_p20, probs=fprobs)),
   round(quantile(alt_lf$Flow_p30, probs=fprobs))
+))
+
+
+lf_flows_stats_current <- rbind(
+  cbind(
+    scenario = "Baseline", lf_flows_stats[1,]
+  ),
+  cbind(
+    scenario = "Post WD", lf_flows_stats[2,]
+  )
+)
+
+hydroTSM::fdc(
+  cbind(
+    alt_lf_p10$Flow,
+    alt_lf_p10$Flow_curr
+  ),
+  yat = c(100,500,1000,1500,2000,2500)
 )
