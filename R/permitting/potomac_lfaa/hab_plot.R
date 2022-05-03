@@ -24,6 +24,7 @@ pothab_plot <- function (
     labs(
       title = paste("Habitat Change,", site_name,",",flow_pct,"%ile")
     ) + ylim(c(-100,100))
+  ifim_icprb_maxwd_lf$labels$subtitle <- str_split(ifim_icprb_maxwd_lf$labels$subtitle, "\n")[[1]][[1]]
   return(ifim_icprb_maxwd_lf)
 }
 
