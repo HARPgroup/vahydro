@@ -68,10 +68,10 @@ q500_plot100 <- pothab_plot(
   1.0, ifim_da_sqmi,
   "Little Falls", "Current"
 )
-curr_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 100mgd flowby (drought)") )
-q500_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 500mgd flowby (drought") )
-p30_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 70% flowby (drought)") )
-p20_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 80% flowby (drought)") )
+curr_plot100 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Little Falls, 100mgd flowby (all)") )
+q500_plot100 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Little Falls, 500mgd flowby (all") )
+p30_plot100 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Little Falls, 70% flowby (all)") )
+p20_plot100 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Little Falls, 80% flowby (all)") )
 
 
 curr_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls, 100mgd flowby") )
@@ -82,7 +82,25 @@ p20_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Little Falls,
 # export all data for review
 write.table(
   curr_plot$all_pctile_data,
-  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_chg_current_',elid,'.csv',sep=""),
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_all_current_little_falls','.csv',sep=""),
+  sep = ","
+)
+# export flow table for review
+write.table(
+  lf_flow_table,
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'lf_flow_table','.csv',sep=""),
+  sep = ","
+)
+# export flow alteration summary data for review
+write.table(
+  lf_flow_alt_table,
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'lf_flow_alt_table','.csv',sep=""),
+  sep = ","
+)
+# export habitat alteration summary data for review
+write.table(
+  hab_alt_tbl(curr_plot),
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_chg_current_little_falls','.csv',sep=""),
   sep = ","
 )
 

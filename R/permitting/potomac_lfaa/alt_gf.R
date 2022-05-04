@@ -62,7 +62,7 @@ alt_gf <- sqldf(
   "
 )
 
-# calculate release needed
+# calculate altered flows
 alt_gf <- sqldf(
   "
     select a.*,
@@ -78,6 +78,20 @@ alt_gf <- sqldf(
     order by Date
   "
 )
+
+# calculate flow alt percents
+alt_gf <- sqldf(
+  "
+    select a.*,
+      100.0 * (Flow_curr - Flow) / Flow as cu_pct_curr,
+      100.0 * (Flow_p20 - Flow) / Flow as cu_pct_p20,
+      100.0 * (Flow_q500 - Flow) / Flow as cu_pct_p500,
+      100.0 * (Flow_p30 - Flow) / Flow as cu_pct_p30
+    from alt_gf as a
+    order by Date
+  "
+)
+
 
 # calculate release needed
 need_gf <- sqldf(
@@ -145,3 +159,28 @@ hydroTSM::fdc(
   sub = "",
   ylab = "Q, [cfs]",
 )
+
+gf_loflows <- sqldf("select * from alt_gf where Flow <= 2790")
+
+gf_flow_alt_table <- om_flow_table(alt_gf,'cu_pct_curr')
+
+gf_flow_alt_table
+
+cus <- as.matrix(-1.0 * gf_flow_alt_table[,c("Mean","10%", "5%")] )
+
+par(mar = c(2, 2, 2, 2))
+barplot(
+  cus ~ index(gf_flow_alt_table$Month),
+  xlab="Month",
+  ylim=c(0,100),
+  ylab="% Consumptive Use",
+  names.arg=gf_flow_alt_table$Month,
+  beside=TRUE,
+  col=c("gray", "wheat", "brown"),
+  legend.text=c('All', 'Drought (10%)', 'Extreme Drought (5%)'),
+  main="Consumptive Use before Flow Releases (1929-2009)"
+)
+
+
+t( as.matrix
+   (gf_flow_alt_table$Month, gf_flow_alt_table$Mean, gf_flow_alt_table$`10%`))
