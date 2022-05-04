@@ -79,6 +79,19 @@ alt_lf <- sqldf(
   "
 )
 
+# calculate flow alt percents
+alt_lf <- sqldf(
+  "
+    select a.*,
+      100.0 * (Flow_curr - Flow) / Flow as cu_pct_curr,
+      100.0 * (Flow_p20 - Flow) / Flow as cu_pct_p20,
+      100.0 * (Flow_q500 - Flow) / Flow as cu_pct_p500,
+      100.0 * (Flow_p30 - Flow) / Flow as cu_pct_p30
+    from alt_lf as a
+    order by Date
+  "
+)
+
 alt_lf_p10 <- sqldf("select * from alt_lf where Flow <= 2103")
 
 # calculate release needed
@@ -129,3 +142,5 @@ hydroTSM::fdc(
   ),
   yat = c(100,500,1000,1500,2000,2500)
 )
+lf_flow_alt_table <- om_flow_table(alt_lf,'cu_pct_curr')
+lf_flow_table <- om_flow_table(alt_lf,'Flow_curr')

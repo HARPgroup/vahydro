@@ -25,68 +25,80 @@ source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/
 source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/hab_plot.R")
 
 
-curr_plot100 <- pothab_plot(
+curr_plot_gf100 <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_curr",
   1.0, ifim_da_sqmi,
   "Great Falls", "Current"
 )
 
 
-curr_plot <- pothab_plot(
+curr_plot_gf <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_curr",
   0.1, ifim_da_sqmi,
   "Great Falls", "Current"
 )
-q500_plot <- pothab_plot(
+q500_plot_gf <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_q500",
   0.1, ifim_da_sqmi,
   "Great Falls", "Current"
 )
-p20_plot <- pothab_plot(
+p20_plot_gf <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_p20",
   0.1, ifim_da_sqmi,
   "Great Falls", "Current"
 )
-p30_plot <- pothab_plot(
+p30_plot_gf <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_p30",
   0.1, ifim_da_sqmi,
   "Great Falls", "Current"
 )
 
-p20_plot100 <- pothab_plot(
+p20_plot_gf100 <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_p20",
   1.0, ifim_da_sqmi,
   "Great Falls", "Current"
 )
-p30_plot100 <- pothab_plot(
+p30_plot_gf100 <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_p30",
   1.0, ifim_da_sqmi,
   "Great Falls", "Current"
 )
-q500_plot100 <- pothab_plot(
+q500_plot_gf100 <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_q500",
   1.0, ifim_da_sqmi,
   "Great Falls", "Current"
 )
-curr_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (all)") )
-q500_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 500mgd flowby (all)") )
-p30_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 70% flowby (all)") )
-p20_plot100 + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 80% flowby (all)") )
+curr_plot_gf100 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (all)") )
+q500_plot_gf100 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Great Falls, 500mgd flowby (all)") )
+p30_plot_gf100 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Great Falls, 70% flowby (all)") )
+p20_plot_gf100 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Great Falls, 80% flowby (all)") )
 
 
-curr_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (drought)") )
-q500_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 500mgd flowby (drought)") )
-p30_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 70% flowby (drought)") )
-p20_plot + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 80% flowby (drought)") )
+curr_plot_gf + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (drought)") )
+q500_plot_gf + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 500mgd flowby (drought)") )
+p30_plot_gf + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 70% flowby (drought)") )
+p20_plot_gf + ylim(c(-100,100)) + labs(title = paste("Habitat Change, Great Falls, 80% flowby (drought)") )
 
 # export all data for review
 write.table(
-  curr_plot$all_pctile_data,
+  curr_plot_gf$all_pctile_data,
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_all_current_great_falls','.csv',sep=""),
+  sep = ","
+)
+# export flow alteration summary data for review
+write.table(
+  gf_flow_alt_table,
+  file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'gf_flow_alt_table','.csv',sep=""),
+  sep = ","
+)
+# export habitat alteration summary data for review
+write.table(
+  hab_alt_tbl(curr_plot_gf),
   file = paste(github_location,"/vahydro/R/permitting/potomac_lfaa/",'ifim_wua_chg_current_great_falls','.csv',sep=""),
   sep = ","
 )
 
-curr_plot_alt_tbl <- hab_alt_tbl(curr_plot)
-q500_plot_alt_tbl <- hab_alt_tbl(q500_plot)
-p20_plot_alt_tbl <- hab_alt_tbl(p20_plot)
-p30_plot_alt_tbl <- hab_alt_tbl(p30_plot)
+curr_plot_gf_alt_tbl <- hab_alt_tbl(curr_plot_gf)
+q500_plot_gf_alt_tbl <- hab_alt_tbl(q500_plot_gf)
+p20_plot_gf_alt_tbl <- hab_alt_tbl(p20_plot_gf)
+p30_plot_gf_alt_tbl <- hab_alt_tbl(p30_plot_gf)
