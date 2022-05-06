@@ -254,3 +254,22 @@ wua_ts1 <- data.frame(ts3,wua_ts1)
 wua_ts1$month <- month(wua_ts1$Date)
 wua_ts1$year <- year(wua_ts1$Date)
 wua_ts1$month <- month(wua_ts1$Date)
+
+# QA
+lfnat <- alt_lf[,c('Date','Flow')]
+wua_lf_nat <- wua.at.q_fxn(lfnat,wua_lf)
+lfalt <- alt_lf[,c('Date','Flow_curr')]
+wua_lf_altt <- wua.at.q_fxn(lfalt,wua_lf)
+
+lfnat[1,]
+wua_lf_nat[1,'bg_fry']
+lfalt[1,]
+wua_lf_altt[1,'bg_fry']
+
+dfw <- as.data.frame(wua_lf_nat)
+sqldf("select * from dfw where cc_adult is not null")
+
+lfnat[100,]
+wua_lf_nat[100,'gd_juv']
+lfalt[100,]
+wua_lf_altt[100,'gd_juv']

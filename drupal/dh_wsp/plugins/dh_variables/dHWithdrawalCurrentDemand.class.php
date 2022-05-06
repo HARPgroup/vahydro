@@ -17,7 +17,7 @@ class dHWithdrawalCurrentDemand extends dHVariablePluginDefault {
   
   public function save(&$entity) {
     $this->updateFacility($entity);
-    parent::save();
+    parent::save($entity);
   }
   
   public function updateFacility($entity) {

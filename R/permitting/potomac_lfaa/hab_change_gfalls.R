@@ -3,7 +3,8 @@ wua_gf <- read.table(
   "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/wua_gf.csv"
   , header=TRUE, sep=","
 )
-
+ifim_da_sqmi = 11010
+ifim_site_name = "Great Falls"
 # Load the baseline flow time series
 # into dataframe nat_lf
 # usgs based
@@ -30,7 +31,6 @@ curr_plot_gf100 <- pothab_plot(
   1.0, ifim_da_sqmi,
   "Great Falls", "Current"
 )
-
 
 curr_plot_gf <- pothab_plot(
   wua_gf, alt_gf, "Flow", "Flow_curr",
@@ -102,3 +102,11 @@ curr_plot_gf_alt_tbl <- hab_alt_tbl(curr_plot_gf)
 q500_plot_gf_alt_tbl <- hab_alt_tbl(q500_plot_gf)
 p20_plot_gf_alt_tbl <- hab_alt_tbl(p20_plot_gf)
 p30_plot_gf_alt_tbl <- hab_alt_tbl(p30_plot_gf)
+
+alt_gf_2019 <- sqldf("select * from alt_gf where year = 2019")
+curr_plot_gf2019 <- pothab_plot(
+  wua_gf, alt_gf, "Flow", "Flow_curr",
+  1.0, ifim_da_sqmi,
+  "Great Falls", "Current 2019"
+)
+curr_plot_gf2019 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (all)") )

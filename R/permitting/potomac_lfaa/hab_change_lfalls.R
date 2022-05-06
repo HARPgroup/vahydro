@@ -108,3 +108,11 @@ curr_plot_alt_tbl <- hab_alt_tbl(curr_plot)
 q500_plot_alt_tbl <- hab_alt_tbl(q500_plot)
 p20_plot_alt_tbl <- hab_alt_tbl(p20_plot)
 p30_plot_alt_tbl <- hab_alt_tbl(p30_plot)
+
+alt_lf_2019 <- sqldf("select * from alt_lf where year = 2019")
+curr_plot_lf2019 <- pothab_plot(
+  wua_lf, alt_lf_2019, "Flow", "Flow_curr",
+  1.0, ifim_da_sqmi,
+  "Little Falls", "Current 2019"
+)
+curr_plot_lf2019 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Little Falls, 100mgd flowby (2019)") )

@@ -168,7 +168,7 @@ gf_flow_alt_table
 
 cus <- as.matrix(-1.0 * gf_flow_alt_table[,c("Mean","10%", "5%")] )
 
-par(mar = c(2, 2, 2, 2))
+par(mar = c(2, 4, 2, 2))
 barplot(
   cus ~ index(gf_flow_alt_table$Month),
   xlab="Month",
