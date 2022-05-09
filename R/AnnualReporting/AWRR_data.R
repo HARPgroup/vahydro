@@ -25,8 +25,8 @@ eyear = 2021
 #file_extension <- ".html"
 file_extension <- ".tex"
 
-#---------------------------------------------------------------------------------------
-#Generate REST token for authentication
+#Generate REST token for authentication --------------------------------------------
+
 rest_uname = FALSE
 rest_pw = FALSE
 basepath ='/var/www/R'
@@ -35,7 +35,8 @@ ds <- RomDataSource$new(site)
 ds$get_token()
 
 export_path <- "Y:/OWS/foundation_datasets/awrr/"
-#---------------------------------------------------------------------------------------------
+
+#GLOBAL VARIABLES --------------------------------------------------------------------
 if (file_extension == ".html") {
   options(knitr.table.format = "html") #"html" for viewing in Rstudio Viewer pane
   file_ext <- ".html" #view in R or browser
@@ -46,8 +47,10 @@ if (file_extension == ".html") {
 #Kable Styling
 latexoptions <- c("scale_down")
 
-year.range <- syear:eyear
+year.range <- (eyear-4):eyear
 
+#Join in FIPS name to data
+fips <- read.csv(file = paste0(github_location,"/vahydro/R/wsp/wsp2020/FoundationDataset/fips_codes.csv"))
 
 ############### PULL DIRECTLY FROM VAHYDRO ###################################################
 #load in MGY from Annual Map Exports view
@@ -58,7 +61,7 @@ multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
 #exclude dalecarlia
 multi_yr_data <- multi_yr_data[-which(multi_yr_data$Facility=='DALECARLIA WTP'),]
 #backup<- multi_yr_data
-multi_yr_data <- backup
+#multi_yr_data <- backup
 # duplicate_check <- sqldf('SELECT MP_hydroid, "MP Name", "Facility", "FIPS Code", "OWS Planner", count(MP_hydroid)
 #       FROM multi_yr_data
 #       GROUP BY MP_hydroid, Year
@@ -79,32 +82,34 @@ ELSE LOWER("Use Type")
 END AS "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", MAX("Year") AS Year, MAX("Water Use MGY") AS "Water Use MGY"
       FROM multi_yr_data
       WHERE "Use Type" NOT LIKE "gw2_%"
-      GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", "Year"
+      GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "OWS Planner", "Year"
       ')
 
+# MP FOUNDATION DATASET - BEGINNING 1982 -----------------------------------------------------------------------------------------------------------------
 mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner"), names_from = "Year", values_from = "Water Use MGY", names_sort = T)
 
-write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_MGY_1982-",eyear,".csv"), row.names = F)
-#split into 2 datasets: POWER & NON-POWER
+write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"), row.names = F)
 
+
+##split into 2 datasets: POWER & NON-POWER -------------------------------------------------------------------------------------------------
 #NON-POWER
-mp_all <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',year.range[1],'","',year.range[2],'","',year.range[3],'","',year.range[4],'","',year.range[5],'"
+mp_all <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
                 FROM mp_foundation_dataset
                 WHERE "Use Type" NOT LIKE "%power%"'))
-write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_mgy_",syear,"-",eyear,".csv"), row.names = F)  
+write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".csv"), row.names = F)  
 
 #POWER
-mp_all_power <-  sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',year.range[1],'","',year.range[2],'","',year.range[3],'","',year.range[4],'","',year.range[5],'"
+mp_all_power <-  sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
                 FROM mp_foundation_dataset
                 WHERE "Use Type" LIKE "%power%"'))
-write.csv(mp_all, paste0(export_path,eyear+1,"/mp_power_mgy_",syear,"-",eyear,".csv"), row.names = F)  
+write.csv(mp_all, paste0(export_path,eyear+1,"/mp_power_mgy_",eyear-4,"-",eyear,".csv"), row.names = F)  
 
 # TABLE 1 SUMMARY -----------------------------------------------------------------------------------
-sql_year_calc <- paste0('round(SUM("',year.range[1],'")/365,2),
-round(SUM("',year.range[2],'")/365,2),
-round(SUM("',year.range[3],'")/365,2),
-round(SUM("',year.range[4],'")/365,2),
-round(SUM("',year.range[5],'")/365,2)')
+sql_year_calc <- paste0('round(SUM("',eyear-4,'")/365,2),
+round(SUM("',eyear-3,'")/365,2),
+round(SUM("',eyear-2,'")/365,2),
+round(SUM("',eyear-1,'")/365,2),
+round(SUM("',eyear,'")/365,2)')
 
 cat_table <- sqldf(paste0('SELECT "Source Type", 
 "Use Type",',sql_year_calc,'
@@ -128,236 +133,43 @@ cat_table_totals <- sqldf(paste0('SELECT " " AS "Source Type",
 "Total (GW + SW)" AS "Use Type",', sql_year_calc,'
                        FROM mp_all'))
 
+#rowbind/union the rows together
 cat_table <- rbind(cat_table,cat_table_aggreg, cat_table_gw, cat_table_sw, cat_table_totals)
 
-multi_yr_avg <- round((rowMeans(cat_table[3:(length(year.range)+2)], na.rm = FALSE, dims = 1)),2)
+#calculate the Multi Year Avg column
+multi_yr_avg <- round((rowMeans(cat_table[3:7], na.rm = FALSE, dims = 1)),2)
+
+#columnbind/append the columns together
 cat_table <- cbind(cat_table, multi_yr_avg)
 
+#rename the columns
 colnames(cat_table) <- c('Source Type', 'Category',year.range,'multi_yr_avg')
 
+#calculate the percent change column
 pct_chg <- round(((cat_table[paste(eyear)]-cat_table["multi_yr_avg"])/cat_table["multi_yr_avg"])*100, 1)
+
+#rename the columns
 names(pct_chg) <- paste('% Change',eyear,'to Avg.')
+
+#columnbind/append the columns together
 cat_table <- cbind(cat_table,'pct_chg' = pct_chg)
-
-#-----------------------------------------------------------------------------------
-a <- c(
-  'agricultural', 
-  'commercial', 
-  'irrigation',
-  'manufacturing',  
-  'mining', 
-  'municipal'
-)
-b <- c('Groundwater', 'Surface Water', 'Total (GW + SW)')
-cat_table<- data.frame(expand.grid(a,b))
-
-colnames(cat_table) <- c('Use_Type', 'Source_Type')
-cat_table <- arrange(cat_table, Source_Type, Use_Type)
-
-#cat_table = FALSE
-
-multi_yr_data <- list()
-
-for (y in year.range) {
-  
-  print(y)
-  startdate <- paste(y, "-01-01",sep='')
-  enddate <- paste(y, "-12-31", sep='')
-  
-  localpath <- tempdir()
-  filename <- paste("data.all_",y,".csv",sep="")
-  destfile <- paste(localpath,filename,sep="\\")  
-  download.file(paste(site ,"ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=power&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B0%5D=well&bundle%5B1%5D=intake&dh_link_admin_reg_issuer_target_id%5B0%5D=65668&dh_link_admin_reg_issuer_target_id%5B1%5D=91200&dh_link_admin_reg_issuer_target_id%5B2%5D=77498",sep=""), destfile = destfile, method = "libcurl")  
-  data.year <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
-  
-  #has 3 issuing authorities, does not include power
-  #  data.all <- read.csv(file=paste("http://deq2.bse.vt.edu/d.dh/ows-awrr-map-export/wd_mgy?ftype_op=not&ftype=power&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B0%5D=well&bundle%5B1%5D=intake&dh_link_admin_reg_issuer_target_id%5B0%5D=65668&dh_link_admin_reg_issuer_target_id%5B1%5D=91200&dh_link_admin_reg_issuer_target_id%5B2%5D=77498",sep=""), header=TRUE, sep=",")
-  
-  data <- data.year
-  
-  #remove duplicates (keeps one row)
-  data <- distinct(data, MP_hydroid, Year, .keep_all = TRUE)
-  #exclude dalecarlia
-  data <- data[-which(data$Facility=='DALECARLIA WTP'),]
-  
-  if (length(which(data$Use.Type=='facility')) > 0) {
-    data <- data[-which(data$Use.Type=='facility'),]
-  }
-  #rename columns
-  # colnames(data) <- c('HydroID', 'Hydrocode', 'Source_Type',
-  #                     'MP_Name', 'Facility', 'Use_Type', 'Year',
-  #                     'mgy', 'mgd', 'lat', 'lon', 'locality')
-  
-  colnames(data) <- c('HydroID',
-                      'Hydrocode',
-                      'Source_Type',
-                      'MP_Name',
-                      'Facility_HydroID', 
-                      'Facility',
-                      'Use_Type', 
-                      'Year',
-                      'mgy',
-                      'mgd',
-                      'lat',
-                      'lon',
-                      'FIPS',
-                      'locality')
-  
-  data$mgd <- data$mgy/365
-  sum(data$mgy)
-  #make use type values lowercase
-  data$Use_Type <- str_to_lower(data$Use_Type)
-  #change 'Well' and 'Surface Water Intake' values in source_type column to match report headers
-  levels(data$Source_Type) <- c(levels(data$Source_Type), "Groundwater", "Surface Water")
-  data$Source_Type[data$Source_Type == 'Well'] <- 'Groundwater'
-  data$Source_Type[data$Source_Type == 'Surface Water Intake'] <- 'Surface Water'
-  
-  
-  data$Use_Type[data$Use_Type == 'industrial'] <- 'manufacturing'
-  
-  #combine each year of data into a single table
-  multi_yr_data <- rbind(multi_yr_data, data)
-  
-  #begin summary table 1 manipulation
-  catsourcesum <- data %>% group_by(Use_Type, Source_Type)
-  
-  catsourcesum <- catsourcesum %>% summarise(
-    mgd = sum(mgd),
-    mgy = sum(mgy)
-  )
-  
-  catsourcesum$mgd = round(catsourcesum$mgy / 365.0,2)
-  catsourcesum <- arrange(catsourcesum, Source_Type, Use_Type)
-  
-  
-  catsum <- catsourcesum
-  catsum$Source_Type <- "Total (GW + SW)"
-  catsum <- catsum %>% group_by(Use_Type, Source_Type)
-  
-  catsum <- catsum %>% summarise(
-    mgd = sum(mgd),
-    mgy = sum(mgy)
-  )
-  catsum <- arrange(catsum, Source_Type, Use_Type)
-  
-  
-  year_table <- rbind(catsourcesum, catsum)
-  year_table <- arrange(year_table, Source_Type, Use_Type)
-  assign(paste("y", y, sep=''), year_table)
-  if (is.logical(cat_table)) {
-    cat_table = year_table[,1:3]
-  } else {
-    cat_table <- cbind(cat_table, year_table[,3])
-  }
-  
-  
-}
-
-
-#cat_table_raw <- cat_table <- cat_table_raw
-
-cat_table <- data.frame(cat_table[2],cat_table[1],cat_table[3:(length(year.range)+2)])
-names(cat_table) <- c('Source Type', 'Category', year.range)
-
-multi_yr_avg <- round((rowMeans(cat_table[3:(length(year.range)+2)], na.rm = FALSE, dims = 1)),2)
-#names(multi_yr_avg) <- paste(length(year.range)," Year Avg.",sep="")
-cat_table <- cbind(cat_table,multi_yr_avg)
-
-
-
-##Groundwater Total##
-gw_table <- cat_table[cat_table$"Source Type" == 'Groundwater',]
-gw_sums <- data.frame(Source_Type="",
-                      Category="Total Groundwater",
-                      mgd=sum(gw_table[3]),
-                      mgd=sum(gw_table[4]),
-                      mgd=sum(gw_table[5]),
-                      mgd=sum(gw_table[6]),
-                      mgd=sum(gw_table[7]),
-                      mgd=sum(gw_table[8])
-)
-colnames(gw_sums) <- c('Source Type', 'Category',year.range,'multi_yr_avg')
-##Surface Water Total##
-sw_table <- cat_table[cat_table$"Source Type" == 'Surface Water',]
-sw_sums <- data.frame(Source_Type="",
-                      Category="Total Surface Water",
-                      mgd=sum(sw_table[3]),
-                      mgd=sum(sw_table[4]),
-                      mgd=sum(sw_table[5]),
-                      mgd=sum(sw_table[6]),
-                      mgd=sum(sw_table[7]),
-                      mgd=sum(sw_table[8])
-)
-colnames(sw_sums) <- c('Source Type', 'Category',year.range,'multi_yr_avg')
-cat_table <- rbind(cat_table,gw_sums, sw_sums)
-
-
-pct_chg <- round(((cat_table[paste(eyear)]-cat_table["multi_yr_avg"])/cat_table["multi_yr_avg"])*100, 1)
-names(pct_chg) <- paste('% Change',eyear,'to Avg.')
-cat_table <- cbind(cat_table,'pct_chg' = pct_chg)
-
-##### ADD BOTTOM ROW OF TOTALS TO TABLE################
-# ADD BOTTOM ROW OF TOTALS TO TABLE
-cat_table.total <- cat_table[c(13:18),]
-multi_yr_avg.sums <- mean(c(sum(cat_table.total[3]),
-                            sum(cat_table.total[4]),
-                            sum(cat_table.total[5]),
-                            sum(cat_table.total[6]),
-                            sum(cat_table.total[7])))
-
-total_pct_chg <- round(((sum(cat_table.total[7])-multi_yr_avg.sums)/multi_yr_avg.sums)*100, 1)
-
-
-#cat_table.total <- cat_table[c(13:18),]
-catsum.sums <- data.frame(Source_Type="",
-                          Category="Total (GW + SW)",
-                          mgd=sum(cat_table.total[3]),
-                          mgd=sum(cat_table.total[4]),
-                          mgd=sum(cat_table.total[5]),
-                          mgd=sum(cat_table.total[6]),
-                          mgd=sum(cat_table.total[7]),
-                          mgd=multi_yr_avg.sums,
-                          mgd=total_pct_chg 
-)
-
-
-colnames(catsum.sums) <- c('Source Type', 'Category',year.range,'multi_yr_avg', paste('% Change',eyear,'to Avg.'))
-cat_table <- rbind(cat_table,catsum.sums)
 
 #make Category values capital
 cat_table$Category <- str_to_title(cat_table$Category)
 print(cat_table)
 
-############################################################################################################
+# SAVE TABLE 1 SUMMARY --------------------------------------------------------------------------------------------
+
 #save the cat_table to use for data reference - we can refer to that csv when asked questions about the data
+write.csv(cat_table, paste(export_path,eyear+1,"/Table1_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
 
-#write.csv(cat_table, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\Table1_",syear,"-",eyear,".csv",sep = ""), row.names = F)
-write.csv(cat_table, paste("C:\\Users\\maf95834\\Documents\\awrr\\",eyear+1,"\\Table1_",syear,"-",eyear,".csv",sep = ""), row.names = F)
-
-#Join in FIPS name to data
-fips <- read.csv(file = "C:\\Users\\maf95834\\Documents\\Github\\vahydro\\R\\wsp\\wsp2020\\FoundationDataset\\fips_codes.csv")
-
-multi_yr_data <- sqldf('SELECT a.*, b.name AS locality
-                  FROM multi_yr_data a
-                  LEFT OUTER JOIN fips b
-                  ON a.FIPS = b.code')
-
-#save the multi_yr_data to use for data reference - we can refer to that csv when asked questions about the data
-write.csv(multi_yr_data, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_",syear,"-",eyear,".csv",sep = ""), row.names = F)
-
-#Facility version - save the multi_yr_data group by facility to use for data reference - we can refer to that csv when asked questions about the data
-fac_multi_yr_data <- sqldf('SELECT "Facility_HydroID", "Facility", "Use_Type", "Year", sum("mgy") as mgy, sum("mgd") as mgd, "FIPS", "locality"  
-                           FROM multi_yr_data
-                           GROUP BY Facility_HydroID, Year')
-
-write.csv(fac_multi_yr_data, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_",syear,"-",eyear,".csv",sep = ""), row.names = F)
+#IS THERE A STATIC TABLE? READ THAT IN AND BEGIN FROM HERE ##########################################################
 
 
-######################### IS THERE A STATIC TABLE? READ THAT IN AND BEGIN FROM HERE ###########
-cat_table <- read.csv(file = paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\Table1_",syear,"-",eyear,".csv",sep = ""))
-colnames(cat_table) <- c('Source Type', 'Category',year.range,'multi_yr_avg', paste('% Change',eyear,'to Avg.'))
+cat_table <- read.csv(file = paste(export_path,eyear+1,"/Table1_",eyear-4,"-",eyear,".csv",sep = ""))
+#colnames(cat_table) <- c('Source Type', 'Category',year.range,'multi_yr_avg', paste('% Change',eyear,'to Avg.'))
 
-multi_yr_data <- read.csv(file = paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_",syear,"-",eyear,".csv",sep = ""))
+multi_yr_data <- read.csv(file = paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".csv"))
 
 ################### MAY QA CHECK ##########################################
 kable(cat_table, booktabs = T) %>%
