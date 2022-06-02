@@ -14,7 +14,7 @@ fac_om_id <- 306768
 #runid <- 11
 #runid <- 2011
 #runid <- 4011
-runid <- 6011
+runid <- 200
 
 facdat <- om_get_rundata(fac_om_id, runid, site = omsite)
 rsegdat <- om_get_rundata(rseg_om_id, runid, site = omsite)
@@ -74,6 +74,34 @@ Final_Unmet_Demand_MGY <- (sum(fac_qa_6011$final_unmet_demand_mgd)/length(fac_qa
 unmet_days <- length(sqldf("SELECT * FROM fac_qa_6011 WHERE unmet_demand_mgd > 0")$unmet_demand_mgd)
 final_unmet_days <- length(sqldf("SELECT * FROM fac_qa_6011 WHERE final_unmet_demand_mgd > 0")$final_unmet_demand_mgd)
 ################################################################################################
+################################################################################################
+# FAC PS QA 5/20/22
+
+colnames(facdat_df)
+quantile(facdat_df$wd_mgd, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+quantile(facdat_df$discharge_mgd, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+
+discharge_mgd_manual = facdat_df$ps_enabled * ((1.0 - facdat_df$consumption - facdat_df$unaccounted_losses) * facdat_df$wd_mgd + 
+                                                 facdat_df$discharge_from_gw_mgd
+                                               )
+
+facdat_df$consumption
+facdat_df$consumption_monthly
+
+
+quantile(facdat_df$discharge_mgd, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+quantile(discharge_mgd_manual, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+
+
+quantile(facdat_df$consumption, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+quantile(facdat_df$consumption_monthly, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+
+
+quantile(facdat_df$discharge_from_gw_mgd, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+
+################################################################################################
+################################################################################################
+
 # RIVER SEGMENT
 
 colnames(rsegdat_df)
@@ -112,3 +140,57 @@ xcsam <- as.data.frame(
     "wd_mgd",
     "ps_mgd")]
 )
+
+
+################################################################################################
+################################################################################################
+################################################################################################
+# RIVER SEGMENT ANALYSIS
+
+runid <- 6011
+
+
+RoanokeRiverSalem_rseg <- data.frame(om_get_rundata(249169, runid, site = omsite))
+  quantile(RoanokeRiverSalem_rseg$Qout, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+
+  
+# A51775_OR2_7900_7740: http://deq1.bse.vt.edu:81/d.dh/om-model-info/6767466/dh_properties
+test <- data.frame(om_get_rundata(352945, runid, site = omsite))  
+quantile(test$Qout, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0)) 
+  
+
+# RoanokeRiverRoanoke_LocalRunoffInflows
+roanoke_runoff <- data.frame(om_get_rundata(252645, runid, site = omsite))  
+quantile(roanoke_runoff$Runit, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0)) 
+
+
+
+headwater <- data.frame(om_get_rundata(250521, runid, site = omsite))  
+quantile(headwater$Qout, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0)) 
+
+
+
+#----------------------------------------------------------------------------------------------
+runid <- 6011
+
+tinker_rseg <- data.frame(om_get_rundata(328387, runid, site = omsite))
+quantile(tinker_rseg$Qout, probs=c(0,0.1,0.25,0.5,0.75,0.9,1.0))
+
+
+  #----------------------------------------------------------------------------------------------
+  # modified date
+  library(rjson)
+  source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R")
+  rseg.hydroid <- 68327
+  rseg.model <- om_get_model(site, rseg.hydroid)
+  rseg_obj_url <- paste(json_obj_url, rseg.model$pid, sep="/")
+  rseg_model_info <- om_auth_read(rseg_obj_url, token,  "text/json", "")
+  rseg_model_info <- fromJSON(rseg_model_info)
+  rseg_report_info <- find_name(rseg_model_info,paste("runid_",runid,sep=""))
+  as.Date(as.POSIXct(as.numeric(rseg_report_info$modified), origin="1970-01-01"))
+  #----------------------------------------------------------------------------------------------
+
+################################################################################################
+################################################################################################
+
+
