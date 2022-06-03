@@ -14,6 +14,7 @@ library("kableExtra")
 library('stringr')
 library('sqldf')
 library("hydrotools")
+library("RCurl")
 
 options(scipen = 999)
 
@@ -30,11 +31,16 @@ file_extension <- ".tex"
 rest_uname = FALSE
 rest_pw = FALSE
 basepath ='/var/www/R'
+source(paste0(basepath,'/auth.private'))
 source(paste0(basepath,'/config.R'))
-ds <- RomDataSource$new(site)
-ds$get_token()
+# ds <- RomDataSource$new(site)
+# ds$get_token()
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
+#also, line 111, changed to mp_all_power. Not sure what MayQA section does. Also (eyear-4) in line 189/190
 
-export_path <- "Y:/OWS/foundation_datasets/awrr/"
+
+export_path <- "U:/OWS/foundation_datasets/awrr/"
 
 #GLOBAL VARIABLES --------------------------------------------------------------------
 if (file_extension == ".html") {
@@ -50,7 +56,9 @@ latexoptions <- c("scale_down")
 year.range <- (eyear-4):eyear
 
 #Join in FIPS name to data
-fips <- read.csv(file = paste0(github_location,"/vahydro/R/wsp/wsp2020/FoundationDataset/fips_codes.csv"))
+#fips <- read.csv(file = paste0(github_location,"/vahydro/R/wsp/wsp2020/FoundationDataset/fips_codes.csv"))
+#GM correct 'county' / 'city of' naming convention
+fips <- read.csv(file = "U:\\OWS\\Report Development\\Annual Water Resources Report\\October 2022 Report\\fips_codes_propernames.csv")
 
 ############### PULL DIRECTLY FROM VAHYDRO ###################################################
 #load in MGY from Annual Map Exports view
@@ -102,7 +110,7 @@ write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".
 mp_all_power <-  sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
                 FROM mp_foundation_dataset
                 WHERE "Use Type" LIKE "%power%"'))
-write.csv(mp_all, paste0(export_path,eyear+1,"/mp_power_mgy_",eyear-4,"-",eyear,".csv"), row.names = F)  
+write.csv(mp_all_power, paste0(export_path,eyear+1,"/mp_power_mgy_",eyear-4,"-",eyear,".csv"), row.names = F)  
 
 # TABLE 1 SUMMARY -----------------------------------------------------------------------------------
 sql_year_calc <- paste0('round(SUM("',eyear-4,'")/365,2),
@@ -171,18 +179,66 @@ cat_table <- read.csv(file = paste(export_path,eyear+1,"/Table1_",eyear-4,"-",ey
 
 multi_yr_data <- read.csv(file = paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".csv"))
 
+#calculate the Multi Year Avg column
+fiveyr_avg_mgy <- round((rowMeans(multi_yr_data[(length(multi_yr_data)-4):length(multi_yr_data)], na.rm = TRUE, dims = 1)),2)
+multi_yr_data <- cbind(multi_yr_data,fiveyr_avg_mgy)
+#GM NOTE ADDITION HERE ^
+
+################### Total Facilities Count ##################
+#GM Calculate the total number of facilities here for either power or non-power
+#total facilities with power
+eyearX <- paste0("X",eyear)
+mp_foundation <- read.csv(file = paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"))
+colnames(mp_foundation)[colnames(mp_foundation)=="Use.Type"] <- "Use_Type"
+count_fac <- sqldf(paste('SELECT *
+                          FROM mp_foundation
+                          WHERE ',eyearX,' IS NOT NULL
+                          GROUP BY Facility_hydroid', sep=''))
+totalfac <- nrow(count_fac)
+print(paste0("The total number of facilities including power is ", totalfac, " and if include Dalecarlia the total is ", totalfac+1)) 
+#if we need to exlcude hydropower
+count_fac <- sqldf(paste('SELECT *
+                          FROM mp_foundation
+                          WHERE ',eyearX,' IS NOT NULL AND
+                           Use_Type NOT LIKE "hydropower"
+                          GROUP BY Facility_hydroid', sep=''))
+totalfac <- nrow(count_fac)
+print(paste0("The total number of facilities including power but excluding hydropower is ", totalfac))
+#if we need to exclude all of power
+mp_all_mgy <- read.csv(file = paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".csv"))
+count_fac <- sqldf(paste('SELECT *
+                          FROM mp_all_mgy
+                          WHERE ',eyearX,' IS NOT NULL
+                          GROUP BY Facility_hydroid', sep=''))
+totalfac <- nrow(count_fac)
+print(paste0("The total number of facilities excluding power is ", totalfac))
+# GM, but if use two steps then you get 1014 facilities instead of 1177. Bc X2021 only gets one MP and it may be NA when another MP at same fac had a value
+# count_fac_test <- sqldf(paste('SELECT *
+#                           FROM mp_foundation
+#                           GROUP BY Facility_hydroid', sep=''))
+# count_fac_2021 <- sqldf(paste('SELECT* 
+#                               FROM count_fac_test 
+#                               WHERE X2021 IS NOT NULL', sep=''))
+# GM the below two steps are the same as the first version of one step because X2021 values are not dropped when MPs are combined, the where statement location doesn't matter, but which MP happens to get chosen when you group by facility hydroid does matter
+count_fac <- sqldf(paste('SELECT *, sum(',paste('"',eyearX,'"', sep = ''),') AS mgy
+                          FROM mp_foundation
+                          GROUP BY Facility_hydroid', sep=''))
+count_fac <- sqldf(paste('SELECT*
+                          FROM count_fac
+                          WHERE mgy IS NOT NULL', sep=''))
+
 ################### MAY QA CHECK ##########################################
-kable(cat_table, booktabs = T) %>%
-  kable_styling(latex_options = c("striped", "scale_down")) %>%
-  column_spec(8, width = "5em") %>%
-  column_spec(9, width = "5em") %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
+# kable(cat_table, booktabs = T) %>%
+#   kable_styling(latex_options = c("striped", "scale_down")) %>%
+#   column_spec(8, width = "5em") %>%
+#   column_spec(9, width = "5em") %>%
+#   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
 
 ################### TABLE 1 : Summary ##########################################
 cat_table$Category <- recode(cat_table$Category, "Municipal" = "Public Water Supply")
 table1_latex <- kable(cat_table[2:9],'latex', booktabs = T,
-                      caption = paste("Summary of Virginia Water Withdrawals by Use Category and Source Type",syear,"-",eyear,"(MGD)",sep=" "),
-                      label = paste("Summary of Virginia Water Withdrawals by Use Category and Source Type",syear,"-",eyear,"(MGD)",sep=" "),
+                      caption = paste("Summary of Virginia Water Withdrawals by Use Category and Source Type",eyear-4,"-",eyear,"(MGD)",sep=" "),
+                      label = paste("Summary of Virginia Water Withdrawals by Use Category and Source Type",eyear-4,"-",eyear,"(MGD)",sep=" "),
                       col.names = c(
                         'Category',
                         year.range,
@@ -207,24 +263,47 @@ table1_tex %>%
   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\overleaf\\summary_table1_",eyear+1,".tex",sep = ''))
 
 ################### TABLE 4 : TOP 20 USERS ##########################################
-#READ IN FIPS TABLE
-fips <- read.csv(file = "C:\\Users\\maf95834\\Documents\\Github\\vahydro\\R\\wsp\\wsp2020\\FoundationDataset\\fips_codes.csv")
+#GM Flag - clean up my comments in this section
+#rerun this with FIPS propernames
+colnames(multi_yr_data)[colnames(multi_yr_data)=="Use.Type"] <- "Use_Type" #GM addition to capitalization line below to work
+colnames(multi_yr_data)[colnames(multi_yr_data)=="Source.Type"] <- "Source_Type" #GM addition for sql statement line below to work
+colnames(multi_yr_data)[colnames(multi_yr_data)=="FIPS.Code"] <- "FIPS" #GM addition
+for (s in 1:length(year.range)) {colnames(multi_yr_data)[colnames(multi_yr_data)==paste0("X",year.range[s])] <- year.range[s]} #GM potential addition
+
 #make Category values capital
 multi_yr_data$Use_Type <- str_to_title(multi_yr_data$Use_Type)
 multi_yr_data$Facility <- str_to_title(multi_yr_data$Facility)
-#transform from long to wide table
-data_all <- pivot_wider(data = multi_yr_data, id_cols = c(HydroID, Source_Type, MP_Name, Facility_HydroID, Facility,Use_Type, FIPS, lat, lon), names_from = Year, values_from = mgy)
 
+#GM addition to replace unnecessary pivot_wider
+data_all <-multi_yr_data
+colnames(data_all)[colnames(data_all)=="Locality"] <- "Locality_NA"
+#GM change to LocalityB below 
 data_all <- sqldf('SELECT a.*, b.name AS Locality
                   FROM data_all a
                   LEFT OUTER JOIN fips b
                   ON a.FIPS = b.code')
-
+#GM is this line below perhaps expecting multi-yr-avg from before it became mp_all? not quite because then the averages are for 1982-2021 not 2016-2021... 
+#colnames(multi_yr_data)[colnames(multi_yr_data)=="Water Use MGY"] <- "MGY"
+# 
+#GM remove data_Avg because we already have MP five year avg column, 
 #avg mgy, order by
-data_avg <- sqldf('SELECT HydroID, avg(mgy) as multi_yr_avg
-                  FROM multi_yr_data
-                  GROUP BY HydroID')
-data_all <- sqldf('SELECT a.*,  b.multi_yr_avg, 
+# data_avg <- sqldf('SELECT Facility_hydroid, fiveyr_avg_mgy as mp_avg_mgy
+#                   FROM multi_yr_data
+#                   GROUP BY Facility_hydroid')
+
+#GM edit 'Hydroid' to 'Facility_hydroid' x2, and remove join of data_avg
+# data_all <- sqldf('SELECT a.*,  b.mp_avg_mgy, 
+#                         CASE WHEN Source_Type = "Groundwater"
+#                         THEN 1
+#                         END AS GW_type,
+#                         CASE
+#                         WHEN Source_Type = "Surface Water"
+#                         THEN 1
+#                         END AS SW_Type
+#                   FROM data_all AS a
+#                   LEFT OUTER JOIN data_avg AS b
+#                   ON a.Facility_hydroid = b.Facility_hydroid')
+data_all <- sqldf('SELECT a.*, 
                         CASE WHEN Source_Type = "Groundwater"
                         THEN 1
                         END AS GW_type,
@@ -232,18 +311,17 @@ data_all <- sqldf('SELECT a.*,  b.multi_yr_avg,
                         WHEN Source_Type = "Surface Water"
                         THEN 1
                         END AS SW_Type
-                  FROM data_all AS a
-                  LEFT OUTER JOIN data_avg AS b
-                  ON a.HydroID = b.HydroID')
+                  FROM data_all AS a')
 
 
 #write.csv(data_all, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_wide_",syear,"-",eyear,".csv",sep = ""), row.names = F)
 
 
 #group by facility
-data_all_fac <- sqldf(paste('SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, round((sum(',paste('"',eyear,'"', sep = ''),')/365),1) AS mgd, round((sum(multi_yr_avg)/365),1) as multi_yr_avg, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
+data_all_fac <- sqldf(paste('SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, round((sum(',paste('"',eyear,'"', sep = ''),')/365),1) AS mgd, round((sum(fiveyr_avg_mgy)/365),1) as fac_fiveyr_avg, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
                       FROM data_all
                       GROUP BY Facility_HydroID',sep = ''))
+
 #limit 20
 top_20 <- sqldf('SELECT Facility_HydroID, Facility, 
                         Locality, 
@@ -255,7 +333,7 @@ top_20 <- sqldf('SELECT Facility_HydroID, Facility,
                         THEN "SW/GW"
                         END AS Type,
                         "" AS "Major Source",
-                        multi_yr_avg,
+                        fac_fiveyr_avg,
                         mgd,
                         Use_Type AS Category
                 FROM data_all_fac
@@ -286,6 +364,49 @@ table4_tex
 
 table4_tex %>%
   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4_",eyear,".tex",sep = ''))
+
+#--------------- Same as above Top20 selection but without the Major Source Column
+#limit 20
+top_20 <- sqldf('SELECT Facility_HydroID, Facility, 
+                        Locality, 
+                        CASE WHEN GW_Type > 0 AND SW_Type IS NULL
+                        THEN "GW"
+                        WHEN SW_Type > 0 AND GW_Type IS NULL
+                        THEN "SW"
+                        WHEN GW_Type > 0 AND SW_Type > 0
+                        THEN "SW/GW"
+                        END AS Type,
+                        fac_fiveyr_avg,
+                        mgd,
+                        Use_Type AS Category
+                FROM data_all_fac
+                ORDER BY mgd DESC
+                LIMIT 20')
+
+#KABLE
+table4_latex <- kable(top_20[2:7],'latex', booktabs = T, align = c('l','l','c','c','c','l') ,
+                      caption = paste("Top 20 Reported Water Withdrawals in",eyear,"Excluding Power Generation (MGD)",sep=" "),
+                      label = paste("Top 20 Reported Water Withdrawals in",eyear,"Excluding Power Generation (MGD)",sep=" "),
+                      col.names = c(
+                        'Facility',
+                        'Locality',
+                        'Type',
+                        paste((eyear-syear)+1,"Year Avg."),
+                        paste(eyear, 'Withdrawal', sep = ' '),
+                        'Category')) %>%
+  kable_styling(latex_options = c("striped", "scale_down")) %>%
+  column_spec(1, width = "12em")
+
+#CUSTOM LATEX CHANGES
+#insert hold position header
+table4_tex <- gsub(pattern = "{table}[t]", 
+                   repl    = "{table}[ht!]", 
+                   x       = table4_latex, fixed = T )
+table4_tex
+
+table4_tex %>%
+  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4_",eyear,"nosource.tex",sep = ''))
+
 ################### TOP USERS BY USE TYPE (TABLES 6, 8, 10, 12, 14, 15,  17, 20, ############################
 
 #Table: Highest Reported  Withdrawals in eyear (MGD)
@@ -301,9 +422,11 @@ for (u in use_types) {
       
       #group by source type from data_all
       #group by facility
-      data_all_source <- sqldf(paste('SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, round((sum(',paste('"',eyear,'"', sep = ''),')/365),1) AS mgd, round((sum(multi_yr_avg)/365),1) as multi_yr_avg, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
+      data_all_source <- sqldf(paste('SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, round((sum(',paste('"',eyear,'"', sep = ''),')/365),1) AS mgd, round((sum(fiveyr_avg_mgy)/365),1) as fiveyr_avg_mgy, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
                       FROM data_all
                       GROUP BY Facility_HydroID, Source_Type',sep = ''))
+  #GM need to fix manufacturing section
+  #GM edit multi-yr-avg to fac_fiveyr_avg in sql statements of this for loop
       #top5
       top5 <- sqldf(paste('SELECT Facility_HydroID, Facility, 
                         Locality, 
@@ -316,10 +439,10 @@ for (u in use_types) {
                         THEN "SW/GW"
                         END AS Type,
                         "" AS "Major Source",
-                        multi_yr_avg,
+                        fac_fiveyr_avg,
                         mgd,
                         Use_Type AS Category
-                FROM data_all_source
+                FROM data_all_fac
                 WHERE Source_Type LIKE ',paste('"',s,'"', sep = ''),' 
                 AND Use_Type LIKE',paste('"',u,'"', sep = ''),'
                 ORDER BY mgd DESC
@@ -365,7 +488,7 @@ for (u in use_types) {
                         THEN "SW/GW"
                         END AS Type,
                         "" AS "Major Source",
-                        multi_yr_avg,
+                        fac_fiveyr_avg,
                         mgd,
                         Use_Type AS Category
                 FROM data_all_fac
@@ -410,7 +533,7 @@ for (u in use_types) {
                         THEN "SW/GW"
                         END AS Type,
                         "" AS "Major Source",
-                        multi_yr_avg,
+                        fac_fiveyr_avg,
                         mgd,
                         Use_Type AS Category
                 FROM data_all_fac
@@ -448,11 +571,14 @@ for (u in use_types) {
 #cat_table <- cat_table2
 ###### bySourceType - tables 5,7,9,11,13,16,19 ##################################################
 #change avg column name 
+syear <- eyear-4 #GM addition so syear is 2017 instead of 1982
 colnames(cat_table)[8] <- paste((eyear-syear)+1,"Year Avg.")
-
 #ag
 agtable5 <- cat_table[c(1,7,13),-2]
 rownames(agtable5) <- c()
+
+colnames(agtable5)[colnames(agtable5)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") #GM addition to fix column names
+for (s in 1:length(year.range)) {colnames(agtable5)[colnames(agtable5)==paste0("X",year.range[s])] <- year.range[s]} #GM addition to remove X from the in front of the year names, and so the bar chart sections below works. Repeat this edit for each use type table
 
 ag_tex <- kable(agtable5, booktabs = T, align = c('l','c','c','c','c','c','c','c'),
                 caption = paste(syear,"-",eyear,"Agriculture Water Withdrawals by Source Type (MGD)",sep=" "),
@@ -475,11 +601,18 @@ ag_tex <- gsub(pattern = "{lccccccc}",
 
 ag_tex %>%
   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Agriculture_table",file_ext,sep = ''))
+
+#kable(cat_table, booktabs = T) %>%  #GM is this supposed to be commented out? Ran one of these just in case so ignore the 5-24 table summary for now
+  kable_styling(latex_options = c("striped", "scale_down")) %>%
+  column_spec(8, width = "5em") %>%
+  column_spec(9, width = "5em") %>%
+  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
 ### BAR GRAPH ###################################################################################
 #transform wide to long table
 agtable5 <- agtable5[-3,-8]
-colnames(agtable5)[colnames(agtable5)=="Source Type"] <- "Source"
+colnames(agtable5)[colnames(agtable5)=="Source.Type"] <- "Source" #GM edit to "Source.Type" so that there is a Source to call from in the ggplot. repeat this edit for use type bar graphs
 colnames(agtable5)[colnames(agtable5)==paste((eyear-syear)+1,"Year Avg.")] <- "Average"
+
 agtable5 <- pivot_longer(data = agtable5, cols = paste0(syear):paste0(eyear), names_to = "Year", values_to = "MGD")
 
 #plot bar graph
@@ -506,13 +639,16 @@ ggplot(data=agtable5, aes(x=Year, y=MGD, fill = Source)) +
   scale_fill_brewer(palette = "Dark2", direction = -1) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
-filename <- paste("Agriculture",paste(syear,"-",eyear, sep = ""),"Bar_Graph.pdf", sep="_")
+filename <- "Agriculture_BarGraph.pdf" #GM edit at request for easier overleaf changes next year, repeat this edit for usetypes
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/overleaf",sep = " "), width=12, height=6)
 
 #### irrig ######################################################################################
 #irrig
 irrigtable7 <- cat_table[c(3,9,15),-2]
 rownames(irrigtable7) <- c()
+
+colnames(irrigtable7)[colnames(irrigtable7)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") #GM addition to fix column names
+for (s in 1:length(year.range)) {colnames(irrigtable7)[colnames(irrigtable7)==paste0("X",year.range[s])] <- year.range[s]} #GM addition to remove X from the in front of the year names, and so the bar chart sections below works. Repeat this edit for each use type table
 
 irrig_tex <- kable(irrigtable7,  booktabs = T, align = c('l','c','c','c','c','c','c','c'),
                    caption = paste(syear,"-",eyear,"Irrigation Water Withdrawals by Source Type (MGD)",sep=" "),
@@ -539,7 +675,7 @@ irrig_tex %>%
 ### BAR GRAPH ##################################################################################
 #transform wide to long table
 irrigtable7 <- irrigtable7[-3,-8]
-colnames(irrigtable7)[colnames(irrigtable7)=="Source Type"] <- "Source"
+colnames(irrigtable7)[colnames(irrigtable7)=="Source.Type"] <- "Source"
 colnames(irrigtable7)[colnames(irrigtable7)==paste((eyear-syear)+1,"Year Avg.")] <- "Average"
 irrigtable7 <- pivot_longer(data = irrigtable7, cols = paste0(syear):paste0(eyear), names_to = "Year", values_to = "MGD")
 
@@ -568,12 +704,15 @@ ggplot(data=irrigtable7, aes(x=Year, y=MGD, fill = Source)) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
 
-filename <- paste("Irrigation",paste(syear,"-",eyear, sep = ""),"Bar_Graph.pdf", sep="_")
+filename <- "Irrigation_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 ##### commercial####################################################################################
 commtable9 <- cat_table[c(2,8,14),-2]
 rownames(commtable9) <- c()
+
+colnames(commtable9)[colnames(commtable9)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") #GM addition to fix column names
+for (s in 1:length(year.range)) {colnames(commtable9)[colnames(commtable9)==paste0("X",year.range[s])] <- year.range[s]} #GM addition to remove X from the in front of the year names, and so the bar chart sections below works. Repeat this edit for each use type table
 
 comm_tex <- kable(commtable9,  booktabs = T, align = c('l','c','c','c','c','c','c','c'),
                   caption = paste(syear,"-",eyear,"Commercial Water Withdrawals by Source Type (MGD)",sep=" "),
@@ -600,7 +739,7 @@ comm_tex %>%
 ### BAR GRAPH ####################################################################################
 #transform wide to long table
 commtable9 <- commtable9[-3,-8]
-colnames(commtable9)[colnames(commtable9)=="Source Type"] <- "Source"
+colnames(commtable9)[colnames(commtable9)=="Source.Type"] <- "Source"
 colnames(commtable9)[colnames(commtable9)==paste((eyear-syear)+1,"Year Avg.")] <- "Average"
 commtable9 <- pivot_longer(data = commtable9, cols = paste0(syear):paste0(eyear), names_to = "Year", values_to = "MGD")
 
@@ -628,8 +767,7 @@ ggplot(data=commtable9, aes(x=Year, y=MGD, fill = Source)) +
   scale_fill_brewer(palette = "Dark2", direction = -1) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
-
-filename <- paste("Commercial",paste(syear,"-",eyear, sep = ""),"Bar_Graph.pdf", sep="_")
+filename <- "Commercial_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 
@@ -637,6 +775,9 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 #mining
 mintable11 <- cat_table[c(5,11,17),-2]
 rownames(mintable11) <- c()
+
+colnames(mintable11)[colnames(mintable11)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") #GM addition to fix column names
+for (s in 1:length(year.range)) {colnames(mintable11)[colnames(mintable11)==paste0("X",year.range[s])] <- year.range[s]} #GM addition to remove X from the in front of the year names, and so the bar chart sections below works. Repeat this edit for each use type table
 
 min_tex <- kable(mintable11,  booktabs = T, align = c('l','c','c','c','c','c','c','c'),
                  caption = paste(syear,"-",eyear,"Mining Water Withdrawals by Source Type (MGD)",sep=" "),
@@ -663,7 +804,7 @@ min_tex %>%
 ### BAR GRAPH #############################################################################
 #transform wide to long table
 mintable11 <- mintable11[-3,-8]
-colnames(mintable11)[colnames(mintable11)=="Source Type"] <- "Source"
+colnames(mintable11)[colnames(mintable11)=="Source.Type"] <- "Source"
 colnames(mintable11)[colnames(mintable11)==paste((eyear-syear)+1,"Year Avg.")] <- "Average"
 mintable11 <- pivot_longer(data = mintable11, cols = paste0(syear):paste0(eyear), names_to = "Year", values_to = "MGD")
 
@@ -694,8 +835,7 @@ ggplot(data=mintable11, aes(x=Year, y=MGD, fill = Source)) +
 #+ annotate("text", y=mintable11$Average-1.8, x=.79, label ="5 Year Avg.") 
 #+ annotate("text", y=mintable11$Average-3, x=.79, label = paste('=',mintable11$Average, " MGD"))
 
-
-filename <- paste("Mining",paste(syear,"-",eyear, sep = ""),"Bar_Graph.pdf", sep="_")
+filename <- "Mining_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 
@@ -703,6 +843,9 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 #manuf
 mantable13 <- cat_table[c(4,10,16),-2]
 rownames(mantable13) <- c()
+
+colnames(mantable13)[colnames(mantable13)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") #GM addition to fix column names
+for (s in 1:length(year.range)) {colnames(mantable13)[colnames(mantable13)==paste0("X",year.range[s])] <- year.range[s]} #GM addition to remove X from the in front of the year names, and so the bar chart sections below works. Repeat this edit for each use type table
 
 man_tex <- kable(mantable13,  booktabs = T, align = c('l','c','c','c','c','c','c','c'),
                  caption = paste(syear,"-",eyear,"Manufacturing and Industrial Water Withdrawals by Source Type (MGD)",sep=" "),
@@ -729,7 +872,7 @@ man_tex %>%
 ### BAR GRAPH #################################################################################
 #transform wide to long table
 mantable13 <- mantable13[-3,-8]
-colnames(mantable13)[colnames(mantable13)=="Source Type"] <- "Source"
+colnames(mantable13)[colnames(mantable13)=="Source.Type"] <- "Source"
 colnames(mantable13)[colnames(mantable13)==paste((eyear-syear)+1,"Year Avg.")] <- "Average"
 mantable13 <- pivot_longer(data = mantable13, cols = paste0(syear):paste0(eyear), names_to = "Year", values_to = "MGD")
 
@@ -758,7 +901,7 @@ ggplot(data=mantable13, aes(x=Year, y=MGD, fill = Source)) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
 
-filename <- paste("Manufacturing",paste(syear,"-",eyear, sep = ""),"Bar_Graph.pdf", sep="_")
+filename <- "Manufacturing_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 
@@ -766,6 +909,9 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 #muni aka pws
 munitable16 <- cat_table[c(6,12,18),-2]
 rownames(munitable16) <- c()
+
+colnames(munitable16)[colnames(munitable16)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") #GM addition to fix column names
+for (s in 1:length(year.range)) {colnames(munitable16)[colnames(munitable16)==paste0("X",year.range[s])] <- year.range[s]} #GM addition to remove X from the in front of the year names, and so the bar chart sections below works. Repeat this edit for each use type table
 
 muni_tex <- kable(munitable16,  booktabs = T, align = c('l','c','c','c','c','c','c','c'),
                   caption = paste(syear,"-",eyear,"Public Water Supply Water Withdrawals by Source Type (MGD)",sep=" "),
@@ -793,7 +939,7 @@ muni_tex %>%
 ###BAR GRAPH ############################################################################
 #transform wide to long table
 munitable16 <- munitable16[-3,-8]
-colnames(munitable16)[colnames(munitable16)=="Source Type"] <- "Source"
+colnames(munitable16)[colnames(munitable16)=="Source.Type"] <- "Source"
 colnames(munitable16)[colnames(munitable16)==paste((eyear-syear)+1,"Year Avg.")] <- "Average"
 munitable16 <- pivot_longer(data = munitable16, cols = paste0(syear):paste0(eyear), names_to = "Year", values_to = "MGD")
 
@@ -822,7 +968,7 @@ ggplot(data=munitable16, aes(x=Year, y=MGD, fill = Source)) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
 
-filename <- paste("Public Water Supply",paste(syear,"-",eyear, sep = ""),"Bar_Graph.pdf", sep="_")
+filename <- "PublicWaterSupply_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 
@@ -838,8 +984,8 @@ cat_table<- data.frame(expand.grid(a,b))
 colnames(cat_table) <- c('Use_Type', 'Source_Type')
 cat_table <- arrange(cat_table, Source_Type, Use_Type )
 #cat_table = FALSE
-syear = 2016
-eyear = 2020
+syear = 2017
+eyear = 2021
 year.range <- syear:eyear
 
 multi_yr_data <- list()
@@ -872,7 +1018,7 @@ for (y in year.range) {
   #rename columns
   colnames(data_power) <- c('HydroID', 'Hydrocode', 'Source_Type',
                             'MP_Name','Facility_hydroid','Facility', 'Use_Type', 'Year',
-                            'mgy', 'mgd', 'lat', 'lon', 'fips','locality')
+                            'mgy', 'mgd', 'lat', 'lon', 'fips','locality','OWS Planner')#GM addition of 'planner' for col15 to fix catsourcesum error
   
   data_power$mgd <- data_power$mgy/365
   #make use type values lowercase
@@ -885,28 +1031,42 @@ for (y in year.range) {
   #combine each year of data into a single table
   multi_yr_data <- rbind(multi_yr_data, data_power)
   
-  #begin summary table 1 manipulation
-  catsourcesum <- data_power %>% group_by(Use_Type, Source_Type)
+
+  #--------------------------------------------
+  # GM added this instead of dplyr from JK to  calculate sums of fossilpower and nuclearpower by source type
+  ## GM, come back to this to make it more efficient,  can Group By Use_Type AND Source_Type to get a single 4 way table
+  catsourcesum_gw <- sqldf(paste('SELECT Use_Type, Source_Type,
+                                         sum(mgd) AS mgd,
+                                         sum(mgy) AS mgy
+                                  FROM data_power
+                                  WHERE Source_Type = "Groundwater"
+                                  GROUP BY Use_Type
+                                 ',sep = ''))
+  catsourcesum_sw <- sqldf(paste('SELECT Use_Type, Source_Type,
+                                         sum(mgd) AS mgd,
+                                         sum(mgy) AS mgy
+                                  FROM data_power
+                                  WHERE Source_Type = "Surface Water"
+                                  GROUP BY Use_Type
+                                 ',sep = ''))
+  catsourcesum <- rbind(catsourcesum_gw,catsourcesum_sw)
+  #--------------------------------------------
   
-  catsourcesum <- catsourcesum %>% summarise(
-    mgd = sum(mgd),
-    mgy = sum(mgy)
-  )
-  
+
   catsourcesum$mgd = round(catsourcesum$mgy / 365.0,2)
   catsourcesum <- arrange(catsourcesum, Source_Type, Use_Type)
   
   
   catsum <- catsourcesum
   catsum$Source_Type <- "Total (GW + SW)"
-  catsum <- catsum %>% group_by(Use_Type, Source_Type)
   
-  catsum <- catsum %>% summarise(
-    mgd = sum(mgd),
-    mgy = sum(mgy)
-  )
-  catsum <- arrange(catsum, Source_Type, Use_Type)
-  
+  ###GM replace the group_by() and summarize() functions that don't work with another sql statement
+  catsum <- sqldf('SELECT Use_Type, Source_Type,
+                        sum(mgd) AS mgd,
+                        sum(mgy) AS mgy
+                      FROM catsum
+                      GROUP BY Use_Type')
+
   
   year_table <- rbind(catsourcesum, catsum)
   year_table <- arrange(year_table, Source_Type, Use_Type)
@@ -983,6 +1143,10 @@ colnames(catsum.sums) <- c('Source Type', 'Category',year.range,'multi_yr_avg',p
 cat_table <- rbind(cat_table,catsum.sums)
 
 print(cat_table)
+
+#GM Add Power Table CSV Export, do we need a latex table of it too?
+write.csv(cat_table, paste(export_path,eyear+1,"/Table1_Power_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
+
 ### POWER TABLE 19###########################################################
 #Table 19: 20xx-20xx Power Generation Water Withdrawals by Source Type (MGD)
 powtable19 <- rbind(cat_table[1:2,],cat_table[7,],cat_table[3:4,],cat_table[8,],cat_table[9,])
@@ -1080,7 +1244,7 @@ ggplot(data=power, aes(x=Year, y=MGD, fill = Source)) +
   geom_text(data = mean_mgd, aes( y = MGD, label = paste0(MGD, " \n MGD")), x = 5.8) +
   facet_grid(Source~Power, scales = "free_y")
 
-filename <- paste("Power",paste(syear,"-",eyear, sep = ""),"Bar_Graph.pdf", sep="_")
+filename <-"Power_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf/",sep = " "), width=12, height=6)
 
 ################### TOP USERS BY USE TYPE  ############################
@@ -1117,7 +1281,7 @@ data_all <- sqldf('SELECT a.*,  b.multi_yr_avg,
 data_all_fac <- sqldf(paste('SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, round((sum(',paste('"',eyear,'"', sep = ''),')/365),1) AS mgd, round((sum(multi_yr_avg)/365),1) as multi_yr_avg, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
                       FROM data_all
                       GROUP BY Facility_HydroID',sep = ''))
-
+#GM edit - remove unused column "" AS "Major Source", 
 top5 <- sqldf(paste('SELECT Facility_HydroID, Facility, 
                         Locality, 
                         CASE 
@@ -1128,7 +1292,6 @@ top5 <- sqldf(paste('SELECT Facility_HydroID, Facility,
                         WHEN GW_Type > 0 AND SW_Type > 0
                         THEN "SW/GW"
                         END AS Type,
-                        "" AS "Major Source",
                         multi_yr_avg,
                         mgd,
                         Use_Type AS Category
@@ -1138,14 +1301,14 @@ top5 <- sqldf(paste('SELECT Facility_HydroID, Facility,
                 LIMIT 5',sep = ''))
 
 #KABLE
-top5_latex <- kable(top5[2:7],'latex', booktabs = T, align = c('l','l','c','l','c','c') ,
+#GM edit - remove major source column name, by 4th 'l', and top5[2:6] now
+top5_latex <- kable(top5[2:6],'latex', booktabs = T, align = c('l','l','c','c','c') ,
                     caption = paste("Highest Reported Power Generation Withdrawals in",eyear,"(MGD)",sep=" "),
                     label = paste("Highest Reported Power Generation Withdrawals in",eyear,"(MGD)",sep=" "),
                     col.names = c(
                       'Facility',
                       'Locality',
                       'Type',
-                      'Major Source',
                       paste((eyear-syear)+1,"Year Avg."),
                       paste(eyear, 'Withdrawal', sep = ' '))) %>%
   kable_styling(latex_options = c("striped", "scale_down")) %>%
@@ -1159,4 +1322,5 @@ top5_tex <- gsub(pattern = "{table}[t]",
 top5_tex
 
 top5_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Power_top5_",eyear,".tex",sep = ''))
+  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Power_top5.tex",sep = ''))
+#GM edit table name not to include the year for easy overleaf addition next year
