@@ -321,47 +321,25 @@ table1_tex %>%
   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\overleaf\\summary_table1_",eyear,".tex",sep = ''))
 
 ################### TABLE 4 : TOP 20 USERS ##########################################
-#GM Flag - clean up my comments in this section
-#rerun this with FIPS propernames
-colnames(multi_yr_data)[colnames(multi_yr_data)=="Use.Type"] <- "Use_Type" #GM addition to capitalization line below to work
-colnames(multi_yr_data)[colnames(multi_yr_data)=="Source.Type"] <- "Source_Type" #GM addition for sql statement line below to work
-colnames(multi_yr_data)[colnames(multi_yr_data)=="FIPS.Code"] <- "FIPS" #GM addition
-#GM skip this potential addition now that we have eyearX
-#for (s in 1:length(year.range)) {colnames(multi_yr_data)[colnames(multi_yr_data)==paste0("X",year.range[s])] <- year.range[s]} 
+
+#GM additions so R and SQL statements recognize the column names
+colnames(multi_yr_data)[colnames(multi_yr_data)=="Use.Type"] <- "Use_Type"
+colnames(multi_yr_data)[colnames(multi_yr_data)=="Source.Type"] <- "Source_Type"
+colnames(multi_yr_data)[colnames(multi_yr_data)=="FIPS.Code"] <- "FIPS"
 
 #make Category values capital
 multi_yr_data$Use_Type <- str_to_title(multi_yr_data$Use_Type)
 multi_yr_data$Facility <- str_to_title(multi_yr_data$Facility)
 
-#GM addition to replace unnecessary pivot_wider
+#GM - now that multi_yr_data is wide format and has 5yr avg tacked on already, replace pivot_wider and data_avg generation with simplified data_all below
 data_all <-multi_yr_data
 colnames(data_all)[colnames(data_all)=="Locality"] <- "Locality_NA"
-#GM change to LocalityB below 
+
 data_all <- sqldf('SELECT a.*, b.name AS Locality
                   FROM data_all a
                   LEFT OUTER JOIN fips b
                   ON a.FIPS = b.code')
-#GM is this line below perhaps expecting multi-yr-avg from before it became mp_all? not quite because then the averages are for 1982-2021 not 2016-2021... 
-#colnames(multi_yr_data)[colnames(multi_yr_data)=="Water Use MGY"] <- "MGY"
-# 
-#GM remove data_Avg because we already have MP five year avg column, 
-#avg mgy, order by
-# data_avg <- sqldf('SELECT Facility_hydroid, fiveyr_avg_mgy as mp_avg_mgy
-#                   FROM multi_yr_data
-#                   GROUP BY Facility_hydroid')
 
-#GM edit 'Hydroid' to 'Facility_hydroid' x2, and remove join of data_avg
-# data_all <- sqldf('SELECT a.*,  b.mp_avg_mgy, 
-#                         CASE WHEN Source_Type = "Groundwater"
-#                         THEN 1
-#                         END AS GW_type,
-#                         CASE
-#                         WHEN Source_Type = "Surface Water"
-#                         THEN 1
-#                         END AS SW_Type
-#                   FROM data_all AS a
-#                   LEFT OUTER JOIN data_avg AS b
-#                   ON a.Facility_hydroid = b.Facility_hydroid')
 data_all <- sqldf('SELECT a.*, 
                         CASE WHEN Source_Type = "Groundwater"
                         THEN 1
@@ -381,50 +359,7 @@ data_all_fac <- sqldf(paste('SELECT Facility_HydroID, Facility, Source_Type, Use
                       FROM data_all
                       GROUP BY Facility_HydroID',sep = ''))
 
-#limit 20
-top_20 <- sqldf('SELECT Facility_HydroID, Facility, 
-                        Locality, 
-                        CASE WHEN GW_Type > 0 AND SW_Type IS NULL
-                        THEN "GW"
-                        WHEN SW_Type > 0 AND GW_Type IS NULL
-                        THEN "SW"
-                        WHEN GW_Type > 0 AND SW_Type > 0
-                        THEN "SW/GW"
-                        END AS Type,
-                        "" AS "Major Source",
-                        fiveyr_avg_mgd,
-                        mgd,
-                        Use_Type AS Category
-                FROM data_all_fac
-                ORDER BY mgd DESC
-                LIMIT 20')
-
-#KABLE
-table4_latex <- kable(top_20[2:8],'latex', booktabs = T, align = c('l','l','c','l','c','c','l') ,
-                      caption = paste("Top 20 Reported Water Withdrawals in",eyear,"Excluding Power Generation (MGD)",sep=" "),
-                      label = paste("Top 20 Reported Water Withdrawals in",eyear,"Excluding Power Generation (MGD)",sep=" "),
-                      col.names = c(
-                        'Facility',
-                        'Locality',
-                        'Type',
-                        'Major Source',
-                        paste((eyear-syear)+1,"Year Avg."),
-                        paste(eyear, 'Withdrawal', sep = ' '),
-                        'Category')) %>%
-  kable_styling(latex_options = c("striped", "scale_down")) %>%
-  column_spec(1, width = "12em")
-
-#CUSTOM LATEX CHANGES
-#insert hold position header
-table4_tex <- gsub(pattern = "{table}[t]", 
-                   repl    = "{table}[ht!]", 
-                   x       = table4_latex, fixed = T )
-table4_tex
-
-table4_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4_",eyear,".tex",sep = ''))
-
-#--------------- Same as above Top20 selection but without the Major Source Column
+#GM remove Major Source Column in top_20 and Kable
 #limit 20
 top_20 <- sqldf('SELECT Facility_HydroID, Facility, 
                         Locality, 
@@ -464,7 +399,7 @@ table4_tex <- gsub(pattern = "{table}[t]",
 table4_tex
 
 table4_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4_",eyear,"nosource.tex",sep = ''))
+  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4_",eyear,".tex",sep = ''))
 
 ################### TOP USERS BY USE TYPE (TABLES 6, 8, 10, 12, 14, 15,  17, 20, ############################
 #Chapter 3 Top5 tables
