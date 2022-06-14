@@ -198,6 +198,63 @@ year.range <- syear:eyear
 
 
 ################### Total Facilities Count ##################
+
+#GM section add - generate fac_all of total withdrawals per facility
+mp_foundation <- read.csv(file = "U:\\OWS\\foundation_datasets\\awrr\\2022\\foundation_dataset_mgy_1982-2021.csv") # btw double backslash is same as forward slash
+
+#Note: need to remake it longer so that we can sum the mgy for all MPs for each hydroid, if you don't do this first, when you Group By facility the mgy value selected to represent the facility is from an arbitrary single MP which is not an accurate sum, but also it may be NA which will make the facility count inaccurate
+mp_long <- pivot_longer(mp_foundation, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
+fac_all <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "FIPS.Code" as FIPS                            FROM mp_long
+                           GROUP BY Facility_hydroid, Year')
+#export long format
+write.csv(fac_all, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_1982-",eyear,".csv",sep = ""), row.names = F)
+
+#Count total number of reporting facilities for each year
+mp_wide <- pivot_wider(data = fac_all, id_cols = c("Facility_hydroid", "Facility","FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
+
+nonNAs <- function(x) { as.vector(apply(mp_wide, 2, function(x) length(which(!is.na(x))))) }
+count_all <- nonNAs(mp_wide)
+count_all[c(1,3)] <- ""
+count_all[2] <- "Total # Reporting Facilities"
+mp_wide2 <- rbind(count_all, mp_wide)
+
+#export wide format
+write.csv(mp_wide2, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_count_1982-",eyear,".csv",sep = ""), row.names = F)
+
+
+#### Non power version, with total volume reported
+mp_foundation <- read.csv(file = "U:\\OWS\\foundation_datasets\\awrr\\2022\\foundation_dataset_mgy_1982-2021.csv")
+mp_foundation_np <-  sqldf(paste0('SELECT * FROM mp_foundation WHERE "Use.Type" NOT LIKE "%power%"'))
+
+mp_long_np <- pivot_longer(mp_foundation_np, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
+fac_all_np <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "FIPS.Code" as FIPS                            FROM mp_long_np
+                           GROUP BY Facility_hydroid, Year')
+#Count total number of reporting facilities for each year
+mp_wide_np <- pivot_wider(data = fac_all_np, id_cols = c("Facility_hydroid", "Facility","FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
+#nonNAs <- function(x) { as.vector(apply(mp_wide, 2, function(x) length(which(!is.na(x))))) }
+count_all_np <- nonNAs(mp_wide_np)
+count_all_np[c(1,3)] <- ""
+count_all_np[2] <- "Total # Reporting Facilities"
+mp_wide2_np <- rbind(count_all_np, mp_wide_np)
+#add total volume reported
+i<-0
+j<-3
+annual_mgy <- c()
+mp_wide_np[is.na(mp_wide_np)] <- 0
+for (x in 1982:eyear){
+  i=i+1
+  j=j+1
+  annual_mgy[i] <- sum(mp_wide_np[j])
+}
+annual_bgy <- annual_mgy/1000
+annual_bgy <- c("", "Total Annual Reported Withdrawal in BGY", "", annual_bgy)
+mp_wide3_np <- rbind(annual_bgy, mp_wide2_np)
+#export wide format
+write.csv(mp_wide3_np, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_count_np_1982-",eyear,".csv",sep = ""), row.names = F)
+
+
+#---- Just for eyear
+
 #GM Calculate the total number of facilities here for either power or non-power
 #total facilities with power
 mp_foundation <- read.csv(file = paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"))
