@@ -46,6 +46,7 @@ ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
 ds$get_token(rest_pw)
 
 #source(paste(github_location,"/hydro-tools/R/om_cia_table.R",sep="")) #Used during development
+#source(paste(github_location,"/hydro-tools/R/om_demand_table.R",sep="")) #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
@@ -280,6 +281,55 @@ for (i in 1:length(runid.list)){
 }
 
 ```
+
+
+
+```{r LoadDemandTable, include=FALSE}
+#-------------------------------------------------------------------------------
+# fac_table <- om_model_table(model_info = fac_model_info,
+#                             runid.list = runid.list,
+#                             metric.list = fac.metric.list,
+#                             site = site,
+#                             site_base = omsite
+# )
+
+demand_table <- om_demand_table(model_info = fac_model_info,
+                            runid.list =  runid.list)
+
+demand_table <- cbind(rownames(demand_table),demand_table)
+names(demand_table)[names(demand_table) == 'rownames(demand_table)'] <- 'Desc'
+demand_table_raw <- demand_table
+
+demand_table_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "model" THEN "Facility Model Statistics:"
+                    WHEN "Desc" = "avg_day_mgd" THEN "Average Daily Volume (MGD)"
+                    WHEN "Desc" = "max_day_limit_mgd" THEN "Peak Day Volume (MGD)"
+                    WHEN "Desc" = "max_ann_limit_mgy" THEN "Maximum Annual Volume (MG)"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM demand_table_raw
+                 WHERE Desc NOT IN ("runid","model")
+                 ',sep='')
+demand_table <- sqldf(demand_table_sql)
+demandsdf <- demand_table[,-2]
+```
+
+## Table of Modeled Demand Limits:
+```{r DemandsTable, echo=FALSE}
+demands <- qflextable(demandsdf)
+# Set column widths
+demands <- width(demands, j = 2:length(demandsdf[1,]), width = 1.7)
+demands <- width(demands, j = 1, width = 1.9)
+# Set theme
+demands <- theme_box(demands)
+# Set background color of select rows --------------------------------------------------------------
+demands <- bg(demands, bg = "#EFEFEF", part = "header")
+demands <-fontsize(demands, size = 10, part = "header")
+fontsize(demands, size = 9)
+```
+
+
 
 \newpage  
 __Historical Intake Flows and Drought Flow Indicators__  
@@ -665,6 +715,14 @@ if (!is.logical(fig_path)) {
 Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use^[Kleiner et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876) & Rapp et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877)]. Note: elfgen methodology only applicable for watersheds < 800 cfs mean annual flow.
 
 ```{r LoadRichnessTable, include=FALSE}
+elfgen_cu <- rseg_table_raw
+
+cu_sql <- paste('SELECT * FROM elfgen_cu WHERE Desc == "consumptive_use_frac" ',sep='')
+cu_sql <- sqldf(cu_sql)
+cu_pct <- as.numeric(cu_sql[1,-1])*100
+cu_pct <- c("Consumptive Use (%)",cu_pct)
+#cu_pct <- c("Consumptive Use (%)",format(round(cu_pct,2), nsmall = 2)) #can adjust sigfigs
+
 elfgen_df <- rseg_table_raw
 elfgen_sql <- paste('SELECT
                       CASE
@@ -680,13 +738,16 @@ elfgen_sql <- paste('SELECT
                     ',sep='')
 elfgen_df <- sqldf(elfgen_sql)
 elfgen_df <- elfgen_df[,-2]
+#elfgen_df <- elfgen_df[-1,] #remove row with CU as a decimal
+elfgen_df <- rbind(cu_pct,elfgen_df) #add row with CU as a percent
+colnames(elfgen_df) <- colnames(fac_table) #colnames to use scenario names
 ```
 
 ```{r RichnessTable, echo=FALSE}
 ft <- qflextable(elfgen_df)
 # Set column widths
-  ft <- width(ft, j = 2:length(elfgen_df[1,]), width = 1.9)
-  ft <- width(ft, j = 1, width = 2)
+  ft <- width(ft, j = 2:length(elfgen_df[1,]), width = 1.5)
+  ft <- width(ft, j = 1, width = 2.0)
 # Set theme
   ft <- theme_box(ft)
 # Set background color of select rows --------------------------------------------------------------
@@ -779,8 +840,8 @@ users_sql <- paste(
 '"FROM users_df AS usersdf
   LEFT OUTER JOIN metric_df as metricdf
   ON usersdf.mp_hydroid = metricdf.mp_hydroid
-  ORDER BY mp_wd_current_mgy DESC
 ')
+#ORDER BY mp_wd_current_mgy DESC
 #WHERE mp_wd_current_mgy > 0
 usersdf <- sqldf(users_sql)
 usersdf <- cbind(" "=seq.int(nrow(usersdf)),usersdf) #ADD COLUMN OF ROW NUMBER 
