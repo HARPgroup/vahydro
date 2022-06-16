@@ -3,7 +3,7 @@ library("zoo")
 library("hydrotools")
 
 elid = 251491
-runid = 2
+runid = 8
 gageid = '02054530'
 model_flows <- om_get_rundata(elid, runid, site=omsite)
 model_flows <- zoo(as.numeric(as.character( model_flows$Qout )), order.by = index(model_flows) );

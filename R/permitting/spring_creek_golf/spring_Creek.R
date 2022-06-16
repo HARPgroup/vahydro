@@ -20,7 +20,6 @@ quantile(datr11$Runit)
 datr401 <- om_get_rundata(relid, 401, site = omsite)
 datr601 <- om_get_rundata(relid, 601, site = omsite)
 datr801 <- om_get_rundata(relid, 801, site = omsite)
-datlr801 <- om_get_rundata(lrelid, 801, site = omsite)
 bccc <- as.data.frame(
   datbc602[,
     c("impoundment_use_remain_mg",
@@ -29,6 +28,10 @@ bccc <- as.data.frame(
   ]
 )
 
+datlr401 <- om_get_rundata(lrelid, 401, site = omsite)
+datlr601 <- om_get_rundata(lrelid, 601, site = omsite)
+dr4 <- as.data.frame(datlr401)
+dr6 <- as.data.frame(datlr601)
 
 datf11 <- om_get_rundata(felid, 11, site = omsite)
 datf13 <- om_get_rundata(felid, 13, site = omsite)
@@ -38,12 +41,23 @@ datf801 <- om_get_rundata(felid, 801, site = omsite)
 quantile(datf601$Qreach,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
 quantile(datf601$Qintake,probs=c(0,0.01,0.05,0.10, 0.25,0.5))
 
+df6 <- as.data.frame(datf601)
+df4 <- as.data.frame(datf401)
+
+quantile(datf401$Qintake)
+quantile(datf401$refill_pump_mgd)
+quantile(datf401$refill_available_mgd)
+quantile(datf601$Qintake)
+quantile(datf601$refill_pump_mgd)
+quantile(datf601$refill_available_mgd)
+
 rmarkdown::render(
-  '/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd',
-  params = list(
-    rseg.hydroid = rhid, fac.hydroid = fhid,
-    runid.list = c("runid_11", "runid_401", "runid_601"),
-    intake_stats_runid = 11
+  'C:/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', 
+  output_file = '/WorkSpace/modeling/projects/york_river/south_anna/spring_creek/VWP_summary_spring_creek_v02.docx', 
+  params = list( 
+    rseg.hydroid = 68113, fac.hydroid = 73024, 
+    runid.list = c("runid_400","runid_601"), 
+    intake_stats_runid = 400,upstream_rseg_ids=c(68120) 
   )
 )
 
