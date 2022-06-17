@@ -204,19 +204,34 @@ mp_foundation <- read.csv(file = "U:\\OWS\\foundation_datasets\\awrr\\2022\\foun
 
 #Note: need to remake it longer so that we can sum the mgy for all MPs for each hydroid, if you don't do this first, when you Group By facility the mgy value selected to represent the facility is from an arbitrary single MP which is not an accurate sum, but also it may be NA which will make the facility count inaccurate
 mp_long <- pivot_longer(mp_foundation, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
-fac_all <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "FIPS.Code" as FIPS                            FROM mp_long
-                           GROUP BY Facility_hydroid, Year')
+fac_all <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "Use.Type" as "Use_Type", "FIPS.Code" as FIPS
+                  FROM mp_long
+                  GROUP BY Facility_hydroid, Year')
 #export long format
 write.csv(fac_all, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_1982-",eyear,".csv",sep = ""), row.names = F)
 
 #Count total number of reporting facilities for each year
-mp_wide <- pivot_wider(data = fac_all, id_cols = c("Facility_hydroid", "Facility","FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
+mp_wide <- pivot_wider(data = fac_all, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
 
-nonNAs <- function(x) { as.vector(apply(mp_wide, 2, function(x) length(which(!is.na(x))))) }
-count_all <- nonNAs(mp_wide)
-count_all[c(1,3)] <- ""
-count_all[2] <- "Total # Reporting Facilities"
-mp_wide2 <- rbind(count_all, mp_wide)
+
+#GM FLAG to replace count function because it's not recounting properly when I run the nonpower version#####
+count_3D <- data.frame(Year = matrix(NA, nrow = nrow(mp_wide)), "Num_Reporting_Fac"=matrix(NA, nrow = nrow(mp_wide)), BGY = matrix(NA, nrow=nrow(mp_wide)))
+year.range.f <- 1982:eyear
+i<-0
+for (x in year.range.f) {
+  i=i+1
+  test <- sqldf(paste0('SELECT "',x,'" FROM mp_wide WHERE "',x,'" IS NOT NULL'))
+  count_3D[i,1] <- year.range.f[i]
+  count_3D[i,2] <- nrow(test)
+  count_3D[i,3] <- sum(test)/1000
+} 
+mp_wide2 <- cbind(mp_wide, count_3D)
+
+# nonNAs <- function(x) { as.vector(apply(mp_wide, 2, function(x) length(which(!is.na(x))))) }
+# count_all <- nonNAs(mp_wide)
+# count_all[c(1,3)] <- ""
+# count_all[2] <- "Total # Reporting Facilities"
+# mp_wide2 <- rbind(count_all, mp_wide)
 
 #export wide format
 write.csv(mp_wide2, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_count_1982-",eyear,".csv",sep = ""), row.names = F)
@@ -227,30 +242,66 @@ mp_foundation <- read.csv(file = "U:\\OWS\\foundation_datasets\\awrr\\2022\\foun
 mp_foundation_np <-  sqldf(paste0('SELECT * FROM mp_foundation WHERE "Use.Type" NOT LIKE "%power%"'))
 
 mp_long_np <- pivot_longer(mp_foundation_np, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
-fac_all_np <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "FIPS.Code" as FIPS                            FROM mp_long_np
-                           GROUP BY Facility_hydroid, Year')
+fac_all_np <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "Use.Type" as Use_Type, "FIPS.Code" as FIPS
+                    FROM mp_long_np
+                    GROUP BY Facility_hydroid, Year')
 #Count total number of reporting facilities for each year
-mp_wide_np <- pivot_wider(data = fac_all_np, id_cols = c("Facility_hydroid", "Facility","FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
-#nonNAs <- function(x) { as.vector(apply(mp_wide, 2, function(x) length(which(!is.na(x))))) }
-count_all_np <- nonNAs(mp_wide_np)
-count_all_np[c(1,3)] <- ""
-count_all_np[2] <- "Total # Reporting Facilities"
-mp_wide2_np <- rbind(count_all_np, mp_wide_np)
-#add total volume reported
+mp_wide_np <- pivot_wider(data = fac_all_np, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
+
+#GM FLAG 2 - working now, however total reported BGY doesn't match Table1 ####
+count_3D_np <- data.frame(Year = matrix(NA, nrow = nrow(mp_wide_np)), "Num_Reporting_Fac"=matrix(NA, nrow = nrow(mp_wide_np)), BGY = matrix(NA, nrow=nrow(mp_wide_np)))
+year.range.f <- 1982:eyear
 i<-0
-j<-3
-annual_mgy <- c()
-mp_wide_np[is.na(mp_wide_np)] <- 0
-for (x in 1982:eyear){
+for (x in year.range.f) {
   i=i+1
-  j=j+1
-  annual_mgy[i] <- sum(mp_wide_np[j])
-}
-annual_bgy <- annual_mgy/1000
-annual_bgy <- c("", "Total Annual Reported Withdrawal in BGY", "", annual_bgy)
-mp_wide3_np <- rbind(annual_bgy, mp_wide2_np)
+  test <- sqldf(paste0('SELECT "',x,'" FROM mp_wide_np WHERE "',x,'" IS NOT NULL'))
+  count_3D_np[i,1] <- year.range.f[i]
+  count_3D_np[i,2] <- nrow(test)
+  count_3D_np[i,3] <- sum(test)/1000
+} 
+mp_wide2_np <- cbind(mp_wide_np, count_3D_np)
+# nonNAs <- function(x) { as.vector(apply(mp_wide, 2, function(x) length(which(!is.na(x))))) }
+# count_all_np <- nonNAs(mp_wide_np)
+# count_all_np[c(1,3)] <- ""
+# count_all_np[2] <- "Total # Reporting Facilities"
+# mp_wide2_np <- rbind(count_all_np, mp_wide_np)
+# #add total volume reported
+# i<-0
+# j<-3
+# annual_mgy <- c()
+# mp_wide_np[is.na(mp_wide_np)] <- 0
+# for (x in 1982:eyear){
+#   i=i+1
+#   j=j+1
+#   annual_mgy[i] <- sum(mp_wide_np[j])
+# }
+# annual_bgy <- annual_mgy/1000
+# annual_bgy <- c("", "Total Annual Reported Withdrawal in BGY", "", annual_bgy)
+# mp_wide3_np <- rbind(annual_bgy, mp_wide2_np)
 #export wide format
 write.csv(mp_wide3_np, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_count_np_1982-",eyear,".csv",sep = ""), row.names = F)
+
+
+#GM Flag -testing in progress
+### By Use Type Version 
+# mp_foundation <- read.csv(file = "U:\\OWS\\foundation_datasets\\awrr\\2022\\foundation_dataset_mgy_1982-2021.csv")
+# mp_long_ut <- pivot_longer(mp_foundation, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
+# fac_all_ut <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", "Use.Type" as Use_Type, sum("mgy") as mgy, sum(("mgy")/365) as mgd, "FIPS.Code" as FIPS                            FROM mp_long
+#                            GROUP BY Facility_hydroid, Year, Use_Type')
+# #write.csv(fac_all, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_ut_1982-",eyear,".csv",sep = ""), row.names = F) #long format
+# 
+# #Count total number of reporting facilities for each year
+# mp_wide_ut <- pivot_wider(data = fac_all_ut, id_cols = c("Facility_hydroid", "Facility","FIPS", "Use_Type"), names_from = "Year", values_from = "mgy", names_sort = T)
+# 
+# #here add filter by each use type
+# # for (u in usetypes) {select ..... WHERE Use_Type like ',u,'
+# nonNAs <- function(x) { as.vector(apply(mp_wide_ut, 2, function(x) length(which(!is.na(x))))) }
+# count_all_ut <- nonNAs(mp_wide_ut)
+# count_all_ut[c(1,3)] <- ""
+# count_all_ut[2] <- "Total # Reporting Facilities"
+# mp_wide4_ut <- rbind(count_all_ut, mp_wide4_ut)
+# write.csv(mp_wide2, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_all_count_1982-",eyear,".csv",sep = ""), row.names = F) #export wide fomat
+# # }
 
 
 #---- Just for eyear
@@ -375,7 +426,7 @@ table1_tex <- gsub(pattern = "{table}[t]",
 table1_tex
 
 table1_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\overleaf\\summary_table1_",eyear,".tex",sep = ''))
+  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\overleaf\\summary_table1.tex",sep = ''))
 
 ################### TABLE 4 : TOP 20 USERS ##########################################
 
@@ -456,7 +507,7 @@ table4_tex <- gsub(pattern = "{table}[t]",
 table4_tex
 
 table4_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4_",eyear,".tex",sep = ''))
+  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4.tex",sep = ''))
 
 ################### TOP USERS BY USE TYPE (TABLES 6, 8, 10, 12, 14, 15,  17, 20, ############################
 #Chapter 3 Top5 tables
