@@ -30,9 +30,9 @@ in_dir <- "/backup/meteorology/out/lseg_csv/1984010100-2022123123/" # linux dire
 
 startdate1 <- "2018-01-01"
 enddate1 <- "2022-04-13"
-year2 <- "2002" # todo: can find the landseg l90 year from model runs records
-startdate2 <- "2002-04-14"
-enddate2 <- "2002-12-31"
+year2 <- "1986" # todo: can find the landseg l90 year from model runs records
+startdate2 <- "1986-04-14"
+enddate2 <- "1986-12-31"
 
 in_dir <- "http://deq1.bse.vt.edu:81/met/backup/meteorology/out/lseg_csv/1984010100-20220123123/" # linux directory
 
@@ -40,10 +40,6 @@ site <- "http://deq1.bse.vt.edu:81/met/out/lseg_csv/1984010100-2022123123/" # te
 
 # 51037 drains to cub creek in Phenix VA
 landseg <- "A51037"
-startdate1 <- "2018-01-01"
-enddate1 <- "2022-04-13"
-startdate2 <- "2002-04-14"
-enddate2 <- "2002-12-31"
 
 # run get_lseg_csv to get download met data for range including mashup dates
 lseg_csv <- get_lseg_csv(landseg = landseg, startdate = "1984-01-01", enddate = enddate1, site = site, dir = in_dir)
@@ -75,6 +71,11 @@ met_color <- list(
   "PRC" = 'blue',
   "TMP" = 'brown'
 )
+met_name <- list(
+  "PET" = 'Evapotranspiration',
+  "PRC" = 'Rainfall',
+  "TMP" = 'Temperature'
+)
 for (met_part in c("PRC", "TMP", "PET")) {
   cdat <- mash_up[[met_part]]
   # generate plot
@@ -83,7 +84,7 @@ for (met_part in c("PRC", "TMP", "PET")) {
     as.Date(paste(cdat$year,cdat$month, cdat$day,sep="-")), 
     cdat[[met_part]], 
     type = "l", 
-    main = "Mashup 2019-2022 + 2002",
+    main = paste(met_name[[met_part]],"Mashup 2019-2022 +",year2),
     xlab = "Year",
     col = met_color[[met_part]],
     ylab = paste(met_part, "Hourly Total (inches)")
