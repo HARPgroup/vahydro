@@ -50,7 +50,7 @@ gagelist$USGS_GAGES <- USGS_GAGES[,2]
 USGS_GAGES <- gagelist$USGS_GAGES 
 
 #j<-131
-#j<-3
+#j<-132
 
 #Begin loop to run through each USGS gage 
 for (j in 1:length(USGS_GAGES)) {
@@ -68,7 +68,7 @@ staname <- gage_info$station_nm
 gage <- readNWISdv(USGS_GAGE_ID,'00060')
 gage <- renameNWISColumns(gage)
 
-if (length(gage) == 0) {next}
+if (length(gage[,1]) == 0) {next}
 
 #Calculate 7-Day Average Streamflow for every day of the historic record
 # THIS HAS BEEN ABANDONED IN FAVOR OF THE SQL METHOD BELOW
