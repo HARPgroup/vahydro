@@ -1,0 +1,84 @@
+# install_github("HARPGroup/hydro-tools", force=TRUE)
+library("hydrotools")
+library('zoo')
+basepath='/var/www/R';
+source("/var/www/R/config.R")
+
+# Set up our data source
+ds <- RomDataSource$new(site, rest_uname = rest_uname)
+ds$get_token(rest_pw)
+
+sffelid <- 347350
+sfrelid <- 352054
+bmelid <- 337728 # Buck Mountain Creek
+icelid <-  # Ivy Creek
+  
+sfdatr4 <- om_get_rundata(sfrelid, 401, site=omsite)
+mean(sfdatr4$Runit_mode)
+mean(sfdatr4$Qlocal)
+quantile(sfdatr4$Qout)
+mean(sfdatr4$Qout)
+
+sfdatf4 <- om_get_rundata(sffelid, 401, site=omsite)
+
+bcdatf4 <- om_get_rundata(felid, 401, site=omsite)
+
+bcdatr4 <- om_get_rundata(relid, 401, site=omsite)
+
+bcdatro4 <- om_get_rundata(roelid, 401, site=omsite)
+
+bmdat4 <- om_get_rundata(bmelid, 401, site=omsite)
+
+
+df <- data.frame(
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_11', '0.%20River%20Channel', 'local_channel'),
+  'runlabel' = c('QBaseline_2020', 'comp_da', 'subcomp_da'),
+  'metric' = c('Qbaseline', 'drainage_area', 'drainage_area')
+)
+da_data <- om_vahydro_metric_grid(
+  metric, df, "all", "dh_feature",
+  "watershed", "vahydro", "vahydro-1.0",
+  "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export"
+)
+da_data <- sqldf(
+  "select pid, comp_da, subcomp_da,
+   CASE
+    WHEN comp_da is null then subcomp_da
+    ELSE comp_da
+    END as da
+   from da_data
+  ")
+
+
+df <- data.frame(
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_201', 'runid_401', 'runid_11'),
+  'metric' = c('l90_Qout', 'l90_Qout','l90_Qout'),
+  'runlabel' = c('L90_201', 'L90_401', 'L90_2020')
+)
+cc_data <- om_vahydro_metric_grid(
+  metric, df, "all", "dh_feature",
+  "watershed", "vahydro", "vahydro-1.0",
+  "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export"
+)
+
+riv_data <- sqldf(
+  "select a.*, b.da
+   from cc_data as a
+  left outer join da_data as b
+  on (a.pid = b.pid)
+  where hydrocode in (
+    'vahydrosw_wshed_JL2_6441_6520_ivy_creek',
+    'vahydrosw_wshed_JL4_6520_6710_ragged_mtn',
+    'vahydrosw_wshed_JL1_6560_6440_beaver_creek',
+    'vahydrosw_wshed_JL2_6440_6441_moormans_sugar_hollow',
+    'vahydrosw_wshed_JL2_6440_6441_buck_mtn_creek',
+    'vahydrosw_wshed_JL2_6440_6441',
+    'vahydrosw_wshed_JL1_6560_6440',
+    'vahydrosw_wshed_JL2_6240_6520',
+    'vahydrosw_wshed_JL2_6441_6520',
+    'vahydrosw_wshed_JL4_6710_6740'
+  )
+  order by da
+  ")
