@@ -19,7 +19,7 @@ push_to_rest <- TRUE
 
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
-#source('/var/www/R/config.R')
+# source('/var/www/R/config.R')
 
 #load libraries
 source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/"));
@@ -50,7 +50,7 @@ gagelist$USGS_GAGES <- USGS_GAGES[,2]
 USGS_GAGES <- gagelist$USGS_GAGES 
 
 #j<-131
-#j<-132
+#j<-176
 
 #Begin loop to run through each USGS gage 
 for (j in 1:length(USGS_GAGES)) {
@@ -127,12 +127,20 @@ months_all <- data.frame(months,months_num)
     lower_percent <- quant[i]
     upper_percent <- quant[i+1]
     
+    # update below handles instances of rolling_7day_avg exceeding the historical maximum
+    if (i == 9 && is.na(rolling_7day_avg >= month_quant[lower_quantile] && rolling_7day_avg <= month_quant[upper_quantile]) == 'TRUE'){
+      print("historic max")
+      rolling_percentile <- 100
+    } else {
+    
         if ((rolling_7day_avg >= month_quant[lower_quantile] && rolling_7day_avg <= month_quant[upper_quantile] ) == 'TRUE') {
          rolling_percentile <- lower_percent + (rolling_7day_avg- month_quant[lower_quantile])*(( upper_percent - lower_percent)/(month_quant[upper_quantile]-month_quant[lower_quantile]))
          rolling_percentile <- as.vector(rolling_percentile)
          rolling_percentile <- rolling_percentile*100
         }
         }
+    }
+    
   }
 print(paste("The Rolling 7-day Avg for today is ",rolling_7day_avg,sep=""))
 print(paste("This is equivalent to a percentile of ",rolling_percentile," for the month of ",month," at GAGE ",USGS_GAGE_ID,sep=""))
