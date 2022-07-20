@@ -12,12 +12,18 @@ sffelid <- 347350
 sfrelid <- 352054
 bmelid <- 337728 # Buck Mountain Creek
 icelid <-  # Ivy Creek
-  
+shelid <- 337718
+roelid <- 352016 # 
+
+rodatr4 <- om_get_rundata(roelid, 401, site=omsite)
+
 sfdatr4 <- om_get_rundata(sfrelid, 401, site=omsite)
 mean(sfdatr4$Runit_mode)
 mean(sfdatr4$Qlocal)
 quantile(sfdatr4$Qout)
 mean(sfdatr4$Qout)
+
+shdatf4 <- om_get_rundata(shelid, 401, site=omsite)
 
 sfdatf4 <- om_get_rundata(sffelid, 401, site=omsite)
 
@@ -81,4 +87,8 @@ riv_data <- sqldf(
     'vahydrosw_wshed_JL4_6710_6740'
   )
   order by da
-  ")
+  "
+)
+
+# print a tble for the issue queue
+knitr::kable(riv_data,'markdown')
