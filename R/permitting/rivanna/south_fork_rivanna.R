@@ -13,9 +13,9 @@ sfrelid <- 352054
 bmelid <- 337728 # Buck Mountain Creek
 icelid <-  # Ivy Creek
 shelid <- 337718
-roelid <- 352016 # 
+roelid <- 351983 # 
 
-rodatr4 <- om_get_rundata(roelid, 401, site=omsite)
+rodatr4 <- om_get_rundata(roelid, 801, site=omsite)
 
 sfdatr4 <- om_get_rundata(sfrelid, 401, site=omsite)
 mean(sfdatr4$Runit_mode)
@@ -58,10 +58,10 @@ da_data <- sqldf(
 
 
 df <- data.frame(
-  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
-  'runid' = c('runid_201', 'runid_401', 'runid_11'),
-  'metric' = c('l90_Qout', 'l90_Qout','l90_Qout'),
-  'runlabel' = c('L90_201', 'L90_401', 'L90_2020')
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_400', 'runid_400', 'runid_600', 'runid_11'),
+  'metric' = c('Qout_400', 'l90_Qout', 'l90_Qout','l90_Qout'),
+  'runlabel' = c('Qout', 'L90_400', 'L90_600', 'L90_2020')
 )
 cc_data <- om_vahydro_metric_grid(
   metric, df, "all", "dh_feature",
