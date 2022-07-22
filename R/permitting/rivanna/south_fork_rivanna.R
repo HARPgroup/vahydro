@@ -18,6 +18,7 @@ rmelid <- 337726 # Ragged Mtn
 relid <- 337730 # Rivanna 
 rjelid <- 214993 # Rivanna at James confluence
 
+roelid <- 351983 # 
 rodatr4 <- om_get_rundata(roelid, 801, site=omsite)
 
 rdatr4 <- om_get_rundata(relid, 801, site=omsite)
@@ -68,10 +69,10 @@ da_data <- sqldf(
 
 
 df <- data.frame(
-  'model_version' = c('vahydro-1.0',  'vahydro-1.0','vahydro-1.0','vahydro-1.0'),
-  'runid' = c('runid_201', 'runid_401', 'runid_11', 'runid_801'),
-  'metric' = c('l90_Qout', 'l90_Qout','l90_Qout','l90_Qout'),
-  'runlabel' = c('L90_201', 'L90_401', 'L90_2020', 'L90_extended')
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_400', 'runid_400', 'runid_600', 'runid_11'),
+  'metric' = c('Qout_400', 'l90_Qout', 'l90_Qout','l90_Qout'),
+  'runlabel' = c('Qout', 'L90_400', 'L90_600', 'L90_2020')
 )
 cc_data <- om_vahydro_metric_grid(
   metric, df, "all", "dh_feature",
