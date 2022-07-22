@@ -1037,6 +1037,50 @@ filename <- "PublicWaterSupply_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 
+###LINE GRAPH (municipal cont.) #############
+mp_foundation_dataset <-read.csv(file = paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"))
+
+#For 10 years, but can adjust to longer timeframe
+syear <- eyear-10
+Xyears <- array()
+ten <- 10:1
+for (y in ten) { Xyears[y] = paste0("X",(eyear+1)-ten[y]) }
+
+pws10 <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source.Type", "MP.Name", "Facility_hydroid", "Facility", "Use.Type", "Latitude", "Longitude", "FIPS.Code", "Locality", "OWS.Planner", ',Xyears[1],', ',Xyears[2],', ',Xyears[3],', ',Xyears[4],', ',Xyears[5],', ',Xyears[6],', ',Xyears[7],', ',Xyears[8],', ',Xyears[9],', ',Xyears[10],'
+                FROM mp_foundation_dataset
+                WHERE "Use.Type" LIKE "municipal"'))
+
+#If we go back to the 15yr version, correct the reporting value for EARLYSVILLE FOREST WELL #2 (MP hydroid 64631), appears to be entered in gallons instead of MG #pws15[2120, 15] <- 0.0861
+
+pws10_sum <- data.frame(matrix(nrow = length(Xyears), ncol = 2))
+i=0
+for (x in Xyears){
+  i=i+1
+  pws10_sum[i,1] <- (syear+i)
+  pws10_sum[i,2] <- sqldf(paste0('SELECT 
+  round(SUM("',Xyears[i],'")/365,2) AS "',Xyears[i],'"
+                            FROM pws10'))
+}
+
+#Plot line graph
+ggplot(pws10_sum, aes(x = X1, y = X2)) +
+  geom_smooth(method = "lm", color = "grey",linetype = "dashed", se = FALSE)+ #optional trendline
+  geom_line() +
+  labs(x = "Year", y = "Total Annual Withdrawal (MGD)")+
+  theme(panel.background = element_rect(fill = "white"),
+        panel.grid.major.y = element_line(colour = "light gray", size=.3),
+        axis.title.x=element_text(size=15),  # X axis title
+        axis.title.y=element_text(size=15),
+        axis.text.x = element_text(size=15, vjust = 1),
+        axis.text.y = element_text(size=12))+
+  coord_cartesian(ylim = c(725,825), clip = "off")
+  
+
+filename <- "PublicWaterSupply_LineGraph2.pdf"
+ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
+
+
+
 ### POWER
 ### POWER PULL FROM VAHYDRO - REPLACE WITH POWER FILTER FROM MULTI_YR_DATA AFTER FIXING TOP SECTION TO PULL WITHOUT FILTER ON POWER ####################################
 a <- c(

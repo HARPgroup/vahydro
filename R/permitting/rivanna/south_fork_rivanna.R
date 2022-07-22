@@ -8,16 +8,27 @@ source("/var/www/R/config.R")
 ds <- RomDataSource$new(site, rest_uname = rest_uname)
 ds$get_token(rest_pw)
 
-sffelid <- 347350
-sfrelid <- 352054
+sffelid <- 347350 # SF facility
+sfrelid <- 352054 # SF River seg
 bmelid <- 337728 # Buck Mountain Creek
 icelid <-  # Ivy Creek
-shelid <- 337718
-roelid <- 351983 # 
+shelid <- 337718 # Sugar Hollow
+roelid <- 352020 # runoff 
+rmelid <- 337726 # Ragged Mtn
+relid <- 337730 # Rivanna 
+rjelid <- 214993 # Rivanna at James confluence
 
+roelid <- 351983 # 
 rodatr4 <- om_get_rundata(roelid, 801, site=omsite)
 
-sfdatr4 <- om_get_rundata(sfrelid, 401, site=omsite)
+rdatr4 <- om_get_rundata(relid, 801, site=omsite)
+rjdatr4 <- om_get_rundata(rjelid, 801, site=omsite)
+
+sfdatf4 <- om_get_rundata(sffelid, 801, site=omsite)
+sfdatr4 <- om_get_rundata(sfrelid, 801, site=omsite)
+rmdatr4 <- om_get_rundata(rmelid, 801, site=omsite)
+quantile(rmdatr4$impoundment_Qout)
+
 mean(sfdatr4$Runit_mode)
 mean(sfdatr4$Qlocal)
 quantile(sfdatr4$Qout)

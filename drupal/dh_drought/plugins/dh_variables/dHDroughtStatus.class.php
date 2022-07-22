@@ -153,6 +153,7 @@ class dHDroughtStatusReservoir extends dHDroughtStatusBase{
   public function formRowEdit(&$form, $entity) {
     parent::formRowEdit($form, $entity);
     $form['propvalue']['#title'] = t('Reservoir Surface Level');
+	$form['startdate']['#title'] = t('Last Updated');
   }  
 }
 
