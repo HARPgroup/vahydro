@@ -56,7 +56,7 @@ df <- data.frame(
 da_data <- om_vahydro_metric_grid(
   metric, df, "all", "dh_feature",
   "watershed", "vahydro", "vahydro-1.0",
-  "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export"
+  "http://deq1.bse.vt.edu:81/d.dh/entity-model-prop-level-export"
 )
 da_data <- sqldf(
   "select pid, comp_da, subcomp_da,
@@ -69,15 +69,15 @@ da_data <- sqldf(
 
 
 df <- data.frame(
-  'model_version' = c('vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
-  'runid' = c('runid_400', 'runid_400', 'runid_600', 'runid_11'),
-  'metric' = c('Qout_400', 'l90_Qout', 'l90_Qout','l90_Qout'),
-  'runlabel' = c('Qout', 'L90_400', 'L90_600', 'L90_2020')
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_400', 'runid_400', 'runid_400', 'runid_600', 'runid_600', 'runid_600'),
+  'metric' = c('Qout', 'l90_Qout', 'wd_mgd', 'Qout', 'wd_mgd','l90_Qout'),
+  'runlabel' = c('Qout_400', 'L90_400', 'wd_mgd_400', 'Qout_600', 'wd_mgd_600', 'L90_vwpp')
 )
 cc_data <- om_vahydro_metric_grid(
   metric, df, "all", "dh_feature",
   "watershed", "vahydro", "vahydro-1.0",
-  "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export"
+  "http://deq1.bse.vt.edu:81/d.dh/entity-model-prop-level-export"
 )
 
 riv_data <- sqldf(

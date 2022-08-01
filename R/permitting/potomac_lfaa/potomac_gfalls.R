@@ -26,7 +26,7 @@ source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/ifim_data_gfalls
 # compare PoR gage time series with
 icprb_monthly_lf <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/lfalls_nat_monthly_data.csv")
 icprb_monthly_gf <- icprb_monthly_lf
-icprb_monthly_gf$gfalls <-
+#icprb_monthly_gf$gfalls <-
 icprb_monthly_prod <- read.csv("https://raw.githubusercontent.com/HARPgroup/vahydro/master/data/wma_production.csv")
 icprb_monthly_prod$month <- month(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
 icprb_monthly_prod$year <- year(as.Date(icprb_monthly_prod$thisdate,format="%m/%d/%Y"))
@@ -46,7 +46,7 @@ icprb_prod_max <- sqldf(
    select month,
      max(wssc_pot) as wssc_pot,
      max(wa_gf) as  wa_gf,
-     max(wa_gf) as wa_gf,
+     max(wa_lf) as wa_lf,
      max(fw_pot) as fw_pot,
      max(rville) as rville,
      max(up_cu) as up_cu
@@ -58,7 +58,7 @@ icprb_prod_max <- sqldf(
 alt_gf <- sqldf(
   "
    select a.Date, a.year, a.month,
-    (b.wssc_pot + b.wa_gf + b.wa_gf
+    (b.wssc_pot + b.wa_gf 
       + b.fw_pot + b.rville) as demand_mgd,
       a.Flow
    from nat_gf as a
