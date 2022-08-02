@@ -43,7 +43,7 @@ library(rjson)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
 ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
-ds$get_token(rest_pw)
+# ds$get_token(rest_pw)
 
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cia_table.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_demand_table.R") #Used during development
@@ -840,9 +840,13 @@ users_sql <- paste(
 '"FROM users_df AS usersdf
   LEFT OUTER JOIN metric_df as metricdf
   ON usersdf.mp_hydroid = metricdf.mp_hydroid
+  WHERE usersdf.mp_bundle = "intake"
+  ORDER BY metricdf.metric_value DESC
 ')
 #ORDER BY mp_wd_current_mgy DESC
 #WHERE mp_wd_current_mgy > 0
+#WHERE usersdf.mp_bundle = "intake"
+#ORDER BY metricdf.metric_value DESC
 usersdf <- sqldf(users_sql)
 usersdf <- cbind(" "=seq.int(nrow(usersdf)),usersdf) #ADD COLUMN OF ROW NUMBER 
 
