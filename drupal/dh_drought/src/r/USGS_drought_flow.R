@@ -15,7 +15,7 @@ library(httr)
 library(stringr)
 library(sqldf)
 
-# push_to_rest <- TRUE
+push_to_rest <- TRUE
 
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
@@ -34,8 +34,8 @@ site <- base_url
 #Pull in list of all drought USGS gage dH Features 
 #URL <- paste(site,"ows-cova-usgs-drought-site-list-export", sep = "/");
 
-URL <- paste(site,"drought-gages-export", sep = "/");
-# URL <- paste(site,"drought-gages-export-all", sep = "/");
+#URL <- paste(site,"drought-gages-export", sep = "/");
+URL <- paste(site,"drought-gages-export-all", sep = "/");
 
 #gagelist <- read.table(URL,header = TRUE, sep = ",")
 gagelist <- read.csv(URL, sep = ",")
@@ -454,4 +454,3 @@ if (push_to_rest == TRUE) {
 
 
 } #end of gage feature loop
-
