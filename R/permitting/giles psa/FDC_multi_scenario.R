@@ -32,11 +32,11 @@ save_directory <- 'C:/Users/nrf46657/Desktop/GitHub/vahydro/R/permitting/giles p
 pid <- 4712012 #New River- Stoney Creek to Narrows
 elid <- 277588  #New River- Stoney Creek to Narrows
 runid.list <- c(6001,6002)
-# legend_text <- c("Current (84-05)",
-#                  "Current w/ 90% Flowby (84-05)",
-#                  "Total Permitted (84-05)",
-#                  "Total Permitted w/ 90% Flowby (84-05)")
-legend_text <- FALSE
+# legend_text <- c("Pre-Giles (0 surface water demand)",
+#                  "Post-Giles (1.05 mgd & 90% Flowby)")
+legend_text <- c("Pre-Giles",
+                 "Post-Giles (1.05 mgd & 90% Flowby)")
+# legend_text <- FALSE
 
 
 dat_all <- list()
