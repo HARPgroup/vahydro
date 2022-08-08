@@ -25,7 +25,19 @@ rdatr4 <- om_get_rundata(relid, 801, site=omsite)
 rjdatr4 <- om_get_rundata(rjelid, 801, site=omsite)
 
 sfdatf4 <- om_get_rundata(sffelid, 801, site=omsite)
-sfdatr4 <- om_get_rundata(sfrelid, 801, site=omsite)
+
+sfdatr2 <- om_get_rundata(sfrelid, 200, site=omsite)
+sfdatr4 <- om_get_rundata(sfrelid, 400, site=omsite)
+sfdatr6 <- om_get_rundata(sfrelid, 600, site=omsite)
+quantile(sfdatr2$system_storage_bg)
+quantile(sfdatr4$system_storage_bg)
+quantile(sfdatr6$system_storage_bg)
+
+om_flow_table(sfdatr2, "Qout")
+om_flow_table(sfdatr6, "Qout")
+om_flow_table(sfdatr6, "local_channel_Qout")
+
+
 rmdatr4 <- om_get_rundata(rmelid, 801, site=omsite)
 quantile(rmdatr4$impoundment_Qout)
 
