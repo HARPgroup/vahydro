@@ -382,9 +382,10 @@ if (!is.null(demand_url)) {
 # Results
 ## Summary
 
-Four scenarios are presented below to examine the alternatives for this permit re-issuance.  A summary of how permit rules affect available water for this permit, and how this operation may impact instream beneficial uses, and other downstream water withdrawals is presented.   
-
 ```{r LoadRunResults, echo=FALSE, results = "asis"}
+
+cat(paste("Presented below are ",length(runid.list)," scenarios to examine the alternatives for this permit re-issuance.  A summary of how permit rules affect available water for this permit, and how this operation may impact instream beneficial uses, and other downstream water withdrawals is presented.\n\n"))
+
 for (i in 1:length(runid.list)){
   # get fac model run prop
   # get river model run prop 
