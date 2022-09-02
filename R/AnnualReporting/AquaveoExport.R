@@ -290,3 +290,57 @@ backup<- multi_yr_data_awrr
 multi_yr_data_awrr <- backup
 
 #the above pulls from VAHydro using the same URL as the map exports, by just setting date, as it's automatically on selection for wells/intakes, EXCEPT the URL uses ows-awrr instead of ows-annual-report, could that be why we don't get the same columns out?
+
+############### TP QUERY ###############################
+
+#remove remaining duplicates from map export data, 
+#because 449343 associated with 100-1440 and 100-01440, and 449370 associated with 100-1446 and 100-01446
+multiyr_widb <- sqldf('SELECT * FROM multiyr_wid WHERE DEQ_Well_Number NOT IN ("100-1440","100-1446")')
+
+
+TP <- read.csv(file=paste0(export_path,"/trimmed_aquaveo_total_permitted_query_scinot.csv"))
+#names(TP)
+TP <- sqldf('SELECT "VA.HydroID" as VAHydroID, "MPID" as MPID_2, "DEQ.Well.Number" as DEQ_Well_Number_2, "Well.Status" as Well_Status, "Well.Type" as Well_Type, "Permit.Status" as "Permit_Status", "Permit.ID" as "Permit_ID","Assigned.Model.Layer.Cell" as Assigned_Model_Layer_Cell, "Annual.Permit.Limit..gpy." as Annual_Permit_Limit_gpy, X as Notes
+            FROM TP')
+
+joinTP <- sqldf('SELECT a.*, b.*
+                  FROM TP a
+                  LEFT JOIN multiyr_widb b
+                  ON a.VAHydroID = b.MP_Hydroid')
+#check duplicates
+duplicate_check <- sqldf('SELECT VAHydroID FROM joinTP GROUP BY VAHydroID HAVING count(*)>1')
+duplicate_check <- sqldf('SELECT MP_Hydroid FROM joinTP GROUP BY MP_Hydroid HAVING count(*)>1')
+
+nomatch1 <- sqldf('SELECT * FROM joinTP WHERE MP_Hydroid is null ')
+#write.csv(nomatch, file=paste0(export_path,"/writecsv/nomatch_TPhydroid_MPhydroid.csv"))
+#28 hydroids not match because they began in 2022, and are not in 2021 map export data
+#why not join RU to TP? becase hydroids in the TP that are not in joined_all ex. drummondton are bc joined_all is just CP not ES
+joinedTP <- sqldf('SELECT * FROM joinTP WHERE VAHydroID NOT IN 
+                (SELECT VAHydroID FROM nomatch1)')
+
+#checks
+#does MPID_2 match MPID
+match_mpid <- sqldf('SELECT VAHydroID, MPID_2, MPID, CASE WHEN MPID_2 = MPID THEN 0 ELSE 1 END AS mpidmatch FROM joinedTP')
+match_check <- sqldf('SELECT * from match_mpid where mpidmatch = 1')
+#does DEQ_Well_Number_2 match DEQ_Well_Number
+match_well <- sqldf('SELECT VAHydroID, DEQ_Well_Number_2, DEQ_Well_Number, CASE WHEN DEQ_Well_Number_2 = DEQ_Well_Number THEN 0 ELSE 1 END AS wellmatch FROM joinedTP')
+match_check <- sqldf('SELECT * from match_well where wellmatch = 1') #bc of well# corrections in the notes column, so choose DEQ_Well_Number_2
+
+#export for Aquaveo
+joined_export2 <- subset(joinedTP, select = -c(MP_hydroid, MPID,DEQ_Well_Number))
+colnames(joined_export2)[colnames(joined_export2)=="VAHydroID"] <- "MP_hydroid"
+colnames(joined_export2)[colnames(joined_export2)=="MPID_2"] <- "MPID"
+colnames(joined_export2)[colnames(joined_export2)=="DEQ_Well_Number_2"] <- "DEQ_Well_Number"
+write.csv(joined_export2, file=paste0(export_path,"/writecsv/TotalPermitted_MatchedExport.csv"))
+
+
+# #check if nomatch are in foundation data 
+# foundation <- read.csv(file="U:/OWS/foundation_datasets/awrr/2022/foundation_dataset_mgy_1982-2021.csv")
+# nomatch_f <- sqldf('SELECT a.VAHydroID, b.*
+#       FROM nomatch1 a LEFT JOIN foundation b
+#       ON a.VAHydroID = b.MP_hydroid')
+# nrow(sqldf('SELECT * from nomatch_f where MP_hydroid is not null'))# so only 1 of the nomatch is in foundation data
+
+#The only difference between the foundation pull and the map export pull is the "awrr" vs "annual-report" in the following URLs. Foundation: https://deq1.bse.vt.edu/d.dh/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=2021-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake  vs. Map Export: https://deq1.bse.vt.edu/d.dh/ows-annual-report-map-exports?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=2021-12-31&bundle%5B%5D=well&bundle%5B%5D=intake&hydroid= There aren't other filters apparent in the URL other than date, and selection of the wells/intakes bundle type. I don't see behind the scenes of the view if there are other filters. 
+
+#will need to do ESRUIDs like CPRUIDs
