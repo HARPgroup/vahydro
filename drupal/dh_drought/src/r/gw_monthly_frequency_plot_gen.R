@@ -33,7 +33,7 @@ well_list <- read.csv(URL, sep = ",")
 hydrocodes <- well_list$hydrocode
 # hydrocodes <- hydrocodes[1:2]
 
-# j = 2
+# j = 1
 #Begin loop to run through each USGS gage 
 for (j in 1:length(hydrocodes)) {
   siteNumber <- hydrocodes[j]
@@ -47,8 +47,8 @@ for (j in 1:length(hydrocodes)) {
   
   # Daily data:
   parameterCd <- "72019" #Depth to water level, feet below land surface
-  # statCd <- "00001" # MAXIMUM
-  statCd <- "00003"# MEAN
+  statCd <- "00001" # MAXIMUM
+  # statCd <- "00003"# MEAN
   dv <- dataRetrieval::readNWISdv(site,
                                   parameterCd,
                                   statCd = statCd)
@@ -57,12 +57,13 @@ for (j in 1:length(hydrocodes)) {
   title <- paste(site, " - ", readNWISsite(site)$station_nm, sep="")
   
   # png(paste(save_directory,'/monthly_frequency_plot.',site, '.png',sep = ''), width = 550, height = 500)
-  HASP::monthly_frequency_plot(dv,
+  plt <- HASP::monthly_frequency_plot(dv,
                                gwl_data,
                                parameter_cd = parameterCd,
                                plot_title = title,
                                y_axis_label = y_axis_label,
                                flip = TRUE)
+  # print(plt)
   # dev.off()
   ggsave(file=paste('monthly_frequency_plot.',site, '.png',sep = ''), path = save_directory , width=6, height=5)
 } # end usgs well for loop
