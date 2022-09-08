@@ -1,12 +1,15 @@
-# remotes::install_gitlab("water/stats/hasp",
-#                         host = "code.usgs.gov",
-#                         build_opts = c("--no-resave-data",
-#                                        "--no-manual"),
-#                         build_vignettes = TRUE, 
-#                         dependencies = TRUE)
+# Unable to install the HASP package on deq1 server using the recommended method: https://github.com/USGS-R/HASP
+# Load USGS HASP package function files explicitly: 
+source("https://raw.githubusercontent.com/USGS-R/HASP/main/R/gwl_single_sites.R")
+source("https://raw.githubusercontent.com/USGS-R/HASP/main/R/frequency_analysis.R")
+source("https://raw.githubusercontent.com/USGS-R/HASP/main/R/ggplot2_utils.R")
 
-rm(list = ls())  #clear variables
-library(HASP)
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+# rm(list = ls())  #clear variables
+library(dataRetrieval)
 library(dataRetrieval)
 library(ggplot2)
 library(sqldf)
@@ -17,25 +20,19 @@ save_directory = '/var/www/html/images/dh'
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = ''))
 
-# load libraries
-source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/")); 
-source(paste(basepath,"auth.private",sep = '/'))
-token <- rest_token (base_url, token, rest_uname = rest_uname, rest_pw = rest_pw) #token needed for REST
-site <- base_url
-
 
 #Pull in list of all drought USGS well dH Features 
-URL <- paste(site,"drought-wells-export", sep = "/")
+URL <- paste(base_url,"drought-wells-export", sep = "/")
 #well_list <- read.table(URL,header = TRUE, sep = ",")
 well_list <- read.csv(URL, sep = ",")
 
 
-# select eastern shore wells only
-well_list <- sqldf("SELECT *
-                    FROM well_list
-                    WHERE `Feature.Name` LIKE '%110S%'
-                    OR `Feature.Name` LIKE '%103A%'
-                   ")
+# # select eastern shore wells only
+# well_list <- sqldf("SELECT *
+#                     FROM well_list
+#                     WHERE `Feature.Name` LIKE '%110S%'
+#                     OR `Feature.Name` LIKE '%103A%'
+#                    ")
 
 hydrocodes <- well_list$hydrocode
 
@@ -64,7 +61,7 @@ for (j in 1:length(hydrocodes)) {
   y_axis_label <- readNWISpCode(parameterCd)$parameter_nm
   title <- paste(site, " - ", readNWISsite(site)$station_nm, sep="")
   
-  plt <- HASP::monthly_frequency_plot(dv,
+  plt <- monthly_frequency_plot(dv,
                                gwl_data,
                                parameter_cd = parameterCd,
                                plot_title = title,
