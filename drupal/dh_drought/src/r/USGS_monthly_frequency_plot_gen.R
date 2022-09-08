@@ -9,11 +9,10 @@ rm(list = ls())  #clear variables
 library(HASP)
 library(dataRetrieval)
 library(ggplot2)
+library(sqldf)
 
-# save_directory = '/var/www/html/images/dh'
-save_directory = 'C:/Users/nrf46657/Desktop/GitHub/vahydro/drupal/dh_drought/src/r'
-
-push_to_rest <- FALSE
+save_directory = '/var/www/html/images/dh'
+# save_directory = 'C:/Users/nrf46657/Desktop/GitHub/vahydro/drupal/dh_drought/src/r/gw_plots'
 
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = ''))
@@ -30,8 +29,15 @@ URL <- paste(site,"drought-wells-export", sep = "/")
 #well_list <- read.table(URL,header = TRUE, sep = ",")
 well_list <- read.csv(URL, sep = ",")
 
+
+# select eastern shore wells only
+well_list <- sqldf("SELECT *
+                    FROM well_list
+                    WHERE `Feature.Name` LIKE '%110S%'
+                    OR `Feature.Name` LIKE '%103A%'
+                   ")
+
 hydrocodes <- well_list$hydrocode
-# hydrocodes <- hydrocodes[1:2]
 
 # j = 1
 #Begin loop to run through each USGS gage 
@@ -48,7 +54,9 @@ for (j in 1:length(hydrocodes)) {
   # Daily data:
   parameterCd <- "72019" #Depth to water level, feet below land surface
   statCd <- "00001" # MAXIMUM
+  # statCd <- "00002" # MINIMUM
   # statCd <- "00003"# MEAN
+  # statCd <- "00008" # MEDIAN
   dv <- dataRetrieval::readNWISdv(site,
                                   parameterCd,
                                   statCd = statCd)
@@ -56,14 +64,12 @@ for (j in 1:length(hydrocodes)) {
   y_axis_label <- readNWISpCode(parameterCd)$parameter_nm
   title <- paste(site, " - ", readNWISsite(site)$station_nm, sep="")
   
-  # png(paste(save_directory,'/monthly_frequency_plot.',site, '.png',sep = ''), width = 550, height = 500)
   plt <- HASP::monthly_frequency_plot(dv,
                                gwl_data,
                                parameter_cd = parameterCd,
                                plot_title = title,
                                y_axis_label = y_axis_label,
                                flip = TRUE)
-  # print(plt)
-  # dev.off()
-  ggsave(file=paste('monthly_frequency_plot.',site, '.png',sep = ''), path = save_directory , width=6, height=5)
+
+  ggsave(file=paste('usgs_',site,'_monthly_frequency_plot.png',sep = ''), path = save_directory , width=6, height=5)
 } # end usgs well for loop
