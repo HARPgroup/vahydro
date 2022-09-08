@@ -9,7 +9,7 @@ source("https://raw.githubusercontent.com/USGS-R/HASP/main/R/ggplot2_utils.R")
 ##########################################################################################
 ##########################################################################################
 # rm(list = ls())  #clear variables
-library(dataRetrieval)
+library(dplyr)
 library(dataRetrieval)
 library(ggplot2)
 library(sqldf)
