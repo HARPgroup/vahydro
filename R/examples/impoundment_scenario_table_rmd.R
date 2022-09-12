@@ -25,7 +25,7 @@ for (i in 1:length(model_features)) {
   models[[i]] <- model$pid
 }
 
-om_scen_element_table <- function(ds,models, scenario, propname, col_max=2) {
+om_scen_element_table <- function(ds,models, scenario, propname, column_title, col_max=2) {
   thiscol = 1
   thisrow = 1
   img_table_markdown = ''
@@ -42,7 +42,7 @@ om_scen_element_table <- function(ds,models, scenario, propname, col_max=2) {
       fig_path <- fig_prop$code
       # we have an image, show it 
       img_markdown <- paste(
-        paste0("#### Reservoir Storage: ", model$name),
+        paste0("#### ", column_title, model$name),
         paste0("![](",fig_path,")"),
         sep="\n"
       )
@@ -60,3 +60,5 @@ om_scen_element_table <- function(ds,models, scenario, propname, col_max=2) {
   }
   return(attribute_matrix)
 }
+
+om_scen_element_table(ds,models, scenario, img_name, column_title = "test:")

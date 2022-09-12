@@ -34,8 +34,8 @@ quantile(smldat4$impoundment_Qin)
 mean(smldat4$impoundment_Qin)
 
 
-roelid <- 252893 
-rodat4 <- om_get_rundata(roelid, 401, site=omsite)
+roelid <- 251269  
+rodat4 <- om_get_rundata(roelid, 400, site=omsite)
 quantile(rodat4$Runit)
 mean(rodat4$impoundment_Qin)
 
