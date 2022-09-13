@@ -43,7 +43,7 @@ library(rjson)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
 ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
-# ds$get_token(rest_pw)
+ds$get_token(rest_pw)
 
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cia_table.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_demand_table.R") #Used during development
@@ -103,36 +103,38 @@ print(paste("searching", site,"for river segment id", rseg.hydroid))
 
 #base_url = site, entity_id = rseg.hydroid
 
-rseg.model <- om_get_model(site, rseg.hydroid)
-rseg.elid <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+rseg.model <- RomProperty$new(
+  ds,
+  list(entity_type='dh_feature', featureid = rseg.hydroid, propcode="vahydro-1.0"),
+  TRUE
+)
 
 #FAC MODEL INFO
-fac.model <- om_get_model(site, fac.hydroid, model_varkey = 'om_water_system_element')
-fac.name <- gsub("\\:.*","",fac.model$propname) #extract facility name from fac:rseg model name
-fac.elid <- om_get_prop(site, fac.model$pid, entity_type = 'dh_properties','om_element_connection')$propvalue
+fac.model <- RomProperty$new(
+  ds,
+  list(entity_type='dh_feature', featureid = fac.hydroid, propcode="vahydro-1.0"),
+  TRUE
+)
+fac_feature <- RomFeature$new(
+  ds,
+  list(hydroid = fac.hydroid),
+  TRUE
+)
 
-if (intake_stats_fid == fac.hydroid) {
-  istats_elid = fac.elid
-} else if (intake_stats_fid == rseg.hydroid) {
-  istats_elid = rseg.elid
-} else {
-  istats_model <- RomProperty$new(
-    ds,
-    list(entity_type='dh_feature', featureid = intake_stats_fid, propcode="vahydro-1.0"),
-    TRUE
-  )
-  istats_elid <- as.integer(as.character(istats_model$propvalues('om_element_connection')$propvalue))
-}
+fac.name <- fac_feature$name 
 
 
 if (exists("json_obj_url")) {
   fac_obj_url <- paste(json_obj_url, fac.model$pid, sep="/")
-  fac_model_info <- om_auth_read(fac_obj_url, token,  "text/json", "")
+  fac_model_info <- ds$auth_read(fac_obj_url, "text/json", "")
   fac_model_info <- fromJSON(fac_model_info)
+  fac.elid <- fac_model_info[[1]]$om_element_connection$value
+
   rseg_obj_url <- paste(json_obj_url, rseg.model$pid, sep="/")
-  rseg_model_info <- om_auth_read(rseg_obj_url, token,  "text/json", "")
+  rseg_model_info <- ds$auth_read(rseg_obj_url, "text/json", "")
   rseg_model_info <- fromJSON(rseg_model_info)
-  # get report cusomtizations
+  rseg.elid <- rseg_model_info[[1]]$om_element_connection$value
+  # get report customizations
   fac_report_info = find_name(fac_model_info, "reports")
   rseg_report_info = find_name(rseg_model_info, "reports")
   if (!is.logical(impoundment_fid)) {
@@ -149,6 +151,20 @@ if (exists("json_obj_url")) {
   message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
   fac_model_info <- list()
   rseg_model_info <- list()
+}
+
+
+if (intake_stats_fid == fac.hydroid) {
+  istats_elid = fac.elid
+} else if (intake_stats_fid == rseg.hydroid) {
+  istats_elid = rseg.elid
+} else {
+  istats_model <- RomProperty$new(
+    ds,
+    list(entity_type='dh_feature', featureid = intake_stats_fid, propcode="vahydro-1.0"),
+    TRUE
+  )
+  istats_elid <- as.integer(as.character(istats_model$propvalues('om_element_connection')$propvalue))
 }
 
 fac_default_info = list(
@@ -202,22 +218,6 @@ for (i in 1:length(runid.list)){
 
 
 ```
-
-
-# VAHydro Model:
-
-
-## VAHydro
-The comprehensive VAHydro hydrologic model is used by the DEQ Office of Water Supply to evaluate instream and off-stream beneficial uses for non-tidal surface water withdrawals throughout Virginia. This model also simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through DEQ water supply planning and reporting programs, which includes all known withdrawals and discharges, as well as operational rules of Virginia Water Protection (VWP) permits and major hydrologic features such as reservoirs.
-
-The VAHydro model is built on the rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6^[ [Chesapeake Bay Program Phase 6 Model](https://www.chesapeakebay.net/documents/Phase_6_Modeling_Tools_1-page_factsheet_12-18-17.pdf).]. The VAHydro model simulates conditions from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed. The VAHydro model features high-resolution hydrologic subsections called “river segments” (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
-
-
-## Cumulative Impact Analysis (CIA)
-DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA). CIA is a modeling and analysis approach that takes into account the varied hydrologic processes occurring throughout a river network (including meteorological and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential “cumulative impact” of all streamflow changes occurring upstream and downstream of any location within the river system, as well as the downstream impact of a specific proposed or permitted surface water withdrawal.
-
-The goal of the following analysis is to estimate the potential impacts of the proposed water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses. In addition, cumulative impacts from all existing withdrawals are included in the evaluation.
-
 
 \newpage
 # Project Introduction
@@ -334,7 +334,7 @@ fontsize(demands, size = 9)
 \newpage  
 __Historical Intake Flows and Drought Flow Indicators__  
 
-The VAHydro model is used to estimate flows at the project intake, including the impact of all cumulative withdrawals, discharges and management rules upstream of the withdrawal location. The models estimates of currently available flows are presented in Table 1.  The Virginia Drought Assessment and Response Plan^[ [Virginia Drought Assessment and Response Plan](https://www.deq.virginia.gov/home/showpublisheddocument/5115/637490843054630000), developed by the Drought Response Technical Advisory Committee in response to Executive Order #39, March 28, 2003.] employs non-exceedance flow percentiles as indicators of drought conditions at particular stream-gaging stations used to monitor drought conditions.  Representative daily streamflows above the 25th percentile for return flow frequency represent normal conditions with respect to drought.  Representative daily streamflows between the 10th and 25th percentiles represent drought watch conditions. Representative daily streamflows between the 5th and 10th percentiles represent drought warning conditions.  Representative daily streamflows below the 5th percentile indicate drought emergency conditions.
+The VAHydro model is used to estimate flows at the project intake, including the impact of all cumulative withdrawals and discharges upstream of the intake location and are presented in Table 1.  The Virginia Drought Assessment and Response Plan^[ [Virginia Drought Assessment and Response Plan](https://www.deq.virginia.gov/home/showpublisheddocument/5115/637490843054630000), developed by the Drought Response Technical Advisory Committee in response to Executive Order #39, March 28, 2003.] employs non-exceedance flow percentiles as indicators of drought conditions at particular stream-gaging stations used to monitor drought conditions.  Representative daily streamflows above the 25th percentile for return flow frequency represent normal conditions with respect to drought.  Representative daily streamflows between the 10th and 25th percentiles represent drought watch conditions. Representative daily streamflows between the 5th and 10th percentiles represent drought warning conditions.  Representative daily streamflows below the 5th percentile indicate drought emergency conditions.
 
 ```{r LoadSiteInfo, include=FALSE}
 dat_current <- om_get_rundata(istats_elid, intake_stats_runid, omsite, FALSE)
@@ -358,16 +358,33 @@ demand_url <- drun_info$fig.monthly_demand$code
 
 ```{r SiteTable, echo=FALSE, results = "asis"}
 #Round Table Values (Following McGurk request: "The tabulated values should be rounded to the nearest whole number.  The flow estimates at the stream gages are not precise or accurate enough for digits to the right of the decimal, and are not reported that way.  Therefore, modeled values should not be considered more accurate.")
+# I allowed this to be 1 decimal place because when you have small watersheds, you can end up with a table of flows that are half populated with zeros. This results in the table being LESS accurate IMO than rounding to 1 place.  FWIW, the decimal places are not accuracy, they're precision so I'd argue that the model can be more precise cause it's a numerical calculation and therefore more precise! :)
+mism <- median(intake_sum_current$Mean)
+if (mism < 20.0) {
+  dps <- 1
+} else {
+  dps = 0
+}
 round_intake_sum_current <- intake_sum_current[2:length(intake_sum_current)]
-round_intake_sum_current <- round(round_intake_sum_current,0)
+round_intake_sum_current <- round(round_intake_sum_current,dps)
 intake_sum_current <- cbind(intake_sum_current[1],round_intake_sum_current)
 
 # Format table
 ft <- qflextable(intake_sum_current)
 ft <- theme_box(ft)
 ft <- bg(ft, bg = "#EFEFEF", part = "header")
-cat(paste("__Table 1:__ Modeled monthly current flow statistics for", fac_report_info$intake_name$value, "in cubic feet per second (cfs). Columns show the minimum (Min) and average (Mean) modeled flow, and a range of non-exceedance flow percentiles, that is, the column header indicates the percent of flows that do *not* exceed the given value. For example, the", paste0("\"",ex_col, "\""), "states that only", ex_col, "of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.", non_ex_text) )
+cat(
+  paste(
+    "__Table 1:__ Modeled monthly current flow statistics for", 
+    fac_report_info$intake_name$value, 
+    "in cubic feet per second (cfs). Columns show the minimum (Min) and average (Mean) modeled flow, and a range of non-exceedance flow percentiles, that is, the percent of flows that do *not* exceed the given value. For example, the",
+    paste0("\"",ex_col, "\""), "states that only", ex_col, 
+    "of flows in the given month are expected to be less than the indicated value, and therefore, 90% of the flows in that month are expected to be greater than the given value.", 
+    non_ex_text
+  )
+)
 ft
+
 if (!is.null(demand_url)) {
     cat("\n\n## Current Facility Base Demand Before Conservation: ", drun_info$reports$scenario_name$value,"\n\n")
     cat(paste0("![](",demand_url,")"),"\n")
@@ -513,23 +530,6 @@ statsdf <- rbind(rseg_table,fac_table)
 ## Detailed Cumulative Impact Analysis
 The following "Summary of Results" table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project. The section entitled “River Segment Model Statistics” contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated Consumptive Use Fraction (See description below) as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed. Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Total Number of Days with Storage < 50% describes the number of days in the simulation in which reservoir levels fall below 50% of full storage. The section entitled “Facility Model Statistics” shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect. There will be one or more columns in this table representing each scenario considered for this analysis.
 
-### Glossary of Cumulative Impact Modeling Terms
-- 30 Day Low Flow (l30):  Describes the lowest consecutive 30 day average daily streamflow over the simulation period. This metric is a representation of a short-term, or acute drought.
-- 90 Day Low Flow (l90): Represents the lowest consecutive 90 day average daily streamflow over the simulation period. This would represent a prolonged drought.
-- Base Demand / Requested Demand: The demand simulated for a facility/intake prior to any reductions due to conservation, depleted storage, or adherence to Minimum Instream Flow operational rules (MIF).  In this document, *Base Demand* is expressed as *MGY*, and Requested Demand is given in *MGD*.
-- CFS: Cubic Feet Per Second, a common unit of measuring stream flow.
-- Consumptive Use Fraction (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline.
-- Cumulative Withdrawal: The amount of water withdrawn by all intakes in a given river segment sub-watershed, and all upstream sub-watersheds. See also: *Cumulative Withdrawal*.
-- Days of Storage Remaining: For reservoir models, the quotient of the volume of water in a reservoir divided by the daily rate of withdrawal, calculated at each time step of the entire simulation period.
-- Maximum 30 day potential unmet demand (MGD): The largest difference between *Requested Demand* and *Withdrawal Met* that results during a continuous 30-day simulation period.
-- MGD: Millions of Gallons per Day, a common unit of measuring withdrawal and discharge.
-- MGY: Millions of Gallons per Year, a common unit for expressing annual facility demand.
-- Minimum Days of Storage Remaining: The minimum simulated *Days of Storage Remaining* in a reservoir.
-- Point Source: Water returned to the stream as treated wastewater.
-- Withdrawal: The amount of water withdrawn by a single facility, or the total amount of water withdrawn within a single simulated river segment sub-watershed. See also: *Cumulative Withdrawal*.
-- Withdrawal Met: The amoiunt of requested demand that was met, on average, throughout the entire simulation period.
-- Unmet Demand: The difference between *Base Demand* and *Withdrawal Met*, on average, throughout the entire simulation period.
-
 <!---BLOCK_LANDSCAPE_START--->
 ### Summary of Results:
 ```{r StatsTable, echo=FALSE}
@@ -674,6 +674,38 @@ for (i in 1:length(runid.list)){
 
 ```
 
+\newpage
+
+# VAHydro Model:
+
+## Appendix B - VAHydro
+The comprehensive VAHydro hydrologic model is used by the DEQ Office of Water Supply to evaluate instream and off-stream beneficial uses for non-tidal surface water withdrawals throughout Virginia. This model also simulates streamflow with inputs such as precipitation, climate, land use, and topography, as well as local data collected through DEQ water supply planning and reporting programs, which includes all known withdrawals and discharges, as well as operational rules of Virginia Water Protection (VWP) permits and major hydrologic features such as reservoirs.
+
+The VAHydro model is built on the rainfall-evaporation-runoff (RER) time-series from the Chesapeake Bay Model Phase 6^[ [Chesapeake Bay Program Phase 6 Model](https://www.chesapeakebay.net/documents/Phase_6_Modeling_Tools_1-page_factsheet_12-18-17.pdf).]. The VAHydro model simulates conditions from 1984-2014 in the Chesapeake Bay watershed drainage, and 1984-2005 in the rivers flowing outside of the Chesapeake Bay watershed. The VAHydro model features high-resolution hydrologic subsections called “river segments” (over 600 river segments in total), roughly the size of HUC 10 hydrologic units, with additional high-resolution segments added for VWP modeling projects as needed.
+
+
+## Cumulative Impact Analysis (CIA)
+DEQ assesses water supply sustainability through Cumulative Impact Analysis (CIA). CIA is a modeling and analysis approach that takes into account the varied hydrologic processes occurring throughout a river network (including meteorological and human water use). By simulating a daily water balance for every individual river segment within a watershed, DEQ is able to evaluate the potential “cumulative impact” of all streamflow changes occurring upstream and downstream of any location within the river system, as well as the downstream impact of a specific proposed or permitted surface water withdrawal.
+
+The goal of the following analysis is to estimate the potential impacts of the proposed water withdrawal upon existing beneficial uses, including both in-stream and off-stream uses. In addition, cumulative impacts from all existing withdrawals are included in the evaluation.
+
+
+### Glossary of Cumulative Impact Modeling Terms
+- 30 Day Low Flow (l30):  Describes the lowest consecutive 30 day average daily streamflow over the simulation period. This metric is a representation of a short-term, or acute drought.
+- 90 Day Low Flow (l90): Represents the lowest consecutive 90 day average daily streamflow over the simulation period. This would represent a prolonged drought.
+- Base Demand / Requested Demand: The demand simulated for a facility/intake prior to any reductions due to conservation, depleted storage, or adherence to Minimum Instream Flow operational rules (MIF).  In this document, *Base Demand* is expressed as *MGY*, and Requested Demand is given in *MGD*.
+- CFS: Cubic Feet Per Second, a common unit of measuring stream flow.
+- Consumptive Use Fraction (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline.
+- Cumulative Withdrawal: The amount of water withdrawn by all intakes in a given river segment sub-watershed, and all upstream sub-watersheds. See also: *Cumulative Withdrawal*.
+- Days of Storage Remaining: For reservoir models, the quotient of the volume of water in a reservoir divided by the daily rate of withdrawal, calculated at each time step of the entire simulation period.
+- Maximum 30 day potential unmet demand (MGD): The largest difference between *Requested Demand* and *Withdrawal Met* that results during a continuous 30-day simulation period.
+- MGD: Millions of Gallons per Day, a common unit of measuring withdrawal and discharge.
+- MGY: Millions of Gallons per Year, a common unit for expressing annual facility demand.
+- Minimum Days of Storage Remaining: The minimum simulated *Days of Storage Remaining* in a reservoir.
+- Point Source: Water returned to the stream as treated wastewater.
+- Withdrawal: The amount of water withdrawn by a single facility, or the total amount of water withdrawn within a single simulated river segment sub-watershed. See also: *Cumulative Withdrawal*.
+- Withdrawal Met: The amoiunt of requested demand that was met, on average, throughout the entire simulation period.
+- Unmet Demand: The difference between *Base Demand* and *Withdrawal Met*, on average, throughout the entire simulation period.
 
 \newpage
 
@@ -862,7 +894,7 @@ usersdf <- usersdf[fhix]
 ```
 
 <!---BLOCK_LANDSCAPE_START--->
-# Appendix B - Nearby Users Table:
+# Appendix C - Nearby Users Table:
 ```{r RsegWithdrawalsTable, echo=FALSE}
 #cat(paste("MP 5-yr Avg Use (MGY) refers to the 5-year average current annual Use (MGY) based on reported withdrawals"))
 users <- qflextable(usersdf)
