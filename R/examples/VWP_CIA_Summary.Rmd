@@ -358,7 +358,7 @@ demand_url <- drun_info$fig.monthly_demand$code
 
 ```{r SiteTable, echo=FALSE, results = "asis"}
 #Round Table Values (Following McGurk request: "The tabulated values should be rounded to the nearest whole number.  The flow estimates at the stream gages are not precise or accurate enough for digits to the right of the decimal, and are not reported that way.  Therefore, modeled values should not be considered more accurate.")
-# I allowed this to be 1 decimal place because when you have small watersheds, you can end up with a table of flows that are half populated with zeros. This results in the table being LESS accurate IMO than rounding to 1 place.  FWIW, the decimal places are not accuracy, they're precision so I'd argue that the model can be more precise cause it's a numerical calculation and therefore more precise! :)
+# I allowed this to be 1 decimal place because when you have small watersheds, you can end up with a table of flows that are half populated with zeros. This results in the table being LESS accurate IMO than rounding to 1 place.  FWIW, the decimal places are not accuracy, they're precision so I'd argue that the model can be more precise cause it's a numerical calculation and therefore more precise :)
 mism <- median(intake_sum_current$Mean)
 if (mism < 20.0) {
   dps <- 1
@@ -373,6 +373,7 @@ intake_sum_current <- cbind(intake_sum_current[1],round_intake_sum_current)
 ft <- qflextable(intake_sum_current)
 ft <- theme_box(ft)
 ft <- bg(ft, bg = "#EFEFEF", part = "header")
+ft
 cat(
   paste(
     "__Table 1:__ Modeled monthly current flow statistics for", 
@@ -383,7 +384,6 @@ cat(
     non_ex_text
   )
 )
-ft
 
 if (!is.null(demand_url)) {
     cat("\n\n## Current Facility Base Demand Before Conservation: ", drun_info$reports$scenario_name$value,"\n\n")
