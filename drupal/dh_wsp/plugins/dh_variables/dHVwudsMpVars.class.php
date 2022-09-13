@@ -822,7 +822,7 @@ class dHAnnualWithdrawalMonthly extends dHVariablePluginDefault {
   
   public function update(&$entity) {
     // update dopplegangers
-    //dpm($entity, 'update');
+    dpm($entity, 'update');
     $this->updateLinked($entity);
     parent::update($entity);
   }
@@ -840,12 +840,12 @@ class dHAnnualWithdrawalMonthly extends dHVariablePluginDefault {
     $begin = dh_handletimestamp("$year-01-01 00:00:00");
     $end = dh_handletimestamp("$year-12-31 00:00:00");
     $summary = dh_summarizeTimePeriod($entity->entity_type, $entity->featureid, $entity->varid, $begin, $end);
-    dpm($summary,"updateLinked called for $this->varkey2sum -> $this->rep_varkey");
+    //dpm($summary,"updateLinked called for $this->varkey2sum -> $this->rep_varkey");
     if (!empty($summary)) {
       $summary['varkey'] = $this->rep_varkey;
       $summary['tsvalue'] = $summary['sum_value'];
       $tid = dh_update_timeseries($summary, 'tstime_singular');
-      dpm($summary, "Updated TID $tid $this->rep_varkey Annual $year-01-01 to $year-12-31 From Monthly " . date("Y-m-d", $entity->tstime));
+      //dpm($summary, "Updated TID $tid $this->rep_varkey Annual $year-01-01 to $year-12-31 From Monthly " . date("Y-m-d", $entity->tstime));
     } else {
       dsm("dh_summarizeTimePeriod returned FALSE ");
     }
