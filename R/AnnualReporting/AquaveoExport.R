@@ -2,6 +2,10 @@
 # Aquaveo Export
 # This script is for the annual data exports provided to Aquaveo 
 # It joins the VAHydro map exports withdrawal data to MPID and DEQ Well Number identifiers used in the Aquaveo Coastal Plain Reported Use model for 2021.
+
+# Data Source Note
+# Aquaveo emailed the following files: 2021 Annual Updates IDs from CP and ES RU and TP mnws.xlsx, 2017-2021 Average MNW file Original and Expanded Combined.xlsx
+# These files contain a list of measuring point identifiers used for the Coastal Plain and Eastern Shore Reported Use and Total Permitted models. They are not on the common drive as target storage folder has been cleaned up for file migration. Aquaveo maintains these data.
 ########################################################################################
 
 #library('tidyverse') #loads in tidyr, dplyr, ggplot2, etc
@@ -24,11 +28,17 @@ source(paste0(basepath,'/config.R'))
 ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
 ds$get_token(rest_pw)
 
-CPRUIDlist <- read.csv(file=paste0(export_path,"/IDlist_CP_RU_workingcopy3.csv", header = TRUE)) #can change to U drive file path
+#import data ################################
+import_path <- export_path
+CPRUIDlist <- read.csv(file=paste0(import_path,"/IDlist_CP_RU_workingcopy3.csv", header = TRUE)) #Data Source Note cont.: csv version of coastal plain reported use identifiers tab
+MNW_QA <- read.csv(file=paste0(import_path,"/MNW_QA.csv")) #source: csv version of "Historic" tab of MNW original file
+TP <- read.csv(file=paste0(import_path,"/trimmed_aquaveo_total_permitted_query_scinot.csv")) #source: (http://deq1.bse.vt.edu/d.dh/aquaveo-total-permitted-query),filtered to better match modeled wells by removing well types (monitoring/observation, etc) permit statuses (application, inactive, etc) and some duplicates.
+
+
 
 ### DOWNLOAD VAHYDRO MAP EXPORT FOR ALL YEARS AND READ IT IN ############################
 # Information: map export was used last year. It has same useful columns as foundation data, a few more rows, even though it has 2 duplicate well rows even if you group by hydroid mpid and well#"
-multi_yr_data <- read.csv(file=paste0(export_path,"/ows_annual_report_map_exports.csv",header=TRUE, sep=","))
+multi_yr_data <- read.csv(file=paste0(import_path,"/ows_annual_report_map_exports.csv",header=TRUE, sep=","))
 
 #exclude dalecarlia
 multi_yr_data <- multi_yr_data[-which(multi_yr_data$facility_name=='DALECARLIA WTP'),]
@@ -257,7 +267,6 @@ dup_hydroid <- sqldf('SELECT * FROM multiyr_wid GROUP BY MP_hydroid HAVING count
    
 ## Aquaveo hydroid to VAhydroID      
 #does Aquaveo's hydroid to MNW ID vlookup match our hydroid to CPRUID joins?
-MNW_QA <- read.csv(file=paste0(export_path,"/MNW_QA.csv"))
 MNW_QA <- sqldf('SELECT HydroID,"MPID.MNW.IDENTIFIER" as mnwID FROM MNW_QA')
 join_MNW <- sqldf("SELECT a.CPRUIDs, a.MP_Hydroid, b.*
                   FROM joined_sum3 a
@@ -298,7 +307,6 @@ multi_yr_data_awrr <- backup
 multiyr_widb <- sqldf('SELECT * FROM multiyr_wid WHERE DEQ_Well_Number NOT IN ("100-1440","100-1446")')
 
 
-TP <- read.csv(file=paste0(export_path,"/trimmed_aquaveo_total_permitted_query_scinot.csv"))
 #names(TP)
 TP <- sqldf('SELECT "VA.HydroID" as VAHydroID, "MPID" as MPID_2, "DEQ.Well.Number" as DEQ_Well_Number_2, "Well.Status" as Well_Status, "Well.Type" as Well_Type, "Permit.Status" as "Permit_Status", "Permit.ID" as "Permit_ID","Assigned.Model.Layer.Cell" as Assigned_Model_Layer_Cell, "Annual.Permit.Limit..gpy." as Annual_Permit_Limit_gpy, X as Notes
             FROM TP')
