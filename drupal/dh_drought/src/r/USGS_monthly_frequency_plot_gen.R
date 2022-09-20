@@ -14,11 +14,11 @@ library(dataRetrieval)
 library(ggplot2)
 library(sqldf)
 
-save_directory = '/var/www/html/images/dh'
-# save_directory = 'C:/Users/nrf46657/Desktop/GitHub/vahydro/drupal/dh_drought/src/r/gw_plots'
-
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = ''))
+
+save_directory = '/var/www/html/images/dh'
+# save_directory = 'C:/Users/nrf46657/Desktop/GitHub/vahydro/drupal/dh_drought/src/r/gw_plots'
 
 
 #Pull in list of all drought USGS well dH Features 
@@ -27,7 +27,7 @@ URL <- paste(base_url,"drought-wells-export", sep = "/")
 well_list <- read.csv(URL, sep = ",")
 
 
-# # select eastern shore wells only
+# select eastern shore wells only
 # well_list <- sqldf("SELECT *
 #                     FROM well_list
 #                     WHERE `Feature.Name` LIKE '%110S%'
@@ -61,6 +61,8 @@ for (j in 1:length(hydrocodes)) {
   y_axis_label <- readNWISpCode(parameterCd)$parameter_nm
   title <- paste(site, " - ", readNWISsite(site)$station_nm, sep="")
   
+  # print(save_directory)
+
   plt <- monthly_frequency_plot(dv,
                                gwl_data,
                                parameter_cd = parameterCd,
@@ -68,5 +70,9 @@ for (j in 1:length(hydrocodes)) {
                                y_axis_label = y_axis_label,
                                flip = TRUE)
 
-  ggsave(file=paste('usgs_',site,'_monthly_frequency_plot.png',sep = ''), path = save_directory , width=6, height=5)
+  # img_name <- paste(save_directory,'/usgs_',site,'_monthly_frequency_plot.png',sep = '')
+  # png(img_name)
+  # print(plt)
+  # dev.off()
+  ggsave(plot = plt, file=paste('usgs_',site,'_monthly_frequency_plot.png',sep = ''), path = save_directory , width=6, height=5)
 } # end usgs well for loop
