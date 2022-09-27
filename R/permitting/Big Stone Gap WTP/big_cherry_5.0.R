@@ -18,9 +18,11 @@ export_path <- "C:/Users/nrf46657/Desktop/VWP Modeling/Big Stone Gap WTP/Septemb
 #                    list(runid = 600,legend_text = "Flow (2.6 mgd & 40% Flow-by)"),
 #                    list(runid = 2,legend_text = "Flow (Current Reported Use)")
 # )
-batch_list <- list(list(runid = 400,legend_text = "Flow (Qintake 400)"),
-                   list(runid = 600,legend_text = "Flow (Qintake 600)")
-)
+# batch_list <- list(list(runid = 400,legend_text = "Flow (Qintake 400)"),
+#                    list(runid = 600,legend_text = "Flow (Qintake 600)")
+# )
+
+batch_list <- list(list(runid = 400,legend_text = "Flow (Runid 400)"))
 
 #i <- 1
 for (i in 1:length(batch_list)) {
@@ -46,6 +48,32 @@ for (i in 1:length(batch_list)) {
   )
   ################################################################################################
   
+  # legend_text_i <- c("Qintake (Runid 400)","bc_release_cfs (Runid 400)")
+  legend_text_i <- c("Qintake (Runid 400)",
+                     "Qin (Runid 400)",
+                     "Qout (Runid 400)"
+                     )
+  
+  y_axis_ticks = c(0.10,1,5,10,25,100,400)
+  
+  # FLOW DURATION CURVE PLOTS ------  
+  png(file=paste(export_path,"fdc_",runid_i,".png",sep=""),width=560, height=450)
+  hydroTSM::fdc(
+    cbind(dat_join$Qnatural, dat_join$Qintake, dat_join$Qin, dat_join$Qout),
+    yat = y_axis_ticks,
+    leg.txt = c("Flow (Natural)",legend_text_i),
+    ylab = "Q, [cfs]",
+    ylim=c(0.01, 500)
+  )
+
+  axis(side = 4, at = y_axis_ticks*1.5472286365100711, labels = y_axis_ticks, col="blue",col.axis="blue")  
+  mtext("Q, [mgd]",side=4,col="blue",line=1, adj = 0) 
+  
+  # add location of 0.5 mgd flowby to plot 
+  abline(h=0.5*1.5472286365100711, col="black", lty = "twodash")
+  # text(1, 0.5*1.5472286365100711, labels = "0.5 mgd", adj = 0.1)
+  # mtext("0.5 mgd",side=4, srt = 180, adj = 0.1) 
+  dev.off()
   
   ################################################################################################
   # QA 9.19.22
@@ -58,33 +86,44 @@ for (i in 1:length(batch_list)) {
   duplicated_names <- duplicated(colnames(dat.qa))
   # Remove Duplicate Column Names
   dat.qa <- dat.qa[!duplicated_names]
+# 
+#   dat.qa <- sqldf(paste("SELECT date, Qnatural, Qout, Runit, Runit * 8.2
+#                          FROM 'dat.qa'
+#                         ")
+#                   )
 
-  dat.qa <- sqldf(paste("SELECT date, Qnatural, Qout, Runit, Runit * 8.2
-                         FROM 'dat.qa'
-                        ")
-                  )
+
+  # qa.df <- sqldf(paste("SELECT date,Qout, local_channel_Qout, 
+  #                                         local_channel_demand, 
+  #                                         local_channel_Qin, 
+  #                                         Qlocal, Qtrib, wd_channel_cfs, wd_mgd*1.547,
+  #                        FROM 'dat.qa'
+  #                       "))
   
-  
-  qa.df <- sqldf(paste("SELECT date, Qout, local_channel_Qout, Qlocal, impoundment_Qout
+  qa.df <- sqldf(paste("SELECT date,Qout, local_channel_Qout, 
+                                          local_channel_demand, 
+                                          local_channel_Qin, 
+                                          Qlocal, Qtrib, wd_channel_cfs, wd_mgd*1.547,
                          FROM 'dat.qa'
-                        ")
-  )
-  colnames(dat.qa)
+                        "))
+  
+  sort(colnames(dat.qa))
+  
+  dat.qa$local_channel_Qout
+  
+  dat.qa$Qin
   ################################################################################################
   ################################################################################################
   
   
-  # FLOW DURATION CURVE PLOTS ---------------------------------------------------
-  png(file=paste(export_path,"fdc_",runid_i,".png",sep=""),width=560, height=450)
-  hydroTSM::fdc(
-    # cbind(dat_join$Qnatural, dat_join$Qout),
-    cbind(dat_join$Qnatural, dat_join$Qintake),
-    yat = c(0.10,1,5,10,25,100,400),
-    leg.txt = c("Flow (Natural)",legend_text_i),
-    ylab = "Q, [cfs]",
-    ylim=c(0.01, 500)
-  )
-  dev.off()
+  
+  
+  
+  
+  
+  
+  
+  
   
     # # DROUGHT PERIOD PLOT 
     #   # REGULAR Y-AXIS ------------------------------------------------------------
