@@ -12,7 +12,7 @@ fac_om_id <- 247415 #BIG STONE GAP WTP:Powell River
 ################################################################################################
 dev.off()
 # export_path <- "C:/Users/nrf46657/Desktop/VAHydro Development/GitHub/vahydro/R/permitting/Big Stone Gap WTP/"
-export_path <- "C:/Users/nrf46657/Desktop/VWP Modeling/Big Stone Gap WTP/September2022_Coordination/big_cherry_4/"
+export_path <- "C:/Users/nrf46657/Desktop/VWP Modeling/Big Stone Gap WTP/Sep_Oct2022_Coordination/big_cherry_5/"
 
 # batch_list <- list(list(runid = 400,legend_text = "Flow (Total Permitted)"),
 #                    list(runid = 600,legend_text = "Flow (2.6 mgd & 40% Flow-by)"),
@@ -51,7 +51,8 @@ for (i in 1:length(batch_list)) {
   # legend_text_i <- c("Qintake (Runid 400)","bc_release_cfs (Runid 400)")
   legend_text_i <- c("Qintake (Runid 400)",
                      "Qin (Runid 400)",
-                     "Qout (Runid 400)"
+                     "Qout (Runid 400)",
+                     "local_channel_demand (Runid 400)"
                      )
   
   y_axis_ticks = c(0.10,1,5,10,25,100,400)
@@ -59,7 +60,7 @@ for (i in 1:length(batch_list)) {
   # FLOW DURATION CURVE PLOTS ------  
   png(file=paste(export_path,"fdc_",runid_i,".png",sep=""),width=560, height=450)
   hydroTSM::fdc(
-    cbind(dat_join$Qnatural, dat_join$Qintake, dat_join$Qin, dat_join$Qout),
+    cbind(dat_join$Qnatural, dat_join$Qintake, dat_join$Qin, dat_join$Qout, dat_join$local_channel_demand),
     yat = y_axis_ticks,
     leg.txt = c("Flow (Natural)",legend_text_i),
     ylab = "Q, [cfs]",
@@ -78,40 +79,49 @@ for (i in 1:length(batch_list)) {
   ################################################################################################
   # QA 9.19.22
   ################################################################################################
-  rseg_df$Qnatural
-  fac_df$Qnatural
-
-  dat.qa <- dat_join
-  # Find Duplicate Column Names
-  duplicated_names <- duplicated(colnames(dat.qa))
-  # Remove Duplicate Column Names
-  dat.qa <- dat.qa[!duplicated_names]
+#   rseg_df$Qnatural
+#   fac_df$Qnatural
 # 
-#   dat.qa <- sqldf(paste("SELECT date, Qnatural, Qout, Runit, Runit * 8.2
+#   dat.qa <- dat_join
+#   # Find Duplicate Column Names
+#   duplicated_names <- duplicated(colnames(dat.qa))
+#   # Remove Duplicate Column Names
+#   dat.qa <- dat.qa[!duplicated_names]
+# # 
+# #   dat.qa <- sqldf(paste("SELECT date, Qnatural, Qout, Runit, Runit * 8.2
+# #                          FROM 'dat.qa'
+# #                         ")
+# #                   )
+# 
+# 
+#   # qa.df <- sqldf(paste("SELECT date,Qout, local_channel_Qout, 
+#   #                                         local_channel_demand, 
+#   #                                         local_channel_Qin, 
+#   #                                         Qlocal, Qtrib, wd_channel_cfs, wd_mgd*1.547,
+#   #                        FROM 'dat.qa'
+#   #                       "))
+#   
+#   qa.df <- sqldf(paste("SELECT date,Qout, local_channel_Qout, 
+#                                           local_channel_demand, 
+#                                           local_channel_Qin, 
+#                                           Qlocal, Qtrib, wd_channel_cfs, wd_mgd*1.547,
 #                          FROM 'dat.qa'
-#                         ")
-#                   )
-
-
-  # qa.df <- sqldf(paste("SELECT date,Qout, local_channel_Qout, 
-  #                                         local_channel_demand, 
-  #                                         local_channel_Qin, 
-  #                                         Qlocal, Qtrib, wd_channel_cfs, wd_mgd*1.547,
-  #                        FROM 'dat.qa'
-  #                       "))
-  
-  qa.df <- sqldf(paste("SELECT date,Qout, local_channel_Qout, 
-                                          local_channel_demand, 
-                                          local_channel_Qin, 
-                                          Qlocal, Qtrib, wd_channel_cfs, wd_mgd*1.547,
-                         FROM 'dat.qa'
-                        "))
-  
-  sort(colnames(dat.qa))
-  
-  dat.qa$local_channel_Qout
-  
-  dat.qa$Qin
+#                         "))
+#   
+#   sort(colnames(dat.qa))
+#   
+#   dat.qa$local_channel_Qout
+#   
+#   dat.qa$Qin
+#   
+#   
+#   qa.df <- sqldf(paste("SELECT date,Qout, 
+#                                     local_channel_Qin + local_channel_Rin - local_channel_demand,
+#                                     local_channel_demand,
+#                                     Qlocal
+#                          FROM 'dat.qa'
+#                         "))
+#   dat.qa$Qlocal
   ################################################################################################
   ################################################################################################
   
@@ -184,7 +194,7 @@ for (i in 1:length(batch_list)) {
     #        axes=FALSE,xlim=c(xmn,xmx),ylab="",xlab="")
     #   legend("topright",legend=c("Flow (Natural)",legend_text_i),col=c("black","brown3"), lty=c(2,1), lwd=c(1,2), cex=1)
     #   dev.off()
-}
+} # close loop
 ################################################################################################
 
 
