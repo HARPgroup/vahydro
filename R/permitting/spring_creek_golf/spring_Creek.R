@@ -2,7 +2,17 @@ library('hydrotools')
 library('zoo')
 basepath='/var/www/R';
 source("/var/www/R/config.R")
-# rmarkdown::render('C:/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', params = list( rseg.hydroid = 68113, fac.hydroid = 73024, runid.list = c("runid_400","runid_600"), intake_stats_runid = 11,upstream_rseg_ids=c(68113) ))
+rmarkdown::render(
+  'C:/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', 
+  output_file = 'C:/WorkSpace/modeling/projects/york_river/south_anna/spring_creek2022/VWP_TE-draft_spring_creek_v06.docx', 
+  params = list( 
+    rseg.hydroid = 68113, fac.hydroid = 73024, 
+    runid.list = c("runid_400","runid_600"), 
+    intake_stats_runid = 400,
+    upstream_rseg_ids=c(), 
+    downstream_rseg_ids=c(68113, 68120)
+  )
+)
 # river
 rpid = 4708283
 rhid = 68113

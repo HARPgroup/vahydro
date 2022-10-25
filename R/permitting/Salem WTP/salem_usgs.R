@@ -11,6 +11,8 @@ mstart <- as.Date(min(index(model_flows)))
 mend <- as.Date(max(index(model_flows)))
 
 historic <- dataRetrieval::readNWISdv(gageid,'00060')
+historic$month <- month(historic$Date)
+om_flow_table(historic, "X_00060_00003")
 gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
 gage_flows <- window(gage_flows, start = mstart, end = mend)
 gstart <- as.Date(min(index(gage_flows)))
