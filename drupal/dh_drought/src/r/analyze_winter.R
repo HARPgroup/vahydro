@@ -8,13 +8,13 @@ source("/var/www/R/config.R");
 # This code will be updated using "chron" every March 1st
 # Load necessary libraries
 suppressPackageStartupMessages(library('zoo'))
-suppressPackageStartupMessageslibrary('IHA'))
-suppressPackageStartupMessageslibrary('stringr'))
-suppressPackageStartupMessageslibrary('lubridate'))
-suppressPackageStartupMessageslibrary('ggplot2'))
-suppressPackageStartupMessageslibrary('scales'))
-suppressPackageStartupMessageslibrary('httr'))
-suppressPackageStartupMessageslibrary("hydrotools"))
+suppressPackageStartupMessages(library('IHA'))
+suppressPackageStartupMessages(library('stringr'))
+suppressPackageStartupMessages(library('lubridate'))
+suppressPackageStartupMessages(library('ggplot2'))
+suppressPackageStartupMessages(library('scales'))
+suppressPackageStartupMessages(library('httr'))
+suppressPackageStartupMessages(library("hydrotools"))
 #fid needed for retrieving beta properties via REST
 #fid <- 58567
 #
