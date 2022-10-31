@@ -120,6 +120,10 @@ fac_feature <- RomFeature$new(
   list(hydroid = fac.hydroid),
   TRUE
 )
+# need the intake hydroid for this, as there are no facility withdrawals
+# only facility children, but we wouldn't want ALL facility children anyhow
+annual_use_history <- fac_feature$tsvalues('wd_mgy')
+
 
 fac.name <- fac_feature$name 
 

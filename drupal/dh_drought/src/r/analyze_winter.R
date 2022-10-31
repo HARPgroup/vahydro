@@ -7,14 +7,14 @@ source("/var/www/R/config.R");
 ## Code to calculate the current drought condition estimates and create a graph to show all estimates by month and threshold
 # This code will be updated using "chron" every March 1st
 # Load necessary libraries
-library('zoo')
-library('IHA')
-library('stringr')
-library('lubridate')
-library('ggplot2')
-library('scales')
-library('httr')
-library("hydrotools")
+suppressPackageStartupMessages(library('zoo'))
+suppressPackageStartupMessageslibrary('IHA'))
+suppressPackageStartupMessageslibrary('stringr'))
+suppressPackageStartupMessageslibrary('lubridate'))
+suppressPackageStartupMessageslibrary('ggplot2'))
+suppressPackageStartupMessageslibrary('scales'))
+suppressPackageStartupMessageslibrary('httr'))
+suppressPackageStartupMessageslibrary("hydrotools"))
 #fid needed for retrieving beta properties via REST
 #fid <- 58567
 #
@@ -74,7 +74,7 @@ for (i in 1:nrow(gages)) {
   if (file.exists(filepath) & !overwrite_file) {
     # check in case the file is out of date, in which case overwrite it anyhow
     linfo = file.info(filepath)
-    if (as.Date(linfo$mtime) > as.Date(paste0(target_year, '-03-01'))) {
+    if (as.Date(linfo$mtime) > as.Date(paste0(target_year, '-03-01'),origin="America/New_York")) {
       message(paste( gage_id, "is up to date as of ",as.Date(linfo$mtime)  ))
       message("*********** SKIPPING ************* ")
       next
@@ -114,11 +114,11 @@ for (i in 1:nrow(gages)) {
 	# historic <- historic[-1,] # delete row that has no significance for this calculation
 
 	# Find first and last date on record
-	start.date <- min(as.Date(as.character(historic$Date)))
-	end.date <- max(as.Date(as.character(historic$Date)))
+	start.date <- as.Date(min(as.Date(as.character(historic$Date), origin="1970-01-01")))
+	end.date <- as.Date(max(as.Date(as.character(historic$Date), origin="1970-01-01")))
 
 	# Makes the StartDate the earliest year with November on record
-	if (start.date > as.Date(paste(year(start.date), '-11-01', sep=""))) {
+	if (start.date > as.Date(paste(year(start.date), '-11-01', sep=""), origin="1970-01-01")) {
 		year <- year(start.date) + 1
 	} else { year <- year(start.date) }
 
