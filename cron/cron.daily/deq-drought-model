@@ -2,4 +2,4 @@
 
 cd /backup/meteorology
 yr=`date +%Y`
-./get_nldas_to_date $yr
+sudo -u rob ./get_nldas_to_date $yr
