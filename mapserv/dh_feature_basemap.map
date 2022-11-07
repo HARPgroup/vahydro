@@ -13,7 +13,8 @@ FONTSET "./fonts.txt"
 PROJECTION
     "init=epsg:4326"
 END
-DEBUG ON
+#DEBUG ON
+DEBUG 2
 CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
 
 SYMBOL
