@@ -5,6 +5,8 @@ library("hydrotools")
 elid = 251491
 runid = 8
 gageid = '02054530'
+
+dat <- fn_get_runfile(elid, runid, site= omsite,  cached = FALSE)
 model_flows <- om_get_rundata(elid, runid, site=omsite)
 model_flows <- zoo(as.numeric(as.character( model_flows$Qout )), order.by = index(model_flows) );
 mstart <- as.Date(min(index(model_flows)))

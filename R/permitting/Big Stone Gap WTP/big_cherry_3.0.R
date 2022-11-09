@@ -121,8 +121,10 @@ maxcapacity <- 1941.47
 capaity50pct <- maxcapacity*0.5
 
 #400
-rseg_bc_dat_400 <- om_get_rundata(352078, 400, site = omsite) 
-rseg_bc_dat_400_df <- data.frame(rseg_bc_dat_400)
+fac_dat_400 <- om_get_rundata(247415, 4011, site = omsite) 
+bc_dat_400 <- om_get_rundata(352078, 4011, site = omsite) 
+bc_dat_400 <- om_get_rundata(352078, 4011, site = omsite) 
+rseg_bc_dat_400_df <- data.frame(bc_dat_400)
 
 imp_qa_400 <- sqldf(paste("select year,month,day, impoundment_Storage
                  from 'rseg_bc_dat_400_df' WHERE impoundment_Storage <",capaity50pct,sep=""))
