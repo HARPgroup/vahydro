@@ -1,0 +1,178 @@
+{
+	"0. Impoundment - Back Creek Lower Dam": {
+		"host": "deq1.bse.vt.edu:81",
+		"id": "5227902",
+		"name": "0. Impoundment - Back Creek Lower Dam",
+    "path": "/RCHRES/001",
+		"object_class": "hydroImpoundment",
+		"Qin": {
+			"id": "5227985",
+			"name": "Qin",
+			"object_class": "input",
+			"factor": 1.0,
+			"entity_name": "HYDR",
+			"entity_id": "1",
+			"srcname": "IVOL",
+      "note": "this is a mock up of the input variable that could be brought in in this way"
+		},
+		"flowby_tiers_cond3": {
+			"id": "6907334",
+			"name": "flowby_tiers_cond3",
+			"object_class": "dataMatrix",
+			"value": null,
+			"matrix": {
+				"name": "matrix",
+				"object_class": "array",
+				"value": [
+					["0", "Qin"],
+					["5.0", "flowby_cond3"],
+					["1000000.0", "flowby_cond3"]
+				]
+			},
+			"defaultval": "0.0",
+			"keycol1": {
+				"id": "6907338",
+				"name": "keycol1",
+				"value": "Qin",
+				"object_class": "textField"
+			},
+			"valuetype": {
+				"id": "6907342",
+				"name": "valuetype",
+				"value": "1"
+			},
+			"eval_type": {
+				"id": "6907343",
+				"name": "eval_type",
+				"value": "auto"
+			},
+			"lutype1": {
+				"id": "6907345",
+				"name": "lutype1",
+				"value": "2"
+			},
+			"lutype2": {
+				"id": "6907346",
+				"name": "lutype2",
+				"value": null
+			},
+			"autosetvars": {
+				"id": "6907347",
+				"name": "autosetvars",
+				"value": "0"
+			},
+			"value_dbcolumntype": {
+				"id": "6907344",
+				"name": "value_dbcolumntype",
+				"value": "auto"
+			}
+		},
+		"max_cond3": {
+			"id": "6907357",
+			"name": "max_cond3",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "5.0"
+			},
+			"minvalue": {
+				"id": "6907362",
+				"name": "minvalue",
+				"value": null
+			},
+			"engine": {
+				"id": "6907363",
+				"name": "engine",
+				"value": "mathProcessor2"
+			},
+			"object_class": "Equation",
+			"exec_hierarch": {
+				"id": "6907359",
+				"name": "exec_hierarch",
+				"value": "0"
+			},
+			"defaultval": {
+				"id": "6907360",
+				"name": "defaultval",
+				"value": "5.0"
+			},
+			"nonnegative": {
+				"id": "6907361",
+				"name": "nonnegative",
+				"value": "0"
+			}
+		},
+		"flowby_cond3": {
+			"id": "6907681",
+			"name": "flowby_cond3",
+			"object_class": "Statistic",
+			"value": null,
+			"description": null,
+			"exec_hierarch": {
+				"id": "6907683",
+				"name": "exec_hierarch",
+				"value": "0"
+			},
+			"defaultval": {
+				"id": "6907684",
+				"name": "defaultval",
+				"value": ""
+			},
+			"operands": {
+				"id": "6907685",
+				"name": "operands",
+				"value": "pof_cond3,max_cond3"
+			},
+			"statname": {
+				"id": "6907686",
+				"name": "statname",
+				"value": "min"
+			}
+		},
+		"pof_cond3": {
+			"id": "6907687",
+			"name": "pof_cond3",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "0.8 * Qin"
+			},
+			"object_class": "Equation",
+			"exec_hierarch": {
+				"id": "6907689",
+				"name": "exec_hierarch",
+				"value": "0"
+			},
+			"defaultval": {
+				"id": "6907690",
+				"name": "defaultval",
+				"value": ""
+			},
+			"nonnegative": {
+				"id": "6907691",
+				"name": "nonnegative",
+				"value": "0"
+			},
+			"minvalue": {
+				"id": "6907692",
+				"name": "minvalue",
+				"value": null
+			},
+			"engine": {
+				"id": "6907693",
+				"name": "engine",
+				"value": "mathProcessor2"
+			}
+		},
+	}
+}

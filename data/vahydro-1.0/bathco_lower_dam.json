@@ -1,0 +1,1994 @@
+{
+	"0. Impoundment - Back Creek Lower Dam": {
+		"host": "deq1.bse.vt.edu:81",
+		"id": "5227902",
+		"name": "0. Impoundment - Back Creek Lower Dam",
+		"scenario": {
+			"name": "scenario",
+			"object_class": "textField",
+			"value": "vahydro-1.0"
+		},
+		"object_class": "hydroImpoundment",
+		"initstorage": {
+			"id": "5227904",
+			"name": "initstorage",
+			"value": "28000"
+		},
+		"maxcapacity": {
+			"id": "5227905",
+			"name": "maxcapacity",
+			"value": "28000"
+		},
+		"unusable_storage": {
+			"id": "5227906",
+			"name": "unusable_storage",
+			"value": "2300"
+		},
+		"riser_diameter": {
+			"id": "5227907",
+			"name": "riser_diameter",
+			"value": "10"
+		},
+		"riser_length": {
+			"id": "5227908",
+			"name": "riser_length",
+			"value": "10"
+		},
+		"run_mode": {
+			"id": "5227917",
+			"name": "run_mode",
+			"value": "0"
+		},
+		"om_element_connection": {
+			"host": "deq1.bse.vt.edu:81",
+			"id": "5227925",
+			"name": "om_element_connection",
+			"value": "209793",
+			"code": "1",
+			"om_template_id": {
+				"id": "5227926",
+				"name": "om_template_id",
+				"value": "347359"
+			},
+			"remote_parentid": {
+				"id": "5227927",
+				"name": "remote_parentid",
+				"value": "-1"
+			}
+		},
+		"imp_off": {
+			"id": "5227930",
+			"name": "imp_off",
+			"object_class": "DataMatrix",
+			"value": null,
+			"matrix": {
+				"name": "matrix",
+				"object_class": "array",
+				"value": [
+					["0", "1"],
+					["1", "0"],
+					["100", "0"]
+				]
+			},
+			"keycol1": {
+				"id": "5227932",
+				"name": "keycol1",
+				"value": "run_mode",
+				"object_class": "textField"
+			},
+			"keycol2": {
+				"id": "5227934",
+				"name": "keycol2",
+				"value": "",
+				"object_class": "textField"
+			},
+			"lutype1": {
+				"id": "5227936",
+				"name": "lutype1",
+				"value": "2"
+			},
+			"lutype2": {
+				"id": "5227937",
+				"name": "lutype2",
+				"value": "0"
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"defaultval": {
+				"id": "",
+				"name": "defaultval",
+				"value": ""
+			},
+			"valuetype": {
+				"id": "",
+				"name": "valuetype",
+				"value": 1
+			},
+			"eval_type": {
+				"id": "",
+				"name": "eval_type",
+				"value": "auto"
+			},
+			"value_dbcolumntype": {
+				"id": "",
+				"name": "value_dbcolumntype",
+				"value": "auto"
+			},
+			"autosetvars": {
+				"id": "",
+				"name": "autosetvars",
+				"value": 0
+			}
+		},
+		"Listen on Parent": {
+			"id": "5227928",
+			"name": "Listen on Parent",
+			"object_class": "broadCastObject",
+			"value": null,
+			"broadcast_params": {
+				"name": "broadcast_params",
+				"object_class": "array",
+				"value": [
+					["Qreach", "Qreach"],
+					["run_mode", "run_mode"],
+					["wd_mgd", "losses_upper_mgd"],
+					["ps_mgd", "ps_mgd"],
+					["flow_mode", "flow_mode"],
+					["precip_in", "precip_in"],
+					["et_in", "et_in"]
+				]
+			},
+			"broadcast_class": {
+				"id": "6066534",
+				"name": "broadcast_class",
+				"value": "hydroObject"
+			},
+			"broadcast_hub": {
+				"id": "6066535",
+				"name": "broadcast_hub",
+				"value": "parent"
+			},
+			"broadcast_mode": {
+				"id": "6066536",
+				"name": "broadcast_mode",
+				"value": "read"
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"defaultval": {
+				"id": "",
+				"name": "defaultval",
+				"value": ""
+			}
+		},
+		"Broadcast on Parent": {
+			"id": "5227929",
+			"name": "Broadcast on Parent",
+			"object_class": "broadCastObject",
+			"value": null,
+			"broadcast_params": {
+				"name": "broadcast_params",
+				"object_class": "array",
+				"value": [
+					["Qin", "Qin_lake"],
+					["imp_off", "imp_off"],
+					["demand", "wd_last_mgd"],
+					["discharge", "ps_last_mgd"],
+					["Qout", "Qlake"],
+					["lake_elev", "lake_elev"],
+					["pct_use_remain", "pct_full"],
+					["use_remain_mg", "impoundment_use_remain_mg"]
+				]
+			},
+			"broadcast_class": {
+				"id": "6066538",
+				"name": "broadcast_class",
+				"value": "hydroObject"
+			},
+			"broadcast_hub": {
+				"id": "6066539",
+				"name": "broadcast_hub",
+				"value": "parent"
+			},
+			"broadcast_mode": {
+				"id": "6066540",
+				"name": "broadcast_mode",
+				"value": "cast"
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"defaultval": {
+				"id": "",
+				"name": "defaultval",
+				"value": ""
+			}
+		},
+		"discharge": {
+			"id": "5227942",
+			"name": "discharge",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "0.0"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227944",
+				"name": "defaultval",
+				"value": "0"
+			},
+			"engine": {
+				"id": "5227945",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"flowby": {
+			"id": "5227946",
+			"name": "flowby",
+			"object_class": "DataMatrix",
+			"value": null,
+			"matrix": {
+				"name": "matrix",
+				"object_class": "array",
+				"value": [
+					["-1", "0"],
+					["0", "simple_flowby"],
+					["1", "tiered_flowby"]
+				]
+			},
+			"keycol1": {
+				"id": "5227948",
+				"name": "keycol1",
+				"value": "flowby_type",
+				"object_class": "textField"
+			},
+			"keycol2": {
+				"id": "5227950",
+				"name": "keycol2",
+				"value": "",
+				"object_class": "textField"
+			},
+			"lutype1": {
+				"id": "5227952",
+				"name": "lutype1",
+				"value": "0"
+			},
+			"lutype2": {
+				"id": "5227953",
+				"name": "lutype2",
+				"value": "0"
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"defaultval": {
+				"id": "",
+				"name": "defaultval",
+				"value": ""
+			},
+			"valuetype": {
+				"id": "",
+				"name": "valuetype",
+				"value": 1
+			},
+			"eval_type": {
+				"id": "",
+				"name": "eval_type",
+				"value": "auto"
+			},
+			"value_dbcolumntype": {
+				"id": "",
+				"name": "value_dbcolumntype",
+				"value": "auto"
+			},
+			"autosetvars": {
+				"id": "",
+				"name": "autosetvars",
+				"value": 0
+			}
+		},
+		"demand": {
+			"id": "5227938",
+			"name": "demand",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "(1.0 - imp_off) * wd_mgd"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227940",
+				"name": "defaultval",
+				"value": "0"
+			},
+			"engine": {
+				"id": "5227941",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"tiered_flowby": {
+			"id": "5227954",
+			"name": "tiered_flowby",
+			"object_class": "wsp_1tierflowby",
+			"value": null,
+			"matrix": {
+				"name": "matrix",
+				"object_class": "array",
+				"value": [
+					["0", "3.0"],
+					["1", "5"],
+					["640", "7.5"],
+					["2400", "13"],
+					["3200", "13.0"],
+					["10000", "13.0"],
+					["500000", "13.0"]
+				]
+			},
+			"autosetvars": {
+				"id": "5829421",
+				"name": "autosetvars",
+				"value": null
+			},
+			"defaultval": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5829422",
+				"name": "defaultval",
+				"value": "0",
+				"code": ""
+			},
+			"keycol2": {
+				"id": "5227962",
+				"name": "keycol2",
+				"value": "",
+				"object_class": "textField"
+			},
+			"lutype2": {
+				"id": "5227965",
+				"name": "lutype2",
+				"value": null
+			},
+			"enable_cfb": {
+				"id": "5227956",
+				"name": "enable_cfb",
+				"value": "0"
+			},
+			"cfb_var": {
+				"id": "5227957",
+				"name": "cfb_var",
+				"value": "",
+				"object_class": "textField"
+			},
+			"cfb_condition": {
+				"id": "5227959",
+				"name": "cfb_condition",
+				"value": ""
+			},
+			"keycol1": {
+				"id": "5227960",
+				"name": "keycol1",
+				"value": "cons_remain_acft",
+				"object_class": "textField"
+			},
+			"lutype1": {
+				"id": "5227964",
+				"name": "lutype1",
+				"value": "2"
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"valuetype": {
+				"id": "",
+				"name": "valuetype",
+				"value": 1
+			},
+			"eval_type": {
+				"id": "",
+				"name": "eval_type",
+				"value": "auto"
+			},
+			"value_dbcolumntype": {
+				"id": "",
+				"name": "value_dbcolumntype",
+				"value": "auto"
+			}
+		},
+		"flowby_type": {
+			"id": "5227973",
+			"name": "flowby_type",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "1"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227975",
+				"name": "defaultval",
+				"value": "0"
+			},
+			"engine": {
+				"id": "5227976",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"simple_flowby": {
+			"id": "5227966",
+			"name": "simple_flowby",
+			"object_class": "wsp_flowby",
+			"value": null,
+			"description": null,
+			"flowby_eqn": {
+				"id": "5227968",
+				"name": "flowby_eqn",
+				"value": "1.0"
+			},
+			"enable_cfb": {
+				"id": "5227969",
+				"name": "enable_cfb",
+				"value": "1"
+			},
+			"cfb_var": {
+				"id": "5227970",
+				"name": "cfb_var",
+				"value": "Qin",
+				"object_class": "textField"
+			},
+			"cfb_condition": {
+				"id": "5227972",
+				"name": "cfb_condition",
+				"value": "lt"
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"defaultval": {
+				"id": "",
+				"name": "defaultval",
+				"value": ""
+			}
+		},
+		"gage_da_sqmi": {
+			"id": "5227989",
+			"name": "gage_da_sqmi",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "77.9"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227991",
+				"name": "defaultval",
+				"value": "0"
+			},
+			"engine": {
+				"id": "5227992",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"cons_pool_acft": {
+			"id": "5227977",
+			"name": "cons_pool_acft",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "3200"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227979",
+				"name": "defaultval",
+				"value": "3200"
+			},
+			"engine": {
+				"id": "5227980",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"cons_remain_acft": {
+			"id": "5227981",
+			"name": "cons_remain_acft",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "Storage - (maxcapacity - cons_pool_acft)"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227983",
+				"name": "defaultval",
+				"value": "0"
+			},
+			"engine": {
+				"id": "5227984",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"Qin": {
+			"id": "5227985",
+			"name": "Qin",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "Qreach * imp_da_sqmi \/ gage_da_sqmi"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227987",
+				"name": "defaultval",
+				"value": "0"
+			},
+			"engine": {
+				"id": "5227988",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"imp_da_sqmi": {
+			"id": "5227993",
+			"name": "imp_da_sqmi",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "73.3"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227995",
+				"name": "defaultval",
+				"value": "0"
+			},
+			"engine": {
+				"id": "5227996",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"run_info": {
+			"id": "5227919",
+			"name": "run_info",
+			"value": "-1"
+		},
+		"cache_date": {
+			"id": "5227920",
+			"name": "cache_date",
+			"value": "-1"
+		},
+		"riverseg": {
+			"id": "5227921",
+			"name": "riverseg",
+			"object_class": "textField",
+			"value": ""
+		},
+		"Qout_reach": {
+			"id": "5227997",
+			"name": "Qout_reach",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "Qreach * (1 - imp_da_sqmi \/ gage_da_sqmi) + Qout"
+			},
+			"object_class": "Equation",
+			"defaultval": {
+				"id": "5227999",
+				"name": "defaultval",
+				"value": "0"
+			},
+			"engine": {
+				"id": "5228000",
+				"name": "engine",
+				"value": ""
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"nonnegative": {
+				"id": "",
+				"name": "nonnegative",
+				"value": 0
+			},
+			"minvalue": {
+				"id": "",
+				"name": "minvalue",
+				"value": null
+			}
+		},
+		"Broadcast to Child": {
+			"id": "5228001",
+			"name": "Broadcast to Child",
+			"object_class": "broadCastObject",
+			"value": null,
+			"broadcast_params": {
+				"name": "broadcast_params",
+				"object_class": "array",
+				"value": [
+					["run_mode", "run_mode"],
+					["Qin", "Qriver"],
+					["wd_mgd", "wd_last_mgd"],
+					["ps_mgd", "ps_last_mgd"],
+					["area", "drought_status"],
+					["lake_elev", "lake_elev"],
+					["pct_use_remain", "pct_full"],
+					["precip_in", "precip_in"],
+					["et_in", "et_in"],
+					["flow_mode", "flow_mode"],
+					["use_remain_mg", "impoundment_use_remain_mg"]
+				]
+			},
+			"broadcast_class": {
+				"id": "6066542",
+				"name": "broadcast_class",
+				"value": "hydroObject"
+			},
+			"broadcast_hub": {
+				"id": "6066543",
+				"name": "broadcast_hub",
+				"value": "child"
+			},
+			"broadcast_mode": {
+				"id": "6066544",
+				"name": "broadcast_mode",
+				"value": "cast"
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"defaultval": {
+				"id": "",
+				"name": "defaultval",
+				"value": ""
+			}
+		},
+		"flow_mode": {
+			"id": "5227918",
+			"name": "flow_mode",
+			"value": "1"
+		},
+		"Listen to Children": {
+			"id": "5228002",
+			"name": "Listen to Children",
+			"object_class": "broadCastObject",
+			"value": null,
+			"broadcast_params": {
+				"name": "broadcast_params",
+				"object_class": "array",
+				"value": [
+					["child_wd_mgd", "wd_mgd"]
+				]
+			},
+			"broadcast_class": {
+				"id": "6066546",
+				"name": "broadcast_class",
+				"value": "hydroObject"
+			},
+			"broadcast_hub": {
+				"id": "6066547",
+				"name": "broadcast_hub",
+				"value": "child"
+			},
+			"broadcast_mode": {
+				"id": "6066548",
+				"name": "broadcast_mode",
+				"value": "read"
+			},
+			"exec_hierarch": {
+				"id": "",
+				"name": "exec_hierarch",
+				"value": 0
+			},
+			"defaultval": {
+				"id": "",
+				"name": "defaultval",
+				"value": ""
+			}
+		},
+		"runid_1141": {
+			"id": "6242035",
+			"name": "runid_1141",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1603138717",
+			"value": "",
+			"wd_mgd": {
+				"id": "6242036",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "6242037",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "6242038",
+				"name": "evap_mgd",
+				"value": "0.69265229710687"
+			},
+			"Qout": {
+				"id": "6242039",
+				"name": "Qout",
+				"value": "104.46170683581"
+			},
+			"Qin": {
+				"id": "6242040",
+				"name": "Qin",
+				"value": "103.69064521475"
+			},
+			"usable_pct_p0": {
+				"id": "6242042",
+				"name": "usable_pct_p0",
+				"value": "0.9532029"
+			},
+			"usable_pct_p10": {
+				"id": "6242043",
+				"name": "usable_pct_p10",
+				"value": "0.99124482"
+			},
+			"usable_pct_p50": {
+				"id": "6242045",
+				"name": "usable_pct_p50",
+				"value": "1"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6242048",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.1141.png"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6242051",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.1141.png"
+			},
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6242052",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.1141.png"
+			}
+		},
+		"runid_1153": {
+			"id": "6263713",
+			"name": "runid_1153",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1603590403",
+			"value": "",
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6263722",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.1153.png"
+			},
+			"wd_mgd": {
+				"id": "6263714",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "6263715",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "6263716",
+				"name": "evap_mgd",
+				"value": "0.9924784626984"
+			},
+			"Qout": {
+				"id": "6263717",
+				"name": "Qout",
+				"value": "68.371539961476"
+			},
+			"Qin": {
+				"id": "6263718",
+				"name": "Qin",
+				"value": "67.856528655766"
+			},
+			"usable_pct_p0": {
+				"id": "6263719",
+				"name": "usable_pct_p0",
+				"value": "0.9578681"
+			},
+			"usable_pct_p10": {
+				"id": "6263720",
+				"name": "usable_pct_p10",
+				"value": "0.9760166"
+			},
+			"usable_pct_p50": {
+				"id": "6263721",
+				"name": "usable_pct_p50",
+				"value": "1"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6263723",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.1153.png"
+			},
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6263724",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.1153.png"
+			}
+		},
+		"runid_13": {
+			"id": "5451823",
+			"name": "runid_13",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1604583126",
+			"value": "",
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294019",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.13.png"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294017",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.13.png"
+			},
+			"ps_mgd": {
+				"id": "5451826",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "5451827",
+				"name": "evap_mgd",
+				"value": "0.69216970161632"
+			},
+			"Qout": {
+				"id": "5451829",
+				"name": "Qout",
+				"value": "100.8702003605"
+			},
+			"elev_p0": {
+				"id": "5451832",
+				"name": "elev_p0",
+				"value": "2114.283"
+			},
+			"elev_p10": {
+				"id": "5451833",
+				"name": "elev_p10",
+				"value": "2117.0986"
+			},
+			"Qin": {
+				"id": "5451831",
+				"name": "Qin",
+				"value": "100.09180857507"
+			},
+			"elev_p50": {
+				"id": "5451834",
+				"name": "elev_p50",
+				"value": "2118"
+			},
+			"wd_mgd": {
+				"id": "5451825",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"usable_pct_p0": {
+				"id": "6294014",
+				"name": "usable_pct_p0",
+				"value": "0.96393431547619"
+			},
+			"usable_pct_p10": {
+				"id": "6294015",
+				"name": "usable_pct_p10",
+				"value": "1.006407107619"
+			},
+			"usable_pct_p50": {
+				"id": "6294016",
+				"name": "usable_pct_p50",
+				"value": "1.0198413301587"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294018",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.13.png"
+			}
+		},
+		"runid_11": {
+			"id": "6294002",
+			"name": "runid_11",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1604583068",
+			"value": "",
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294013",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.11.png"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294012",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.11.png"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294011",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.11.png"
+			},
+			"wd_mgd": {
+				"id": "6294003",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "6294004",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "6294005",
+				"name": "evap_mgd",
+				"value": "0.69216970161632"
+			},
+			"Qout": {
+				"id": "6294006",
+				"name": "Qout",
+				"value": "100.8702003605"
+			},
+			"Qin": {
+				"id": "6294007",
+				"name": "Qin",
+				"value": "100.09180857507"
+			},
+			"usable_pct_p0": {
+				"id": "6294008",
+				"name": "usable_pct_p0",
+				"value": "0.96393431547619"
+			},
+			"usable_pct_p10": {
+				"id": "6294009",
+				"name": "usable_pct_p10",
+				"value": "1.006407107619"
+			},
+			"usable_pct_p50": {
+				"id": "6294010",
+				"name": "usable_pct_p50",
+				"value": "1.0198413301587"
+			}
+		},
+		"runid_18": {
+			"id": "5552377",
+			"name": "runid_18",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1604583275",
+			"value": "",
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294040",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.18.png"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294039",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.18.png"
+			},
+			"usable_pct_p0": {
+				"id": "6294035",
+				"name": "usable_pct_p0",
+				"value": "0.96393431547619"
+			},
+			"usable_pct_p10": {
+				"id": "6294036",
+				"name": "usable_pct_p10",
+				"value": "1.006407107619"
+			},
+			"usable_pct_p50": {
+				"id": "6294037",
+				"name": "usable_pct_p50",
+				"value": "1.0198413301587"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294038",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.18.png"
+			},
+			"wd_mgd": {
+				"id": "5552378",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "5552379",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"elev_p0": {
+				"id": "5552383",
+				"name": "elev_p0",
+				"value": "2114.283"
+			},
+			"elev_p10": {
+				"id": "5552384",
+				"name": "elev_p10",
+				"value": "2117.0986"
+			},
+			"evap_mgd": {
+				"id": "5552380",
+				"name": "evap_mgd",
+				"value": "0.69216970161632"
+			},
+			"Qout": {
+				"id": "5552381",
+				"name": "Qout",
+				"value": "100.8702003605"
+			},
+			"Qin": {
+				"id": "5552382",
+				"name": "Qin",
+				"value": "100.09180857507"
+			},
+			"elev_p50": {
+				"id": "5552385",
+				"name": "elev_p50",
+				"value": "2118"
+			}
+		},
+		"runid_15": {
+			"id": "5717803",
+			"name": "runid_15",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1604583184",
+			"value": "",
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294029",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.15.png"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294028",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.15.png"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5785584",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.15.png"
+			},
+			"usable_pct_p0": {
+				"id": "6294025",
+				"name": "usable_pct_p0",
+				"value": "0.9428615"
+			},
+			"usable_pct_p10": {
+				"id": "6294026",
+				"name": "usable_pct_p10",
+				"value": "0.97423868"
+			},
+			"usable_pct_p50": {
+				"id": "6294027",
+				"name": "usable_pct_p50",
+				"value": "1"
+			},
+			"wd_mgd": {
+				"id": "5717804",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "5717805",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "5717806",
+				"name": "evap_mgd",
+				"value": "0.98152726528747"
+			},
+			"Qout": {
+				"id": "5717807",
+				"name": "Qout",
+				"value": "89.361048008214"
+			},
+			"Qin": {
+				"id": "5717808",
+				"name": "Qin",
+				"value": "88.397480038179"
+			},
+			"elev_p0": {
+				"id": "5717809",
+				"name": "elev_p0",
+				"value": "2114.084"
+			},
+			"elev_p10": {
+				"id": "5717810",
+				"name": "elev_p10",
+				"value": "2116.2342"
+			},
+			"elev_p50": {
+				"id": "5717811",
+				"name": "elev_p50",
+				"value": "2118"
+			}
+		},
+		"runid_14": {
+			"id": "5720961",
+			"name": "runid_14",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1604583155",
+			"value": "",
+			"Qout": {
+				"id": "5720965",
+				"name": "Qout",
+				"value": "104.74666904004"
+			},
+			"Qin": {
+				"id": "5720966",
+				"name": "Qin",
+				"value": "103.78220809706"
+			},
+			"elev_p0": {
+				"id": "5720967",
+				"name": "elev_p0",
+				"value": "2114.476"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5782927",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.14.png"
+			},
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294024",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.14.png"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294023",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.14.png"
+			},
+			"usable_pct_p0": {
+				"id": "6294020",
+				"name": "usable_pct_p0",
+				"value": "0.9485858"
+			},
+			"usable_pct_p10": {
+				"id": "6294021",
+				"name": "usable_pct_p10",
+				"value": "0.98540447"
+			},
+			"usable_pct_p50": {
+				"id": "6294022",
+				"name": "usable_pct_p50",
+				"value": "1"
+			},
+			"wd_mgd": {
+				"id": "5720962",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "5720963",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "5720964",
+				"name": "evap_mgd",
+				"value": "0.9828241829449"
+			},
+			"elev_p10": {
+				"id": "5720968",
+				"name": "elev_p10",
+				"value": "2117"
+			},
+			"elev_p50": {
+				"id": "5720969",
+				"name": "elev_p50",
+				"value": "2118"
+			}
+		},
+		"runid_16": {
+			"id": "5722479",
+			"name": "runid_16",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1604583213",
+			"value": "",
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5788447",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.16.png"
+			},
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294034",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.16.png"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6294033",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.16.png"
+			},
+			"usable_pct_p0": {
+				"id": "6294030",
+				"name": "usable_pct_p0",
+				"value": "0.9545705"
+			},
+			"usable_pct_p10": {
+				"id": "6294031",
+				"name": "usable_pct_p10",
+				"value": "0.99047998"
+			},
+			"usable_pct_p50": {
+				"id": "6294032",
+				"name": "usable_pct_p50",
+				"value": "1"
+			},
+			"wd_mgd": {
+				"id": "5722480",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "5722481",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "5722482",
+				"name": "evap_mgd",
+				"value": "0.9835464952293"
+			},
+			"Qout": {
+				"id": "5722483",
+				"name": "Qout",
+				"value": "122.55415293292"
+			},
+			"Qin": {
+				"id": "5722484",
+				"name": "Qin",
+				"value": "121.58948914879"
+			},
+			"elev_p0": {
+				"id": "5722485",
+				"name": "elev_p0",
+				"value": "2114.887"
+			},
+			"elev_p10": {
+				"id": "5722486",
+				"name": "elev_p10",
+				"value": "2117.348"
+			},
+			"elev_p50": {
+				"id": "5722487",
+				"name": "elev_p50",
+				"value": "2118"
+			}
+		},
+		"runid_17": {
+			"id": "5731151",
+			"name": "runid_17",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1604583243",
+			"value": "",
+			"usable_pct_p0": {
+				"id": "5829429",
+				"name": "usable_pct_p0",
+				"value": "0.9526572"
+			},
+			"usable_pct_p10": {
+				"id": "5829430",
+				"name": "usable_pct_p10",
+				"value": "0.98135385"
+			},
+			"usable_pct_p50": {
+				"id": "5829431",
+				"name": "usable_pct_p50",
+				"value": "1"
+			},
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5829433",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.17.png"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5829432",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.17.png"
+			},
+			"elev_p0": {
+				"id": "5731158",
+				"name": "elev_p0",
+				"value": "2114.084"
+			},
+			"elev_p10": {
+				"id": "5731159",
+				"name": "elev_p10",
+				"value": "2116.2342"
+			},
+			"elev_p50": {
+				"id": "5731161",
+				"name": "elev_p50",
+				"value": "2118"
+			},
+			"wd_mgd": {
+				"id": "5731152",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "5731153",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "5731154",
+				"name": "evap_mgd",
+				"value": "0.98263503020192"
+			},
+			"Qout": {
+				"id": "5731155",
+				"name": "Qout",
+				"value": "92.648363747433"
+			},
+			"Qin": {
+				"id": "5731157",
+				"name": "Qin",
+				"value": "91.680435662731"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5769677",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.17.png"
+			}
+		},
+		"runid_201": {
+			"id": "5742338",
+			"name": "runid_201",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1588207654",
+			"value": "",
+			"wd_mgd": {
+				"id": "5742339",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "5742340",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "5742341",
+				"name": "evap_mgd",
+				"value": "0.9988098330274"
+			},
+			"Qout": {
+				"id": "5742342",
+				"name": "Qout",
+				"value": "66.948338876712"
+			},
+			"Qin": {
+				"id": "5742343",
+				"name": "Qin",
+				"value": "66.401377848274"
+			},
+			"elev_p0": {
+				"id": "5742344",
+				"name": "elev_p0",
+				"value": "2115.194"
+			},
+			"elev_p10": {
+				"id": "5742345",
+				"name": "elev_p10",
+				"value": "2116.6571"
+			},
+			"elev_p50": {
+				"id": "5742346",
+				"name": "elev_p50",
+				"value": "2118"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5742347",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.201.png"
+			}
+		},
+		"runid_203": {
+			"id": "5755312",
+			"name": "runid_203",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1604704226",
+			"value": "",
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6295152",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.203.png"
+			},
+			"usable_pct_p0": {
+				"id": "6295148",
+				"name": "usable_pct_p0",
+				"value": "0.9652276"
+			},
+			"usable_pct_p10": {
+				"id": "6295149",
+				"name": "usable_pct_p10",
+				"value": "0.99239182"
+			},
+			"usable_pct_p50": {
+				"id": "6295150",
+				"name": "usable_pct_p50",
+				"value": "1"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6295151",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.203.png"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "5755321",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.203.png"
+			},
+			"wd_mgd": {
+				"id": "5755313",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "5755314",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "5755315",
+				"name": "evap_mgd",
+				"value": "1.0193077063286"
+			},
+			"Qout": {
+				"id": "5755316",
+				"name": "Qout",
+				"value": "84.966248507042"
+			},
+			"Qin": {
+				"id": "5755317",
+				"name": "Qin",
+				"value": "84.116859289202"
+			},
+			"elev_p0": {
+				"id": "5755318",
+				"name": "elev_p0",
+				"value": "2105.36"
+			},
+			"elev_p10": {
+				"id": "5755319",
+				"name": "elev_p10",
+				"value": "2106.8022"
+			},
+			"elev_p50": {
+				"id": "5755320",
+				"name": "elev_p50",
+				"value": "2110.6675"
+			}
+		},
+		"runid_901": {
+			"id": "6903214",
+			"name": "runid_901",
+			"startdate": null,
+			"enddate": null,
+			"modified": "1667225444",
+			"value": null,
+			"wd_mgd": {
+				"id": "6903215",
+				"name": "wd_mgd",
+				"value": "0"
+			},
+			"ps_mgd": {
+				"id": "6903216",
+				"name": "ps_mgd",
+				"value": "0"
+			},
+			"evap_mgd": {
+				"id": "6903217",
+				"name": "evap_mgd",
+				"value": "0"
+			},
+			"Qout": {
+				"id": "6903218",
+				"name": "Qout",
+				"value": "79.376948372603"
+			},
+			"Qin": {
+				"id": "6903219",
+				"name": "Qin",
+				"value": "79.376948387945"
+			},
+			"usable_pct_p0": {
+				"id": "6903220",
+				"name": "usable_pct_p0",
+				"value": "0.9554232"
+			},
+			"usable_pct_p10": {
+				"id": "6903221",
+				"name": "usable_pct_p10",
+				"value": "0.97622694"
+			},
+			"usable_pct_p50": {
+				"id": "6903222",
+				"name": "usable_pct_p50",
+				"value": "1"
+			},
+			"fig.l90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6903223",
+				"name": "fig.l90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.209793.901.png"
+			},
+			"fig.imp_storage.all": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6903224",
+				"name": "fig.imp_storage.all",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/l90_imp_storage.all.209793.901.png"
+			},
+			"fig.fdc.all.": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6903225",
+				"name": "fig.fdc.all.",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/fig.fdc.all.209793.901.png"
+			},
+			"elev90_imp_storage": {
+				"host": "deq1.bse.vt.edu:81",
+				"id": "6903226",
+				"name": "elev90_imp_storage",
+				"value": "0",
+				"code": "http:\/\/deq1.bse.vt.edu:81\/data\/proj3\/out\/elev90_imp_storage.all.209793.901.png"
+			}
+		},
+		"reports": {
+			"id": "6903572",
+			"name": "reports",
+			"object_class": "textField",
+			"value": "Custom information for automated assembly of CIA reports.",
+			"model_overview": {
+				"id": "6903573",
+				"name": "model_overview",
+				"object_class": "textField",
+				"value": "Simulation for Bath County pump-store facility lower dam.  Releases from this impoundment are constructed to replicate the actions prescribed in the 401 certification.  The impoundment total storage is estimated at 28,000 acre-feet, with 3,200 acre-feet (approximately 11%) denoted as the \u0022conservation pool\u0022, to be used to maintain minimum environmental flow releases.  When the conservation pool is depleted, "
+			}
+		},
+		"flowby_cond3": {
+			"id": "6907334",
+			"name": "flowby_cond3",
+			"object_class": "dataMatrix",
+			"value": null,
+			"matrix": {
+				"name": "matrix",
+				"object_class": "array",
+				"value": [
+					["xQin", "xRelease"],
+					["0", "Qin"],
+					["5.0", "pof_cond3"],
+					["1000000.0", "pof_cond3"]
+				]
+			},
+			"exec_hierarch": {
+				"id": "6907336",
+				"name": "exec_hierarch",
+				"value": "0"
+			},
+			"defaultval": {
+				"id": "6907337",
+				"name": "defaultval",
+				"value": "0.0"
+			},
+			"keycol1": {
+				"id": "6907338",
+				"name": "keycol1",
+				"value": "",
+				"object_class": "textField"
+			},
+			"keycol2": {
+				"id": "6907340",
+				"name": "keycol2",
+				"value": "",
+				"object_class": "textField"
+			},
+			"valuetype": {
+				"id": "6907342",
+				"name": "valuetype",
+				"value": "1"
+			},
+			"eval_type": {
+				"id": "6907343",
+				"name": "eval_type",
+				"value": "auto"
+			},
+			"value_dbcolumntype": {
+				"id": "6907344",
+				"name": "value_dbcolumntype",
+				"value": "auto"
+			},
+			"lutype1": {
+				"id": "6907345",
+				"name": "lutype1",
+				"value": "2"
+			},
+			"lutype2": {
+				"id": "6907346",
+				"name": "lutype2",
+				"value": null
+			},
+			"autosetvars": {
+				"id": "6907347",
+				"name": "autosetvars",
+				"value": "0"
+			}
+		},
+		"pof_cond3": {
+			"id": "6907348",
+			"name": "pof_cond3",
+			"object_class": "wsp_flowby",
+			"value": null,
+			"description": "80% of inflow if inflow is eater than 5, but no more than 5.  Weird wording:\r\nAlternate Condition 3\r\nIF conservation pool volume is 100% depleted or more (deviation is negative 3,200 acre-feet)\r\nTHEN:\r\n\u2022 Contact the Virginia Department of Environmental Quality (DEQ), Virginia Department of Wildlife Resources (DWR), and FERC.\r\n\u2022 The flows released from the lower reservoir will be equal to the flows entering the reservoir unless the inflow is greater than 5 cfs.\r\n\u2022 If the inflow exceeds 5 cfs, the station will discharge at the 80% conservation pool depletion rate of 5 cfs over a 24-hour average and never less than 4 cfs until flow drops below 5 cfs or the conservation pool is 100% replenished.\r\n\u2022 The flows released from the upper reservoir will be equal to 1.5 cfs as measured at WUD1\r\n\u2022 The releases for the day will be based on the previous 24-hr average readings.\r\nNote: If instream circumstances require further adjustment, contact the DEQ and DWR to review thealternative condition.",
+			"flowby_eqn": {
+				"id": "6907350",
+				"name": "flowby_eqn",
+				"value": "0.8 * Qin"
+			},
+			"enable_cfb": {
+				"id": "6907351",
+				"name": "enable_cfb",
+				"value": "1"
+			},
+			"cfb_var": {
+				"id": "6907352",
+				"name": "cfb_var",
+				"value": "max_cond3",
+				"object_class": "textField"
+			},
+			"cfb_condition": {
+				"id": "6907354",
+				"name": "cfb_condition",
+				"value": "lt"
+			},
+			"exec_hierarch": {
+				"id": "6907355",
+				"name": "exec_hierarch",
+				"value": "0"
+			},
+			"defaultval": {
+				"id": "6907356",
+				"name": "defaultval",
+				"value": "0.0"
+			}
+		},
+		"max_cond3": {
+			"id": "6907357",
+			"name": "max_cond3",
+			"default": {
+				"name": "default",
+				"object_class": "textField",
+				"value": null
+			},
+			"equation": {
+				"name": "equation",
+				"object_class": "textField",
+				"value": "5.0"
+			},
+			"minvalue": {
+				"id": "6907362",
+				"name": "minvalue",
+				"value": null
+			},
+			"engine": {
+				"id": "6907363",
+				"name": "engine",
+				"value": "mathProcessor2"
+			},
+			"object_class": "Equation",
+			"exec_hierarch": {
+				"id": "6907359",
+				"name": "exec_hierarch",
+				"value": "0"
+			},
+			"defaultval": {
+				"id": "6907360",
+				"name": "defaultval",
+				"value": "5.0"
+			},
+			"nonnegative": {
+				"id": "6907361",
+				"name": "nonnegative",
+				"value": "0"
+			}
+		},
+		"area": {
+			"host": "deq1.bse.vt.edu:81",
+			"id": null,
+			"name": null,
+			"value": null,
+			"code": null
+		},
+		"full_surface_area": {
+			"host": "deq1.bse.vt.edu:81",
+			"id": null,
+			"name": null,
+			"value": null,
+			"code": null
+		},
+		"defaultval": {
+			"host": "deq1.bse.vt.edu:81",
+			"id": null,
+			"name": null,
+			"value": null,
+			"code": null
+		},
+		"matrix": {
+			"name": "matrix",
+			"object_class": "array",
+			"value": [
+				["storage", "stage", "surface_area"],
+				["0", "2000", "0"],
+				["2300", "2040", "150"],
+				["5500", "2058", "220"],
+				["28000", "2118", "555"],
+				["30500", "2123", "590"]
+			]
+		}
+	}
+}
