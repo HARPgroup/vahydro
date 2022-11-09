@@ -11,9 +11,10 @@
 			"object_class": "input",
 			"factor": 1.0,
 			"entity_name": "HYDR",
+			"entity_type": "RCHRES",
 			"entity_id": "1",
 			"srcname": "IVOL",
-      "note": "this is a mock up of the input variable that could be brought in in this way"
+      "note": "this is a mock up of the input variable that could be brought in using this method"
 		},
 		"flowby_tiers_cond3": {
 			"id": "6907334",
