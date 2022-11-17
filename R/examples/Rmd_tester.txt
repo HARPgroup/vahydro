@@ -1,0 +1,15 @@
+rmarkdown::render('C:/Users/nrf46657/Desktop/GitHub/vahydro/R/examples/VWP_CIA_Summary.Rmd',
+                  output_file = 'C:/Users/nrf46657/Desktop/GitHub/vahydro/R/examples/Salem_TE_200_2000_400_600',
+                  params = list(doc_title = "VWP CIA Summary - Salem WTP",
+rseg.hydroid = 68327,
+                                fac.hydroid = 73112,
+                                runid.list = c("runid_200","runid_2000","runid_400","runid_600"),
+                                rseg.metric.list = c("Qout","l30_Qout","l90_Qout","consumptive_use_frac",
+                                                               "wd_cumulative_mgd","ps_cumulative_mgd",
+                                                               "wd_mgd","ps_mgd"),
+                                intake_stats_runid = 11,
+                                preferred_runid = "runid_600",
+                                upstream_rseg_ids=c(67839,68105,442254,68331),
+                                downstream_rseg_ids=c(68099,68376,68126),
+                                users_metric = "base_demand_mgy")
+                  )
