@@ -52,9 +52,11 @@ write.csv(export, file=paste0(export_path,"fac_",u,"_gw.csv"), row.names=FALSE)
 
 ################################################################################
 # REQUEST: "The Database" = Provide facility level foundation data with 1982-2021 reported use and OWS permit limits #####
+# Date: 11-28-2022
 ################################################################################
 
-fndtn_fac <- sqldf('SELECT "Facility_hydroid","Facility","Use.Type","Latitude","Longitude","FIPS.Code", 
+#group foundation MP data by facility
+fndtn_fac <- sqldf('SELECT "Source.Type","Facility_hydroid","Facility","Use.Type","Latitude","Longitude","FIPS.Code", 
 sum("X1982") as X1982,
 sum("X1983") as X1983,
 sum("X1984") as X1984,
@@ -103,17 +105,37 @@ ows_permit_list <- read.csv("C:\\Users\\rnv55934\\Documents\\Docs\\Misc\\Tasks M
 ows_prmt <- sqldf('SELECT "VA.Hydro.Facility.ID" as Facility_hydroid, "GWP.Annual.Limit" as GWP_Annual_Limit,"GWP.Monthly.Limit" as GWP_Monthly_Limit,"VWP.Annual.Limit" as VWP_Annual_Limit, "VWP.Monthly.Limit" as VWP_Monthly_Limit,"VWP.Daily.Limit" as VWP_Daily_Limit, Status
                   FROM ows_permit_list
                   WHERE Status = "active" OR Status = "expired"')
-# #convert gallons to mgy
-# ows_prmt <- sqldf('SELECT Facility_hydroid, (GWP_Annual_Limit/1000000) as GWP_Annual_Limit, (GWP_Monthly_Limit/1000000) as GWP_Monthly_Limit, (VWP_Annual_Limit/1000000) as VWP_Annual_Limit, (VWP_Monthly_Limit/1000000) as VWP_Monthly_Limit, (VWP_Daily_Limit/1000000) as VWP_Daily_Limit
-#                    FROM ows_prmt ')
 
 #join facility foundation data to permit limits
-fac_prmt <- sqldf('SELECT a.*, b.GWP_Annual_Limit, b.GWP_Monthly_Limit, b.VWP_Annual_Limit, b.VWP_Monthly_Limit, b.VWP_Daily_Limit, b.Status
+fac_prmt <- sqldf('SELECT a.*, b.GWP_Annual_Limit, b.GWP_Monthly_Limit, b.VWP_Annual_Limit, b.VWP_Monthly_Limit, b.VWP_Daily_Limit, b.Status as Permit_Status
             FROM fndtn_fac a
             LEFT JOIN ows_prmt b
             ON a.Facility_hydroid = b.Facility_hydroid')
+
+#check for duplicates
 check <- sqldf('select * from fac_prmt group by Facility_hydroid having count(*)>1')
 rm(check)
-#note Lake Kilby Water Treatment Facility 67337 has active GW and expired SW so leaving the duplicated hydroid
+#note Lake Kilby Water Treatment Facility 67337 has active GW and expired SW in application so leaving the duplicated hydroid
 #note Birchwood Power Facility 67174 has active GW and SW in two rows so leaving the duplicated hydroid
-#write.csv(fac_prmt, paste0(export_path,"fac_prmt.csv"))
+
+#identify the facilities with multiple source types
+swfac <- sqldf('SELECT "Facility_hydroid","Source.Type" as Source_Type FROM foundation
+               WHERE "Source.Type" = "Surface Water" GROUP BY Facility_hydroid ')
+gwfac <- sqldf('SELECT "Facility_hydroid","Source.Type" as Source_Type FROM foundation
+               WHERE "Source.Type" = "Groundwater"  GROUP BY Facility_hydroid ')
+gwsw <- sqldf('SELECT Facility_hydroid FROM swfac WHERE Facility_hydroid IN (SELECT Facility_hydroid FROM gwfac)')
+swgw <- sqldf('SELECT a.*,
+              CASE WHEN Facility_hydroid IS NOT NULL THEN "GW_and_SW" END AS "Source_Types"
+              FROM gwsw AS a')
+fac_prmt2 <- sqldf('SELECT a.*, b.Source_Types
+            FROM fac_prmt a
+            LEFT JOIN swgw b
+            ON a.Facility_hydroid = b.Facility_hydroid')
+
+#write csv
+write.csv(fac_prmt2, paste0(export_path,"fac_prmt2.csv"), row.names=F)
+
+################################################################################
+# REQUEST: 
+# Date: 
+################################################################################
