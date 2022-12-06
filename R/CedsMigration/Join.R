@@ -7,10 +7,12 @@
 library('sqldf')
 library("hydrotools")
 
-# load data ###################################################################
+basepath ='/var/www/R'
+source(paste0(basepath,'/config.R'))
 
-A <- read.csv("C:\\Users\\rnv55934\\Documents\\Docs\\Misc\\Tasks Misc\\VAHydroMigration\\VAHydro_Phase4_Facility_Mapping.csv") #starting data migration list
-C <- read.csv("C:\\Users\\rnv55934\\Documents\\Docs\\Misc\\Tasks Misc\\VAHydroMigration\\ows_permit_list.csv") #includes permit number and owner (https://deq1.bse.vt.edu/d.dh/ows-permit-list)
+# load data ###################################################################
+A <- read.csv(paste0(github_location,"/vahydro/R/CedsMigration/VAHydro_Phase4_Facility_Mapping.csv"))#starting data migration list
+C <- read.csv("C:\\Users\\rnv55934\\Documents\\Docs\\Misc\\Tasks Misc\\VAHydroMigration\\ows_permit_list.csv") #includes permit number and owner (download from https://deq1.bse.vt.edu/d.dh/ows-permit-list)
 # # Use the ows permit list for the join instead of the expanded map exports bc using the permit list workflow later anyways
 #B <- read.csv("U:\\OWS\\foundation_datasets\\awrr\\2022\\mp_all_mgy_2017-2021.csv") #includes use type, can derive 5yr avg
 #Use the foudnation data instead of the mp_all_mgy so power gets included
@@ -18,8 +20,7 @@ C <- read.csv("C:\\Users\\rnv55934\\Documents\\Docs\\Misc\\Tasks Misc\\VAHydroMi
 
 
 #Load in foundation data and make into a wide format by facility
-basepath <- "U:/OWS/foundation_datasets/awrr/2022/"
-foundation <- read.csv(file=paste0(basepath,"foundation_dataset_mgy_1982-2021.csv"))
+foundation <- read.csv("U:/OWS/foundation_datasets/awrr/2022/foundation_dataset_mgy_1982-2021.csv")
 fndtn_fac <- sqldf('SELECT "Facility_hydroid","Facility","Use.Type" as Use_Type,"Latitude","Longitude","FIPS.Code" as FIPS_Code, 
 sum("X1982") as X1982,
 sum("X1983") as X1983,
@@ -62,7 +63,7 @@ sum("X2019") as X2019,
 sum("X2020") as X2020,
 sum("X2021") as X2021
                    FROM foundation GROUP BY Facility_hydroid')
-#write.csv(fndtn_fac,paste0(basepath,"fac_all_wide_1982-2021.csv"),row.names = F)
+#write.csv(fndtn_fac,U:/OWS/foundation_datasets/awrr/2022/fac_all_wide_1982-2021.csv",row.names = F)
 
 
 # Method using CSV downloads from VAHydro ####################################
@@ -136,8 +137,9 @@ A3_not_fnCC <- sqldf('select * from A_Prmt_Ownr3 where VAHYDRO_HYDROID NOT IN
 
 
 ## WRITE CSV ##################################################################
-export_path <- "C:\\Users\\rnv55934\\Documents\\Docs\\Misc\\Tasks Misc\\VAHydroMigration\\"
-write.csv(A_Prmt_Ownr3,paste0(export_path,"A_Prmt_Ownr3.csv"),row.names = F)
+#export_path <- "C:\\Users\\rnv55934\\Documents\\Docs\\Misc\\Tasks Misc\\VAHydroMigration\\"
+#write.csv(A_Prmt_Ownr3,paste0(export_path,"A_Prmt_Ownr3.csv"),row.names = F)
+write.csv(A_Prmt_Ownr3,paste0(github_location,"/vahydro/R/CedsMigration/A_Prmt_Ownr3.csv"),row.names = F)
 
 ## ADDITIONAL CHECKS and QUESTIONS #############################################
 
@@ -164,7 +166,7 @@ write.csv(A_Prmt_Ownr3,paste0(export_path,"A_Prmt_Ownr3.csv"),row.names = F)
 # #                  (select Facility_hydroid from BB)')
 
 #QUESTIONS
-#why isn't my hydro pull below working? - even if change expanded view not to be a batch export. permit view would pull faster as long as it contains owner. download csv provides the same data as the view so either method is fine.
+#why isn't hydro pull below working? - even if change expanded view not to be a batch export. permit view would pull faster as long as it contains owner. download csv provides the same data as the view so either method is fine.
 
 #CHECKS
 # are all the hydroids in the migration data sheet A receiving hydroid matches? which are not and why
