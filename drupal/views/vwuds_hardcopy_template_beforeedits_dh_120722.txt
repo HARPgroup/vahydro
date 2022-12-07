@@ -1340,7 +1340,7 @@ $handler->display->display_options['header']['area']['table'] = 'views';
 $handler->display->display_options['header']['area']['field'] = 'area';
 $handler->display->display_options['header']['area']['content'] = '<center>DEPARTMENT OF ENVIRONMENTAL QUALITY (DEQ)
 ANNUAL REPORT OF WATER WITHDRAWALS
-For the Period: January 1, 2022 to December 31, 2022</center>';
+For the Period: January 1, 2021 to December 31, 2021</center>';
 $handler->display->display_options['header']['area']['format'] = 'full_html';
 $handler->display->display_options['header']['area']['tokenize'] = TRUE;
 $handler->display->display_options['defaults']['relationships'] = FALSE;
@@ -1392,10 +1392,10 @@ $handler->display->display_options['header']['area']['content'] = '[nothing_7]
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 <td><center><h4>DEPARTMENT OF ENVIRONMENTAL QUALITY (DEQ)
 ANNUAL REPORT OF WATER WITHDRAWALS
-For the Period: January 1, 2022 to December 31, 2022</h4></center></td></td>
+For the Period: January 1, 2021 to December 31, 2021</h4></center></td></td>
 <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 </tr></table>
-Enclosed are the Virginia Department of Environmental Quality\'s Annual Report of Water Withdrawals forms for reporting all water withdrawals from surface water and/or groundwater sources during the period January 1, 2022 through December 31, 2022. Water withdrawal reporting is required under State Water Control Board (SWCB) Water Withdrawal Reporting Regulation (9VAC25-200). A copy of the regulation is available on this website: <u><a>https://law.lis.virginia.gov/admincode/title9/agency25/chapter200/</a></u>. The purpose of withdrawal reporting is to enable appropriate planning for the State\'s future water needs through the collection of accurate information. Water Withdrawal Reporting may be submitted to DEQ either in a hardcopy format or online.
+Enclosed are the Virginia Department of Environmental Quality\'s Annual Report of Water Withdrawals forms for reporting all water withdrawals from surface water and/or groundwater sources during the period January 1, 2021 through December 31, 2021. Water withdrawal reporting is required under State Water Control Board (SWCB) Water Withdrawal Reporting Regulation (9VAC25-200). A copy of the regulation is available on this website: <u><a>https://law.lis.virginia.gov/admincode/title9/agency25/chapter200/</a></u>. A copy of the revised reporting form and instructions (Eff. December 1, 2018) are available on this website: <u><a>https://law.lis.virginia.gov/admincode/title9/agency25/chapter200/section9998/</a></u>. The purpose of withdrawal reporting is to enable appropriate planning for the State\'s future water needs through the collection of accurate information. Water Withdrawal Reporting may be submitted to DEQ either in a hardcopy format or online.
 
 <b>Reporting Requirements:</b>
 
@@ -1410,7 +1410,7 @@ If you report groundwater withdrawals to DEQ under a groundwater withdrawal perm
 
 <b>Online Reporting:</b>
 
-Our goal is to make reporting your water withdrawal as easy as possible. In December of 2016, DEQ transitioned to the VAHydro web-based system that allows for online reporting of water withdrawals. If you have reported online previously, your VAHydro username is usually your email address. Please remember the VAHydro username is case-sensitive. If you have forgotten your password, go to the VAHydro login page <u><a>https://deq1.bse.vt.edu/d.dh/</a></u> and click on “Request new password”. Instructions will be sent to your email.
+Our goal is to make reporting your water withdrawal as easy as possible. In December of 2016, DEQ transitioned to the VAHydro web-based system that allows for online reporting of water withdrawals. If you have reported online previously, your VAHydro username is: «Email» . Please remember the VAHydro username is case-sensitive. If you have forgotten your password, go to the VAHydro login page <u><a>https://deq1.bse.vt.edu/d.dh/</a></u> and click on “Request new password”. Instructions will be sent to your email.
 
 If you want to report online for the first time, please call or email your DEQ water supply planner, contact information above, in order to register for online reporting. Your planner will send you instructions and the login information for VAHydro.
 
@@ -1418,7 +1418,7 @@ Once you login, your facility’s information will be displayed. If you opt for 
 
 <b>Reporting Instructions:</b>
 <ul>
-<li>If you did not withdraw from one or more source points (your wells, springs, or surface water intakes) in 2022, but expect you may in future years, simply input zeros on the form in the Current Withdrawals table and note “no withdrawal this year” in the "Source Status" field.</li>
+<li>If you did not withdraw from one or more source points (your wells, springs, or surface water intakes) in 2021, but expect you may in future years, simply input zeros on the form in the Current Withdrawals table and note “no withdrawal this year” in the "Source Status" field.</li>
 <li>If the source point has been abandoned and you <u>do not</u> plan to make future withdrawals, please check the box next to "Permanently Abandoned" in the "Source Status" field, and write the year it was abandoned in the space provided.</li>  
 <li>The regulation requires the use of a methodology or the installation and operation of a gaging device at or near the source point to measure the cumulative volume of groundwater and/or surface water withdrawn. The gage or methodology used must be consistent with sound generally accepted engineering practice and produce volume determinations within 10% of accuracy. Methods for estimating your withdrawal volumes are on the "Irrigation and Agriculture Water Use Estimate factsheet" located at this link: <u><a>https://www.deq.virginia.gov/water/water-quantity/water-supply-planning/water-withdrawal-reporting</a></u>. Please contact your DEQ water supply planner (contact information above) if assistance is needed in calculating your withdrawal volumes. In addition, the regulation requires retention of water withdrawal and gage calibration records by the user for a period of three years.</li>
 <li>The regulation requires that you report the maximum withdrawal in a single day and the month during which the maximum day withdrawal occurred.  If you do not collect this information at this time, <u>please estimate</u> your maximum day withdrawal and note the month this withdrawal occurred. </li>
@@ -1625,10 +1625,7 @@ If the location is known in Degrees:Minutes:Seconds, please convert to Decimal D
 [nothing_7] 
 <br>
 Would you like to complete your reporting online next year? Please circle one: YES / NO
-<br>
-If you circled yes, please provide your preferred method of contact, and a Planner will follow up with you to set up your online reporting.<br>
-Email: ______________________________________________ <br>
-Phone: ______________________________________________ <br><br><br>
+<br><br>
 <i>By Signing on the line below, you certify the accuracy of the withdrawal information reported in this form.</i>
 <br>
 Signatory Name:______________________________________________Date:______________________________________________';
@@ -1948,9 +1945,9 @@ $handler->display->display_options['fields']['nothing_6']['alter']['text'] = '<h
 </tr>
 
 <tr>
-<td align="center">2022</td>
 <td align="center">2021</td>
 <td align="center">2020</td>
+<td align="center">2019</td>
 </tr>
 
 <tr>
