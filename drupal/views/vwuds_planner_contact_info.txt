@@ -1,0 +1,885 @@
+$view = new view();
+$view->name = 'vwuds_planner_contact_info';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'dh_feature';
+$view->human_name = 'VWUDS - Planner Contact Info';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'VWUDS - Planner Contact Info';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['row_plugin'] = 'fields';
+/* Relationship: USAFIPS */
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['ui_name'] = 'USAFIPS';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['label'] = 'USAFIPS';
+/* Relationship: Contact-Locality */
+$handler->display->display_options['relationships']['reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact']['id'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact']['table'] = 'dh_feature';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact']['field'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact']['relationship'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact']['ui_name'] = 'Contact-Locality';
+$handler->display->display_options['relationships']['reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact']['label'] = 'Contact-Locality';
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = 'Facility';
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['relationship'] = 'reverse_dh_link_admin_fa_usafips_dh_feature';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: DH AdminReg Contact: Firstname */
+$handler->display->display_options['fields']['firstname']['id'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['field'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Field: DH AdminReg Contact: Lastname */
+$handler->display->display_options['fields']['lastname']['id'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['field'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Field: DH AdminReg Contact: Address1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Field: DH AdminReg Contact: Address2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Field: DH AdminReg Contact: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Field: DH AdminReg Contact: Email */
+$handler->display->display_options['fields']['email']['id'] = 'email';
+$handler->display->display_options['fields']['email']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['field'] = 'email';
+$handler->display->display_options['fields']['email']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Field: DH AdminReg Contact: Phone */
+$handler->display->display_options['fields']['phone']['id'] = 'phone';
+$handler->display->display_options['fields']['phone']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['field'] = 'phone';
+$handler->display->display_options['fields']['phone']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Field: DH AdminReg Contact: Postal_code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Field: DH AdminReg Contact: State */
+$handler->display->display_options['fields']['state']['id'] = 'state';
+$handler->display->display_options['fields']['state']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['field'] = 'state';
+$handler->display->display_options['fields']['state']['relationship'] = 'reverse_dh_link_admin_dhac_usafips_dh_adminreg_contact';
+/* Contextual filter: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['arguments']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['arguments']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['arguments']['hydroid']['default_argument_type'] = 'fixed';
+$handler->display->display_options['arguments']['hydroid']['summary']['number_of_records'] = '0';
+$handler->display->display_options['arguments']['hydroid']['summary']['format'] = 'default_summary';
+$handler->display->display_options['arguments']['hydroid']['summary_options']['items_per_page'] = '25';
+$handler->display->display_options['arguments']['hydroid']['comparator'] = 'eq';
+$handler->display->display_options['arguments']['hydroid']['op_location'] = 'WHERE';
+/* Filter criterion: DH AdminReg Contact: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['value'] = 'vwuds_planner';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+
+/* Display: User Account Link */
+$handler = $view->new_display('page', 'User Account Link', 'page_1');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '1';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: USAFIPS */
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['ui_name'] = 'USAFIPS';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['label'] = 'USAFIPS';
+/* Relationship: User Account */
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['id'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['table'] = 'field_data_dh_link_feature_mgr_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['field'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['relationship'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['ui_name'] = 'User Account';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['label'] = 'User Account';
+/* Relationship: Contact */
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['id'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['table'] = 'users';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['field'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['ui_name'] = 'Contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['label'] = 'Contact';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = '';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = '';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: DH AdminReg Contact: Firstname */
+$handler->display->display_options['fields']['firstname']['id'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['field'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['label'] = '';
+$handler->display->display_options['fields']['firstname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['firstname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Lastname */
+$handler->display->display_options['fields']['lastname']['id'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['field'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['label'] = '';
+$handler->display->display_options['fields']['lastname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['lastname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['label'] = '';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address1']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['label'] = '';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address2']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['label'] = '';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+$handler->display->display_options['fields']['city']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Email */
+$handler->display->display_options['fields']['email']['id'] = 'email';
+$handler->display->display_options['fields']['email']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['field'] = 'email';
+$handler->display->display_options['fields']['email']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['label'] = '';
+$handler->display->display_options['fields']['email']['exclude'] = TRUE;
+$handler->display->display_options['fields']['email']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Phone */
+$handler->display->display_options['fields']['phone']['id'] = 'phone';
+$handler->display->display_options['fields']['phone']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['field'] = 'phone';
+$handler->display->display_options['fields']['phone']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['label'] = '';
+$handler->display->display_options['fields']['phone']['exclude'] = TRUE;
+$handler->display->display_options['fields']['phone']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Postal_code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['label'] = '';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+$handler->display->display_options['fields']['postal_code']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: State */
+$handler->display->display_options['fields']['state']['id'] = 'state';
+$handler->display->display_options['fields']['state']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['field'] = 'state';
+$handler->display->display_options['fields']['state']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['label'] = '';
+$handler->display->display_options['fields']['state']['exclude'] = TRUE;
+$handler->display->display_options['fields']['state']['element_label_colon'] = FALSE;
+/* Field: Planner Address */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'Planner Address';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '<br>Department of Environmental Quality
+ATTN: [firstname] [lastname], Office of Water Supply
+[address1] [address2] 
+[city], [state] [postal_code]';
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH AdminReg Contact: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['value'] = 'vwuds_planner';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: User: Active */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'users';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['filters']['status']['value'] = '1';
+$handler->display->display_options['path'] = 'ows-locality-by-planner-account';
+
+/* Display: Planner Name */
+$handler = $view->new_display('page', 'Planner Name', 'page_3');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '1';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['header'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: USAFIPS */
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['ui_name'] = 'USAFIPS';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['label'] = 'USAFIPS';
+/* Relationship: User Account */
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['id'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['table'] = 'field_data_dh_link_feature_mgr_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['field'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['relationship'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['ui_name'] = 'User Account';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['label'] = 'User Account';
+/* Relationship: Contact */
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['id'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['table'] = 'users';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['field'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['ui_name'] = 'Contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['label'] = 'Contact';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = '';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = '';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: DH AdminReg Contact: Firstname */
+$handler->display->display_options['fields']['firstname']['id'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['field'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['label'] = '';
+$handler->display->display_options['fields']['firstname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['firstname']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['firstname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Lastname */
+$handler->display->display_options['fields']['lastname']['id'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['field'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['label'] = '';
+$handler->display->display_options['fields']['lastname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['lastname']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['lastname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['label'] = '';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address1']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['label'] = '';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address2']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['label'] = '';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+$handler->display->display_options['fields']['city']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Email */
+$handler->display->display_options['fields']['email']['id'] = 'email';
+$handler->display->display_options['fields']['email']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['field'] = 'email';
+$handler->display->display_options['fields']['email']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['label'] = '';
+$handler->display->display_options['fields']['email']['exclude'] = TRUE;
+$handler->display->display_options['fields']['email']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['email']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Phone */
+$handler->display->display_options['fields']['phone']['id'] = 'phone';
+$handler->display->display_options['fields']['phone']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['field'] = 'phone';
+$handler->display->display_options['fields']['phone']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['label'] = '';
+$handler->display->display_options['fields']['phone']['exclude'] = TRUE;
+$handler->display->display_options['fields']['phone']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['phone']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Postal_code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['label'] = '';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+$handler->display->display_options['fields']['postal_code']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: State */
+$handler->display->display_options['fields']['state']['id'] = 'state';
+$handler->display->display_options['fields']['state']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['field'] = 'state';
+$handler->display->display_options['fields']['state']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['label'] = '';
+$handler->display->display_options['fields']['state']['exclude'] = TRUE;
+$handler->display->display_options['fields']['state']['element_label_colon'] = FALSE;
+/* Field: Planner Address */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'Planner Address';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'If you prefer to submit your withdrawal information in a hardcopy format, please complete all applicable sections of the enclosed reporting form(s), and return to this office <b>no later than January 31, 2023.</b> If you have any questions concerning the requested information, please contact [firstname] [lastname] at [email] or [phone]. Mail your forms to:';
+$handler->display->display_options['fields']['nothing']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH AdminReg Contact: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['value'] = 'vwuds_planner';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: User: Active */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'users';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['filters']['status']['value'] = '1';
+$handler->display->display_options['path'] = 'ows-locality-by-planner-account';
+
+/* Display: Planner Email */
+$handler = $view->new_display('page', 'Planner Email', 'page_4');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: USAFIPS */
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['ui_name'] = 'USAFIPS';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['label'] = 'USAFIPS';
+/* Relationship: User Account */
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['id'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['table'] = 'field_data_dh_link_feature_mgr_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['field'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['relationship'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['ui_name'] = 'User Account';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['label'] = 'User Account';
+/* Relationship: Contact */
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['id'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['table'] = 'users';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['field'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['ui_name'] = 'Contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['label'] = 'Contact';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = '';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = '';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: DH AdminReg Contact: Firstname */
+$handler->display->display_options['fields']['firstname']['id'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['field'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['label'] = '';
+$handler->display->display_options['fields']['firstname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['firstname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Lastname */
+$handler->display->display_options['fields']['lastname']['id'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['field'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['label'] = '';
+$handler->display->display_options['fields']['lastname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['lastname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['label'] = '';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address1']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['label'] = '';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address2']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['label'] = '';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+$handler->display->display_options['fields']['city']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Email */
+$handler->display->display_options['fields']['email']['id'] = 'email';
+$handler->display->display_options['fields']['email']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['field'] = 'email';
+$handler->display->display_options['fields']['email']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['label'] = '';
+$handler->display->display_options['fields']['email']['exclude'] = TRUE;
+$handler->display->display_options['fields']['email']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Phone */
+$handler->display->display_options['fields']['phone']['id'] = 'phone';
+$handler->display->display_options['fields']['phone']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['field'] = 'phone';
+$handler->display->display_options['fields']['phone']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['label'] = '';
+$handler->display->display_options['fields']['phone']['exclude'] = TRUE;
+$handler->display->display_options['fields']['phone']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Postal_code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['label'] = '';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+$handler->display->display_options['fields']['postal_code']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: State */
+$handler->display->display_options['fields']['state']['id'] = 'state';
+$handler->display->display_options['fields']['state']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['field'] = 'state';
+$handler->display->display_options['fields']['state']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['label'] = '';
+$handler->display->display_options['fields']['state']['exclude'] = TRUE;
+$handler->display->display_options['fields']['state']['element_label_colon'] = FALSE;
+/* Field: Planner Address */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'Planner Address';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '[email]';
+$handler->display->display_options['fields']['nothing']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH AdminReg Contact: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['value'] = 'vwuds_planner';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: User: Active */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'users';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['filters']['status']['value'] = '1';
+$handler->display->display_options['path'] = 'ows-locality-by-planner-account';
+
+/* Display: Planner Phone */
+$handler = $view->new_display('page', 'Planner Phone', 'page_5');
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: USAFIPS */
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['ui_name'] = 'USAFIPS';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['label'] = 'USAFIPS';
+/* Relationship: User Account */
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['id'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['table'] = 'field_data_dh_link_feature_mgr_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['field'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['relationship'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['ui_name'] = 'User Account';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['label'] = 'User Account';
+/* Relationship: Contact */
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['id'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['table'] = 'users';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['field'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['ui_name'] = 'Contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['label'] = 'Contact';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = '';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = '';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: DH AdminReg Contact: Firstname */
+$handler->display->display_options['fields']['firstname']['id'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['field'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['label'] = '';
+$handler->display->display_options['fields']['firstname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['firstname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Lastname */
+$handler->display->display_options['fields']['lastname']['id'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['field'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['label'] = '';
+$handler->display->display_options['fields']['lastname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['lastname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['label'] = '';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address1']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['label'] = '';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address2']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['label'] = '';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+$handler->display->display_options['fields']['city']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Email */
+$handler->display->display_options['fields']['email']['id'] = 'email';
+$handler->display->display_options['fields']['email']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['field'] = 'email';
+$handler->display->display_options['fields']['email']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['label'] = '';
+$handler->display->display_options['fields']['email']['exclude'] = TRUE;
+$handler->display->display_options['fields']['email']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Phone */
+$handler->display->display_options['fields']['phone']['id'] = 'phone';
+$handler->display->display_options['fields']['phone']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['field'] = 'phone';
+$handler->display->display_options['fields']['phone']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['label'] = '';
+$handler->display->display_options['fields']['phone']['exclude'] = TRUE;
+$handler->display->display_options['fields']['phone']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Postal_code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['label'] = '';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+$handler->display->display_options['fields']['postal_code']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: State */
+$handler->display->display_options['fields']['state']['id'] = 'state';
+$handler->display->display_options['fields']['state']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['field'] = 'state';
+$handler->display->display_options['fields']['state']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['label'] = '';
+$handler->display->display_options['fields']['state']['exclude'] = TRUE;
+$handler->display->display_options['fields']['state']['element_label_colon'] = FALSE;
+/* Field: Planner Address */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'Planner Address';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = '[phone]';
+$handler->display->display_options['fields']['nothing']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH AdminReg Contact: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['value'] = 'vwuds_planner';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: User: Active */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'users';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['filters']['status']['value'] = '1';
+$handler->display->display_options['path'] = 'ows-locality-by-planner-account';
+
+/* Display: Planner (Location Data) */
+$handler = $view->new_display('page', 'Planner (Location Data)', 'page_2');
+$handler->display->display_options['defaults']['pager'] = FALSE;
+$handler->display->display_options['pager']['type'] = 'some';
+$handler->display->display_options['pager']['options']['items_per_page'] = '1';
+$handler->display->display_options['pager']['options']['offset'] = '0';
+$handler->display->display_options['defaults']['header'] = FALSE;
+$handler->display->display_options['defaults']['relationships'] = FALSE;
+/* Relationship: USAFIPS */
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['id'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['field'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['ui_name'] = 'USAFIPS';
+$handler->display->display_options['relationships']['dh_link_admin_fa_usafips_target_id']['label'] = 'USAFIPS';
+/* Relationship: User Account */
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['id'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['table'] = 'field_data_dh_link_feature_mgr_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['field'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['relationship'] = 'dh_link_admin_fa_usafips_target_id';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['ui_name'] = 'User Account';
+$handler->display->display_options['relationships']['dh_link_feature_mgr_id_target_id']['label'] = 'User Account';
+/* Relationship: Contact */
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['id'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['table'] = 'users';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['field'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['ui_name'] = 'Contact';
+$handler->display->display_options['relationships']['reverse_dh_link_user_contact_dh_adminreg_contact']['label'] = 'Contact';
+$handler->display->display_options['defaults']['fields'] = FALSE;
+/* Field: DH Feature: HydroID - Unique Feature ID */
+$handler->display->display_options['fields']['hydroid']['id'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['hydroid']['field'] = 'hydroid';
+$handler->display->display_options['fields']['hydroid']['label'] = '';
+$handler->display->display_options['fields']['hydroid']['exclude'] = TRUE;
+$handler->display->display_options['fields']['hydroid']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['hydroid']['separator'] = '';
+/* Field: DH Feature: Feature Name */
+$handler->display->display_options['fields']['name']['id'] = 'name';
+$handler->display->display_options['fields']['name']['table'] = 'dh_feature';
+$handler->display->display_options['fields']['name']['field'] = 'name';
+$handler->display->display_options['fields']['name']['label'] = '';
+$handler->display->display_options['fields']['name']['exclude'] = TRUE;
+$handler->display->display_options['fields']['name']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['name']['element_label_colon'] = FALSE;
+/* Field: dH Feature: Link Facility to usafips */
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['id'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['table'] = 'field_data_dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['field'] = 'dh_link_admin_fa_usafips';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['label'] = '';
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['exclude'] = TRUE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['element_label_colon'] = FALSE;
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['settings'] = array(
+  'link' => 0,
+);
+$handler->display->display_options['fields']['dh_link_admin_fa_usafips']['delta_offset'] = '0';
+/* Field: DH AdminReg Contact: Firstname */
+$handler->display->display_options['fields']['firstname']['id'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['field'] = 'firstname';
+$handler->display->display_options['fields']['firstname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['firstname']['label'] = '';
+$handler->display->display_options['fields']['firstname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['firstname']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['firstname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Lastname */
+$handler->display->display_options['fields']['lastname']['id'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['field'] = 'lastname';
+$handler->display->display_options['fields']['lastname']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['lastname']['label'] = '';
+$handler->display->display_options['fields']['lastname']['exclude'] = TRUE;
+$handler->display->display_options['fields']['lastname']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['lastname']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address1 */
+$handler->display->display_options['fields']['address1']['id'] = 'address1';
+$handler->display->display_options['fields']['address1']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['field'] = 'address1';
+$handler->display->display_options['fields']['address1']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address1']['label'] = '';
+$handler->display->display_options['fields']['address1']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address1']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Address2 */
+$handler->display->display_options['fields']['address2']['id'] = 'address2';
+$handler->display->display_options['fields']['address2']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['field'] = 'address2';
+$handler->display->display_options['fields']['address2']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['address2']['label'] = '';
+$handler->display->display_options['fields']['address2']['exclude'] = TRUE;
+$handler->display->display_options['fields']['address2']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: City */
+$handler->display->display_options['fields']['city']['id'] = 'city';
+$handler->display->display_options['fields']['city']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['field'] = 'city';
+$handler->display->display_options['fields']['city']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['city']['label'] = '';
+$handler->display->display_options['fields']['city']['exclude'] = TRUE;
+$handler->display->display_options['fields']['city']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Email */
+$handler->display->display_options['fields']['email']['id'] = 'email';
+$handler->display->display_options['fields']['email']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['field'] = 'email';
+$handler->display->display_options['fields']['email']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['email']['label'] = '';
+$handler->display->display_options['fields']['email']['exclude'] = TRUE;
+$handler->display->display_options['fields']['email']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['email']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Phone */
+$handler->display->display_options['fields']['phone']['id'] = 'phone';
+$handler->display->display_options['fields']['phone']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['field'] = 'phone';
+$handler->display->display_options['fields']['phone']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['phone']['label'] = '';
+$handler->display->display_options['fields']['phone']['exclude'] = TRUE;
+$handler->display->display_options['fields']['phone']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['phone']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: Postal_code */
+$handler->display->display_options['fields']['postal_code']['id'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['field'] = 'postal_code';
+$handler->display->display_options['fields']['postal_code']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['postal_code']['label'] = '';
+$handler->display->display_options['fields']['postal_code']['exclude'] = TRUE;
+$handler->display->display_options['fields']['postal_code']['element_label_colon'] = FALSE;
+/* Field: DH AdminReg Contact: State */
+$handler->display->display_options['fields']['state']['id'] = 'state';
+$handler->display->display_options['fields']['state']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['field'] = 'state';
+$handler->display->display_options['fields']['state']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['fields']['state']['label'] = '';
+$handler->display->display_options['fields']['state']['exclude'] = TRUE;
+$handler->display->display_options['fields']['state']['element_label_colon'] = FALSE;
+/* Field: Planner Address */
+$handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['table'] = 'views';
+$handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+$handler->display->display_options['fields']['nothing']['ui_name'] = 'Planner Address';
+$handler->display->display_options['fields']['nothing']['label'] = '';
+$handler->display->display_options['fields']['nothing']['alter']['text'] = 'Location data is required for all withdrawal points, if assistance is needed please contact [firstname] [lastname] (See first page for contact information).';
+$handler->display->display_options['fields']['nothing']['alter']['trim_whitespace'] = TRUE;
+$handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
+$handler->display->display_options['defaults']['filter_groups'] = FALSE;
+$handler->display->display_options['defaults']['filters'] = FALSE;
+/* Filter criterion: DH AdminReg Contact: Ftype */
+$handler->display->display_options['filters']['ftype']['id'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['table'] = 'dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['field'] = 'ftype';
+$handler->display->display_options['filters']['ftype']['relationship'] = 'reverse_dh_link_user_contact_dh_adminreg_contact';
+$handler->display->display_options['filters']['ftype']['value'] = 'vwuds_planner';
+$handler->display->display_options['filters']['ftype']['op_location'] = 'where';
+/* Filter criterion: User: Active */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'users';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['relationship'] = 'dh_link_feature_mgr_id_target_id';
+$handler->display->display_options['filters']['status']['value'] = '1';
+$handler->display->display_options['path'] = 'ows-locality-by-planner-account-location';

@@ -1414,7 +1414,7 @@ Our goal is to make reporting your water withdrawal as easy as possible. In Dece
 
 If you want to report online for the first time, please call or email your DEQ water supply planner, contact information above, in order to register for online reporting. Your planner will send you instructions and the login information for VAHydro.
 
-Once you login, your facility’s information will be displayed. If you opt for online reporting, please note that <i>you are <u>not</u> required to submit a hardcopy, signed certification to this office.</i>
+Once you login, your facility’s information will be displayed. If you opt for online reporting, please note that <i>you are <u>not</u> required to submit a hardcopy signed certification to this office in addition to online reporting.</i>
 
 <b>Reporting Instructions:</b>
 <ul>
