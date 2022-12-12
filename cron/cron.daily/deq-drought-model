@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# NLDAS2 data for model
 cd /backup/meteorology
 yr=`date +%Y`
 sudo -u rob ./get_nldas_to_date $yr
+
+# get NOAA raster precip for drought analysis
+# Process Scripts in Drupal Root
+cd /var/www/html/d.dh
+# retrieve precip to date
+drush scr modules/dh_weather/src/php/noaa_daily_precip_retrieval.php --date=today --single=FALSE
+rm /tmp/nws_precip_*
+rm /tmp/tmp_precipgrid.sql
