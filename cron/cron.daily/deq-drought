@@ -1,11 +1,12 @@
 #!/bin/sh
 
+# downloading NOA data now done in /etc/cron.daily/deq-drought-model (due to raster2pgsql trouble on deq1)
 # Process Scripts in Drupal Root
-cd /var/www/html/d.dh
+#cd /var/www/html/d.dh
 # retrieve precip to date
-drush scr modules/dh_weather/src/php/noaa_daily_precip_retrieval.php --date=today --single=FALSE
-rm /tmp/nws_precip_*
-rm /tmp/tmp_precipgrid.sql
+#drush scr modules/dh_weather/src/php/noaa_daily_precip_retrieval.php --date=today --single=FALSE
+#rm /tmp/nws_precip_*
+#rm /tmp/tmp_precipgrid.sql
 
 
 # legacy code no longer used as of 8/31/2017
@@ -30,16 +31,19 @@ sudo -u www-data Rscript drought/USGS_monthly_frequency_plot_gen.R
 # drush scr modules/dh_drought/src/import.dmtf.php
 # New Method because cert does not work
 
-## this section was commented out 10.18.22, beginning of water year. Un-comment in December
-## Download the file 
-## cd /var/www/html/drought/state/images/maps
-## wget -O va-dmtf-precip --no-check-certificate  https://localhost/d.dh/va-dmtf-precip
-## cd /var/www/html/d.dh
-## drush scr modules/om/src/om_setprop.php file /var/www/html/drought/state/images/maps/va-dmtf-precip
+# this section was commented out 10.18.22, beginning of water year. Un-comment in December
+# Download the file 
+cd /var/www/html/drought/state/images/maps
+wget -O va-dmtf-precip --no-check-certificate  https://localhost/d.dh/va-dmtf-precip
+cd /var/www/html/d.dh
+drush scr modules/om/src/om_setprop.php file /var/www/html/drought/state/images/maps/va-dmtf-precip
 
 # Create a static version of the map for each day.
 cd /var/www/html/drought/state/images/maps
-wget -O virginia_drought.png "https://localhost/cgi-bin/mapserv?map=/var/www/html/mapserv/vahydro_drought_status-4-metrics-live.map&layers=poli_bounds&layers=proj_seggroups&mode=map&format=image/png" --no-check-certificate
+# wget -O virginia_drought.png "https://localhost/cgi-bin/mapserv?map=/var/www/html/mapserv/vahydro_drought_status-4-metrics-live.map&layers=poli_bounds&layers=proj_seggroups&mode=map&format=image/png" --no-check-certificate
+wget -O virginia_drought.png "https://localhost/cgi-bin/mapserv?map=/var/www/html/mapserv/vahydro_drought_status-4-metrics-live.map&layers=poli_bounds&layers=proj_seggroups" --no-check-certificate
+newmap=`ls -rt /var/www/html/drought/state/images/maps/ | grep imageMapFile | tail -n 1`
+mv /var/www/html/drought/state/images/maps/${newmap} /var/www/html/drought/state/images/maps/virginia_drought.png
 
 date > /home/denton/mydate
 mail -s "DEQ1 drought.sh ran" denton@vt.edu < /home/denton/mydate
