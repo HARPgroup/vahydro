@@ -1422,14 +1422,14 @@ Once you login, your facility’s information will be displayed. If you opt for 
 <li>If the source point has been abandoned and you <u>do not</u> plan to make future withdrawals, please check the box next to "Permanently Abandoned" in the "Source Status" field, and write the year it was abandoned in the space provided.</li>  
 <li>The regulation requires the use of a methodology or the installation and operation of a gaging device at or near the source point to measure the cumulative volume of groundwater and/or surface water withdrawn. The gage or methodology used must be consistent with sound generally accepted engineering practice and produce volume determinations within 10% of accuracy. Methods for estimating your withdrawal volumes are on the "Irrigation and Agriculture Water Use Estimate factsheet" located at this link: <u><a>https://www.deq.virginia.gov/water/water-quantity/water-supply-planning/water-withdrawal-reporting</a></u>. Please contact your DEQ water supply planner (contact information above) if assistance is needed in calculating your withdrawal volumes. In addition, the regulation requires retention of water withdrawal and gage calibration records by the user for a period of three years.</li>
 <li>The regulation requires that you report the maximum withdrawal in a single day and the month during which the maximum day withdrawal occurred.  If you do not collect this information at this time, <u>please estimate</u> your maximum day withdrawal and note the month this withdrawal occurred. </li>
-<li>As per 2020, location data is required. <b>Section § 62.1-44.38. of the Code of Virginia requires location data be provided by each user in a coordinate system (decimal degrees) for each point of withdrawal. Provide the latitude and longitude in the location section of this form.</b></li>
+<li>As of 2020, location data is required. <b>Section § 62.1-44.38. of the Code of Virginia requires location data be provided by each user in a coordinate system (decimal degrees) for each point of withdrawal. Provide the latitude and longitude in the location section of this form.</b></li>
 <li>If you have developed <u>a new source point  at an existing facility</u>, please use the form on the last page entitled “***Complete form for any additional source points.” Fill in as much information as possible. Examples of new source points include an additional pond, movement of a stream intake from one stream to a different stream, an additional groundwater well, etc.</li>
 <li> If you have <u>a new source point at a new facility</u>, please contact your DEQ water supply planner.</li>
 </ul>  
 
 <b>Description of Fields on Reporting Form:</b>
 <ul>
-<li><b>Action Type</b> - Identifies the appropriate action – write in one of the following: Withdrawal, Delivery, or Release. “Withdrawal” refers to any withdrawal of raw water. “Release” refers to the amount of finished or raw water sold by and released from a wholesale waterworks TO a recipient waterworks. The meter reading at a wholesale waterworks is the volume of water usually reported as “released”. “Delivery” (reported by the recipient) refers to the amount of finished or raw water purchased by and delivered to a recipient waterworks FROM a wholesale waterworks. The meter reading by the receiving waterworks is the volume of water usually reported as “delivered”. </li>
+<li><b>Action Type</b> - Identifies the appropriate action – select one of the following: Withdrawal, Delivery, or Release. “Withdrawal” refers to any withdrawal of raw water. “Release” refers to the amount of finished or raw water sold by and released from a wholesale waterworks TO a recipient waterworks. The meter reading at a wholesale waterworks is the volume of water usually reported as “released”. “Delivery” (reported by the recipient) refers to the amount of finished or raw water purchased by and delivered to a recipient waterworks FROM a wholesale waterworks. The meter reading by the receiving waterworks is the volume of water usually reported as “delivered”. </li>
 <li><b>Additional Withdrawal Comments</b> – Note any unusual circumstances that occurred during the reporting period. Examples may include dates of malfunctioning water meters, dates of source start up or abandonment, explanations for sharp changes in water withdrawal amounts due to temporary or permanent process shut downs or system changes, measurements reflecting clustered wells, etc.</li>
 <li><b>Category (of use)</b> – write in the correct category of use: Agriculture, Agricultural Irrigation, Commercial, Manufacturing, Mining, Fossil Power, Hydro Power, Nuclear Power, Public Water Supply, or Other.</li>
 <li><b>DEQ Well ID</b> – This is a DEQ assigned identification number for groundwater wells or springs.</li> 
@@ -1528,7 +1528,7 @@ ______________________________________<br></td>
 
 <td><b>Location data is required for all source points.</b> Please provide coordinates in decimal degrees. If you do not know the coordinates of your water source follow the steps below:<br>
 1) Open <u><a>https://www.google.com/maps</a></u>, navigate to and click on the precise location of your water source. <br>
-2) Right click on the red pin that appears and copy the Latitude/Longitude (example: 37.5671, -77.4771).<br>
+2) Right click on the pin that appears and copy the Latitude/Longitude (example: 37.5671, -77.4771).<br>
 If the location is known in Degrees:Minutes:Seconds, please convert to Decimal Degrees using the following link: <u><a>https://www.fcc.gov/media/radio/dms-decimal</a></u>
 </td>
 </tr>
@@ -1629,7 +1629,7 @@ Would you like to complete your reporting online next year? Please circle one: Y
 If you circled yes, please provide your preferred method of contact, and a Planner will follow up with you to set up your online reporting.<br>
 Email: ______________________________________________ <br>
 Phone: ______________________________________________ <br><br><br>
-<i>By Signing on the line below, you certify the accuracy of the withdrawal information reported in this form.</i>
+<i><b>By Signing on the line below, you certify the accuracy of the withdrawal information reported in this form.</b></i>
 <br>
 Signatory Name:______________________________________________Date:______________________________________________';
 $handler->display->display_options['footer']['area']['format'] = 'full_html';
@@ -2159,7 +2159,7 @@ Longitude:
 
 <td><b>Location data is required for all source points.</b> If Latitude and Longitude fields are blank, or you are updating location information, please provide coordinates in decimal degrees. If you do not know the coordinates of your water source follow the steps below:<br>
 1) Open <u><a>https://www.google.com/maps</a></u>, navigate to and click on the precise location of your water source. <br>
-2) Right click on the red pin that appears and copy the Latitude/Longitude (example: 37.5671, -77.4771).<br>
+2) Right click on the pin that appears and copy the Latitude/Longitude (example: 37.5671, -77.4771).<br>
 If the location is known in Degrees:Minutes:Seconds, please convert to Decimal Degrees using the following link: <u><a>https://www.fcc.gov/media/radio/dms-decimal</a></u>
 </td>
 </tr>
