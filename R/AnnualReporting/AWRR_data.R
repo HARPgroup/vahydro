@@ -19,7 +19,8 @@ library("RCurl")
 options(scipen = 999)
 
 #NOTE: The start and end year need to be updated every year
-syear = 1982
+# syear = 1982
+syear = 2020
 eyear = 2021
 
 #NOTE: switch between file types to save in common drive folder; html or latex
@@ -33,6 +34,7 @@ rest_pw = FALSE
 basepath ='/var/www/R'
 source(paste0(basepath,'/auth.private'))
 source(paste0(basepath,'/config.R'))
+
 # ds <- RomDataSource$new(site)
 # ds$get_token()
 ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
@@ -40,7 +42,8 @@ ds$get_token(rest_pw)
 #also, line 111, changed to mp_all_power. Not sure what MayQA section does. Also (eyear-4) in line 189/190
 
 
-export_path <- "U:/OWS/foundation_datasets/awrr/"
+# export_path <- "U:/OWS/foundation_datasets/awrr/"
+export_path <- "C:/Users/nrf46657/Desktop/DEQ_new/CEDS Migration/"
 
 #GLOBAL VARIABLES --------------------------------------------------------------------
 if (file_extension == ".html") {
