@@ -7,9 +7,74 @@ source("/var/www/R/config.R")
 # LOAD FACILITY MODEL RUN DATA:
 ################################################################################################
 #FULL RUNS (84-05)
-datbcfac400 <- om_get_rundata(247415, 400, site = omsite)
+datbcfac400 <- om_get_rundata(247415, 402, site = omsite)
 datbcfac600 <- om_get_rundata(247415, 600, site = omsite)
 datbcfac2 <- om_get_rundata(247415, 2, site = omsite)
+
+datsfp4 <- om_get_rundata(352123 , 4011, site = omsite)
+quantile(datsfp4$Qout)
+quantile(datsfp4$ps_mgd)
+
+runid = 6011
+datsfp <- om_get_rundata(352123 , runid, site = omsite)
+datsfp$Qlocal_below_bc
+datsfp$Qnatural <- (8.2/2.66)*datsfp$Qlocal_below_bc
+quantile(datsfp$Qnatural)
+quantile(datsfp$Qout)
+hydroTSM::fdc(
+  cbind(datsfp$Qnatural, datsfp$Qout),
+  ylim=c(0.001,1000)
+)
+
+quantile(datsfp4$Qlocal + datsfp4$Qtrib - (1.547*datsfp4$child_wd_mgd))
+quantile(datsfp4$local_channel_Qin)
+quantile(datsfp4$local_channel_Qout)
+quantile(datsfp4$Qlocal_below_bc)
+
+
+datbcfac400[243:245,c('max_mgd','available_mgd','adj_demand_mgd', 'base_demand_mgd', 'unmet_demand_mgd', 'wd_mgd')]
+datsfp4[263:315,c('local_channel_Qin', 'local_channel_Qout', 'child_wd_mgd', 'Qtrib', 'Qlocal')]
+
+datsfp4$Qrem <- datsfp4$local_channel_Qin - datsfp4$child_wd_mgd * 1.547 
+datsfp4[which(datsfp4$local_channel_Qout < 0.5),c('local_channel_Qin', 'local_channel_Qout', 'child_wd_mgd', 'Qrem')]
+datsfp4[263:315,c('local_channel_Qin', 'Qlocal', 'local_channel_Qout', 'child_wd_mgd', 'Qrem')]
+
+datbc4 <- om_get_rundata(352078 , 4011, site = omsite)
+datbc4$Qoughttab <- datbc4$impoundment_Qout + datbc4$Qlocal_below_bc - datbc4$ps_refill_pump_mgd * 1.547
+datbc4$Qoughttab2 <- datbc4$release + datbc4$Qlocal_below_bc - datbc4$ps_refill_pump_mgd * 1.547
+
+datbc4$pump_cfs <- 1.547 * datbc4$ps_refill_pump_mgd
+quantile(datbc4$Qoughttab)
+quantile(datbc4$Qout)
+quantile(datbc4$impoundment_Qout)
+quantile(datbc4$release)
+quantile(datbc4$Qlocal_below_bc)
+
+# should be?
+quantile(datbc4$impoundment_spill + datbc4$release + datbc4$Qlocal_below_bc - 1.547 * datbc4$ps_refill_pump_mgd)
+quantile(datbc4$impoundment_spill + datbc4$release)
+quantile(datbc4$impoundment_spill + datbc4$impoundment_release)
+datbc4[,c("release", "impoundment_release")]
+
+quantile(datbc4$Qout + datbc4$Qlocal_below_bc - 1.547 * datbc4$ps_refill_pump_mgd)
+
+mean(datbc4$impoundment_spill + datbc4$impoundment_release)
+quantile(datbc4$impoundment_spill + datbc4$impoundment_release)
+quantile(datbc4$impoundment_Qout)
+quantile(datbc4$Qout)
+
+
+datbc4$release_new <- datbc4$child_wd_mgd * 1.547 + datbc4$bc_flowby_cfs - datbc4$Qlocal_below_bc
+datbc4[263:315,c('pump_cfs', 'release', 'Qlocal_below_bc')]
+datbc6 <- om_get_rundata(352078 , 6011, site = omsite)
+datbcfac6 <- om_get_rundata(247415 , 6011, site = omsite)
+
+dfdatbcfac6 <- as.data.frame(datbcfac6)
+quantile(datbcfac400$rejected_demand_pct)
+quantile(datbcfac400$available_mgd)
+quantile(datbcfac400$max_mgd)
+quantile(datbcfac400$adj_demand_mgd)
+quantile(datbcfac400$base_demand_mgd)
 ################################################################################################
 
 ################################################################################################

@@ -39,4 +39,39 @@ colnames(nat_lf) <- c('Date', 'Flow', "year", "month")
 nat_lf$Flow <- (da_lf / da_por) * nat_lf$Flow
 
 # now do the flowby and CU calcs
+source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/potomac_lfalls_2025-icprb.R")
+source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/demands.R")
 source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/alt_lf.R")
+
+alf_1997 <- sqldf("select * from alt_lf where year >= 1997")
+lfz = zoo(alf_1997$Flow/1.547, order.by = as.Date(alf_1997$Date))
+lf_lf = group2(lfz, "calendar")
+
+lfaz = zoo(alf_1997$Flow_curr/1.547, order.by = as.Date(alf_1997$Date))
+lfa_lf = group2(lfaz, "calendar")
+
+lfb = as.data.frame(cbind(lfa_lf$year, lfa_lf$`30 Day Min`, lf_lf$`30 Day Min`))
+colnames(lfb) <- c('Year', 'PostWD', 'Baseline')
+
+lfb$pct_chg <- (lfb$PostWD - lfb$Baseline) / lfb$Baseline
+
+bp <- barplot(
+  cbind(Baseline, PostWD) ~ Year, data=lfb,
+  col=c("blue", "black"),
+  main="Pre-Withdrawal vs. Post-Withdrawal 30 Day Low Flow, 1997-2010",
+  beside=TRUE,
+  ylim=c(0,4000)
+)
+#text(bp, 4500, round(100*lfb$pct_chg),cex=1,pos=3) 
+#text(bp, 4500, round(100*lfb$pct_chg)) 
+
+bp
+quantile(lfb$pct_chg)
+
+alt_lf_aso <- sqldf("select * from alf_1997 where month in (8, 9, 10)")
+quantile(alt_lf_aso$cu_pct_curr)
+alt_lf_aso$pct_chg <- (alt_lf_aso$Flow_curr - alt_lf_aso$Flow) / alt_lf_aso$Flow
+quantile(alt_lf_aso$pct_chg)
+
+bxp <- boxplot(-100.0 * as.numeric(alt_lf_aso$pct_chg) ~ alt_lf_aso$year, ylab="Percent of Flow in Aug-Oct Withdrawn", main="Demand as Percent of Flow at Little Falls, 1997-2010")
+
