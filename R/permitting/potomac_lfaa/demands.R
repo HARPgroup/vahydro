@@ -18,6 +18,21 @@ icprb_prod_max <- sqldf(
   "
 )
 
+icprb_prod_mon_mean <- sqldf(
+  "
+   select month,
+     avg(wssc_pot) as wssc_pot,
+     avg(wa_gf) as  wa_gf,
+     avg(wa_lf) as wa_lf,
+     avg(fw_pot) as fw_pot,
+     avg(rville) as rville,
+     avg(up_cu) as up_cu,
+     avg(wssc_pot + wa_gf + fw_pot + rville + up_cu) as gf_mgd
+   from icprb_monthly_prod where year >= 2015
+   group by month
+  "
+)
+
 demand_lf <- sqldf(
   "
    select a.Date, a.year, a.month,

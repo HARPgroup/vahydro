@@ -110,3 +110,11 @@ curr_plot_gf2019 <- pothab_plot(
   "Great Falls", "Current 2019"
 )
 curr_plot_gf2019 + ylim(c(-75,75)) + labs(title = paste("Habitat Change, Great Falls, 300mgd flowby (all)") )
+
+plotdata <- curr_plot_gf$all_pctile_data
+plotdata$year <- year(plotdata$Date)
+plot(plotdata$smb_adult ~ plotdata$year)
+
+plot(plotdata$smb_adult ~ plotdata$year)
+boxplot(plotdata$smb_adult ~ plotdata$year)
+
