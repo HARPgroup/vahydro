@@ -282,18 +282,22 @@ abline(lm_aso)
 lf_alt_usgs <- sqldf(
   "
     select a.year, a.mon, a.Date, a.X_00060_00003 as flow_obs, 
-    b.X_00060_00003 as flow_baseline
+    b.X_00060_00003 as flow_baseline,
+    (b.X_00060_00003 - a.X_00060_00003)/1.547 as wd_mgd
     from lf_usgs as a
     left outer join lf_usgs_adj as b 
     on (
       a.Date = b.Date
     )
+    where a.X_00060_00003 is not null
+    and b.X_00060_00003 is not null
     order by a.Date
   "
 )
 lf_aso_alt_usgs <- sqldf(
   "
     select year, avg(flow_obs) as flow_obs,
+      median(flow_obs) as flow_med,
       avg(flow_baseline) as flow_baseline
       from lf_alt_usgs
       where mon in (8, 9, 10)
@@ -306,11 +310,30 @@ lm_uaso_all <- lm(lf_aso_alt_usgs$flow_obs ~ index(lf_aso_alt_usgs))
 barplot(
   flow_obs ~ year, data=lf_aso_alt_usgs,
   col=c("blue"),
-  main="Aug-Sep Flow, 1895-2022",
+  main="Aug-Oct Flow, 1895-2022",
   beside=TRUE,
   ylim=c(0,25000)
 )
 abline(lm_uaso_all)
+quantile(lf_aso_alt_usgs$flow_obs,probs=c(0,0.1,0.25, 0.5, 0.75, 0.9, 1.0))
+coeff = lm_uaso_all$coefficients
+eq = paste0("y = ", round(coeff[2],1), "*x + ", round(coeff[1],1))
+text(80, 20000, eq)
+
+lm_uaso_med_all <- lm(lf_aso_alt_usgs$flow_med ~ index(lf_aso_alt_usgs))
+barplot(
+  flow_med ~ year, data=lf_aso_alt_usgs,
+  col=c("blue"),
+  main="Median Aug-Oct Flow, 1895-2022",
+  beside=TRUE,
+  ylim=c(0,25000)
+)
+quantile(lf_aso_alt_usgs$flow_med,probs=c(0,0.1,0.25, 0.5, 0.75, 0.9, 1.0))
+abline(lm_uaso_med_all)
+coeff = lm_uaso_med_all$coefficients
+eq = paste0("y = ", round(coeff[2],1), "*x + ", round(coeff[1],1))
+text(80, 20000, eq)
+
 lf_aso_alt_usgs_1997 <- sqldf(
   "
    select * from lf_aso_alt_usgs where year >= 1997"
@@ -319,13 +342,25 @@ lm_uaso_1997 <- lm(lf_aso_alt_usgs_1997$flow_obs ~ index(lf_aso_alt_usgs_1997))
 barplot(
   flow_obs ~ year, data=lf_aso_alt_usgs_1997,
   col=c("blue"),
-  main="Aug-Sep Flow, 1997-2022",
+  main="Aug-Sep Mean Flow, 1997-2022",
   beside=TRUE,
+  xlab="Year",
   ylim=c(0,25000)
 )
 abline(lm_uaso_1997)
 
-# percent change in l30
+lm_uaso_1997med <- lm(lf_aso_alt_usgs_1997$flow_med ~ index(lf_aso_alt_usgs_1997))
+barplot(
+  flow_med ~ year, data=lf_aso_alt_usgs_1997,
+  col=c("blue"),
+  main="Aug-Sep Median Flow, 1997-2022",,
+  xlab="Year",
+  beside=TRUE,
+  ylim=c(0,25000)
+)
+abline(lm_uaso_1997med)
+
+# percent change in l30 in MGD
 lfaz = zoo(lf_alt_usgs$flow_obs/1.547, order.by = as.Date(lf_alt_usgs$Date))
 lfbz = zoo(lf_alt_usgs$flow_baseline/1.547, order.by = as.Date(lf_alt_usgs$Date))
 
@@ -334,69 +369,120 @@ names(lfa_lf) <- c('year', 'lf30')
 lfb_lf = group2(lfbz, "calendar")[,c('year', '30 Day Min')]
 names(lfb_lf) <- c('year', 'lf30')
 
+
+
 lfb <- sqldf(
-  "select a.year, a.lf30, b.lf30
+  "select a.year, a.lf30, b.lf30, 
+  (b.lf30 - a.lf30)/1.547 as wd_mgd 
    from lfa_lf as a
    left outer join lfb_lf as b
    on (a.year = b.year)
    where b.year is not null
    and b.lf30 is not null
    and a.lf30 is not null
+   and a.lf30 > 0.0 and b.lf30 > 0.0
    order by a.year
   "
 )
-colnames(lfb) <- c('Year', 'PostWD', 'Baseline')
+colnames(lfb) <- c('Year', 'PostWD', 'Baseline', 'wd_mgd')
+
+quantile(lfb$PostWD, probs=c(0,0.1,0.25, 0.5, 0.75, 0.9, 1.0))
 
 lfb$pct_chg <- (lfb$PostWD - lfb$Baseline) / lfb$Baseline
-lfb$pct_decrease <- -1.0 * (lfb$PostWD - lfb$Baseline) / lfb$Baseline
+lfb$pct_decrease <- -100.0 * (lfb$PostWD - lfb$Baseline) / lfb$Baseline
+# clean up
+lfb <- sqldf("select * from lfb where pct_chg <=0")
+
 lm_lfb <- lm(lfb$pct_decrease ~ index(lfb))
 summary(lm_lfb)
 barplot( 
   lfb$pct_decrease ~ lfb$Year,
   col=c("tan"),
-  main="% Reduction in 30 Day Low Flow due to Demand",
-  beside=TRUE
+  main="% Reduction in 30 Day Low Flow due to Demand (1930-present)",
+  beside=TRUE,
+  ylab="% Decrease in Flow due to Withdrawal",
+  xlab="Year"
 )
 abline(lm_lfb)
+abline(h = 20, col="blue", lty=2)
+abline(h = 40, col="red", lty=2)
+legend(
+  "topright", 
+  c('Flow Decrease', 'Trend Line', '20% line', '40% line'),
+  fill=c('tan', 'black', 'blue','red')
+)
 
 lfb_1997 <- sqldf(
-  "select a.year, a.lf30, b.lf30
-   from lfa_lf as a
-   left outer join lfb_lf as b
-   on (a.year = b.year)
-   where b.year is not null
-   and b.lf30 is not null
-   and a.lf30 is not null
-   and a.year >= 1984
-   order by a.year
+  "select * from lfb where year >= 1997
+   order by year
   "
 )
-colnames(lfb_1997) <- c('Year', 'PostWD', 'Baseline')
 
-lfb_1997$pct_chg <- (lfb_1997$PostWD - lfb_1997$Baseline) / lfb_1997$Baseline
-lfb_1997$pct_decrease <- -1.0 * (lfb_1997$PostWD - lfb_1997$Baseline) / lfb_1997$Baseline
+# plot historical l30 baseline from USGS
+lm_lfb_lf <- lm(lfb_1997$Baseline ~ index(lfb_1997$Baseline))
+barplot(
+  Baseline ~ Year, data=lfb_1997,
+  col=c("blue"),
+  main="USGS Baseline Flow, 1997-2022",
+  beside=TRUE,
+  ylim=c(0,10000)
+)
+abline(lm_lfb_lf)
+coeff = lm_lfb_lf$coefficients
+eq = paste0("y = ", round(coeff[2],1), "*x + ", round(coeff[1],1))
+#text(80, 8000, eq)
+print(eq) # slope is the key here 
+
+
+
 lm_lfb_1997 <- lm(lfb_1997$pct_decrease ~ index(lfb_1997))
 summary(lm_lfb_1997)
 barplot( 
   lfb_1997$pct_decrease ~ lfb_1997$Year,
   col=c("tan"),
-  main="% Reduction in 30 Day Low Flow due to Demand",
-  beside=TRUE
+  main="% Reduction in 30 Day Low Flow due to Demand (1997-present)",
+  beside=TRUE,
+  ylab="% Decrease in Flow due to Withdrawal",
+  xlab="Year"
 )
 abline(lm_lfb_1997)
+abline(h = 20, col="blue", lty=2)
+abline(h = 40, col="red", lty=2)
+legend(
+  "topright", 
+  c('Flow Decrease', 'Trend Line', '20% line', '40% line'),
+  fill=c('tan', 'black', 'blue','red')
+)
 
 
 
+lfb_1985 <- sqldf(
+  "select * from lfb where year >= 1985
+   order by year
+  "
+)
+lm_lfb_1985 <- lm(lfb_1985$pct_decrease ~ index(lfb_1985))
+lm_wd_1985 <- lm(lfb_1985$wd_mgd ~ index(lfb_1985))
 
-bp <- barplot(
-  cbind(Baseline, PostWD) ~ Year, data=lfb,
-  col=c("blue", "black"),
-  main="Pre-Withdrawal vs. Post-Withdrawal 30 Day Low Flow, 1997-2010",
+summary(lm_lfb_1985)
+summary(lm_wd_1985)
+barplot( 
+  lfb_1985$pct_decrease ~ lfb_1985$Year,
+  col=c("tan"),
+  main="% Reduction in 30 Day Low Flow due to Demand (1985-present)",
   beside=TRUE,
-  ylim=c(0,4000)
+  ylab="% Decrease in Flow due to Withdrawal"
+)
+abline(lm_lfb_1985)
+
+
+barplot(
+  wd_mgd ~ Year, data=lfb_1985,
+  col=c("green"),
+  main="Pre-Withdrawal vs. Post-Withdrawal 30 Day Low Flow, 1997-2010",
+  beside=TRUE
 )
 #text(bp, 4500, round(100*lfb$pct_chg),cex=1,pos=3) 
 #text(bp, 4500, round(100*lfb$pct_chg)) 
 
-bp
 quantile(lfb$pct_chg)
