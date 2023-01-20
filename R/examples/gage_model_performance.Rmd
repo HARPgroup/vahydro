@@ -1,0 +1,155 @@
+---
+date: "`r format(Sys.time(), '%m/%d/%Y')`"
+author: ""
+title: "`r params$doc_title`"
+output: 
+  officedown::rdocx_document:
+    mapstyles:
+      Normal: ['First Paragraph']
+    page_margins:
+      bottom: 0.5
+      top: 0.5
+      right: 1
+      left: 0.5
+      header: 0.0
+      footer: 0.0
+params: 
+  doc_title: "USGS Gage vs VAHydro Model"
+  elid: 251491
+  runid: 616
+  gageid: '02054530'
+---
+
+```{r setup, include=FALSE}
+library("dataRetrieval")
+library("zoo")
+library("hydrotools")
+
+basepath='/var/www/R'
+source('/var/www/R/config.R')
+
+elid <- params$elid
+runid <- params$runid
+gageid <- params$gageid
+```
+
+
+```{r getdata, include=FALSE}
+model_flows <- om_get_rundata(elid, runid, site=omsite)
+model_flows <- zoo(as.numeric(as.character( model_flows$Qout )), order.by = index(model_flows) );
+mstart <- as.Date(min(index(model_flows)))
+mend <- as.Date(max(index(model_flows)))
+
+historic <- dataRetrieval::readNWISdv(gageid,'00060')
+gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
+gage_flows <- window(gage_flows, start = mstart, end = mend)
+gstart <- as.Date(min(index(gage_flows)))
+gend <- as.Date(max(index(gage_flows)))
+model_flows <- window(model_flows, start = gstart, end = gend)
+
+# compare means
+# mean(model_flows)
+# mean(gage_flows)
+
+# do IHA
+model_loflows <- IHA::group2(model_flows)
+gage_loflows <- IHA::group2(gage_flows)
+
+title_param <- paste0("\nrunid #",runid)
+```
+\newpage
+
+# L90 Plot:
+```{r l90-plot, fig.width=7, fig.height=5, dev='png', echo=FALSE}
+model_l90 <- model_loflows["90 Day Min"]
+gage_l90 <- gage_loflows["90 Day Min"]
+
+cmp_l90 <- cbind(gage_loflows$year, gage_l90, model_l90)
+names(cmp_l90) <- c("Year", "USGS", "Model")
+
+#set ymax to largest value in the 2 data sets, in order to generate plots with consistent axis limits
+ymax_val <- max(c(cmp_l90$USGS,cmp_l90$Model))
+
+barplot(
+  cbind(USGS, Model) ~ Year, data=cmp_l90,
+  col=c("blue", "black"),
+  main=paste("USGS vs VAHydro, 90 Day Low Flow ",title_param,sep=""),
+  beside=TRUE,
+  ylab = "Streamflow (cfs)",
+  ylim = c(0,ymax_val),
+  cex.main=1,
+  cex.axis=0.9,
+  cex.lab=1,
+  cex.names=0.7
+)
+legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+```
+
+# L30 Plot:
+```{r l30-plot, fig.width=7, fig.height=5, dev='png', echo=FALSE}
+model_l30 <- model_loflows["30 Day Min"]
+gage_l30 <- gage_loflows["30 Day Min"]
+
+cmp_l30 <- cbind(gage_loflows$year, gage_l30, model_l30)
+names(cmp_l30) <- c("Year", "USGS", "Model")
+
+barplot(
+  cbind(USGS, Model) ~ Year, data=cmp_l30,
+  col=c("blue", "black"),
+  main=paste("USGS vs VAHydro, 30 Day Low Flow ",title_param,sep=""),
+  beside=TRUE,
+  ylab = "Streamflow (cfs)",
+  ylim = c(0,ymax_val),
+  cex.main=1,
+  cex.axis=0.9,
+  cex.lab=1,
+  cex.names=0.7
+)
+legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+```
+
+# L7 Plot:
+```{r l7-plot, fig.width=7, fig.height=5, dev='png', echo=FALSE}
+model_l7 <- model_loflows["7 Day Min"]
+gage_l7 <- gage_loflows["7 Day Min"]
+
+cmp_l7 <- cbind(gage_loflows$year, gage_l7, model_l7)
+names(cmp_l7) <- c("Year", "USGS", "Model")
+
+barplot(
+  cbind(USGS, Model) ~ Year, data=cmp_l7,
+  col=c("blue", "black"),
+  main=paste("USGS vs VAHydro, 7 Day Low Flow ",title_param,sep=""),
+  beside=TRUE,
+  ylab = "Streamflow (cfs)",
+  ylim = c(0,ymax_val),
+  cex.main=1,
+  cex.axis=0.9,
+  cex.lab=1,
+  cex.names=0.7
+)
+legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+```
+
+# L1 Plot:
+```{r l1-plot, fig.width=7, fig.height=5, dev='png', echo=FALSE}
+model_l1 <- model_loflows["1 Day Min"]
+gage_l1 <- gage_loflows["1 Day Min"]
+
+cmp_l1 <- cbind(gage_loflows$year, gage_l1, model_l1)
+names(cmp_l1) <- c("Year", "USGS", "Model")
+
+barplot(
+  cbind(USGS, Model) ~ Year, data=cmp_l1,
+  col=c("blue", "black"),
+  main=paste("USGS vs VAHydro, 1 Day Low Flow ",title_param,sep=""),
+  beside=TRUE,
+  ylab = "Streamflow (cfs)",
+  ylim = c(0,ymax_val),
+  cex.main=1,
+  cex.axis=0.9,
+  cex.lab=1,
+  cex.names=0.7
+)
+legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+```
