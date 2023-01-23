@@ -82,6 +82,9 @@ model_l1 <- model_loflows["1 Day Min"]
 gage_l1 <- gage_loflows["1 Day Min"]
 cmp_l1 <- cbind(gage_loflows$year, gage_l1, model_l1)
 names(cmp_l1) <- c("Year", "USGS", "Model")
+
+# turn off scientific notation (makes plot legends look nicer)
+options(scipen=999)
 ```
 
 # Appendix X - Model Calibration Plots:
@@ -178,10 +181,13 @@ abline(lm90,lwd=2,col="blue")
 abline(0,1,col="black")
 title(ylab="VAHydro 90 Day Low Flow", line=2, cex.lab=0.8)
 title(xlab="USGS 90 Day Low Flow", line=2.25, cex.lab=0.8)
+legend("topleft",legend=paste("R2: ", format(summary(lm90)$r.squared,digits=3),"\n",
+                              "p: ", format(summary(lm90)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
 
 # L90 Error Scatterplot
 l90_err <- (model_l90$`90 Day Min` - gage_l90$`90 Day Min`)
 l90_err_pct <- 100.0 * (model_l90$`90 Day Min` - gage_l90$`90 Day Min`) / gage_l90$`90 Day Min`
+lm90_err <- lm(l90_err ~ gage_loflows$year)
 
 plot(l90_err ~ gage_loflows$year,
      cex = 0.8,
@@ -193,10 +199,12 @@ plot(l90_err ~ gage_loflows$year,
      xlab = "",
      ylab = ""
      )
-abline(reg=lm(l90_err ~ gage_loflows$year),lwd=2,col="blue")
+abline(reg=lm90_err,lwd=2,col="blue")
 abline(0,0,col="black")
 title(ylab="90 Day Low Flow Error", line=2, cex.lab=0.8)
 title(xlab="Year", line=2.25, cex.lab=0.8)
+legend("topleft",legend=paste("R2: ", format(summary(lm90_err)$r.squared,digits=3),"\n",
+                              "p: ", format(summary(lm90_err)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
 ```
 
 ```{r l30-errorplots, fig.width=8, fig.height=4.5, dev='png', echo=FALSE}
@@ -220,10 +228,13 @@ abline(lm30,lwd=2,col="blue")
 abline(0,1,col="black")
 title(ylab="VAHydro 30 Day Low Flow", line=2, cex.lab=0.8)
 title(xlab="USGS 30 Day Low Flow", line=2.25, cex.lab=0.8)
+legend("topleft",legend=paste("R2: ", format(summary(lm30)$r.squared,digits=3),"\n",
+                              "p: ", format(summary(lm30)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
 
 # l30 Error Scatterplot
 l30_err <- (model_l30$`30 Day Min` - gage_l30$`30 Day Min`)
 l30_err_pct <- 100.0 * (model_l30$`30 Day Min` - gage_l30$`30 Day Min`) / gage_l30$`30 Day Min`
+lm30_err <- lm(l30_err ~ gage_loflows$year)
 
 plot(l30_err ~ gage_loflows$year,
      cex = 0.8,
@@ -235,10 +246,12 @@ plot(l30_err ~ gage_loflows$year,
      xlab = "",
      ylab = ""
      )
-abline(reg=lm(l30_err ~ gage_loflows$year),lwd=2,col="blue")
+abline(reg=lm30_err,lwd=2,col="blue")
 abline(0,0,col="black")
 title(ylab="30 Day Low Flow Error", line=2, cex.lab=0.8)
 title(xlab="Year", line=2.25, cex.lab=0.8)
+legend("topleft",legend=paste("R2: ", format(summary(lm30_err)$r.squared,digits=3),"\n",
+                              "p: ", format(summary(lm30_err)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
 ```
 
 ```{r l7-errorplots, fig.width=8, fig.height=4.5, dev='png', echo=FALSE}
@@ -262,10 +275,13 @@ abline(lm7,lwd=2,col="blue")
 abline(0,1,col="black")
 title(ylab="VAHydro 7 Day Low Flow", line=2, cex.lab=0.8)
 title(xlab="USGS 7 Day Low Flow", line=2.25, cex.lab=0.8)
+legend("topleft",legend=paste("R2: ", format(summary(lm7)$r.squared,digits=3),"\n",
+                              "p: ", format(summary(lm7)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
 
 # l7 Error Scatterplot
 l7_err <- (model_l7$`7 Day Min` - gage_l7$`7 Day Min`)
 l7_err_pct <- 100.0 * (model_l7$`7 Day Min` - gage_l7$`7 Day Min`) / gage_l7$`7 Day Min`
+lm7_err <- lm(l7_err ~ gage_loflows$year)
 
 plot(l7_err ~ gage_loflows$year,
      cex = 0.8,
@@ -277,10 +293,12 @@ plot(l7_err ~ gage_loflows$year,
      xlab = "",
      ylab = ""
      )
-abline(reg=lm(l7_err ~ gage_loflows$year),lwd=2,col="blue")
+abline(reg=lm7_err,lwd=2,col="blue")
 abline(0,0,col="black")
 title(ylab="7 Day Low Flow Error", line=2, cex.lab=0.8)
 title(xlab="Year", line=2.25, cex.lab=0.8)
+legend("topleft",legend=paste("R2: ", format(summary(lm7_err)$r.squared,digits=3),"\n",
+                              "p: ", format(summary(lm7_err)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
 ```
 
 ```{r l1-errorplots, fig.width=8, fig.height=4.5, dev='png', echo=FALSE}
@@ -304,10 +322,13 @@ abline(lm1,lwd=2,col="blue")
 abline(0,1,col="black")
 title(ylab="VAHydro 1 Day Low Flow", line=2, cex.lab=0.8)
 title(xlab="USGS 1 Day Low Flow", line=2.25, cex.lab=0.8)
+legend("topleft",legend=paste("R2: ", format(summary(lm1)$r.squared,digits=3),"\n",
+                              "p: ", format(summary(lm1)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
 
 # l1 Error Scatterplot
 l1_err <- (model_l1$`1 Day Min` - gage_l1$`1 Day Min`)
 l1_err_pct <- 100.0 * (model_l1$`1 Day Min` - gage_l1$`1 Day Min`) / gage_l1$`1 Day Min`
+lm1_err <- lm(l1_err ~ gage_loflows$year)
 
 plot(l1_err ~ gage_loflows$year,
      cex = 0.8,
@@ -319,8 +340,10 @@ plot(l1_err ~ gage_loflows$year,
      xlab = "",
      ylab = ""
      )
-abline(reg=lm(l1_err ~ gage_loflows$year),lwd=2,col="blue")
+abline(reg=lm1_err,lwd=2,col="blue")
 abline(0,0,col="black")
 title(ylab="1 Day Low Flow Error", line=2, cex.lab=0.8)
 title(xlab="Year", line=2.25, cex.lab=0.8)
+legend("topleft",legend=paste("R2: ", format(summary(lm1_err)$r.squared,digits=3),"\n",
+                              "p: ", format(summary(lm1_err)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
 ```
