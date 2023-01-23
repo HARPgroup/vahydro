@@ -56,6 +56,32 @@ model_loflows <- IHA::group2(model_flows)
 gage_loflows <- IHA::group2(gage_flows)
 
 title_param <- paste0("\nrunid #",runid)
+
+#l90 data ####################################################### 
+model_l90 <- model_loflows["90 Day Min"]
+gage_l90 <- gage_loflows["90 Day Min"]
+cmp_l90 <- cbind(gage_loflows$year, gage_l90, model_l90)
+names(cmp_l90) <- c("Year", "USGS", "Model")
+#set ymax to largest value in the 2 data sets, in order to generate plots with consistent axis limits
+ymax_val <- max(c(cmp_l90$USGS,cmp_l90$Model))
+
+#l30 data ####################################################### 
+model_l30 <- model_loflows["30 Day Min"]
+gage_l30 <- gage_loflows["30 Day Min"]
+cmp_l30 <- cbind(gage_loflows$year, gage_l30, model_l30)
+names(cmp_l30) <- c("Year", "USGS", "Model")
+
+#l7 data ######################################################## 
+model_l7 <- model_loflows["7 Day Min"]
+gage_l7 <- gage_loflows["7 Day Min"]
+cmp_l7 <- cbind(gage_loflows$year, gage_l7, model_l7)
+names(cmp_l7) <- c("Year", "USGS", "Model")
+
+#l1 data ######################################################## 
+model_l1 <- model_loflows["1 Day Min"]
+gage_l1 <- gage_loflows["1 Day Min"]
+cmp_l1 <- cbind(gage_loflows$year, gage_l1, model_l1)
+names(cmp_l1) <- c("Year", "USGS", "Model")
 ```
 
 # Appendix X - Model Calibration Plots:
@@ -63,15 +89,6 @@ title_param <- paste0("\nrunid #",runid)
 
 ## L90 Model Performance Bar Plot:
 ```{r l90-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
-model_l90 <- model_loflows["90 Day Min"]
-gage_l90 <- gage_loflows["90 Day Min"]
-
-cmp_l90 <- cbind(gage_loflows$year, gage_l90, model_l90)
-names(cmp_l90) <- c("Year", "USGS", "Model")
-
-#set ymax to largest value in the 2 data sets, in order to generate plots with consistent axis limits
-ymax_val <- max(c(cmp_l90$USGS,cmp_l90$Model))
-
 barplot(
   cbind(USGS, Model) ~ Year, data=cmp_l90,
   col=c("blue", "black"),
@@ -89,12 +106,6 @@ legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
 
 ## L30 Model Performance Bar Plot:
 ```{r l30-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
-model_l30 <- model_loflows["30 Day Min"]
-gage_l30 <- gage_loflows["30 Day Min"]
-
-cmp_l30 <- cbind(gage_loflows$year, gage_l30, model_l30)
-names(cmp_l30) <- c("Year", "USGS", "Model")
-
 barplot(
   cbind(USGS, Model) ~ Year, data=cmp_l30,
   col=c("blue", "black"),
@@ -112,12 +123,6 @@ legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
 
 ## L7 Model Performance Bar Plot:
 ```{r l7-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
-model_l7 <- model_loflows["7 Day Min"]
-gage_l7 <- gage_loflows["7 Day Min"]
-
-cmp_l7 <- cbind(gage_loflows$year, gage_l7, model_l7)
-names(cmp_l7) <- c("Year", "USGS", "Model")
-
 barplot(
   cbind(USGS, Model) ~ Year, data=cmp_l7,
   col=c("blue", "black"),
@@ -135,12 +140,6 @@ legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
 
 ## L1 Model Performance Bar Plot:
 ```{r l1-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
-model_l1 <- model_loflows["1 Day Min"]
-gage_l1 <- gage_loflows["1 Day Min"]
-
-cmp_l1 <- cbind(gage_loflows$year, gage_l1, model_l1)
-names(cmp_l1) <- c("Year", "USGS", "Model")
-
 barplot(
   cbind(USGS, Model) ~ Year, data=cmp_l1,
   col=c("blue", "black"),
@@ -181,7 +180,6 @@ title(ylab="VAHydro 90 Day Low Flow", line=2, cex.lab=0.8)
 title(xlab="USGS 90 Day Low Flow", line=2.25, cex.lab=0.8)
 
 # L90 Error Scatterplot
-# lm90 <- lm(model_l90$`90 Day Min` ~ gage_l90$`90 Day Min`)
 l90_err <- (model_l90$`90 Day Min` - gage_l90$`90 Day Min`)
 l90_err_pct <- 100.0 * (model_l90$`90 Day Min` - gage_l90$`90 Day Min`) / gage_l90$`90 Day Min`
 
