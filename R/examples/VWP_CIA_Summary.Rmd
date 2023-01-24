@@ -233,12 +233,13 @@ cat(paste(fac_report_info$project_intro$value,"\n\n"))
 ## Location Map
 
 ```{r GrabLocationMap, include=FALSE, echo=FALSE}
-fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
+fig_prop <- find_name(fac_model_info,"fig.location_map")
+#fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
 ```
 
 ```{r LocationMap, echo=FALSE, results = "asis"}
 
-if (!is.logical(fig_prop)) {
+if (!is.null(fig_prop)) {
   map_path <- fig_prop$propcode
   cat(paste0("![](",map_path,")"),"\n")
 } else {
