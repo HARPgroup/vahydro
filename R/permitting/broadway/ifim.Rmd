@@ -1,0 +1,114 @@
+---
+  date: "`r format(Sys.time(), '%m/%d/%Y')`"
+author: ""
+title: "`r params$doc_title`"
+output: 
+  officedown::rdocx_document:
+  mapstyles:
+  Normal: ['First Paragraph']
+page_margins:
+  bottom: 0.5
+top: 0.5
+right: 1
+left: 0.5
+header: 0.0
+footer: 0.0
+params: 
+  doc_title: "IFIM Modeled Habitat Impacts"
+ifim_model_hydroid: 68327 # Ex: Crooked Run = 476998, SF Powell below BSG = 477140, SF Powell at dam: 462757
+ifim_model_wua_name: "wua"
+flow_varname: "Qout"
+preferred_runid: "runid_600"
+ifim_da_sqmi: 331.6
+ifim_site_name: "Plains Mills"
+model_elid: 229937
+breakpt: 530 # from vahydro
+huc8: '02070006'
+
+---
+  
+```{r setup, include=FALSE}
+# Load plotting helper functions
+source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/hab_plot.R")
+source(paste("https://raw.githubusercontent.com/HARPgroup/r-dh-ecohydro",'master/Analysis/habitat','ifim_wua_change_plot.R',sep='/'))
+source(paste("https://raw.githubusercontent.com/HARPgroup/r-dh-ecohydro",'master/Analysis/habitat','hab_ts_functions.R',sep='/'))
+
+knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
+library(officedown)
+library(officer)
+library(flextable)
+library(hydrotools)
+library(rjson)
+
+#SPECIFY MODELS AND RUNIDS OF INTEREST
+
+ifim_model_hydroid = params$ifim_model_hydroid
+ifim_da_sqmi = params$ifim_da_sqmi
+ifim_site_name = params$ifim_site_name
+preferred_runid = params$preferred_runid
+model_elid = params$model_elid
+breakpt = params$breakpt # from vahydro
+huc8 = params$huc8
+
+################################################################################################
+# IFIM SITE Flow
+ifim_flow <- om_get_rundata(model_elid , preferred_runid, site = omsite)
+
+
+################################################################################################
+# RETRIEVE WUA TABLE
+ifim_dataframe <- vahydro_prop_matrix(ifim_model_hydroid, 'dh_feature','ifim_habitat_table')
+wua_gf <- t(ifim_dataframe)
+targets <- colnames(wua_gf)[-1]
+df_broad6 = as.data.frame(ifim_flow)
+df_broad6$Date <- as.Date(index(ifim_flow))
+curr_plot_100 <- pothab_plot(
+  wua_gf, df_broad6, "Qbaseline", flow_varname,
+  1.0, ifim_da_sqmi,
+  ifim_site_name, "Full Permit"
+)
+#curr_plot_100
+
+curr_plot_10 <- pothab_plot(
+  wua_gf, df_broad6, "Qbaseline", flow_varname,
+  0.1, ifim_da_sqmi,
+  ifim_site_name, "Full Permit"
+)
+
+
+curr_plot_05 <- pothab_plot(
+  wua_gf, df_broad6, "Qbaseline", flow_varname,
+  0.05, ifim_da_sqmi,
+  ifim_site_name, "Full Permit"
+)
+
+
+# what is richness loss estimate for different CU?
+watershed.df <- elfdata(watershed.code = huc8, ichthy.localpath = tempdir())
+elf <- elfgen("watershed.df" = watershed.df,
+              "quantile" = 0.95,
+              "breakpt" = breakpt,
+              "yaxis_thresh" = 53, 
+              "xlabel" = "Mean Annual Flow (ft3/s)",
+              "ylabel" = "Fish Species Richness")
+
+dR10 <- richness_change(elf$stats, "pctchg" = 10)
+# -0.3140797
+dR20 <- richness_change(elf$stats, "pctchg" = 20)
+# -0.6651909
+
+
+```
+
+\newpage
+# Project Introduction
+
+```{r IFIMAnalysis, echo=FALSE, results = "asis"}
+cat("__Estimated Richness Loss at Mean Flow Reduction__\n")
+cat(paste("- 10% Reduction: ",dR10,"\n\n"))
+cat(paste("- 20% Reduction: ",dR20,"\n\n"))
+
+cat(curr_plot_10)
+cat(curr_plot_05)
+
+```

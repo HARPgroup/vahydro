@@ -1,5 +1,6 @@
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
+library('knitr')
 
 elid = 258449 #Rappahannock River @ Fall Line RU5_6030_0001
 gage_number = '01668000' # RAPPAHANNOCK RIVER NEAR FREDERICKSBURG, VA
@@ -32,6 +33,12 @@ hdat = aggregate(
 gage_data <- gage_import_data_cfs(gage_number, startdate, enddate)
 gage_data <- as.zoo(gage_data, as.POSIXct(gage_data$date,tz="EST"))
 mode(gage_data) <- 'numeric'
+gage_data$month <- month(gage_data$date)
+om_flow_table(gage_data, 'flow')
+available_mgd <- gage_data
+available_mgd$available_mgd <- (available_mgd$flow * 0.05) / 1.547
+avail_table = om_flow_table(available_mgd, 'available_mgd')
+kable(avail_table, 'markdown')
 
 #limit to hourly model period
 hstart <- min(index(hdat))
