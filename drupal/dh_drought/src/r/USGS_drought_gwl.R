@@ -15,6 +15,7 @@ library(httr)
 library(lubridate) #required for year()
 #library(doBy) #required for summaryBy()
 library(sqldf)
+options(scipen = 100)
 
 push_to_rest <- TRUE
 
