@@ -42,3 +42,15 @@ rmarkdown::render(
     upstream_rseg_ids=c(68183, 68123, 68309) 
   )
 )
+
+# USGS gage analysis
+rmarkdown::render(
+  'C:/usr/local/home/git/vahydro/R/examples/gage_vs_model.Rmd',
+  output_file = '/usr/local/home/git/vahydro/R/permitting/rivanna/JL4_6520_6710_02034000.docx',
+  params = list(
+    doc_title = "USGS Gage vs VAHydro Model",
+    elid = 337730,
+    runid = 200,
+    gageid = '02034000'
+  )
+)
