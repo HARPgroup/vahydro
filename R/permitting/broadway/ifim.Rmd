@@ -1,5 +1,5 @@
 ---
-  date: "`r format(Sys.time(), '%m/%d/%Y')`"
+date: "`r format(Sys.time(), '%m/%d/%Y')`"
 author: ""
 title: "`r params$doc_title`"
 output: 
