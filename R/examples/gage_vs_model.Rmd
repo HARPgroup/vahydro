@@ -37,8 +37,8 @@ gageid <- params$gageid
 ```{r getdata, include=FALSE}
 model_flows <- om_get_rundata(elid, runid, site=omsite)
 model_flows <- zoo(as.numeric(as.character( model_flows$Qout )), order.by = index(model_flows) );
-mstart <- as.Date(min(index(model_flows)))
-mend <- as.Date(max(index(model_flows)))
+mstart <- zoo::as.Date(as.POSIXct(min(index(model_flows)),origin="1970-01-01"))
+mend <- zoo::as.Date(as.POSIXct(max(index(model_flows)),origin="1970-01-01"))
 
 historic <- dataRetrieval::readNWISdv(gageid,'00060')
 gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
