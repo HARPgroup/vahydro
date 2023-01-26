@@ -34,10 +34,10 @@ quantile(datr6$Qout, probs=c(0,0.01,0.1,0.25,0.5))
 
 rmarkdown::render(
   'C:/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', 
-  output_file = '/usr/local/home/git/vahydro/R/permitting/rivanna/lake_monticello_v04.docx', 
+  output_file = '/usr/local/home/git/vahydro/R/permitting/rivanna/lake_monticello_v05.docx', 
   params = list( 
     rseg.hydroid = 68137, fac.hydroid = 72634, 
-    runid.list = c("runid_200", "runid_400","runid_600","runid_6001"), 
+    runid.list = c("runid_400","runid_600"), 
     intake_stats_runid = 600,
     upstream_rseg_ids=c(68183, 68123, 68309) 
   )
