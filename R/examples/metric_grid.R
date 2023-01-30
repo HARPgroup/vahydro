@@ -37,7 +37,7 @@ df <- data.frame(
   'metric' = c('Qout', 'Qout'),
   'runlabel' = c('Qout_vahydro_11', 'Qout_hsp2')
 )
-wshed_data <- om_vahydro_metric_grid(metric, df)
+wshed_data <- om_vahydro_metric_grid(metric, df, ds = ds)
 
 wshed_data <- sqldf(
   "select a.*, b.da 
