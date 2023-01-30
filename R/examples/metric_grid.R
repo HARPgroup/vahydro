@@ -32,13 +32,16 @@ da_data <- sqldf(
 
 
 df <- data.frame(
-  'model_version' = c('vahydro-1.0',  'cbp-6.0'),
-  'runid' = c('runid_11', 'hsp2_2022'),
-  'metric' = c('Qout', 'Qout'),
-  'runlabel' = c('Qout_vahydro_11', 'Qout_hsp2')
+  'model_version' = c('vahydro-1.0',  'cbp-6.0',  'cbp-6.0'),
+  'runid' = c('runid_11', 'hsp2_2022', 'subsheds'),
+  'metric' = c('Qout', 'Qout', 'Qout'),
+  'runlabel' = c('Qout_vahydro_11', 'Qout_hsp2', 'Qout_subsheds')
 )
 wshed_data <- om_vahydro_metric_grid(metric, df, ds = ds)
 
+# note, this next step removes tidal segments, but it also fixes
+# a weird issue where some numeric columns are formatted as scientific notation and others are not
+# which sucks, so, run this even if you think you don't need it
 wshed_data <- sqldf(
   "select a.*, b.da 
    from wshed_data as a 
