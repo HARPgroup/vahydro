@@ -1,3 +1,6 @@
+library("knitr")
+library("kableExtra")
+
 basepath='/var/www/R';
 site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 #source("/var/www/R/config.local.private");
@@ -11,19 +14,6 @@ riverid = 67830
 rpid = 4713853
 fpid = 4829190
 relid = 229937
-
-# generate
-rmarkdown::render(
-  'C:/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd', 
-  output_file = '/usr/local/home/git/vahydro/R/permitting/broadway/te_broadway_v01.docx', 
-  params = list( 
-    rseg.hydroid = 67830, 
-    fac.hydroid = 74345, 
-    runid.list = c("runid_11", "runid_400","runid_600"), 
-    intake_stats_runid = 400,
-    upstream_rseg_ids=c(469965) 
-  )
-)
 
 rt_broad4 <- om_get_rundata(relid , 400, site = omsite)
 rt_broad6 <- om_get_rundata(relid , 600, site = omsite)
@@ -43,13 +33,34 @@ rt_broad6$cu_daily <- (
     rt_broad6$Qout + (rt_broad6$wd_cumulative_mgd - rt_broad6$ps_cumulative_mgd) * 1.547
   )
 )
-cu_r6 = om_flow_table(rt_broad6, 'cu_daily')
+cu_table = om_flow_table(rt_broad6, 'cu_daily')
 
-qcu_table = q_r6
-for (r in rownames(q_r6)) {
-  for (c in colnames(q_r6[r,])) {
-    qcu_table[r,c] <- paste0(q_r6[r,c], " (", cu_r6[r,c],"%)")
+q_table = om_flow_table(rt_broad6, 'Qout')
+qcu_table = q_table
+qcu_colors = matrix(nrow = nrow(q_table), ncol = ncol(q_table))
+rn = 0
+for (r in rownames(q_table)) {
+  rn = rn + 1
+  cn = 0
+  for (c in colnames(q_table[r,])) {
+    cn = cn + 1
+    qcu_colors[rn,cn] = "white"
+    if (cu_table[r,c] <= -10.0) {
+      qcu_colors[rn,cn] = "yellow"
+    } 
+    if (cu_table[r,c] <= -20.0) {
+      qcu_colors[rn,cn] = "orange"
+    } 
+    qcu_table[r,c] <- paste0( q_table[r,c], " (", cu_table[r,c],"%)")
   }
 }
-kable(qcu_table)
 
+fqcu_table <- flextable(qcu_table)
+fqcu_table <- bg(fqcu_table, bg="white")
+
+for (i in 1:nrow(qcu_colors)) {
+  for (j in 1:ncol(qcu_colors)) {
+    fqcu_table <- bg(fqcu_table, i, j, bg = qcu_colors[i,j])
+  }
+}
+fqcu_table

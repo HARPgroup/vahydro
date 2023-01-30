@@ -108,6 +108,11 @@ rseg.model <- RomProperty$new(
   list(entity_type='dh_feature', featureid = rseg.hydroid, propcode="vahydro-1.0"),
   TRUE
 )
+rseg_feature <- RomFeature$new(
+  ds,
+  list(hydroid = rseg.hydroid),
+  TRUE
+)
 
 #FAC MODEL INFO
 fac.model <- RomProperty$new(
@@ -431,6 +436,71 @@ for (i in 1:length(runid.list)){
 }
 ```
 
+
+```{r CUTable, echo=FALSE, include=FALSE}
+
+runid.i <- preferred_runid
+run.i <- sub("runid_", "", runid.i)
+run_info <- find_name(fac_model_info,runid.i)
+pr_data <- om_get_rundata(rseg.elid, run.i, omsite, FALSE)
+pr_data$Qbaseline <- pr_data$Qout + (pr_data$wd_cumulative_mgd - pr_data$ps_cumulative_mgd) * 1.547
+pr_data$cu_daily <- (
+  -100.0 * (pr_data$wd_cumulative_mgd - pr_data$ps_cumulative_mgd) * 1.547 
+  / (
+    pr_data$Qout + (pr_data$wd_cumulative_mgd - pr_data$ps_cumulative_mgd) * 1.547
+  )
+)
+cu_table = om_flow_table(pr_data, 'cu_daily')
+q_table = om_flow_table(pr_data, 'Qout')
+qcu_table = q_table
+qcu_colors = matrix(nrow = nrow(q_table), ncol = ncol(q_table))
+rn = 0
+for (r in rownames(q_table)) {
+  rn = rn + 1
+  cn = 0
+  for (c in colnames(q_table[r,])) {
+    cn = cn + 1
+    qcu_colors[rn,cn] = "white"
+    if (cu_table[r,c] <= -10.0) {
+      qcu_colors[rn,cn] = "yellow"
+    } 
+    if (cu_table[r,c] <= -20.0) {
+      qcu_colors[rn,cn] = "orange"
+    } 
+    qcu_table[r,c] <- paste0( q_table[r,c], " (", cu_table[r,c],"%)")
+  }
+}
+
+fqcu_table <- flextable(qcu_table)
+fqcu_table <- bg(fqcu_table, bg = "#EFEFEF", part = "header")
+
+for (i in 1:nrow(qcu_colors)) {
+  for (j in 1:ncol(qcu_colors)) {
+    fqcu_table <- bg(fqcu_table, i, j, bg = qcu_colors[i,j])
+  }
+}
+
+fqcu_caption <- paste(
+  "Modeled monthly consumptive use statistics in the ", 
+  rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the associated consumptive user percentage due to cumulative demands for the", 
+  run_info$reports$scenario_name$value, 
+  "scenario. Simulated demands include all up-stream demands as well as simulated demands at the", 
+  fac_feature$name, fac_report_info$intake_name$value, 
+  "intake ) and cumulative return flows.  "
+)
+fqcu_table <- set_caption(
+  fqcu_table,
+  caption = fqcu_caption,
+  autonum = NULL,
+  word_stylename = "Table Caption",
+  fp_p = NULL,
+  align_with_table = TRUE,
+  html_classes = NULL,
+  html_escape = TRUE
+)
+
+```
+
 ## Conclusion
 
 ```{r LoadConclusions, echo=FALSE, results = "asis"}
@@ -447,19 +517,22 @@ if (is.null(run_info$reports)) {
       paste0(
         "__",run_info$reports$scenario_name$value,"__"
       ),
-      "-",run_info$reports$conclusions$value,"\n")
+      "-",run_info$reports$conclusions$value,"\n", "\n\n\n")
     )
 }
 
+cat("\n\n\n")
+
+fqcu_table
+  
+cat("\n")
+demand_chart_caption <- paste("Facility Base Demand Before Conservation", run_info$reports$scenario_name$value)
 demand_url <- run_info$fig.monthly_demand$code
-if (!is.null(demand_url)) {
-    cat("\n\n## Facility Base Demand Before Conservation: ", run_info$reports$scenario_name$value,"\n\n")
-    cat(paste0("![](",demand_url,")"),"\n")
-    cat("\n\n\\pagebreak\n")
-} else {
-  #cat("NULL demand_url\n")
-  cat(" ")
+
+if (is.null(demand_url)) {
+  demand_url = " "
 }
+#cat(paste0("![](",demand_url,")"),"\n")
 
 ```
 
