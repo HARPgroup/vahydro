@@ -10,8 +10,8 @@ site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 #save_directory <-  "/var/www/html/data/proj3/out"
-# save_directory <- "C:/Users/nrf46657/Desktop/GitHub/vahydro/R/permitting/Salem WTP"
-save_directory <- "C:/Users/nrf46657/Desktop/VWP Modeling/City of Salem WTP/June2022/PLOTS"
+save_directory <- "C:/Users/nrf46657/Desktop/GitHub/vahydro/R/permitting/Salem WTP"
+# save_directory <- "C:/Users/nrf46657/Desktop/VWP Modeling/City of Salem WTP/June2022/PLOTS"
 library(hydrotools)
 # authenticate
 ds <- RomDataSource$new(site, rest_uname)
@@ -33,9 +33,9 @@ library(dplyr)
 
 pid <- 4827216 #Fac:Rseg model pid
 elid <- 306768 #Fac:Rseg model om_element_connection
-# runid <- 6011
-# runid <- 600
-runid <- 6001
+runid <- 217
+# runid <- 616
+
 
 #facdat <- om_get_rundata(elid, runid, site = omsite)
 
@@ -376,12 +376,16 @@ yrdatdf <- as.data.frame(yrdat)
 
 #ADD FINAL UNMET COLUMN
 #######################################################
-yrdatdf <- sqldf("select *,
-                  CASE WHEN (unmet_demand_mgd - (2.6 - gw_demand_mgd) < 1) THEN 0
-                	  ELSE unmet_demand_mgd - (2.6 - gw_demand_mgd)
-                  END AS final_unmet_demand_mgd
+# original method, corrected for anomalous low values
+# yrdatdf <- sqldf("select *,
+#                   CASE WHEN (unmet_demand_mgd - (2.6 - gw_demand_mgd) < 1) THEN 0
+#                 	  ELSE unmet_demand_mgd - (2.6 - gw_demand_mgd)
+#                   END AS final_unmet_demand_mgd
+#                   from yrdatdf")
+# #colnames(yrdatdf)
+
+yrdatdf <- sqldf("select *, unmet_demand_mgd - (2.6 - gw_demand_mgd) AS final_unmet_demand_mgd
                   from yrdatdf")
-#colnames(yrdatdf)
 #######################################################
 
 # FOR QA PURPOSES ONLY

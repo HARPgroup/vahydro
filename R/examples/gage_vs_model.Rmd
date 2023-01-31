@@ -16,7 +16,7 @@ output:
 params: 
   doc_title: "USGS Gage vs VAHydro Model"
   elid: 251491
-  runid: 616
+  runid: 217
   gageid: '02054530'
   summary_text: ''
 ---
@@ -25,6 +25,7 @@ params:
 library("dataRetrieval")
 library("zoo")
 library("hydrotools")
+library("flextable")
 
 basepath='/var/www/R'
 source('/var/www/R/config.R')
@@ -35,10 +36,11 @@ gageid <- params$gageid
 summary_text <- params$summary_text
 ```
 
-
 ```{r getdata, include=FALSE}
 model_flows <- om_get_rundata(elid, runid, site=omsite)
 model_flows <- zoo(as.numeric(as.character( model_flows$Qout )), order.by = index(model_flows) );
+# mstart <- as.Date(min(index(model_flows)))
+# mend <- as.Date(max(index(model_flows)))
 mstart <- zoo::as.Date(as.POSIXct(min(index(model_flows)),origin="1970-01-01"))
 mend <- zoo::as.Date(as.POSIXct(max(index(model_flows)),origin="1970-01-01"))
 
@@ -131,6 +133,10 @@ barplot(
   cex.names=0.7
 )
 legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+abline(h=min(cmp_l90$USGS), col="blue", lty = "dashed")
+abline(h=min(cmp_l90$Model), col="black", lty = "dashed")
+mtext(round(min(cmp_l90$USGS),1), side=2, line=0, las=1, at=min(cmp_l90$USGS), cex=0.6, col="blue")
+mtext(round(min(cmp_l90$Model),1), side=4, line=0, las=1, at=(min(cmp_l90$Model)), cex=0.6, col="black")
 ```
 
 ## L30 Model Performance Bar Plot:
@@ -148,6 +154,10 @@ barplot(
   cex.names=0.7
 )
 legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+abline(h=min(cmp_l30$USGS), col="blue", lty = "dashed")
+abline(h=min(cmp_l30$Model), col="black", lty = "dashed")
+mtext(round(min(cmp_l30$USGS),1), side=2, line=0, las=1, at=min(cmp_l30$USGS), cex=0.6, col="blue")
+mtext(round(min(cmp_l30$Model),1), side=4, line=0, las=1, at=(min(cmp_l30$Model)), cex=0.6, col="black")
 ```
 
 ## L7 Model Performance Bar Plot:
@@ -159,12 +169,16 @@ barplot(
   beside=TRUE,
   ylab = "Streamflow (cfs)",
   ylim = c(0,ymax_val),
-  cex.main=1,
+  cex.main=0.8,
   cex.axis=0.9,
   cex.lab=1,
   cex.names=0.7
 )
 legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+abline(h=min(cmp_l7$USGS), col="blue", lty = "dashed")
+abline(h=min(cmp_l7$Model), col="black", lty = "dashed")
+mtext(round(min(cmp_l7$USGS),1), side=2, line=0, las=1, at=min(cmp_l7$USGS), cex=0.6, col="blue")
+mtext(round(min(cmp_l7$Model),1), side=4, line=0, las=1, at=(min(cmp_l7$Model)), cex=0.6, col="black")
 ```
 
 ## L1 Model Performance Bar Plot:
@@ -176,12 +190,16 @@ barplot(
   beside=TRUE,
   ylab = "Streamflow (cfs)",
   ylim = c(0,ymax_val),
-  cex.main=1,
+  cex.main=0.8,
   cex.axis=0.9,
   cex.lab=1,
   cex.names=0.7
 )
 legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+abline(h=min(cmp_l1$USGS), col="blue", lty = "dashed")
+abline(h=min(cmp_l1$Model), col="black", lty = "dashed")
+mtext(round(min(cmp_l1$USGS),1), side=2, line=0, las=1, at=min(cmp_l1$USGS), cex=0.6, col="blue")
+mtext(round(min(cmp_l1$Model),1), side=4, line=0, las=1, at=(min(cmp_l1$Model)), cex=0.6, col="black")
 ```
 
 
@@ -372,4 +390,50 @@ title(ylab="1 Day Low Flow Error", line=2, cex.lab=0.8)
 title(xlab="Year", line=2.25, cex.lab=0.8)
 legend("topleft",legend=paste("R2: ", format(summary(lm1_err)$r.squared,digits=3),"\n",
                               "p: ", format(summary(lm1_err)$coefficients[2,4],digits=3),"\n",sep=""), cex=0.7)
+```
+
+\newpage
+
+## Metrics Table:
+```{r LoadMetricsTable, include=FALSE}
+######################
+model_l90_min = which.min(as.numeric(model_l90[,"90 Day Min"]))
+model_l90_Qout = round(model_loflows[model_l90_min,]$"90 Day Min",6)
+model_l90_year = model_loflows[model_l90_min,]$"year"
+gage_l90_min = which.min(as.numeric(gage_l90[,"90 Day Min"]))
+gage_l90_Qout = round(gage_loflows[gage_l90_min,]$"90 Day Min",6)
+gage_l90_year = gage_loflows[gage_l90_min,]$"year"
+######################
+model_l30_min = which.min(as.numeric(model_l30[,"30 Day Min"]))
+model_l30_Qout = round(model_loflows[model_l30_min,]$"30 Day Min",6)
+model_l30_year = model_loflows[model_l30_min,]$"year"
+gage_l30_min = which.min(as.numeric(gage_l30[,"30 Day Min"]))
+gage_l30_Qout = round(gage_loflows[gage_l30_min,]$"30 Day Min",6)
+gage_l30_year = gage_loflows[gage_l30_min,]$"year"
+######################
+model_l7_min = which.min(as.numeric(model_l7[,"7 Day Min"]))
+model_l7_Qout = round(model_loflows[model_l7_min,]$"7 Day Min",6)
+model_l7_year = model_loflows[model_l7_min,]$"year"
+gage_l7_min = which.min(as.numeric(gage_l7[,"7 Day Min"]))
+gage_l7_Qout = round(gage_loflows[gage_l7_min,]$"7 Day Min",6)
+gage_l7_year = gage_loflows[gage_l7_min,]$"year"
+######################
+model_l1_min = which.min(as.numeric(model_l1[,"1 Day Min"]))
+model_l1_Qout = round(model_loflows[model_l1_min,]$"1 Day Min",6)
+model_l1_year = model_loflows[model_l1_min,]$"year"
+gage_l1_min = which.min(as.numeric(gage_l1[,"1 Day Min"]))
+gage_l1_Qout = round(gage_loflows[gage_l1_min,]$"1 Day Min",6)
+gage_l1_year = gage_loflows[gage_l1_min,]$"year"
+
+metrics_table <- data.frame("stat"=character(),"gage"=double(),"gage_year"=character(),"model"=double(),"model_year"=character())
+metrics_table = rbind(metrics_table,c("l90",round(gage_l90_Qout,2),gage_l90_year,round(model_l90_Qout,2),model_l90_year))
+metrics_table = rbind(metrics_table,c("l30",round(gage_l30_Qout,2),gage_l30_year,round(model_l30_Qout,2),model_l30_year))
+metrics_table = rbind(metrics_table,c("l7",round(gage_l7_Qout,2),gage_l7_year,round(model_l7_Qout,2),model_l7_year))
+metrics_table = rbind(metrics_table,c("l1",round(gage_l1_Qout,2),gage_l1_year,round(model_l1_Qout,2),model_l1_year))
+colnames(metrics_table) <- c("stat","gage","gage_year","model","model_year")
+######################
+```
+
+```{r MetricsTable, echo=FALSE}
+qflextable(metrics_table)
 ```
