@@ -85,5 +85,5 @@ json_out[['HYDR']][['IVOL']] = list(
 
 
 jsonData <- toJSON(json_out)
-write(jsonData, paste0(export_path,"nhd_", nhd_out$comid, ".json"))
+write(jsonData, paste0(export_path,"nhd_simple_", nhd_out$comid, ".json"))
 
