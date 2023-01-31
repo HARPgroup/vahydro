@@ -63,6 +63,27 @@ for (i in 1:nrow(bc_network)) {
 json_out[['Qtrib']]['equation'] = Qtrib_eqn
 json_out[['area_sqmi']]['equation'] = paste("0.386102 * (",trib_area_eqn,")")
 
+json_out[['Qup']] = list(
+  name = 'Qup', 
+  object_class = 'Equation', 
+  equation='Qivol * (1.0 - (trib_area_sqmi / area_sqmi))'
+)
+json_out[['Qin']] = list(
+  name = 'Qin', 
+  object_class = 'Equation', 
+  equation='Qup + Qtrib'
+)
+json_out[['HYDR']] = list(
+  name = 'HYDR', 
+  object_class = 'ModelObject'
+)
+json_out[['HYDR']][['IVOL']] = list(
+  name = 'IVOL', 
+  object_class = 'ModelLinkage',
+  right_path = 'Qin'
+)
+
+
 jsonData <- toJSON(json_out)
 write(jsonData, paste0(export_path,"nhd_", nhd_out$comid, ".json"))
 
