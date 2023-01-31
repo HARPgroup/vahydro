@@ -61,7 +61,7 @@ for (i in 1:nrow(bc_network)) {
   trib_area_eqn = paste(trib_area_eqn, '+', A_name)
 }
 json_out[['Qtrib']]['equation'] = Qtrib_eqn
-json_out[['area_sqmi']]['equation'] = paste("0.386102 * (",trib_area_eqn,")")
+json_out[['trib_area_sqmi']]['equation'] = paste("0.386102 * (",trib_area_eqn,")")
 
 json_out[['Qup']] = list(
   name = 'Qup', 
@@ -85,5 +85,5 @@ json_out[['HYDR']][['IVOL']] = list(
 
 
 jsonData <- toJSON(json_out)
-write(jsonData, paste0(export_path,"nhd_simple_", nhd_out$comid, ".json"))
+write(jsonData, paste0("C:/usr/local/home/git/vahydro/R/modeling/nhd/nhd_simple_", nhd_out$comid, ".json"))
 
