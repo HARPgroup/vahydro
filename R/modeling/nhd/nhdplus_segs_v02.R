@@ -30,14 +30,29 @@ bc_network[,c('comid', 'gnis_name','fromnode', 'tonode', 'totdasqkm', 'areasqkm'
 
 # render as simple set of equations
 json_out = list()
-json_out[['trib_area_sqmi']] = list(name='trib_area_sqmi', object_class = 'Equation', equation='0')
-json_out[['area_sqkm']] = nhd_out$totdasqkm
-json_out[['area_sqmi']] = list(name = 'area_sqmi', object_class = 'Equation', equation="areasqkm * 0.386102")
-# create equation holder for local trib inflow
-json_out[['Qtrib']] = list(name = 'Qtrib', object_class = 'Equation', equation='0')
-# make a short name copy of this for clarity
-Qtrib_eqn = json_out[['Qtrib']]['equation']
-trib_area_eqn = json_out[['trib_area_sqmi']]['equation']
+json_out[['RCHRES_R001']] = list(name='RCHRES_R001', object_class = 'ModelObject', equation='0')
+json_rchres = json_out[['RCHRES_R001']]
+json_rchres[['area_sqkm']] = list(name = 'area_sqkm', object_class = 'Constant', value=nhd_out$areasqkm)
+json_rchres[['area_sqmi']] = list(name = 'area_sqmi', object_class = 'Equation', equation="area_sqkm * 0.386102")
+json_rchres[['drainage_area_sqkm']] = list(name = 'drainage_area_sqkm', object_class = 'Constant', value=nhd_out$totdasqkm)
+json_rchres[['drainage_area_sqmi']] = list(name = 'drainage_area_sqmi', object_class = 'Equation', equation="drainage_area_sqkm * 0.386102")
+# inflow and unit area
+json_rchres[['IVOLin']] = list(
+  name = 'IVOLin', 
+  object_class = 'ModelLinkage',
+  right_path = '/STATE/RCHRES_R001/HYDR/IVOL',
+  link_type = 2
+)
+# this is a fudge, only valid for headwater segments
+# till we get DSN 10 in place
+json_rchres[['Runit']] = list(
+  name = 'Runit', 
+  object_class = 'Equation', 
+  equation='IVOLin / drainage_area_sqmi'
+)
+# create equation holder for local trib inflow equations
+trib_area_eqn = ''
+Qtrib_eqn = ''
 for (i in 1:nrow(bc_network)) {
   bc_trib = bc_network[i,]
   
@@ -56,33 +71,45 @@ for (i in 1:nrow(bc_network)) {
     object_class = 'Equation', 
     equation=paste(bc_trib$areasqkm,' * 1.0')
   )
-  
+  if (i == 1) {
+    Qtrib_eqn = Q_name
+    trib_area_eqn = A_name
+  } else {
+    Qtrib_eqn = paste(Qtrib_eqn, '+', Q_name)
+    trib_area_eqn = paste(trib_area_eqn, '+', A_name)
+  }
   Qtrib_eqn = paste(Qtrib_eqn, '+', Q_name)
   trib_area_eqn = paste(trib_area_eqn, '+', A_name)
+  json_rchres[[Q_name]] = thisQeqn
+  json_rchres[[A_name]] = thisAeqn
 }
-json_out[['Qtrib']]['equation'] = Qtrib_eqn
-json_out[['trib_area_sqmi']]['equation'] = paste("0.386102 * (",trib_area_eqn,")")
-
-json_out[['Qup']] = list(
+# Now add trib area and inflow equations (so execution order will)
+json_rchres[['Qtrib']] = list(name = 'Qtrib', object_class = 'Equation', equation=Qtrib_eqn)
+json_rchres[['trib_area_sqmi']] = list(
+  name='trib_area_sqmi', 
+  object_class = 'Equation', 
+  equation=paste("0.386102 * (",trib_area_eqn,")")
+)
+json_rchres[['Qup']] = list(
   name = 'Qup', 
   object_class = 'Equation', 
-  equation='Qivol * (1.0 - (trib_area_sqmi / area_sqmi))'
+  equation='IVOLin * (1.0 - (trib_area_sqmi / drainage_area_sqmi))'
 )
-json_out[['Qin']] = list(
+json_rchres[['Qin']] = list(
   name = 'Qin', 
   object_class = 'Equation', 
   equation='Qup + Qtrib'
 )
-json_out[['HYDR']] = list(
+json_rchres[['HYDR']] = list(
   name = 'HYDR', 
   object_class = 'ModelObject'
 )
-json_out[['HYDR']][['IVOL']] = list(
+json_rchres[['HYDR']][['IVOL']] = list(
   name = 'IVOL', 
   object_class = 'ModelLinkage',
   right_path = 'Qin'
 )
-
+json_out[['RCHRES_R001']] = json_rchres
 
 jsonData <- toJSON(json_out)
 write(jsonData, paste0("C:/usr/local/home/git/vahydro/R/modeling/nhd/nhd_simple_", nhd_out$comid, ".json"))
