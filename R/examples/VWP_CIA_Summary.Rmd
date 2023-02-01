@@ -238,8 +238,8 @@ cat(paste(fac_report_info$project_intro$value,"\n\n"))
 ## Location Map
 
 ```{r GrabLocationMap, include=FALSE, echo=FALSE}
-fig_prop <- find_name(fac_model_info,"fig.location_map")
-#fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
+# fig_prop <- find_name(fac_model_info,"fig.location_map")
+fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
 ```
 
 ```{r LocationMap, echo=FALSE, results = "asis"}
@@ -675,7 +675,7 @@ for (i in 1:length(runid.list)){
 \newpage
 
 ### Analysis of Potential Unmet Demand at the River Intake:
-Heatmaps are data plotting tools that help visualize data as magnitudes of color intensity. The following heatmaps depict the number of days with unmet demands for each month of the simulation (due to demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The heatmap cells show the amount of unmet demand for each month [Number of Unmet Days & Amount (MGD)]. Hydrographs are shown for the period of the simulation with greatest unmet demand.
+The following grids are data plotting tools that help visualize data as magnitudes of color intensity. These depict the number of days with unmet demands for each month of the simulation (due to demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The cells show the amount of unmet demand for each month [Number of Unmet Days & Amount (MGD)]. Hydrographs are shown for the period of the simulation with greatest unmet demand.
 
 ```{r UnmetDemandPLOTS, echo=FALSE, message=FALSE, results = "asis"}
 
@@ -690,7 +690,7 @@ for (i in 1:length(runid.list)){
   if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$code
     # we have an image, show it 
-    cat("\n\n#### Heatmap: ",short_names[[runid.i]],"\n\n")
+    cat("\n\n#### Unmet Demand: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
   }
   fig_prop <- invisible(find_name(fac_run, "fig.30daymax_unmet"))
@@ -849,7 +849,7 @@ elfgen_sql <- paste('SELECT
                     ',sep='')
 elfgen_df <- sqldf(elfgen_sql)
 elfgen_df <- elfgen_df[,-2]
-#elfgen_df <- elfgen_df[-1,] #remove row with CU as a decimal
+elfgen_df <- elfgen_df[-1,] #remove row with CU as a decimal
 elfgen_df <- rbind(cu_pct,elfgen_df) #add row with CU as a percent
 colnames(elfgen_df) <- colnames(fac_table) #colnames to use scenario names
 ```
