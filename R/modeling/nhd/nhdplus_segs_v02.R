@@ -90,6 +90,7 @@ json_rchres[['trib_area_sqmi']] = list(
   object_class = 'Equation', 
   equation=paste("0.386102 * (",trib_area_eqn,")")
 )
+# adding in a 0.8 factor to show manipulation is successful
 json_rchres[['Qup']] = list(
   name = 'Qup', 
   object_class = 'Equation', 

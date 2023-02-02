@@ -116,6 +116,14 @@ fdc_plot <- hydroTSM::fdc(cbind(fdc_dat.df),
                           )
 ```
 
+## Scatter Plot USGS vs. Model
+```{r scatter-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
+plot(
+  model_flows ~
+  gage_flows
+)
+```
+
 \newpage
 
 ## L90 Model Performance Bar Plot:

@@ -11,11 +11,13 @@ fac_om_id <- 306768
 ################################################################################################
 ################################################################################################
 
+sh_elid = 328321 # Spring Hollow
 #runid <- 11
 #runid <- 2011
 #runid <- 4011
 runid <- 6011
 
+shdat <- om_get_rundata(sh_elid, 616, site = omsite)
 facdat <- om_get_rundata(fac_om_id, runid, site = omsite)
 rsegdat <- om_get_rundata(rseg_om_id, runid, site = omsite)
 
