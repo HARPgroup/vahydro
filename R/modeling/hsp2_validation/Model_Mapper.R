@@ -2,12 +2,12 @@ source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_funct
 export_path <- 'C:/Users/nrf46657/Desktop/GitHub/vahydro/R/modeling/hsp2_validation/'
 
 #------------------------------------------
-plotname <- "potomac"
-segswhere <- "hydrocode LIKE '%wshed_P%'"
-# plotname <- "PS2_6420_6360"
-# segswhere <- "hydrocode = 'vahydrosw_wshed_PS2_6420_6360'"
-scenario_a <- c("vahydro-1.0","runid_11")
-scenario_b <- c("cbp-6.0","hsp2_2022")
+# plotname <- "potomac"
+# segswhere <- "hydrocode LIKE '%wshed_P%'"
+# # plotname <- "PS2_6420_6360"
+# # segswhere <- "hydrocode = 'vahydrosw_wshed_PS2_6420_6360'"
+# scenario_a <- c("vahydro-1.0","runid_11")
+# scenario_b <- c("cbp-6.0","hsp2_2022")
 #------------------------------------------
 # plotname <- "james"
 # segswhere <- "hydrocode LIKE '%_J%'"
@@ -15,10 +15,12 @@ scenario_b <- c("cbp-6.0","hsp2_2022")
 # # scenario_b <- c("vahydro-1.0","runid_13")
 # scenario_b <- c("cbp-6.0","hsp2_2022")
 #------------------------------------------
-# plotname <- "all"
-# segswhere <- "hydrocode NOT LIKE '%0000_0000'"
+plotname <- "all"
+segswhere <- "hydrocode NOT LIKE '%0000_0000'"
 # scenario_a <- c("vahydro-1.0","runid_11")
 # scenario_b <- c("cbp-6.0","hsp2_2022")
+scenario_a <- c("vahydro-1.0","runid_11")
+scenario_b <- c("cbp-6.4","vahydro_2023")
 
 ################################################################################
 
