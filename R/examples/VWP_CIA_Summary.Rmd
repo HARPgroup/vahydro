@@ -467,7 +467,8 @@ for (r in rownames(q_table)) {
     if (cu_table[r,c] <= -20.0) {
       qcu_colors[rn,cn] = "orange"
     } 
-    qcu_table[r,c] <- paste0( q_table[r,c], " (", cu_table[r,c],"%)")
+    # qcu_table[r,c] <- paste0( q_table[r,c], " (", cu_table[r,c],"%)")
+    qcu_table[r,c] <- paste0( q_table[r,c], "\n(", cu_table[r,c],"%)")
   }
 }
 
