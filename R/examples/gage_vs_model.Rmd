@@ -19,6 +19,7 @@ params:
   runid: 217
   gageid: '02054530'
   summary_text: ''
+  area_factor: 1.0
 ---
 
 ```{r setup, include=FALSE}
@@ -34,17 +35,19 @@ elid <- params$elid
 runid <- params$runid
 gageid <- params$gageid
 summary_text <- params$summary_text
+area_factor <- as.numeric(params$area_factor)
 ```
 
 ```{r getdata, include=FALSE}
-model_flows <- om_get_rundata(elid, runid, site=omsite)
-model_flows <- zoo(as.numeric(as.character( model_flows$Qout )), order.by = index(model_flows) );
+model_data <- om_get_rundata(elid, runid, site=omsite)
+model_flows <- zoo(as.numeric(as.character( model_data$Qout )), order.by = index(model_data) );
 # mstart <- as.Date(min(index(model_flows)))
 # mend <- as.Date(max(index(model_flows)))
 mstart <- zoo::as.Date(as.POSIXct(min(index(model_flows)),origin="1970-01-01"))
 mend <- zoo::as.Date(as.POSIXct(max(index(model_flows)),origin="1970-01-01"))
 
 historic <- dataRetrieval::readNWISdv(gageid,'00060')
+historic$X_00060_00003 <- historic$X_00060_00003 * area_factor
 gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
 gage_flows <- window(gage_flows, start = mstart, end = mend)
 gstart <- as.Date(min(index(gage_flows)))
@@ -114,6 +117,14 @@ fdc_plot <- hydroTSM::fdc(cbind(fdc_dat.df),
                           leg.cex=1,
                           pch = NA
                           )
+```
+
+## Scatter Plot USGS vs. Model
+```{r scatter-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
+plot(
+  model_flows ~
+  gage_flows
+)
 ```
 
 \newpage

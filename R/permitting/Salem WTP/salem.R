@@ -11,13 +11,25 @@ fac_om_id <- 306768
 ################################################################################################
 ################################################################################################
 
+sh_elid = 328321 # Spring Hollow
+shfac_elid = 351170 # Spring Hollow WTP
 #runid <- 11
 #runid <- 2011
 #runid <- 4011
-runid <- 6011
+#runid <- 6011
+runid <- 222
+
+shdat <- om_get_rundata(sh_elid, runid, site = omsite)
+quantile(shdat$refill_pump_mgd)
+quantile(shdat$wd_mgd)
+kable(om_flow_table(shdat, "refill_pump_mgd"))
+kable(om_flow_table(shdat, "available_mgd"))
+shfacdat <- om_get_rundata(shfac_elid, runid, site = omsite)
+quantile(shfacdat$vwp_max_mgd)
 
 facdat <- om_get_rundata(fac_om_id, runid, site = omsite)
 rsegdat <- om_get_rundata(rseg_om_id, runid, site = omsite)
+om_flow_table(rsegdat, "wd_cumulative_mgd")
 
 facdat_df <- data.frame(facdat)
 rsegdat_df <- data.frame(rsegdat)
@@ -111,4 +123,21 @@ xcsam <- as.data.frame(
     "ps_cumulative_mgd",
     "wd_mgd",
     "ps_mgd")]
+)
+
+
+rmarkdown::render(
+  '/usr/local/home/git/vahydro/R/examples/VWP_CIA_Summary.Rmd',
+  output_file = '/usr/local/home/git/vahydro/R/permitting/Salem WTP/salem_te_v01.docx',
+  params = list(
+    doc_title = "VWP CIA Summary - Salem WTP",
+    rseg.hydroid = 68327,
+    fac.hydroid = 73112,
+    runid.list = c("runid_4011","runid_600", "runid_222"),
+    intake_stats_runid = 11,
+    preferred_runid = "runid_222",
+    upstream_rseg_ids=c(67839,68105,442254,68331),
+    downstream_rseg_ids=c(68099,68376,68126),
+    users_metric = "base_demand_mgy"
+  )
 )
