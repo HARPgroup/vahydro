@@ -244,7 +244,7 @@ fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
 
 ```{r LocationMap, echo=FALSE, results = "asis"}
 
-if (!is.null(fig_prop)) {
+if (!is.null(fig_prop) and !(is.boolean(fig_prop))) {
   map_path <- fig_prop$propcode
   cat(paste0("![](",map_path,")"),"\n")
 } else {

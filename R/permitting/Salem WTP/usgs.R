@@ -18,26 +18,17 @@ available_mgd$available_mgd <- (available_mgd$flow * 0.2) / 1.547
 avail_table = om_flow_table(available_mgd, 'available_mgd')
 kable(avail_table, 'markdown')
 
-rmarkdown::render(
-'C:/usr/local/home/git/vahydro/R/examples/gage_vs_model.Rmd',
-output_file = '/usr/local/home/git/vahydro/R/permitting/broadway/PS2_5560_5100_01633000.docx',
-params = list(
-doc_title = "USGS Gage vs VAHydro Model",
-elid = 229937,
-runid = 11,
-gageid = '01633000'
-)
-)
 
 # north and south Roanoke Confluence, old met
 rmarkdown::render(
   'C:/usr/local/home/git/vahydro/R/examples/gage_vs_model.Rmd',
-  output_file = '/usr/local/home/git/vahydro/R/permitting/OR2_8020_8130_02053800.docx',
+  output_file = '/usr/local/home/git/vahydro/R/permitting/Salem WTP/OR2_7900_7740_02054530.docx',
   params = list(
     doc_title = "USGS Gage vs VAHydro Model",
-    elid = 251597,
-    runid = 600,
-    gageid = '02053800'))
+    elid = 249169,
+    runid = 222,
+    area_factor = 379.95 / 281.0,
+    gageid = '02054530'))
 
 
 # north and south Roanoke Confluence, new met
@@ -47,7 +38,21 @@ rmarkdown::render(
   params = list(
     doc_title = "USGS Gage vs VAHydro Model",
     elid = 251597,
-    runid = 222,
+    runid = 200,
+    area_factor = 1.0,
     gageid = '02053800'))
 
 
+# Wayside park
+rmarkdown::render(
+  'C:/usr/local/home/git/vahydro/R/examples/gage_vs_model.Rmd',
+  output_file = '/usr/local/home/git/vahydro/R/permitting/Salem WTP/OR2_8130_7900_02054530-newmet.docx',
+  params = list(
+    doc_title = "USGS Gage vs VAHydro Model",
+    elid = 251491,
+    runid = 222,
+    area_factor = 1.0,
+    gageid = '02054530',
+    summary_text = 'The following plots provide a comparison of VAHydro model performance for the model segment above the Salem WTP (Roanoke River (Wayside Park)) compared against historic streamflow recorded that USGS 02054530 ROANOKE RIVER AT GLENVAR, VA. This analysis provides additional context to overall model performance.'
+  )
+)
