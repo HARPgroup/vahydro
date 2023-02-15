@@ -20,6 +20,7 @@ params:
   runid.list: [ "runid_400","runid_600" ]
   fac.metric.list: [ "base_demand_mgy", "wd_mgy", "unmet_demand_mgy","base_demand_mgd","wd_mgd","ps_mgd","gw_demand_mgd","unmet30_mgd" ]
   rseg.metric.list: [ "Qout","remaining_days_p0","l30_Qout","l90_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd","wd_mgd","ps_mgd" ]
+  cu_threshold: [-10.0, -20.0]
   intake_stats_fid: FALSE
   fac_model_pid: FALSE
   intake_stats_runid: 11
@@ -84,6 +85,7 @@ impoundment_fid <- params$impoundment_fid
 upstream_rseg_ids <- params$upstream_rseg_ids
 downstream_rseg_ids <- params$downstream_rseg_ids
 users_metric <- params$users_metric
+cu_threshold = params$cu_threshold
 
 if (is.logical(intake_stats_fid)) {
   intake_stats_fid = fac.hydroid
@@ -473,10 +475,10 @@ for (r in rownames(q_table)) {
   for (c in colnames(q_table[r,])) {
     cn = cn + 1
     qcu_colors[rn,cn] = "white"
-    if (cu_table[r,c] <= -10.0) {
+    if (cu_table[r,c] <= cu_threshold[1]) {
       qcu_colors[rn,cn] = "yellow"
     } 
-    if (cu_table[r,c] <= -20.0) {
+    if (cu_table[r,c] <= cu_threshold[2]) {
       qcu_colors[rn,cn] = "orange"
     } 
     qcu_table[r,c] <- paste0( q_table[r,c], " (", cu_table[r,c],"%)")
