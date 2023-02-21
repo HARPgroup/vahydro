@@ -1,0 +1,50 @@
+{
+    "RCHRES_R001": {
+        "nhd_10064437": {
+            "name": "nhd_10064437",
+            "object_class": "MicroWatershedModel",
+            "drainage_area_sqmi": {
+                "name": "drainage_area_sqmi",
+                "object_class": "Equation",
+                "equation": "1.2312  * 0.386102"
+            },
+            "nhd_10064431": {
+                "name": "nhd_10064431",
+                "object_class": "MicroWatershedModel",
+                "drainage_area_sqmi": {
+                    "name": "drainage_area_sqmi",
+                    "object_class": "Equation",
+                    "equation": "0.2745  * 0.386102"
+                },
+                "nhd_10063787": {
+                    "name": "nhd_10063787",
+                    "object_class": "MicroWatershedModel",
+                    "drainage_area_sqmi": {
+                        "name": "drainage_area_sqmi",
+                        "object_class": "Equation",
+                        "equation": "0.4248  * 0.386102"
+                    }
+                }
+            },
+            "nhd_10064433": {
+                "name": "nhd_10064433",
+                "object_class": "MicroWatershedModel",
+                "drainage_area_sqmi": {
+                    "name": "drainage_area_sqmi",
+                    "object_class": "Equation",
+                    "equation": "0.5787  * 0.386102"
+                },
+                "nhd_10065261": {
+                    "name": "nhd_10065261",
+                    "object_class": "MicroWatershedModel",
+                    "drainage_area_sqmi": {
+                        "name": "drainage_area_sqmi",
+                        "object_class": "Equation",
+                        "equation": "1.9863  * 0.386102"
+                    }
+                }
+            }
+        }
+    }
+}
+

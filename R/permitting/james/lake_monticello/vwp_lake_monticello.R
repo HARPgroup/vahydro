@@ -9,48 +9,14 @@ ds <- RomDataSource$new(site, rest_uname = rest_uname)
 ds$get_token(rest_pw)
 
 felid <- 340406
-fccelid <- 353085 # Fluvanna Women's Correctional
 relid <- 337730
 welid <- 340400 # withdrawal container
 roelid <- 352048 
 
-runid = 601
-datfcc <- om_get_rundata(fccelid, runid, site=omsite)
-quantile(datfcc$Runit)
-quantile(datfcc$wd_mgd)
-quantile(datfcc$ps_mgd)
-quantile(datfcc$discharge_mgd)
-quantile(datfcc$available_mgd)
-quantile(datfcc$local_impoundment_use_remain_mg)
-quantile(datfcc$local_impoundment_max_usable)
-quantile(datfcc$Qintake)
-quantile(datfcc$flowby)
-quantile(datfcc$refill_pump_mgd)
-
 datf4 <- om_get_rundata(felid, 400, site=omsite)
 datf6 <- om_get_rundata(felid, 600, site=omsite)
-datwd <- om_get_rundata(340400, 601, site=omsite)
-quantile(datwd$wd_mgd)
-om_flow_table(datwd,"wd_mgd")
 
-datr6 <- om_get_rundata(relid, 601, site=omsite)
-quantile(datr6$Qout, probs=c(0,0.01,0.1,0.25,0.5))
-quantile(datr6$ps_cumulative_mgd, probs=c(0,0.01,0.1,0.25,0.5))
-quantile(datr6$wd_mgd, probs=c(0,0.01,0.1,0.25,0.5))
-
-dfdatr6 <- as.data.frame(datr6)
-rdeets <- sqldf("select * from dfdatr6 where ps_cumulative_mgd < 1.0")
-r2019 <- sqldf("select * from dfdatr6 where year = 2019")
-datsfr6 <- om_get_rundata(352054, 601, site=omsite)
-quantile(datsfr6$tiered_release)
-quantile(datsfr6$Q30)
-quantile(datsfr6$system_storage_bg)
-quantile(datsfr6$system_demand_mgd)
-quantile(datsfr6$pct_sys_storage)
-quantile(datsfr6$child_wd_mgd)
-quantile(datsfr6$drought_status, na.rm = TRUE)
-
-
+datr6 <- om_get_rundata(relid, 600, site=omsite)
 datr4 <- om_get_rundata(relid, 400, site=omsite)
 
 datw4 <- om_get_rundata(welid, 401, site=omsite)
