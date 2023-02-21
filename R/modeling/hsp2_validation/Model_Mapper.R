@@ -1,5 +1,7 @@
+basepath='/var/www/R';
+source(paste(basepath,'config.R',sep='/'))
+
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_functions/model_geoprocessor.R")
-export_path <- 'C:/Users/nrf46657/Desktop/GitHub/vahydro/R/modeling/hsp2_validation/'
 
 #------------------------------------------
 # plotname <- "potomac"
@@ -9,24 +11,24 @@ export_path <- 'C:/Users/nrf46657/Desktop/GitHub/vahydro/R/modeling/hsp2_validat
 # scenario_a <- c("vahydro-1.0","runid_11")
 # scenario_b <- c("cbp-6.0","hsp2_2022")
 #------------------------------------------
-# plotname <- "james"
-# segswhere <- "hydrocode LIKE '%_J%'"
-# scenario_a <- c("vahydro-1.0","runid_11")
-# # scenario_b <- c("vahydro-1.0","runid_13")
-# scenario_b <- c("cbp-6.0","hsp2_2022")
-#------------------------------------------
-plotname <- "all"
-segswhere <- "hydrocode NOT LIKE '%0000_0000'"
-# scenario_a <- c("vahydro-1.0","runid_11")
-# scenario_b <- c("cbp-6.0","hsp2_2022")
+plotname <- "james"
+segswhere <- "hydrocode LIKE '%_J%'"
 scenario_a <- c("vahydro-1.0","runid_11")
-scenario_b <- c("cbp-6.4","vahydro_2023")
+# scenario_b <- c("vahydro-1.0","runid_13")
+scenario_b <- c("cbp-6.0","hsp2_2022")
+#------------------------------------------
+#plotname <- "all"
+#segswhere <- "hydrocode NOT LIKE '%0000_0000'"
+# scenario_a <- c("vahydro-1.0","runid_11")
+# scenario_b <- c("cbp-6.0","hsp2_2022")
+#scenario_a <- c("vahydro-1.0","runid_11")
+#scenario_b <- c("cbp-6.4","vahydro_2023")
 
 ################################################################################
 
 # process geo data
-polygons_a <- model_geoprocessor(scenario_a,segswhere)
-polygons_b <- model_geoprocessor(scenario_b,segswhere)
+polygons_a <- model_geoprocessor(ds, scenario_a,segswhere)
+polygons_b <- model_geoprocessor(ds, scenario_b,segswhere)
 
 # generate & save plot figure
 filename <- paste0("Model_Map_",scenario_a[1],scenario_a[2],"_",scenario_b[1],scenario_b[2],"_",plotname,".png")
