@@ -29,12 +29,13 @@ quantile(datfcc$refill_pump_mgd)
 
 datf4 <- om_get_rundata(felid, 400, site=omsite)
 datf6 <- om_get_rundata(felid, 600, site=omsite)
-datwd <- om_get_rundata(340400, 601, site=omsite)
+datwd <- om_get_rundata(351973, 601, site=omsite) 
 quantile(datwd$wd_mgd)
 om_flow_table(datwd,"wd_mgd")
 
 datr6 <- om_get_rundata(relid, 601, site=omsite)
 quantile(datr6$Qout, probs=c(0,0.01,0.1,0.25,0.5))
+quantile(datr6$Qnatural, probs=c(0,0.01,0.1,0.25,0.5))
 quantile(datr6$ps_cumulative_mgd, probs=c(0,0.01,0.1,0.25,0.5))
 quantile(datr6$wd_mgd, probs=c(0,0.01,0.1,0.25,0.5))
 

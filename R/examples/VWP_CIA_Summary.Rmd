@@ -505,10 +505,14 @@ if (is.null(run_info$reports)) {
     )
 }
 
-cat("\n\n\n")
+```
 
-cat("### Consumptive Use Table for Preferred Scenario")
-cat("\n")
+\newpage
+
+### Consumptive Use Table for Preferred Scenario
+
+```{r LoadConclusionsFigs, echo=FALSE, results = "asis"}
+
 cat(fqcu_table$caption_text)
 fqcu_table
   
@@ -516,6 +520,7 @@ fqcu_table
 if (!is.null(demand_url)) {
   cat("\n")
   cat("### Demand Chart for Preferred Scenario")
+  cat("\n")
   demand_chart_caption <- paste("Facility Base Demand Before Conservation", run_info$reports$scenario_name$value)
   demand_url <- run_info$fig.monthly_demand$code
   cat(paste0("![](",demand_url,")"),"\n")
@@ -619,11 +624,11 @@ fontsize(ft, size = 9)
 <!---BLOCK_LANDSCAPE_STOP--->
 
 
-### Analysis of Reservoir Storage:
-The following reservoir storage plots depict changes in reservoir storage under each scenario (indicated in black), as well as simulated inflow to the reservoir (blue), simulated outflow from the reservoir (green), and system demand for the given scenario (red). For water supply reservoirs, a minimum of 60 days of remaining storage over the course of the simulation is recommended. System demand varies seasonally.
 
 ```{r ResPLOTS, echo=FALSE, message=FALSE, results = "asis"}
 
+has_imp = FALSE
+fig_md = ""
 # check river model for plots
 for (i in 1:length(runid.list)){
   # get fac model run prop
@@ -632,30 +637,40 @@ for (i in 1:length(runid.list)){
   run_info <- find_name(rseg_model_info,runid.i)
   fig_prop <- find_name(run_info, "fig.imp_storage.all")
   if (!(is.null(fig_prop))) {
+    has_imp = TRUE
     fig_path <- fig_prop$code
     # we have an image, show it 
-    cat("\n\n#### Reservoir Storage: ", short_names[[runid.i]],"\n\n")
-    cat(paste0("![](",fig_path,")"),"\n")
-    cat("\n\n\\pagebreak\n")
+    fig_md = paste(fig_md, "\n\n#### Reservoir Storage: ", short_names[[runid.i]],"\n\n")
+    fig_md = paste(fig_md, paste0("![](",fig_path,")"),"\n")
+    fig_md = paste(fig_md, "\n\n\\pagebreak\n")
   } else {
     # tbd: try impoundment linked to river segment.
-    print(paste("No active impoundment found for run id",runid.i))
+    fig_md = paste(fig_md, paste("No active impoundment found for run id",runid.i))
   }
   if (!is.logical(impoundment_fid)) {
     run_info <- find_name(imp_model_info,runid.i)
     fig_prop <- find_name(run_info, "fig.imp_storage.all")
     if (!(is.null(fig_prop))) {
+      has_imp = TRUE
       fig_path <- fig_prop$code
       # we have an image, show it 
-      cat("\n\n#### Reservoir Storage: ", short_names[[runid.i]],"\n\n")
-      cat(paste0("![](",fig_path,")"),"\n")
-      cat("\n\n\\pagebreak\n")
+      fig_md = paste(fig_md, "\n\n#### Reservoir Storage: ", short_names[[runid.i]],"\n\n")
+      fig_md = paste(fig_md, paste0("![](",fig_path,")"),"\n")
+      fig_md = paste(fig_md, "\n\n\\pagebreak\n")
     } else {
       # tbd: try impoundment linked to river segment.
-      print(paste("No active impoundment found for run id",runid.i,"on impoundment feature", impoundment_fid)) 
+      fig_md = paste(fig_md, paste("No active impoundment found for run id",runid.i,"on impoundment feature", impoundment_fid)) 
     }
   }
 }
+
+
+if (has_imp) {
+  cat("### Analysis of Reservoir Storage: \n\n
+The following reservoir storage plots depict changes in reservoir storage under each scenario (indicated in black), as well as simulated inflow to the reservoir (blue), simulated outflow from the reservoir (green), and system demand for the given scenario (red). For water supply reservoirs, a minimum of 60 days of remaining storage over the course of the simulation is recommended. System demand varies seasonally.")
+  cat(fig_md)
+}
+
 
 ``` 
 

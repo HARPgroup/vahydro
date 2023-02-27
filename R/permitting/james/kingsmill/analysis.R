@@ -1,4 +1,5 @@
 library('hydrotools')
+library('knitr')
 library('zoo')
 basepath='/var/www/R';
 source("/var/www/R/config.R")
@@ -11,7 +12,7 @@ fac_elid = 220401  # Kingsmill
 #runid <- 2011
 #runid <- 4011
 #runid <- 6011
-runid <- 601
+runid <- 600
 
 rdat <- om_get_rundata(r_elid, runid, site = omsite)
 quantile(rdat$wd_mgd)
@@ -33,7 +34,11 @@ quantile(facdat$local_impoundment_Qout)
 
 kable(om_flow_table(facdat, "refill_pump_mgd"))
 kable(om_flow_table(facdat, "available_mgd"))
+kable(om_flow_table(facdat, "flowby_proposed"))
 kable(om_flow_table(facdat, "flowby_current"))
+kable(om_flow_table(facdat, "flowby"))
+kable(om_flow_table(facdat, "Qintake"))
+kable(om_flow_table(facdat, "unmet_demand_mgd"))
 quantile(facdat$local_impoundment_Qin)
 
 
