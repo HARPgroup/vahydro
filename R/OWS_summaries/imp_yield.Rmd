@@ -15,8 +15,9 @@ output:
       footer: 0.0
 params: 
   doc_title: "DEQ/OWS Yield Analysis - [INSERT PROJECT NAME HERE]"
-  model_features: 73112 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "runid_6014"
-  scenarios: [ "runid_400"]
+  model_features: 456224 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "scenario_6014"
+  model_pid: FALSE
+  scenarios: [ "scenario_400"]
   model_version: "vahydro-1.0"
   image_names: [ "fig.unmet_heatmap_amt", "fig.imp_storage.all", "fig.monthly_demand" ]
   column_descriptions: [ "Unmet Demand", "Storage by Year", "Monthly Demand" ]
@@ -27,6 +28,10 @@ library("hydrotools")
 library("openmi.om")
 library("jsonlite")
 library("knitr")
+# load remote code
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/rmd_utils.R")
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R")
+
 # set up data source access
 basepath='/var/www/R'
 source('/var/www/R/config.R')
@@ -38,19 +43,33 @@ model_features <- params$model_features
 scenarios <- params$scenarios
 image_names <- params$image_names
 model_version <- params$model_version
+model_pid<- params$model_pid
 column_descriptions <- params$column_descriptions
 
 # load up the models into the data source (they are cahed in ds$prop_json_cache)
 model_pids = list()
-for (i in 1:length(model_features)) {
-  hid<- model_features[[i]]
-  message(i)
-  model <- RomProperty$new(ds,list(featureid=hid, propcode=model_version),TRUE)
-  ds$get_json_prop(model$pid)
-  model_pids[[i]] <- model$pid
+if (is.boolean(model_pid)) {
+  for (i in 1:length(model_features)) {
+    hid<- model_features[[i]]
+    message(i)
+    model_prop <- RomProperty$new(ds,list(featureid=hid, propcode=model_version),TRUE)
+    ds$get_json_prop(model_prop$pid)
+    model_pids[[i]] <- model_prop$pid
+  }
+} else {
+  model_prop <- RomProperty$new(ds,list(pid=model_pid),TRUE)
+  ds$get_json_prop(model_prop$pid)
+  model_pids[[1]] = model_prop$pid
 }
 itable = om_multi_image_list(ds, model_pids, scenarios, image_names, column_descriptions)
-img_table = om_rmd_img_table(itable,2)
+img_table = om_rmd_img_table(itable,1)
+
+# CU table
+scenario <- scenarios[1] # assumes the first is the chosen (this is not really meant for multi anyhow)
+runid <- sub("runid_", "", scenario)
+elid <- find_name(ds$prop_json_cache[model_prop$pid],'om_element_connection')$value
+pr_data <- om_get_rundata(elid, runid, omsite, FALSE)
+fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
 
 ```
 
@@ -58,7 +77,29 @@ img_table = om_rmd_img_table(itable,2)
 # Model Overview and Scenario Descriptions
 
 ```{r ModelOverview, echo=FALSE, results = "asis"}
+for (i in 1:length(model_pids)) {
+  model = ds$prop_json_cache[model_pids[[i]]]
+  reports = find_name(model,"reports")
+  cat("__Facility & Intake Model Description__\n")
+  cat(paste(reports$model_overview$value,"\n\n"))
+  for ( i in length(scenarios)) {
+    scenario = scenarios[i]
+    scenario_info = find_name(model, scenario)
+    sname = find_name(scenario_info,"scenario_short_name")
+    sintro = find_name(scenario_info, "scenario_intro")
+    san = find_name(scenario_info, "scenario_analysis")
+    cat(
+      paste(
+        "*", paste0("__",sname$value,"__", 
+        ":")," ",sintro$value,"  ", san$value,"\n\n"
+      )
+    )
+  }
+  
+}
 
-kable(img_table)
-
+knitr::kable(img_table)
+x = length(img_table)
+cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", sname$value,"\n\n"))
+fqcu_table
 ```

@@ -35,6 +35,7 @@ params:
   upstream_rseg_ids: FALSE
   downstream_rseg_ids: FALSE
   users_metric: "base_demand_mgy"
+  elfgen: TRUE
 ---
 
 ```{r setup, include=FALSE}
@@ -98,6 +99,7 @@ cu_post_var = params$cu_post_var
 cu_model = params$cu_model
 cu_min_valid = params$cu_min_valid
 cu_decimals = params$cu_decimals
+elfgen = params$elfgen
 
 if (is.logical(intake_stats_fid)) {
   intake_stats_fid = fac.hydroid
@@ -493,7 +495,7 @@ runid.i <- preferred_runid
 run.i <- sub("runid_", "", runid.i)
 run_info <- find_name(fac_model_info,runid.i)
 if (is.null(run_info$reports)) {
-  cat(paste("*", paste0("__",run_names[runid.i],"__"),"-","Preferred scenario, ", runid.i, ", conclusions not provided.","\n", "Conclusions should be stored in [model] -> ", run.i, " -> reports -> conclusions"))
+  cat(paste("*", paste0("__",run_names[runid.i],"__"),"-","Proposed scenario, ", runid.i, ", conclusions not provided.","\n", "Conclusions should be stored in [model] -> ", run.i, " -> reports -> conclusions"))
 } else {
   cat(
     paste(
@@ -509,7 +511,7 @@ if (is.null(run_info$reports)) {
 
 \newpage
 
-### Consumptive Use Table for Preferred Scenario
+### Consumptive Use Table for Proposed Scenario
 
 ```{r LoadConclusionsFigs, echo=FALSE, results = "asis"}
 
@@ -801,63 +803,44 @@ This new flow-ecology framework referred to as “elfgen” (*pronounced elf-jen
 # Need to have a switch based on draiange area with text such as:
 # Ecological Limit Functions are not available for this location because the drainage area exceeds 800 square miles, which is beyond the applicable range of current mean flow based ecological limit functions.
 
-
-run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
-fig_path = FALSE
-elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
-if (!is.logical(elfgen_EDAS_huc8)) {
-  fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
-  if (!is.logical(fig.elfgen)) {
-    fig_path <- fig.elfgen$propcode
+if (elfgen) {
+  run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
+  fig_path = FALSE
+  elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
+  if (!is.logical(elfgen_EDAS_huc8)) {
+    fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
+    if (!is.logical(fig.elfgen)) {
+      fig_path <- fig.elfgen$propcode
+    }
   }
-}
-``` 
-
-```{r elfPlot, echo=FALSE, results = "asis"}
-if (!is.logical(fig_path)) {
-  cat(paste0("![](",fig_path,")"),"\n")
-
-} else {
-  cat(paste0("*No elfgen plot available for this model*"))
-}
-```
-
-\newpage
-
-## Richness Change Metric Table:
-Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use^[Kleiner et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876) & Rapp et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877)]. Note: elfgen methodology only applicable for watersheds < 800 cfs mean annual flow.
-
-```{r LoadRichnessTable, include=FALSE}
-elfgen_cu <- rseg_table_raw
-
-cu_sql <- paste('SELECT * FROM elfgen_cu WHERE Desc == "consumptive_use_frac" ',sep='')
-cu_sql <- sqldf(cu_sql)
-cu_pct <- as.numeric(cu_sql[1,-1])*100
-cu_pct <- c("Consumptive Use (%)",cu_pct)
-#cu_pct <- c("Consumptive Use (%)",format(round(cu_pct,2), nsmall = 2)) #can adjust sigfigs
-
-elfgen_df <- rseg_table_raw
-elfgen_sql <- paste('SELECT
-                      CASE
-                        WHEN "Desc" = "rseg_model" THEN "River Segment Model Statistics:"
-                        WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
-                        WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (MGD)"
-                        WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
-                        WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
-                        ELSE Desc
-                      END AS Description, *
-                    FROM elfgen_df
-                    WHERE Desc IN ("rseg_model","consumptive_use_frac","wd_cumulative_mgd","richness_change_abs","richness_change_pct")
-                    ',sep='')
-elfgen_df <- sqldf(elfgen_sql)
-elfgen_df <- elfgen_df[,-2]
-elfgen_df <- elfgen_df[-1,] #remove row with CU as a decimal
-elfgen_df <- rbind(cu_pct,elfgen_df) #add row with CU as a percent
-colnames(elfgen_df) <- colnames(fac_table) #colnames to use scenario names
-```
-
-```{r RichnessTable, echo=FALSE}
-ft <- qflextable(elfgen_df)
+  # elfgen CU table
+  elfgen_cu <- rseg_table_raw
+  cu_sql <- paste('SELECT * FROM elfgen_cu WHERE Desc == "consumptive_use_frac" ',sep='')
+  cu_sql <- sqldf(cu_sql)
+  cu_pct <- as.numeric(cu_sql[1,-1])*100
+  cu_pct <- c("Consumptive Use (%)",cu_pct)
+  #cu_pct <- c("Consumptive Use (%)",format(round(cu_pct,2), nsmall = 2)) #can adjust sigfigs
+  
+  elfgen_df <- rseg_table_raw
+  elfgen_sql <- paste('SELECT
+                        CASE
+                          WHEN "Desc" = "rseg_model" THEN "River Segment Model Statistics:"
+                          WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
+                          WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (MGD)"
+                          WHEN "Desc" = "richness_change_abs" THEN "Richness Change (abs)"
+                          WHEN "Desc" = "richness_change_pct" THEN "Richness Change (%)"
+                          ELSE Desc
+                        END AS Description, *
+                      FROM elfgen_df
+                      WHERE Desc IN ("rseg_model","consumptive_use_frac","wd_cumulative_mgd","richness_change_abs","richness_change_pct")
+                      ',sep='')
+  elfgen_df <- sqldf(elfgen_sql)
+  elfgen_df <- elfgen_df[,-2]
+  elfgen_df <- elfgen_df[-1,] #remove row with CU as a decimal
+  elfgen_df <- rbind(cu_pct,elfgen_df) #add row with CU as a percent
+  colnames(elfgen_df) <- colnames(fac_table) #colnames to use scenario names
+  # format table for output 
+  ft <- qflextable(elfgen_df)
 # Set column widths
   ft <- width(ft, j = 2:length(elfgen_df[1,]), width = 1.5)
   ft <- width(ft, j = 1, width = 2.0)
@@ -866,10 +849,23 @@ ft <- qflextable(elfgen_df)
 # Set background color of select rows --------------------------------------------------------------
   ft <- bg(ft, bg = "#EFEFEF", part = "header")
   fontsize(ft, size = 9)
+}
+
+``` 
+
+```{r elfPlot, echo=FALSE, results = "asis"}
+if (elfgen) {
+  if (!is.logical(fig_path)) {
+    cat(paste0("![](",fig_path,")"),"\n")
+    ## Richness Change Metric Table:
+    cat("\newpage")
+    cat("Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use^[Kleiner et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876) & Rapp et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877)]. Note: elfgen methodology only applicable for watersheds < 800 cfs mean annual flow.")
+    elfgen_df
+  } else {
+    cat(paste0("*No elfgen plot available for this model*"))
+  }
+}
 ```
-
-
-## Habitat (If Applicable):
 
 \newpage
 
