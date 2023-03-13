@@ -945,7 +945,7 @@ LAYER
    TYPE POLYGON
    STATUS DEFAULT
    DUMP TRUE
-   DEBUG ON
+   DEBUG OFF
    DATA "dh_geofield_geom FROM (
      select g.dh_geofield_geom, a.hydroid, a.name, a.ftype, 
      CASE 
