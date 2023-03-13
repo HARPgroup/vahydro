@@ -12,14 +12,37 @@ source(paste(basepath,'config.R',sep='/'))
 
 # Get arguments (or supply defaults)
 argst <- commandArgs(trailingOnly=T)
-if (length(argst) > 0) {
-  plat <- as.numeric(argst[1])
-  plon <- as.numeric(argst[2])
+if (length(argst) > 1) {
+  outlet_comid <- as.numeric(argst[1])
+  if (outlet_comid == -1) {
+    plat <- as.numeric(argst[2])
+    plon <- as.numeric(argst[3])
+  }
   comp_name <- as.character(argst[4])
 } else {
-  plat = as.numeric(readline("Outlet latitude:"))
-  plon = as.numeric(readline("Outlet longitude:"))
-  comp_name = readline("File Name (default is COMID):")
+  cat("Outlet COMID (press ENTER to query by point):")
+  outlet_comid = readLines("stdin",n=1)
+  outlet_comid = as.numeric(outlet_comid)
+  if ( (outlet_comid == "") | (outlet_comid == "-1")) {
+    cat("Outlet latitude:")
+    plat = readLines("stdin",n=1)
+    plat = as.numeric(plat)
+    cat("Outlet longitude:")
+    plon = readLines("stdin",n=1)
+    plon = as.numeric(plon)
+  }
+  cat("File Name (default is [COMID].json):")
+  comp_name = readLines("stdin",n=1)
+}
+if ( !( (outlet_comid == "") | (outlet_comid == "-1"))) {
+  # we have been given a comid so pull the location data from NHD+
+  pc = nhdplusTools::get_nhdplus(comid=outlet_comid)
+  # Get centroid of NHD catchment
+  p_cent = st_centroid(pc$geometry)
+  # get lat and lon
+  plon = p_cent[[1]][[1]]
+  # [1] -78.66296
+  plat = p_cent[[1]][[2]]
 }
 
 nhd_next_up <- function (comid, nhd_network) { 
@@ -39,7 +62,13 @@ nhd_next_up <- function (comid, nhd_network) {
 out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
 nhd_out <- get_nhdplus(out_point)
 m_cat <- plot_nhdplus(list(nhd_out$comid))
-
+if (comp_name == "") {
+  fname = paste0(nhd_out$comid, ".json")
+} else {
+  fname = paste0(comp_name, ".json")
+}
+outfile = paste0(export_path,"/",fname)
+                 
 # get the nhd flowline dataset  
 nhd <- get_nhdplus(m_cat$basin)
 nhd_df <- as.data.frame(st_drop_geometry(nhd))
@@ -57,12 +86,12 @@ nhd_network[,c('comid', 'gnis_name','fromnode', 'tonode', 'totdasqkm', 'areasqkm
 # render as a nested set ofobjects + equations
 json_out = list()
 network_base = 'RCHRES_R001'
-json_out[[network_base]] = list(name='RCHRES_R001', object_class = 'ModelObject', equation='0')
+json_out[[network_base]] = list(name='RCHRES_R001', object_class = 'ModelObject', value='0')
 json_network = json_out[[network_base]]
 json_network[['area_sqkm']] = list(name = 'area_sqkm', object_class = 'Constant', value=nhd_out$areasqkm)
-json_network[['area_sqmi']] = list(name = 'area_sqmi', object_class = 'Equation', equation="area_sqkm * 0.386102")
+json_network[['area_sqmi']] = list(name = 'area_sqmi', object_class = 'Equation', value="area_sqkm * 0.386102")
 json_network[['drainage_area_sqkm']] = list(name = 'drainage_area_sqkm', object_class = 'Constant', value=nhd_out$totdasqkm)
-json_network[['drainage_area_sqmi']] = list(name = 'drainage_area_sqmi', object_class = 'Equation', equation="drainage_area_sqkm * 0.386102")
+json_network[['drainage_area_sqmi']] = list(name = 'drainage_area_sqmi', object_class = 'Equation', value="drainage_area_sqkm * 0.386102")
 # inflow and unit area
 json_network[['IVOLin']] = list(
   name = 'IVOLin', 
@@ -75,26 +104,67 @@ json_network[['IVOLin']] = list(
 json_network[['Runit']] = list(
   name = 'Runit', 
   object_class = 'Equation', 
-  equation='IVOLin / drainage_area_sqmi'
+  value='IVOLin / drainage_area_sqmi'
 )
-# create equation holder for local trib inflow equations
-trib_area_eqn = ''
-Qtrib_eqn = ''
-finished = FALSE
-currid = comid
-curr_path = root_path
 
 nhd_model_network <- function (wshed_info, nhd_network, json_network) {
   comid = wshed_info$comid
   wshed_name = paste0('nhd_', comid)
   json_network[[wshed_name]] = list(
     name=wshed_name, 
-    object_class = 'MicroWatershedModel'
+    object_class = 'ModelObject'
   )
+  # base attributes
+  json_network[[wshed_name]][['local_area_sqmi']] = list(
+    name='local_area_sqmi', 
+    object_class = 'Equation', 
+    value=paste(wshed_info$areasqkm,' * 0.386102')
+  )
+  # Get Upstream model inputs
+  json_network[[wshed_name]][['read_from_children']] = list(
+    name='read_from_children', 
+    object_class = 'ModelBroadcast', 
+    broadcast_type = 'read', 
+    broadcast_channel = 'hydroObject', 
+    broadcast_hub = 'self', 
+    broadcast_params = list(
+      list("Qtrib","Qtrib"),
+      list("trib_area_sqmi","trib_area_sqmi")
+    )
+  )
+  # simulate flows
+  json_network[[wshed_name]][['Qlocal']] = list(
+    name='Qlocal', 
+    object_class = 'Equation', 
+    value=paste('local_area_sqmi * Runit')
+  )
+  json_network[[wshed_name]][['Qin']] = list(
+    name='Qin', 
+    object_class = 'Equation', 
+    equation=paste('Qlocal + Qtrib')
+  )
+  json_network[[wshed_name]][['Qout']] = list(
+    name='Qout', 
+    object_class = 'Equation', 
+    equation=paste('Qin * 1.0')
+  )
+  # calculate secondary properties
   json_network[[wshed_name]][['drainage_area_sqmi']] = list(
     name='drainage_area_sqmi', 
     object_class = 'Equation', 
-    equation=paste(wshed_info$areasqkm,' * 0.386102')
+    equation=paste('local_area_sqmi + trib_area_sqmi')
+  )
+  # send to parent object
+  json_network[[wshed_name]][['send_to_parent']] = list(
+    name='send_to_parent', 
+    object_class = 'ModelBroadcast', 
+    broadcast_type = 'send', 
+    broadcast_channel = 'hydroObject', 
+    broadcast_hub = 'parent', 
+    broadcast_params = list(
+      list("Qout","Qtrib"),
+      list("drainage_area_sqmi","trib_area_sqmi")
+    )
   )
   next_ups <- nhd_next_up(comid, nhd_network)
   num_tribs = nrow(next_ups)
@@ -113,5 +183,5 @@ json_network <- nhd_model_network(as.data.frame(nhd_out), nhd_network, json_netw
 json_out[[network_base]] = json_network
 
 jsonData <- toJSON(json_out)
-write(jsonlite::prettify(jsonData), paste0("C:/usr/local/home/git/vahydro/R/modeling/nhd/nhd_simple_", nhd_out$comid, ".json"))
+write(jsonlite::prettify(jsonData), outfile)
 

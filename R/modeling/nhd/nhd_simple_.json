@@ -1,1 +1,14 @@
-{"RCHRES_R001":[]}
+{"RCHRES_R001":[
+    "IVOLin":[
+      "name":"IVOLin", 
+      "object_class":"ModelLinkage",
+      "right_path":"/STATE/RCHRES_R001/HYDR/IVOL",
+      "link_type":2
+    ],
+    "Runit":[
+      "name":"Runit", 
+      "object_class":"Equation", 
+      "equation"="IVOLin / drainage_area_sqmi"
+    ]
+  ]
+}
