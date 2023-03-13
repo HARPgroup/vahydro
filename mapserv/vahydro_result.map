@@ -65,6 +65,7 @@ WEB
       'runid1'   '[0-9a-zA-Z_\-]+$'
       'runid2'   '[0-9a-zA-Z_\-]+$'
       'model_version'    '[0-9a-zA-Z_\-]+$'
+      'model_version2'    '[0-9a-zA-Z_\-]+$'
       'div1'     '[0-9\.\-]+$'
       'div2'     '[0-9\.\-]+$'
       'div3'     '[0-9\.\-]+$'
@@ -83,7 +84,7 @@ WEB
       'default_runid' 'runid_11'
       'default_runid1' 'runid_11'
       'default_runid2' 'runid_12'
-      'default_model_version1' 'vahydro-1.0'
+      'default_model_version' 'vahydro-1.0'
       'default_div1' '-0.15'
       'default_div2' '-0.05'
       'default_div3' '0.05'
@@ -183,12 +184,12 @@ LAYER
     left outer join dh_properties as a 
     on ( 
      f.hydroid = a.featureid 
-     and a.propcode = '%model_version1%'
+     and a.propcode = '%model_version%'
     ) 
     left outer join dh_properties as model2 
     on ( 
      f.hydroid = a.featureid 
-     and a.propcode = '%model_version1%'
+     and a.propcode = '%model_version2%'
     ) 
     left outer join dh_properties as b 
     on ( 
