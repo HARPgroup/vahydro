@@ -83,12 +83,12 @@ WEB
       'default_runid' 'runid_11'
       'default_runid1' 'runid_11'
       'default_runid2' 'runid_12'
-      'default_model_version' 'vahydro-1.0'
+      'default_model_version1' 'vahydro-1.0'
       'default_div1' '-0.15'
       'default_div2' '-0.05'
       'default_div3' '0.05'
       'default_div4' '0.15'
-      'default_model_version' 'vahydro-1.0'
+      'default_model_version2' 'vahydro-1.0'
       'default_propname' 'wd_mgd'
       'default_propname1' 'auglowflow'
       'default_propname2' 'auglowflow'
@@ -183,7 +183,12 @@ LAYER
     left outer join dh_properties as a 
     on ( 
      f.hydroid = a.featureid 
-     and a.propcode = '%model_version%'
+     and a.propcode = '%model_version1%'
+    ) 
+    left outer join dh_properties as model2 
+    on ( 
+     f.hydroid = a.featureid 
+     and a.propcode = '%model_version1%'
     ) 
     left outer join dh_properties as b 
     on ( 
@@ -339,7 +344,7 @@ LAYER
   # Query ties a control point to its parent
   DATA "dh_geofield_geom FROM (
     select g.dh_geofield_geom, 
-     b.pid, a.propcode as model_version, 
+     b.pid, model1.propcode || ' vs ' model2.propcode as model_version, 
      f.name, f.ftype, 
      b.propname as runid, 
     foo.propvalue as propvalue_run1, 
@@ -358,14 +363,19 @@ LAYER
      f.hydroid = g.entity_id 
      and g.entity_type = 'dh_feature'
     )
-    left outer join dh_properties as a 
+    left outer join dh_properties as model1 
     on ( 
-     f.hydroid = a.featureid 
-     and a.propcode = '%model_version%'
+     f.hydroid = model1.featureid 
+     and model1.propcode = '%model_version1%'
+    ) 
+    left outer join dh_properties as model2 
+    on ( 
+     f.hydroid = model2.featureid 
+     and model2.propcode = '%model_version2%'
     ) 
     left outer join dh_properties as b 
     on ( 
-     a.pid = b.featureid 
+     model1.pid = b.featureid 
      and b.propname = '%runid%'
     ) 
     left outer join dh_properties as foo 
@@ -375,7 +385,7 @@ LAYER
     ) 
     left outer join dh_properties as c 
     on ( 
-     a.pid = c.featureid 
+     model2.pid = c.featureid 
      and c.propname = '%runid2%'
     ) 
     left outer join dh_properties as bar 
