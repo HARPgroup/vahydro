@@ -1,6 +1,6 @@
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
-
+library("hydrotools")
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_functions/model_geoprocessor.R")
 
 # Get arguments (or supply defaults)
