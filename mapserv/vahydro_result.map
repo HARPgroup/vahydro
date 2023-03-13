@@ -14,7 +14,7 @@ PROJECTION
   "init=epsg:4326"
 END
 DEBUG ON
-CONFIG "MS_ERRORFILE" "/tmp/mapserver.log"
+CONFIG "MS_ERRORFILE" "/var/www/html/tmp/mapserver.log"
 
 SYMBOL
   NAME 'hatch-simple'
