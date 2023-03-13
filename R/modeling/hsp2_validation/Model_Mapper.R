@@ -1,5 +1,8 @@
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
+library("hydrotools")
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
 
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_functions/model_geoprocessor.R")
 
@@ -27,11 +30,7 @@ if (length(argst) > 1) {
   plotname = readLines("stdin",n=1)
 }
 # Ex: 
-# segment_prefix = 'J'
-# model_a = 'vahydro-1.0'
-# model_b = 'cbp-6.0'
-# runid_a = 'runid_11'
-# runid_b = 'subsheds'
+# segment_prefix = 'J'; model_a = 'vahydro-1.0'; model_b = 'cbp-6.0';runid_a = 'runid_11'; runid_b = 'subsheds'
 segswhere <- paste0("hydrocode LIKE '%_", segment_prefix ,"%'")
 scenario_a <- c(model_a,runid_a)
 scenario_b <- c(model_b,runid_b)
