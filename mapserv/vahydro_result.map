@@ -186,11 +186,6 @@ LAYER
      f.hydroid = a.featureid 
      and a.propcode = '%model_version%'
     ) 
-    left outer join dh_properties as model2 
-    on ( 
-     f.hydroid = a.featureid 
-     and a.propcode = '%model_version2%'
-    ) 
     left outer join dh_properties as b 
     on ( 
      a.pid = b.featureid 
@@ -367,7 +362,7 @@ LAYER
     left outer join dh_properties as model1 
     on ( 
      f.hydroid = model1.featureid 
-     and model1.propcode = '%model_version1%'
+     and model1.propcode = '%model_version%'
     ) 
     left outer join dh_properties as model2 
     on ( 
