@@ -3,26 +3,38 @@ source(paste(basepath,'config.R',sep='/'))
 
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_functions/model_geoprocessor.R")
 
-#------------------------------------------
-# plotname <- "potomac"
-# segswhere <- "hydrocode LIKE '%wshed_P%'"
-# # plotname <- "PS2_6420_6360"
-# # segswhere <- "hydrocode = 'vahydrosw_wshed_PS2_6420_6360'"
-# scenario_a <- c("vahydro-1.0","runid_11")
-# scenario_b <- c("cbp-6.0","hsp2_2022")
-#------------------------------------------
-plotname <- "james"
-segswhere <- "hydrocode LIKE '%_J%'"
-scenario_a <- c("vahydro-1.0","runid_11")
-# scenario_b <- c("vahydro-1.0","runid_13")
-scenario_b <- c("cbp-6.0","hsp2_2022")
-#------------------------------------------
-#plotname <- "all"
-#segswhere <- "hydrocode NOT LIKE '%0000_0000'"
-# scenario_a <- c("vahydro-1.0","runid_11")
-# scenario_b <- c("cbp-6.0","hsp2_2022")
-#scenario_a <- c("vahydro-1.0","runid_11")
-#scenario_b <- c("cbp-6.4","vahydro_2023")
+# Get arguments (or supply defaults)
+argst <- commandArgs(trailingOnly=T)
+if (length(argst) > 1) {
+  segment_prefix <- as.character(argst[1])
+  model_a <- as.character(argst[2])
+  runid_a <- as.character(argst[3])
+  model_b <- as.character(argst[4])
+  runid_b <- as.character(argst[5])
+  plotname <- as.character(argst[6])
+} else {
+  cat("River Segment Prefix (ex: 'JU' for upper James):")
+  segment_prefix = readLines("stdin",n=1)
+  cat("Model Version A (ex: 'vahydro-1.0'):")
+  model_a = readLines("stdin",n=1)
+  cat("Model Run ID A (ex: 'runid_11'):")
+  runid_a = readLines("stdin",n=1)
+  cat("Model Version B (ex: 'cbp-6.1'):")
+  model_b = readLines("stdin",n=1)
+  cat("Model Run ID B (ex: 'subsheds'):")
+  runid_b = readLines("stdin",n=1)
+  cat("Plot File base name:")
+  plotname = readLines("stdin",n=1)
+}
+# Ex: 
+# segment_prefix = 'J'
+# model_a = 'vahydro-1.0'
+# model_b = 'cbp-6.0'
+# runid_a = 'runid_11'
+# runid_b = 'subsheds'
+segswhere <- paste0("hydrocode LIKE '%_", segment_prefix ,"%'")
+scenario_a <- c(model_a,runid_a)
+scenario_b <- c(model_b,runid_b)
 
 ################################################################################
 
