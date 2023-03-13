@@ -344,7 +344,7 @@ LAYER
   # Query ties a control point to its parent
   DATA "dh_geofield_geom FROM (
     select g.dh_geofield_geom, 
-     b.pid, model1.propcode || ' vs ' model2.propcode as model_version, 
+     b.pid, (model1.propcode || ' vs ' || model2.propcode) as model_version, 
      f.name, f.ftype, 
      b.propname as runid, 
     foo.propvalue as propvalue_run1, 
