@@ -726,7 +726,8 @@ LAYER
      f.name, f.ftype, 
      b.propname as runid, 
     CASE
-       WHEN mrs.propvalue = 1 THEN -77777
+       WHEN mrs.propvalue = 1 THEN -66666
+       WHEN mrs.propvalue = 2 THEN -77777
        WHEN c.propvalue is null THEN -99999
        ELSE c.propvalue 
     END as propvalue 
