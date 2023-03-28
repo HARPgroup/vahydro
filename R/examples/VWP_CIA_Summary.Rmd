@@ -540,6 +540,73 @@ if (!is.null(demand_url)) {
 
 ```
 
+```{r makeCUplots, echo=FALSE, include=FALSE, results = "asis"}
+cu_plots = list()
+# check rseg model for plots
+for (i in 1:length(runid.list)){
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  # generate a CU table for each run
+  run.i <- sub("runid_", "", runid.i)
+  if (cu_model == "river") {
+    # use the river as the entity to compare
+    pr_data <- om_get_rundata(rseg.elid, run.i, omsite, FALSE)
+  } else {
+    if (cu_model == "facility") {
+      # use the facility
+      pr_data <- om_get_rundata(fac.elid, run.i, omsite, FALSE)
+    } else {
+      # try this attribute as a elementid
+      pr_data <- om_get_rundata(cu_model, run.i, omsite, FALSE)
+    }
+  }
+  
+  fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
+  fqcu_caption <- paste(
+    "Modeled monthly consumptive use statistics in the ", 
+    rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive user % due to cumulative demands for", 
+    run_info$reports$scenario_name$value, 
+    ". Simulated demands include all up-stream demands and demands at ", 
+    fac_feature$name, fac_report_info$intake_name$value, 
+    ") and cumulative return flows.  ", 
+    "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs."
+  )
+  fqcu_table$caption_text <- fqcu_caption
+  cu_plots[[i]] = fqcu_table
+  #cat("\n")
+  #cat("#### CU Table for")
+  #fqcu_table
+  #cat("\n")
+  #cat(fqcu_caption)
+}
+
+```
+
+\newpage
+
+### Cumulative Consumptive Use Plots:
+
+
+```{r LoadCUPlots, echo=FALSE, results = "asis"}
+
+#for (i in 1:length(runid.list)){
+  cat(paste("#### Cumulative use chart for", run_names[runid.list[1]],"\n"))
+  cat(cu_plots[[1]]$caption_text)
+  cat("\n")
+  cu_plots[[1]]
+  cat("\n\n\\pagebreak\n")
+  #break
+#}
+
+  cat(paste("#### Cumulative use chart for", run_names[runid.list[2]],"\n"))
+  cat(cu_plots[[2]]$caption_text)
+  cat("\n")
+  cu_plots[[2]]
+  cat("\n\n\\pagebreak\n")
+  #break
+```
+
+\newpage
 
 ```{r LoadStatsTable, include=FALSE}
 #-------------------------------------------------------------------------------
@@ -634,8 +701,6 @@ ft <- bg(ft, i = ~ Description == "Facility Model Statistics:", bg = "#EFEFEF", 
 fontsize(ft, size = 9)
 ```
 <!---BLOCK_LANDSCAPE_STOP--->
-
-
 
 ```{r ResPLOTS, echo=FALSE, message=FALSE, results = "asis"}
 
@@ -762,57 +827,6 @@ for (i in 1:length(runid.list)){
   
   cat("\n\n\\pagebreak\n")
   
-}
-
-```
-
-
-
-```{r makeCUplots, echo=FALSE, results = "asis"}
-cu_plots = list()
-# check rseg model for plots
-for (i in 1:length(runid.list)){
-  # get river model run prop 
-  runid.i <- runid.list[i]
-  # generate a CU table for each run
-  run.i <- sub("runid_", "", runid.i)
-  if (cu_model == "river") {
-    # use the river as the entity to compare
-    pr_data <- om_get_rundata(rseg.elid, run.i, omsite, FALSE)
-  } else {
-    if (cu_model == "facility") {
-      # use the facility
-      pr_data <- om_get_rundata(fac.elid, run.i, omsite, FALSE)
-    } else {
-      # try this attribute as a elementid
-      pr_data <- om_get_rundata(cu_model, run.i, omsite, FALSE)
-    }
-  }
-  
-  fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
-  fqcu_caption <- paste(
-    "Modeled monthly consumptive use statistics in the ", 
-    rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive user % due to cumulative demands for", 
-    run_info$reports$scenario_name$value, 
-    ". Simulated demands include all up-stream demands and demands at ", 
-    fac_feature$name, fac_report_info$intake_name$value, 
-    ") and cumulative return flows.  ", 
-    "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs."
-  )
-  fqcu_table$caption_text <- fqcu_caption
-  #cat(fqcu_table$caption_text)
-  #fqcu_table
-  cu_plots[[i]] = fqcu_table 
-}
-
-```
-
-
-```{r showCUplots, echo=FALSE, message=FALSE, results = "asis"}
-# check rseg model for plots
-for (i in 1:length(runid.list)){
-  
-  cu_plots[[i]]
 }
 
 ```

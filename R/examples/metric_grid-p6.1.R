@@ -48,5 +48,12 @@ wshed_data <- sqldf(
   left outer join da_data as b 
   on (a.pid = b.pid)
   WHERE a.hydrocode not like '%0000'
+  and a.riverseg like 'J%'
   order by da
   ")
+
+wshed_data$Qdiff_ss <- 100.0 * (wshed_data$Qout_subsheds - wshed_data$Qout_hsp2) / wshed_data$Qout_hsp2
+wshed_data$Qdiff_wsp <- 100.0 * (wshed_data$Qout_subsheds - wshed_data$Qout_vahydro_11) / wshed_data$Qout_vahydro_11
+boxplot(wshed_data$Qdiff_ss, wshed_data$Qdiff_wsp, ylim=c(-100,100))
+
+

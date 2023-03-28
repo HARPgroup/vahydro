@@ -29,6 +29,8 @@ sf_use_s2(FALSE)
 domain <- st_buffer(st_as_sfc(st_bbox(start_point)), .2)
 
 # grab some sample data and plot the domain
+# can be done like this if we have an nhd comid:
+# plot_nhdplus(outlets=nhd_out$comid)
 nhd <- plot_nhdplus(bbox = st_bbox(domain))
 cdf <- as.data.frame(nhd$catchment)
 
