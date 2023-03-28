@@ -1,0 +1,57 @@
+cd /opt/model/p6/vadeq
+cd /opt/model/p6/vadeq/tmp/scratch/jk_test
+rseg=PS3_6161_6280
+
+# PREP
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river prep
+
+# RUN
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 00
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 02
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 03
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 04
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 05
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 07
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 08
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 09
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 10
+
+# step 10 break down (run from the temp directory) 
+# Rscript $META_MODEL_ROOT/scripts/wdm/csv_export_wdm_format.R $csvfile $wdmcsv $col "string"
+Rscript $META_MODEL_ROOT/scripts/wdm/csv_export_wdm_format.R PS3_6161_6280_hydr.csv PS3_6161_6280_OVOL3.csv OVOL3 minute
+
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 12
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river run 13
+
+# LINK
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river link 01
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river link 02
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river link 03 # creates file PS3_6161_6280_hydrd_wy.csv
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test river link 99 # puts the 2 hydr.csv files in http://deq1.bse.vt.edu:81/p6/out/river/hsp2_2022/hydr/. Does not remove the files from the tmp directory 
+
+
+#########
+#########
+# COPY WDM TO CORRECT FOLDER TO BE USED BY DOWNSTREAM SEGMENT 
+jdk@deq2:/opt/model/p6/vadeq/tmp/scratch/jk_test$ cp PS3_6161_6280.wdm /opt/model/p6/vadeq/tmp/wdm/river/hsp2_2022/stream
+
+# run downstream seg
+rseg=PS3_6280_6230
+
+cd /opt/model/p6/vadeq
+cd /opt/model/p6/vadeq/tmp/scratch/jk_test_ds
+
+# PREP
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river prep
+
+# RUN
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 00
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 02
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 03
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 04
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 05
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 07
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 08
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 09
+$META_MODEL_ROOT/run_model $rmodel $rscenario $rseg /opt/model/p6/vadeq/tmp/scratch/jk_test_ds river run 10
+

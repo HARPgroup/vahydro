@@ -1,0 +1,265 @@
+---
+date: "`r format(Sys.time(), '%m/%d/%Y')`"
+author: ""
+title: "`r params$doc_title`"
+output: 
+  officedown::rdocx_document:
+    mapstyles:
+      Normal: ['First Paragraph']
+    page_margins:
+      bottom: 0.5
+      top: 0.5
+      right: 1
+      left: 0.5
+      header: 0.0
+      footer: 0.0
+params: 
+  doc_title: "Comparison of Two VaHydro Models"
+  rseg.hydrocode: [ "JA4_7280_7340","vahydrosw_wshed_JA4_7280_7340" ]
+  rseg.ftype: [ "cbp60","vahydro" ]
+  model.version: [ "cbp-6.0","vahydro-1.0" ]
+  runid.list: [ "hsp2_2022","runid_11" ]
+  rseg.metric.list: [ "Qout","l90_Qout","l30_Qout","l07_Qout","l01_Qout","consumptive_use_frac","wd_cumulative_mgd","ps_cumulative_mgd","wd_mgd","ps_mgd" ]
+---
+
+```{r setup, include=FALSE}
+#"runid_201","runid_401","runid_6014","runid_6011","runid_6013","runid_6015","runid_6012"
+#https://cran.r-project.org/web/packages/officedown/officedown.pdf
+#https://ardata-fr.github.io/officeverse/officedown-for-word.html#insert-sections
+knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
+library(officedown)
+library(officer)
+library(flextable)
+library(hydrotools)
+library(rjson)
+basepath='/var/www/R'
+source('/var/www/R/config.R')
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
+
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cia_table.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cu_table.R")
+
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_demand_table.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R") #Used during development
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
+# Could also use:
+#source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/run_text.R") #Used during development
+
+fp <- fp_par(
+  text.align = "center", 
+  padding.bottom = 20, padding.top = 120, 
+  border.bottom = fp_border())
+
+ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
+
+```
+
+
+```{r UserInputs, include=FALSE}
+rseg.hydrocode <- params$rseg.hydrocode
+rseg.ftype <- params$rseg.ftype
+model.version <- params$model.version
+runid.list <- params$runid.list
+rseg.metric.list <- params$rseg.metric.list
+
+rlist <- gsub('runid_', '', runid.list)
+
+
+
+# rseg_metrics.df <- data.frame(" "=character(),
+#                               " "=character(),
+#                               stringsAsFactors=FALSE)
+rseg_metrics.df <- data.frame()
+# r <- 2
+# r <- 1
+for (r in 1:length(model.version)){
+  
+  # get rseg feature
+  rseg.hydrocode.r <- rseg.hydrocode[r]
+  rseg.ftype.r <- rseg.ftype[r]
+  
+  rseg_feature <- RomFeature$new(
+    ds,
+    list(hydrocode = rseg.hydrocode.r, ftype = rseg.ftype.r),
+    TRUE
+  )
+  rseg.hydroid.r <- rseg_feature$hydroid
+  
+  # get rseg model
+  model.version.r <- model.version[r]
+  print(paste("searching", model.version.r,"model for river segment hydroid", rseg.hydroid.r))
+  
+  rseg.model.r <- RomProperty$new(
+    ds,
+    list(entity_type='dh_feature', featureid = rseg.hydroid.r, propcode=model.version.r),
+    TRUE
+  )
+  
+  if (exists("json_obj_url")) {
+
+  rseg_obj_url.r <- paste(json_obj_url, rseg.model.r$pid, sep="/")
+  rseg_model_info.r <- ds$auth_read(rseg_obj_url.r, "text/json", "")
+  rseg_model_info.r <- fromJSON(rseg_model_info.r)
+  rseg.elid.r <- rseg_model_info.r[[1]]$om_element_connection$value
+  rseg_report_info.r = find_name(rseg_model_info.r, "reports")
+
+  } else {
+  message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
+  rseg_model_info.r <- list()
+  }
+
+  
+  
+  rseg_default_info.r = list(
+    model_overview.r = list(
+      "value" = "River segment model overview not provided."
+      )
+  )
+  rseg_report_info.r <- merge.list(rseg_report_info.r, rseg_default_info.r)  
+  
+  
+  runid.r <- runid.list[r]
+  # run.r <- sub("runid_", "", runid.r)
+  
+  rseg_table.r <- om_model_table(model_info = rseg_model_info.r,
+                             runid.list = runid.r,
+                             metric.list = rseg.metric.list,
+                             include.elfgen = TRUE,
+                             site = site,
+                             site_base = omsite
+                             )
+  # print(head(rseg_table.r))
+  if (r == 1){
+    rseg_metrics.df <- rseg_table.r
+  } else {
+    rseg_metrics.df <- cbind(rseg_metrics.df,rseg_table.r)
+  }
+  
+  # rseg_metrics.df <- cbind(base.df,rseg_table.r)
+}
+
+# base.df <- rseg_table.r
+
+# #RSEG MODEL INFO
+# print(paste("searching", site,"for river segment id", rseg.hydroid))
+# 
+# #base_url = site, entity_id = rseg.hydroid
+# 
+# # print(class(model.version))
+# 
+# rseg.model <- RomProperty$new(
+#   ds,
+#   list(entity_type='dh_feature', featureid = rseg.hydroid, propcode=model.version),
+#   TRUE
+# )
+# # rseg_feature <- RomFeature$new(
+# #   ds,
+# #   list(hydroid = rseg.hydroid),
+# #   TRUE
+# # )
+# 
+# 
+# 
+# if (exists("json_obj_url")) {
+# 
+#   rseg_obj_url <- paste(json_obj_url, rseg.model$pid, sep="/")
+#   rseg_model_info <- ds$auth_read(rseg_obj_url, "text/json", "")
+#   rseg_model_info <- fromJSON(rseg_model_info)
+#   rseg.elid <- rseg_model_info[[1]]$om_element_connection$value
+#   rseg_report_info = find_name(rseg_model_info, "reports")
+# 
+# } else {
+#   message("Error: json_obj_url is undefined.  Can not retrieve model and scenario information. (Hint: Use config.R to set json_obj_url) ")
+#   rseg_model_info <- list()
+# }
+# 
+# 
+# 
+# rseg_default_info = list(
+#   model_overview = list(
+#     "value" = "River segment model overview not provided."
+#   )
+# )
+# 
+# rseg_report_info <- merge.list(rseg_report_info, rseg_default_info)   
+# 
+# # Pre load the output runs so we have them available for later use
+# # I think the om_get_prop here is no longer needed, rather, we 
+# short_names = list()
+# run_names = list()
+# 
+# for (i in 1:length(runid.list)){
+#   # get fac model run prop
+#   # get river model run prop 
+#   runid.i <- runid.list[i]
+#   run.i <- sub("runid_", "", runid.i)
+# 
+# }
+
+
+```
+
+
+```{r LoadStatsTable, include=FALSE}
+# rseg_table <- om_model_table(model_info = rseg_model_info,
+#                              runid.list = runid.list,
+#                              metric.list = rseg.metric.list,
+#                              include.elfgen = TRUE,
+#                              site = site,
+#                              site_base = omsite
+# )
+rseg_table <- rseg_metrics.df
+rseg_table <- cbind(rownames(rseg_table),rseg_table)
+names(rseg_table)[names(rseg_table) == 'rownames(rseg_table)'] <- 'Desc'
+rseg_table_raw <- rseg_table
+
+rseg_table_sql <- paste('SELECT
+                  CASE
+                    WHEN "Desc" = "model" THEN "River Segment Model Statistics:"
+                    WHEN "Desc" = "Qout" THEN "Flow Out (cfs) - (i.e mean flow)"
+                    WHEN "Desc" = "Qbaseline" THEN "Flow Baseline (cfs)"
+                    WHEN "Desc" = "remaining_days_p0" THEN "Minimum Days of Storage Remaining"
+                    WHEN "Desc" = "l01_Qout" THEN "1 Day Low Flow (cfs)"
+                    WHEN "Desc" = "l07_Qout" THEN "7 Day Low Flow (cfs)"
+                    WHEN "Desc" = "l30_Qout" THEN "30 Day Low Flow (cfs)"
+                    WHEN "Desc" = "l90_Qout" THEN "90 Day Low Flow (cfs)"
+                    WHEN "Desc" = "consumptive_use_frac" THEN "Consumptive Use Fraction"
+                    WHEN "Desc" = "wd_cumulative_mgd" THEN "Cumulative Withdrawal (mgd)"
+                    WHEN "Desc" = "ps_cumulative_mgd" THEN "Cumulative Point Source (mgd)"
+                    WHEN "Desc" = "wd_mgd" THEN "Withdrawal (mgd)"
+                    WHEN "Desc" = "ps_mgd" THEN "Point Source (mgd)"
+                    ELSE Desc
+                  END AS Description, *
+                 FROM rseg_table_raw
+                 WHERE Desc NOT IN ("riverseg","run_date","starttime","endtime","richness_change_abs","richness_change_pct","runid")
+                 ',sep='')
+rseg_table <- sqldf(rseg_table_sql)
+rseg_table <- rseg_table[,-2]
+#-------------------------------------------------------------------------------
+statsdf <- rbind(rseg_table)
+```
+
+\newpage
+
+<!---BLOCK_LANDSCAPE_START--->
+### Metrics Summary:
+```{r StatsTable, echo=FALSE}
+ft <- qflextable(statsdf)
+
+# Set column widths
+ft <- width(ft, j = 2:length(statsdf[1,]), width = 1.9)
+ft <- width(ft, j = 1, width = 2.5)
+
+# Set theme
+ft <- theme_box(ft)
+
+# Set background color of select rows --------------------------------------------------------------
+ft <- bg(ft, bg = "#EFEFEF", part = "header")
+ft <- bg(ft, i = ~ Description == "River Segment Model Statistics:", bg = "#EFEFEF", part = "body")
+fontsize(ft, size = 9)
+```
+<!---BLOCK_LANDSCAPE_STOP--->
+
