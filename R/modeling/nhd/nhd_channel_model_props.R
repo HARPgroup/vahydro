@@ -7,7 +7,7 @@ library("stringr")
 library("rjson")
 
 
-out_point = sf::st_sfc(sf::st_point(c(-77.543333333333, 38.312222222222)), crs = 4326)
+out_point = sf::st_sfc(sf::st_point(c(-77.639166666700, 38.351666666700)), crs = 4326)
 nhd_out <- get_nhdplus(out_point)
 # 5.358322
 m_cat <- plot_nhdplus(list(nhd_out$comid))
