@@ -862,7 +862,7 @@ LAYER
     END
   END
   CLASS
-    EXPRESSION ( [propvalue] = -77777 )
+    EXPRESSION ( [propvalue] = -66666 )
     NAME "Prep"
     COLOR 65 105 225
     BACKGROUNDCOLOR 65 105 225
