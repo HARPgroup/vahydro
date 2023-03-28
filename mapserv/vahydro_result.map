@@ -863,7 +863,22 @@ LAYER
   END
   CLASS
     EXPRESSION ( [propvalue] = -77777 )
-    NAME "Undefined"
+    NAME "Prep"
+    COLOR 65 105 225
+    BACKGROUNDCOLOR 65 105 225
+    OUTLINECOLOR 0 0 0
+    STYLE
+      SYMBOL "hatch-simple"
+      COLOR 0 0 0
+      SIZE 10
+      WIDTH 2
+      ANGLE 135
+      OPACITY 50
+    END # STYLE
+  END
+  CLASS
+    EXPRESSION ( [propvalue] = -77777 )
+    NAME "Running"
     COLOR 46 139 87
     BACKGROUNDCOLOR 46 139 87
     OUTLINECOLOR 0 0 0
