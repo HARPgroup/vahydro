@@ -726,7 +726,8 @@ LAYER
      f.name, f.ftype, 
      b.propname as runid, 
     CASE
-       WHEN c.propvalue is null THEN -99999      
+       WHEN mrs.propvalue = 1 THEN -77777
+       WHEN c.propvalue is null THEN -99999
        ELSE c.propvalue 
     END as propvalue 
     from dh_feature as f 
@@ -749,6 +750,11 @@ LAYER
     on ( 
      b.pid = c.featureid 
      and c.propname = '%propname%' 
+    ) 
+    left outer join dh_properties as mrs
+    on ( 
+     b.pid = mrs.featureid 
+     and mrs.propname = 'model_status' 
     ) 
     where f.ftype in (
      '%ftype%'
@@ -853,6 +859,21 @@ LAYER
       PARTIALS FALSE
       MINDISTANCE 8000
     END
+  END
+  CLASS
+    EXPRESSION ( [propvalue] = -99999 )
+    NAME "Undefined"
+    COLOR 46 139 87
+    BACKGROUNDCOLOR 46 139 87
+    OUTLINECOLOR 0 0 0
+    STYLE
+      SYMBOL "hatch-simple"
+      COLOR 0 0 0
+      SIZE 10
+      WIDTH 2
+      ANGLE 135
+      OPACITY 50
+    END # STYLE
   END
   CLASS
     EXPRESSION ( [propvalue] = -99999 )
