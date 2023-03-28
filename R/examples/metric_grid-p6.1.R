@@ -48,7 +48,7 @@ wshed_data <- sqldf(
   left outer join da_data as b 
   on (a.pid = b.pid)
   WHERE a.hydrocode not like '%0000'
-  and a.riverseg like 'J%'
+  and a.riverseg like 'R%'
   order by da
   ")
 
