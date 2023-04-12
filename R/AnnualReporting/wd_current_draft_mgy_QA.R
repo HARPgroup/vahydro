@@ -1,3 +1,8 @@
+##################################################################################
+#This script is the QA on Annual Reporting data
+#It compares the prior 5yr avg against the current draft 5yr avg and prioritizes MP changes for planners to look at 
+##################################################################################
+
 library(sqldf)
 
 #prevents scientific notation
@@ -59,7 +64,7 @@ draft3.5 <- sqldf('SELECT *,
                WHERE "wd_current_draft_mgy_.enddate." - "wd_current_draft_mgy_.startdate." = 1
                ORDER BY diff_mgd desc
                ')
-
+#write.csv(draft3.5, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft3.5.csv"))
 
 
 #fourth round of QA - any MPs that are negative draft values OR have a percent change greater than 100% (only include MPs that are >= 2 years old)

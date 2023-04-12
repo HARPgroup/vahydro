@@ -48,6 +48,7 @@ library(officer)
 library(flextable)
 library(hydrotools)
 library(rjson)
+library(rapportools)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
 ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
