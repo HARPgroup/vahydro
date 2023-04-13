@@ -37,23 +37,24 @@ df <- data.frame(
   'metric' = c('Qout', 'Qout', 'Qout'),
   'runlabel' = c('Qout_vahydro_11', 'Qout_hsp2', 'Qout_subsheds')
 )
-wshed_data <- om_vahydro_metric_grid(metric, df, ds = ds)
+all_data <- om_vahydro_metric_grid(metric, df, ds = ds)
+
+all_data$Qdiff_ss <- 100.0 * (all_data$Qout_subsheds - all_data$Qout_hsp2) / all_data$Qout_hsp2
+all_data$Qdiff_wsp <- 100.0 * (all_data$Qout_subsheds - all_data$Qout_vahydro_11) / all_data$Qout_vahydro_11
+boxplot(all_data$Qdiff_ss, all_data$Qdiff_wsp, ylim=c(-100,100))
 
 # note, this next step removes tidal segments, but it also fixes
 # a weird issue where some numeric columns are formatted as scientific notation and others are not
 # which sucks, so, run this even if you think you don't need it
 wshed_data <- sqldf(
   "select a.*, b.da 
-   from wshed_data as a 
+   from all_data as a 
   left outer join da_data as b 
   on (a.pid = b.pid)
   WHERE a.hydrocode not like '%0000'
-  and a.riverseg like 'R%'
+  and a.riverseg like 'Y%'
   order by da
   ")
-
-wshed_data$Qdiff_ss <- 100.0 * (wshed_data$Qout_subsheds - wshed_data$Qout_hsp2) / wshed_data$Qout_hsp2
-wshed_data$Qdiff_wsp <- 100.0 * (wshed_data$Qout_subsheds - wshed_data$Qout_vahydro_11) / wshed_data$Qout_vahydro_11
 boxplot(wshed_data$Qdiff_ss, wshed_data$Qdiff_wsp, ylim=c(-100,100))
 
 
