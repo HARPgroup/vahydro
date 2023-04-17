@@ -2,6 +2,8 @@ library("knitr")
 library("kableExtra")
 library("hydrotools")
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cu_table.R")
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
+
 basepath='/var/www/R';
 site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 #source("/var/www/R/config.local.private");
@@ -9,28 +11,26 @@ source(paste(basepath,'config.R',sep='/'))
 ds = RomDataSource$new(site, rest_uname)
 ds$get_token(rest_pw)
 
-ccelid = 328319
-cc_dat <- om_get_rundata(ccelid , 222, site = omsite)
-cc_dat$qcu <- ( cc_dat$impoundment_Qin - cc_dat$impoundment_Qout )
-wd_r4 = om_flow_table(cc_dat, 'qcu')
-om_flow_table(cc_dat, 'avail_catawba')
-om_flow_table(cc_dat, 'qcu')
-atc <- om_flow_table(cc_dat, 'avail_tinker')
-kable(atc)
+# Tinker Intake
+elid_tinker = 328319
+dat_tinker_222 <- om_get_rundata(elid_tinker , 222, site = omsite)
+dat_tinker_222av <- om_flow_table(dat_tinker_222, 'avail_tinker')
+kable(dat_tinker_222av, 'markdown')
 
-selid = 306768
-s_dat <- om_get_rundata(selid , 222, site = omsite)
-sav <- om_flow_table(cc_dat, 'available_mgd')
+# Salem WTP (Roanoke River Intake)
+elid_salem = 306768
+# dat_salem_616 <- om_get_rundata(elid_salem , 616, site = omsite)
+# dat_salem_616av <- om_flow_table(dat_salem_616, 'available_mgd')
+dat_salem_222 <- om_get_rundata(elid_salem , 222, site = omsite)
+dat_salem_222av <- om_flow_table(dat_salem_222, 'available_mgd')
+# kable(dat_salem_222av)
+kable(dat_salem_222av, 'markdown')
+
+# Spring Hollow (Roanoke River Intake)
+elid_SH = 328321
+dat_SH_222 <- om_get_rundata(elid_SH , 222, site = omsite)
+dat_SH_222av <- om_flow_table(dat_SH_222, 'available_mgd')
+kable(dat_SH_222av, 'markdown')
 
 
-shelid = 328321
-sh_dat <- om_get_rundata(shelid , 222, site = omsite)
-sh_dat$Qmgd <- sh_dat$Qintake / 1.547
-shav <- om_flow_table(sh_dat, 'available_mgd')
-fqcu_table <- om_cu_table(
-  list(), sh_dat, 
-  'available_mgd', 'Qmgd', 
-  c(0,15,25), 2
-) 
-om_flow_table(sh_dat, q_col = 'available_mgd', mo_col = "month", rdigits = 2)
 rmarkdown::render('/usr/local/home/git/vahydro/R/OWS_summaries/imp_yield.Rmd', output_file = '/WorkSpace/modeling/projects/roanoke/salem/salem_cia.docx', params = list( doc_title = 'Scenario Detail – Salem', model_feature = 68327, model_pid = 4713208, scenario = "runid_222", model_version= "vahydro-1.0", image_names =c("fig.unmet_heatmap_amt", "fig.monthly_demand" ), column_descriptions =c("Unmet Demand", "Monthly Demand" )))
