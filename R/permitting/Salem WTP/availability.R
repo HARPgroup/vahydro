@@ -1,7 +1,8 @@
 library("knitr")
 library("kableExtra")
+library("hydrotools")
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cu_table.R")
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
-library()
 
 basepath='/var/www/R';
 site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
@@ -32,3 +33,4 @@ dat_SH_222av <- om_flow_table(dat_SH_222, 'available_mgd')
 kable(dat_SH_222av, 'markdown')
 
 
+rmarkdown::render('/usr/local/home/git/vahydro/R/OWS_summaries/imp_yield.Rmd', output_file = '/WorkSpace/modeling/projects/roanoke/salem/salem_cia.docx', params = list( doc_title = 'Scenario Detail – Salem', model_feature = 68327, model_pid = 4713208, scenario = "runid_222", model_version= "vahydro-1.0", image_names =c("fig.unmet_heatmap_amt", "fig.monthly_demand" ), column_descriptions =c("Unmet Demand", "Monthly Demand" )))

@@ -31,7 +31,7 @@ domain <- st_buffer(st_as_sfc(st_bbox(start_point)), .2)
 # grab some sample data and plot the domain
 # can be done like this if we have an nhd comid:
 # plot_nhdplus(outlets=nhd_out$comid)
-nhd <- plot_nhdplus(bbox = st_bbox(domain))
+nhd <- plot_nhdplus(bbox = st_bbox(st_buffer(domain,0.2)))
 cdf <- as.data.frame(nhd$catchment)
 
 fldf <- as.data.frame(st_drop_geometry(nhd$flowline))
