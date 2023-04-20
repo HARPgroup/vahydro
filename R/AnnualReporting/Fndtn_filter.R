@@ -136,6 +136,83 @@ fac_prmt2 <- sqldf('SELECT a.*, b.Source_Types
 write.csv(fac_prmt2, paste0(export_path,"fac_prmt2.csv"), row.names=F)
 
 ################################################################################
+# REQUEST: Monthly Reporting Data in TMDL Watersheds
+# Date: 04-20-2023
+################################################################################
+
+library('sqldf')
+library('hydrotools')
+
+### Data Sources ###
+#identify HUC using:
+#http://consapps.dcr.virginia.gov/htdocs/maps/HUExplorer.htm
+#by entering the RU01 tmdl watershed names into the "Find Hydrologic Unit",
+#then copy HUC name and enter it into the watershed export:
+#https://deq1.bse.vt.edu/d.dh/ows-annual-report-map-exports-huc-containment/74576
+#by either replacing the HUC08 digits, or for HUC12 just do 'contains' and enter the 12digit HUC
+
+
+#read CSV because vahydro pull is not working
+data_ann <- read.csv("C:\\Users\\rnv55934\\Downloads\\ows_annual_report_map_exports (14).csv")
+
+# #read in all Huc12 CSVs if multiple watersheds are downloaded
+# data_bind<-data.frame()
+# i <- 14
+# for (x in 1:14){
+#   i = i+1
+#   data_loop <- read.csv(paste0("C:\\Users\\rnv55934\\Downloads\\ows_annual_report_map_exports (",i,").csv"))
+#   data_bind <- rbind(data_loop,data_bind)
+# }
+# data_ann_mp <- sqldf('SELECT HydroID,huc_name,huc_ftype,huc_hydrocode
+#                      FROM data_bind GROUP BY HydroID')
+
+#identify the MP hyroids that reported during the requested timeframe
+data_ann_mp <- sqldf('SELECT HydroID,huc_name,huc_ftype,huc_hydrocode
+                     FROM data_ann GROUP BY HydroID')
+
+#load monthly data generated using the "\GitHub\hydro-tools\GIS_functions\AWRR-to-GDB.R"
+wd_mgm1 <- read.csv("C:\\Users\\rnv55934\\Documents\\Docs\\Data_Exports_Echo\\JPope\\withdrawal_monthly_2000-2009.csv")
+wd_mgm2 <- read.csv("C:\\Users\\rnv55934\\Documents\\Docs\\Data_Exports_Echo\\JPope\\withdrawal_monthly_2010-2019.csv")
+wd_mgm3 <- read.csv("C:\\Users\\rnv55934\\Documents\\Docs\\Data_Exports_Echo\\JPope\\withdrawal_monthly_2020-2022.csv")
+
+#join MPs to monthly reporting data
+join1 <- sqldf('SELECT a.huc_name, a.huc_ftype, a.huc_hydrocode, b.*
+               FROM data_ann_mp as a
+               LEFT OUTER JOIN wd_mgm1 as b
+               ON a.HydroID = b.MP_ID')
+join2 <- sqldf('SELECT a.huc_name, a.huc_ftype, a.huc_hydrocode, b.*
+               FROM data_ann_mp as a
+               LEFT OUTER JOIN wd_mgm2 as b
+               ON a.HydroID = b.MP_ID')
+join3 <- sqldf('SELECT a.huc_name, a.huc_ftype, a.huc_hydrocode, b.*
+               FROM data_ann_mp as a
+               LEFT OUTER JOIN wd_mgm3 as b
+               ON a.HydroID = b.MP_ID')
+
+#export to fulfill data request
+write.csv(join1,"C:\\Users\\rnv55934\\Documents\\Docs\\Data_Exports_Echo\\TMDL\\wdmon_2000-2009.csv")
+write.csv(join2,"C:\\Users\\rnv55934\\Documents\\Docs\\Data_Exports_Echo\\TMDL\\wdmon_2010-2019.csv")
+write.csv(join3,"C:\\Users\\rnv55934\\Documents\\Docs\\Data_Exports_Echo\\TMDL\\wdmon_2020-2022.csv")
+
+#---
+# rest_uname = FALSE
+# rest_pw = FALSE
+# basepath ='/var/www/R'
+# source(paste0(basepath,'/auth.private'))
+# source(paste0(basepath,'/config.R'))
+# ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+# ds$get_token(rest_pw)
+# syear = 2020
+# eyear = 2022
+# huc <- "nhd_huc8_03010101"
+# #load in MGY from HUC Containment Map Exports view
+# tsdef_url <- paste0(site,"/ows-awrr-map-export-huc-containment/74576?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake&dh_link_admin_reg_issuer_target_id%5B0%5D=65668&dh_link_admin_reg_issuer_target_id%5B1%5D=91200&dh_link_admin_reg_issuer_target_id%5B2%5D=77498&ftype_1=&hydrocode_op=%3D&hydrocode=",huc)
+# tsdef_url <- paste0(site,"/ows-awrr-map-export-huc-containment/74576?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=2000-01-01&tstime%5Bmax%5D=2022-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake&dh_link_admin_reg_issuer_target_id%5B0%5D=65668&dh_link_admin_reg_issuer_target_id%5B1%5D=91200&dh_link_admin_reg_issuer_target_id%5B2%5D=77498&ftype_1=&hydrocode_op=contains&hydrocode=030101010402")
+# #Pull from VAHydro
+# data_ann <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
+
+
+################################################################################
 # REQUEST: 
 # Date: 
 ################################################################################

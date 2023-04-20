@@ -120,3 +120,74 @@ draft5_bottom <- sqldf('SELECT * FROM draft5 ORDER BY diff_mgd asc LIMIT 5')
 draft5_neg <- sqldf('SELECT * FROM draft5 WHERE "wd_current_draft_mgy_.propvalue." < 0 ORDER BY diff_mgd desc')
 draft5_check <- rbind(draft5_top,draft5_bottom,draft5_neg)
 write.csv(draft5_check, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft5_check.csv"))
+
+########################################################################################################################
+# OPTIONAL, COMPARE CURRENT YEAR TO PRIOR YEAR #########################################################################
+########################################################################################################################
+
+# ##### METHOD USED in 2023 #############
+# syear = 2021
+# eyear = 2022
+# #Download map export for 2021-2022
+# BothYear <- read.csv("C:\\Users\\rnv55934\\Downloads\\ows_annual_report_map_exports (12).csv")
+# dup_check<- sqldf('select * from BothYear group by MP_hydroid, Year, "Water.Use.MGY" having count(*)>1')
+# LastYear <- sqldf('select * from BothYear where Year == 2021')
+# ThisYear <- sqldf('select * from BothYear where Year == 2022')
+# JoinYear <- sqldf('select a.MP_hydroid, a.MP_name, a.facility_name, a."Water.Use.MGY" as MGY_2022,b."Water.Use.MGY" as MGY_2021
+#                   FROM ThisYear a
+#                   LEFT OUTER JOIN LastYear b
+#                   ON a.MP_hydroid = b.MP_hydroid')
+# ChangeMGY <- sqldf('SELECT *,
+#                   round(MGY_2022 - MGY_2021,2) AS diff_mgy,
+#                   round(((MGY_2022 - MGY_2021)/MGY_2021)*100,2) AS pct_chg
+#                   FROM JoinYear')
+# QAannual <- sqldf('SELECT * FROM ChangeMGY
+#                   WHERE pct_chg < -80
+#                   OR pct_chg > 500
+#                   ORDER BY diff_mgy desc ')
+
+
+##### REPRODUCIBLE METHOD ############
+library('hydrotools')
+rest_uname = FALSE
+rest_pw = FALSE
+basepath ='/var/www/R'
+source(paste0(basepath,'/auth.private'))
+source(paste0(basepath,'/config.R'))
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
+
+syear <- as.numeric(cyear)-2
+
+#load in MGY from Annual Map Exports view
+tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
+multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
+#remove duplicates
+BothYear <- sqldf('SELECT * FROM multi_yr_data GROUP BY MP_hydroid, Year')
+dup_check<- sqldf('select * from BothYear group by MP_hydroid, Year, "Water.Use.MGY" having count(*)>1') #should be zero obs.
+
+#compare annual withdrawal MGY values side by side
+LastYear <- sqldf(paste0('select * from BothYear where Year == ',syear))
+ThisYear <- sqldf(paste0('select * from BothYear where Year == ',eyear))
+JoinYear <- sqldf(paste0('select a.MP_hydroid, a."MP name", a.Facility, b."Water Use MGY" as MGY_',syear,', a."Water Use MGY" as MGY_',eyear,'
+                  FROM ThisYear a
+                  LEFT OUTER JOIN LastYear b
+                  ON a.MP_hydroid = b.MP_hydroid'))
+
+#calculate percent change between the two years
+ChangeMGY <- sqldf(paste0('SELECT *,
+                  round(MGY_',eyear,' - MGY_',syear,',2) AS diff_mgy,
+                  round(((MGY_',eyear,' - MGY_',syear,')/MGY_',syear,')*100,2) AS pct_chg
+                  FROM JoinYear'))
+
+#identify MPs to QA visually
+QAannual <- sqldf('SELECT * FROM ChangeMGY
+                  WHERE pct_chg < -80
+                  OR pct_chg > 500
+                  ORDER BY diff_mgy desc ')
+write.csv(QAannual, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft_annual_check.csv"))
+
+#if there are too many MPs to manually check in VAHydro
+#can develop the following line so the MPs already in the draft5_check QA are not repeated here
+#sqldf('select * from QAannual where MP_hydoid NOT IN (select MP_hydroid from draft5)')
+#and consider reducing results by repeating the whole process at the facility level
