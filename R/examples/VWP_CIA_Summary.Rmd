@@ -773,7 +773,7 @@ for (i in 1:length(runid.list)){
   if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$code
     # we have an image, show it 
-    cat("\n\n#### Drought reduction/: ",short_names[[runid.i]],"\n\n")
+    cat("\n\n#### Drought reduction/Unmet Demand: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
   }
   fig_prop <- invisible(find_name(fac_run, "fig.30daymax_unmet"))
@@ -858,14 +858,14 @@ The goal of the following analysis is to estimate the potential impacts of the p
 - Consumptive Use Fraction (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline.
 - Cumulative Withdrawal: The amount of water withdrawn by all intakes in a given river segment sub-watershed, and all upstream sub-watersheds. See also: *Cumulative Withdrawal*.
 - Days of Storage Remaining: For reservoir models, the quotient of the volume of water in a reservoir divided by the daily rate of withdrawal, calculated at each time step of the entire simulation period.
-- Maximum 30 day potential drought reduction/ (MGD): The largest difference between *Requested Demand* and *Withdrawal Met* that results during a continuous 30-day simulation period.
+- Maximum 30 day potential drought reduction/Unmet Demand (MGD): The largest difference between *Requested Demand* and *Withdrawal Met* that results during a continuous 30-day simulation period.
 - MGD: Millions of Gallons per Day, a common unit of measuring withdrawal and discharge.
 - MGY: Millions of Gallons per Year, a common unit for expressing annual facility demand.
 - Minimum Days of Storage Remaining: The minimum simulated *Days of Storage Remaining* in a reservoir.
 - Point Source: Water returned to the stream as treated wastewater.
 - Withdrawal: The amount of water withdrawn by a single facility, or the total amount of water withdrawn within a single simulated river segment sub-watershed. See also: *Cumulative Withdrawal*.
 - Withdrawal Met: The amoiunt of requested demand that was met, on average, throughout the entire simulation period.
-- Drought Reduction/: The difference between *Base Demand* and *Withdrawal Met*, on average, throughout the entire simulation period.
+- Drought Reduction/Unmet Demand: The difference between *Base Demand* and *Withdrawal Met*, on average, throughout the entire simulation period.
 
 \newpage
 
