@@ -48,7 +48,6 @@ library(officer)
 library(flextable)
 library(hydrotools)
 library(rjson)
-library(rapportools)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
 ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
@@ -489,8 +488,8 @@ fqcu_caption <- paste(
   rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive user % due to cumulative demands for", 
   run_info$reports$scenario_name$value, 
   ". Simulated demands include all up-stream demands and demands at ", 
-  fac_feature$name, fac_report_info$intake_name$value, 
-  ") and cumulative return flows.  ", 
+  fac_report_info$intake_name$value, 
+  " and all upstream point-source flows.  ", 
   "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs."
 )
 fqcu_table$caption_text <- fqcu_caption
@@ -541,73 +540,6 @@ if (!is.null(demand_url)) {
 
 ```
 
-```{r makeCUplots, echo=FALSE, include=FALSE, results = "asis"}
-cu_plots = list()
-# check rseg model for plots
-for (i in 1:length(runid.list)){
-  # get river model run prop 
-  runid.i <- runid.list[i]
-  # generate a CU table for each run
-  run.i <- sub("runid_", "", runid.i)
-  if (cu_model == "river") {
-    # use the river as the entity to compare
-    pr_data <- om_get_rundata(rseg.elid, run.i, omsite, FALSE)
-  } else {
-    if (cu_model == "facility") {
-      # use the facility
-      pr_data <- om_get_rundata(fac.elid, run.i, omsite, FALSE)
-    } else {
-      # try this attribute as a elementid
-      pr_data <- om_get_rundata(cu_model, run.i, omsite, FALSE)
-    }
-  }
-  
-  fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
-  fqcu_caption <- paste(
-    "Modeled monthly consumptive use statistics in the ", 
-    rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive user % due to cumulative demands for", 
-    run_info$reports$scenario_name$value, 
-    ". Simulated demands include all up-stream demands and demands at ", 
-    fac_feature$name, fac_report_info$intake_name$value, 
-    ") and cumulative return flows.  ", 
-    "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs."
-  )
-  fqcu_table$caption_text <- fqcu_caption
-  cu_plots[[i]] = fqcu_table
-  #cat("\n")
-  #cat("#### CU Table for")
-  #fqcu_table
-  #cat("\n")
-  #cat(fqcu_caption)
-}
-
-```
-
-\newpage
-
-### Cumulative Consumptive Use Plots:
-
-
-```{r LoadCUPlots, echo=FALSE, results = "asis"}
-
-#for (i in 1:length(runid.list)){
-  cat(paste("#### Cumulative use chart for", run_names[runid.list[1]],"\n"))
-  cat(cu_plots[[1]]$caption_text)
-  cat("\n")
-  cu_plots[[1]]
-  cat("\n\n\\pagebreak\n")
-  #break
-#}
-
-  cat(paste("#### Cumulative use chart for", run_names[runid.list[2]],"\n"))
-  cat(cu_plots[[2]]$caption_text)
-  cat("\n")
-  cu_plots[[2]]
-  cat("\n\n\\pagebreak\n")
-  #break
-```
-
-\newpage
 
 ```{r LoadStatsTable, include=FALSE}
 #-------------------------------------------------------------------------------
@@ -624,10 +556,10 @@ fac_table_raw <- fac_table
 fac_table_sql <- paste('SELECT
                   CASE
                     WHEN "Desc" = "model" THEN "Facility Model Statistics:"
-                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day potential unmet demand (MGD)"
+                    WHEN "Desc" = "unmet30_mgd" THEN "Maximum 30 day conservation/unmet demand (MGD)"
                     WHEN "Desc" = "base_demand_mgy" THEN "Base Demand (MGY)"
                     WHEN "Desc" = "wd_mgy" THEN "Withdrawal (MGY)"
-                    WHEN "Desc" = "unmet_demand_mgy" THEN "Unmet Demand (MGY)"
+                    WHEN "Desc" = "unmet_demand_mgy" THEN "Conservation/Unmet Demand (MGY)"
                     WHEN "Desc" = "base_demand_mgd" THEN "Requested Demand (MGD)"
                     WHEN "Desc" = "wd_mgd" THEN "Withdrawal Met (MGD)"
                     WHEN "Desc" = "ps_mgd" THEN "Point Source (MGD)"
@@ -678,7 +610,7 @@ statsdf <- rbind(rseg_table,fac_table)
 
 \newpage
 ## Detailed Cumulative Impact Analysis
-The following "Summary of Results" table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project. The section entitled “River Segment Model Statistics” contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated Consumptive Use Fraction (See description below) as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed. Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Total Number of Days with Storage < 50% describes the number of days in the simulation in which reservoir levels fall below 50% of full storage. The section entitled “Facility Model Statistics” shows the withdrawals, return flows (Point Source), and the model estimate for potential unmet demand due to demands exceeding the allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect. There will be one or more columns in this table representing each scenario considered for this analysis.
+The following "Summary of Results" table summarizes the cumulative impacts to flows, aquatic life, and off-stream demand for the project. The section entitled “River Segment Model Statistics” contains mean flows (Flow Out), and drought flows (30 and 90 Day Low Flow), as well as an estimated Consumptive Use Fraction (See description below) as a result of all withdrawals (Cumulative Withdrawal) and discharges (Cumulative Point Source) in the watershed. Minimum Days of Storage Remaining describes the number of days of remaining storage available during the driest period of the model simulation (applicable to impoundment models only). Total Number of Days with Storage < 50% describes the number of days in the simulation in which reservoir levels fall below 50% of full storage. The section entitled “Facility Model Statistics” shows the withdrawals, return flows (Point Source), and the model estimate for potential conservation-required/unmet-demand due to demands exceeding the allowable withdrawal at the intake, or drought triggers based on the cumulative conditions in the watershed and the flow-by rules in effect. There will be one or more columns in this table representing each scenario considered for this analysis.
 
 <!---BLOCK_LANDSCAPE_START--->
 ### Summary of Results:
@@ -752,15 +684,85 @@ The following reservoir storage plots depict changes in reservoir storage under 
 
 ``` 
 
+```{r makeCUplots, echo=FALSE, include=FALSE}
+cu_tables = list()
+# check rseg model for plots
+for (i in 1:length(runid.list)){
+  # get river model run prop 
+  runid.i <- runid.list[i]
+  # generate a CU table for each run
+  run.i <- sub("runid_", "", runid.i)
+  if (cu_model == "river") {
+    # use the river as the entity to compare
+    pr_data <- om_get_rundata(rseg.elid, run.i, omsite, FALSE)
+  } else {
+    if (cu_model == "facility") {
+      # use the facility
+      pr_data <- om_get_rundata(fac.elid, run.i, omsite, FALSE)
+    } else {
+      # try this attribute as a elementid
+      pr_data <- om_get_rundata(cu_model, run.i, omsite, FALSE)
+    }
+  }
+  
+  fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
+  fqcu_caption <- paste(
+    "Modeled monthly consumptive use statistics in the ", 
+    rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive use % due to cumulative demands for", 
+    fac_model_info$reports$scenario_name$value, 
+    ". Simulated demands include all up-stream demands and demands at ", 
+    fac_feature$name, fac_report_info$intake_name$value, 
+    ") and cumulative return flows.  ", 
+    "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs."
+  )
+  fqcu_table$caption_text <- fqcu_caption
+  #fqcu_table
+  cu_tables[[i]] = fqcu_table
+  #cat("\n")
+  #cat("#### CU Table for")
+  #fqcu_table
+  #cat("\n")
+  #cat(fqcu_caption)
+}
+
+```
 \newpage
 
-### Analysis of Potential Unmet Demand at the River Intake:
-The following grids are data plotting tools that help visualize data as magnitudes of color intensity. These depict the number of days with unmet demands for each month of the simulation (due to demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The cells show the amount of unmet demand for each month [Number of Unmet Days & Amount (MGD)]. Hydrographs are shown for the period of the simulation with greatest unmet demand.
+### Cumulative Consumptive Use Plots:
+
+
+```{r LoadCUPlots, echo=FALSE, results = "asis"}
+for (i in 1:length(runid.list)){
+  cat(paste("#### Cumulative use for", run_names[runid.list[i]],"\n"))
+  cat(cu_tables[[i]]$caption_text)
+  cat("\n")
+  #cutab = format(cu_tables[[i]], type = "docx")
+  cutab = cu_tables[[i]]
+  flextable::flextable_to_rmd(cutab)
+  #cutab <- c(
+  #  "before",
+  #  knitr::knit_print(cutab),
+  #  "  \\newline\n"
+  #)
+  #knitr::asis_output(paste(cutab, collapse = "\n"))
+  cat("\n\n\\pagebreak\n")
+  #break
+}
+
+```
+
+\newpage
+
+### Analysis of Potential Conservation/Unmet Demand at the River Intake:
+The following grids are data plotting tools that help visualize data as magnitudes of color intensity. These depict the number of days with required conservation demand reductions or unmet demands for each month of the simulation (due to drought triggers or demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The cells show the amount of reductuions/unmet demand for each month [Number of Unmet Days & Amount (MGD)]. Hydrographs are shown for the period of the simulation with greatest reduction/unmet demand.
 
 ```{r UnmetDemandPLOTS, echo=FALSE, message=FALSE, results = "asis"}
 
 # check facility model for plots
 for (i in 1:length(runid.list)){
+  if (i > 1) {
+    cat("\n\n\\pagebreak\n")
+  }
   # get fac model run prop
   # get river model run prop 
   runid.i <- runid.list[i]
@@ -770,7 +772,7 @@ for (i in 1:length(runid.list)){
   if (!(is.null(fig_prop))) {
     fig_path <- fig_prop$code
     # we have an image, show it 
-    cat("\n\n#### Unmet Demand: ",short_names[[runid.i]],"\n\n")
+    cat("\n\n#### Drought reduction/: ",short_names[[runid.i]],"\n\n")
     cat(paste0("![](",fig_path,")"),"\n")
   }
   fig_prop <- invisible(find_name(fac_run, "fig.30daymax_unmet"))
@@ -792,7 +794,6 @@ for (i in 1:length(runid.list)){
     # of missing images so we can alert the user to which entities lack impoundments?
     print(paste("No local facility impoundment for ",short_names[[runid.i]]))
   }
-  cat("\n\n\\pagebreak\n")
   
 }
 
@@ -856,14 +857,14 @@ The goal of the following analysis is to estimate the potential impacts of the p
 - Consumptive Use Fraction (CU): This is calculated as a fraction of modeled Flow, so it is CU = 1.0 - (Flow / Flow_Baseline), where Flow_Baseline = (Flow + WD - PS), and WD and PS are the total cumulative withdrawals and point source discharges above the point in the stream.  In other words, for calculating baseline flow, we take modeled outflow from the river, add the withdrawals back in, and subtract the point source in order to estimate a baseline flow balance.  This almost always ends up being a higher number than the modeled Flow out, so it tells us the fraction of baseline flow that is consumed.  Occasionally there are water transfers and point sources from groundwater, or point sources that cross watershed boundaries that can make the CU fraction in some watersheds negative, i.e. Flow > Flow_Baseline.
 - Cumulative Withdrawal: The amount of water withdrawn by all intakes in a given river segment sub-watershed, and all upstream sub-watersheds. See also: *Cumulative Withdrawal*.
 - Days of Storage Remaining: For reservoir models, the quotient of the volume of water in a reservoir divided by the daily rate of withdrawal, calculated at each time step of the entire simulation period.
-- Maximum 30 day potential unmet demand (MGD): The largest difference between *Requested Demand* and *Withdrawal Met* that results during a continuous 30-day simulation period.
+- Maximum 30 day potential drought reduction/ (MGD): The largest difference between *Requested Demand* and *Withdrawal Met* that results during a continuous 30-day simulation period.
 - MGD: Millions of Gallons per Day, a common unit of measuring withdrawal and discharge.
 - MGY: Millions of Gallons per Year, a common unit for expressing annual facility demand.
 - Minimum Days of Storage Remaining: The minimum simulated *Days of Storage Remaining* in a reservoir.
 - Point Source: Water returned to the stream as treated wastewater.
 - Withdrawal: The amount of water withdrawn by a single facility, or the total amount of water withdrawn within a single simulated river segment sub-watershed. See also: *Cumulative Withdrawal*.
 - Withdrawal Met: The amoiunt of requested demand that was met, on average, throughout the entire simulation period.
-- Unmet Demand: The difference between *Base Demand* and *Withdrawal Met*, on average, throughout the entire simulation period.
+- Drought Reduction/: The difference between *Base Demand* and *Withdrawal Met*, on average, throughout the entire simulation period.
 
 \newpage
 
