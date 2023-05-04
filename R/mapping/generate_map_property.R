@@ -1,10 +1,10 @@
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_functions/mapgen.R")
+# source("C:/Users/nrf46657/Desktop/GitHub/hydro-tools/GIS_functions/mapgen.R")
 
+######################################################################
+######################################################################
 # User Inputs: 
-
-basepath='/var/www/R';
-source("/var/www/R/config.R")
-
+export_path <- "C:/Users/nrf46657/Desktop/VWP Modeling/Magnolia Green"
 filename <- paste0("MagnoliaGreen_nhdplus_map.png")
 
 # specify start point (typically intake location), map buffer is based on this point
@@ -20,11 +20,13 @@ gageid <- "02036500"
 
 # specify which rsegs to plot
 segswhere <- "hydrocode LIKE 'vahydrosw_wshed_J%'"
+######################################################################
+######################################################################
 
 # generate map gg object (simple example, using defaults)
-# map_gg <- mapgen()
+map_gg <- mapgen()
 
-# generate map gg object (simple example, overriding defaults)
+# generate map gg object
 map_gg <- mapgen(start_point=start_point,
                  points=points,
                  gageid=gageid,
