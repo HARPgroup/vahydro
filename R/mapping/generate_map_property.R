@@ -3,6 +3,32 @@ source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_funct
 
 ######################################################################
 ######################################################################
+# Get arguments (or supply defaults)
+# Rscript script.R myarray="c(1,3,4)"
+argst <- commandArgs(trailingOnly=T)
+if (length(argst) > 1) {
+  outlet_comid <- as.numeric(argst[1])
+  if (outlet_comid == -1) {
+    plat <- as.numeric(argst[2])
+    plon <- as.numeric(argst[3])
+  }
+  comp_name <- as.character(argst[4])
+} else {
+  cat("Outlet COMID (press ENTER to query by point):")
+  outlet_comid = readLines("stdin",n=1)
+  outlet_comid = as.numeric(outlet_comid)
+  if ( (outlet_comid == "") | (outlet_comid == "-1")) {
+    cat("Outlet latitude:")
+    plat = readLines("stdin",n=1)
+    plat = as.numeric(plat)
+    cat("Outlet longitude:")
+    plon = readLines("stdin",n=1)
+    plon = as.numeric(plon)
+  }
+  cat("File Name (default is [COMID].json):")
+  comp_name = readLines("stdin",n=1)
+}
+
 # User Inputs: 
 export_path <- "C:/Users/nrf46657/Desktop/VWP Modeling/Magnolia Green"
 filename <- paste0("MagnoliaGreen_nhdplus_map.png")
