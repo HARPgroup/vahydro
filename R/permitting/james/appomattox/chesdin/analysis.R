@@ -58,7 +58,7 @@ abdat <- om_get_rundata(ab_elid, runid, site = omsite)
 quantile(abdat$wd_upstream_mgd)
 
 chesdat <- om_get_rundata(rsvr_elid, runid, site = omsite)
-quantile(chesdat$wd_upstream_mgd)
+quantile(chesdat$flowby)
 
 
 # GET DA
