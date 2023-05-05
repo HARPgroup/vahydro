@@ -51,14 +51,16 @@ mapgen <- function(start_point = data.frame(lat = 37.2863888889, lon = -80.07583
   rsegs_labels$NAME <- rsegs_sf$riverseg
   rseg_domain <- st_bbox(rsegs_sp)
   #***************************
-  #*# Create domain
-  #*
-  
+  #* Create domain
+  #***************************
   sf_use_s2(FALSE) # switch off Spherical geometry (s2) 
+  out_point = sf::st_sfc(sf::st_point(c(start_point$lon, start_point$lat)), crs = 4326)
+  nhd_out <- get_nhdplus(out_point)
+  nhd <- plot_nhdplus(list(nhd_out$comid), actually_plot = FALSE)
   domain <- st_buffer(st_as_sfc(st_bbox(rsegs_sf)), .2)
-  nhd  <- plot_nhdplus(bbox = st_bbox(domain), actually_plot = FALSE)
+  domain  <- plot_nhdplus(bbox = st_bbox(domain), actually_plot = FALSE)
   
-  sf_bbox <- st_bbox(nhd$flowline)
+  sf_bbox <- st_bbox(domain$flowline)
   ggmap_bbox <- setNames(sf_bbox, c("left", "bottom", "right", "top"))
   basemap_toner <- get_map(source = "stamen", maptype = "toner", location = ggmap_bbox, zoom = 12)
   toner_map <- ggmap(basemap_toner)
@@ -66,11 +68,11 @@ mapgen <- function(start_point = data.frame(lat = 37.2863888889, lon = -80.07583
   ######################################################################
   # generate map gg object
   map_gg <- toner_map + 
-    geom_sf(data = rsegs_sf, inherit.aes = FALSE, color = "darkgoldenrod4", fill = NA, size = 2) +
+    geom_sf(data = rsegs_sf, inherit.aes = FALSE, color = "black", fill = NA, size = 10) +
     geom_sf(data = nhd$flowline,inherit.aes = FALSE,color = "blue", fill = NA, size = 0.5) +
-    geom_sf(data = nhd$network_wtbd,inherit.aes = FALSE,color = "blue", fill = NA, size = 1) +
-    geom_sf(data = nhd$off_network_wtbd,inherit.aes = FALSE,color = "blue", fill = NA, size = 1) +
-    # geom_sf(data = nhd$catchment,inherit.aes = FALSE,color = "blue", fill = NA, size = 1) +
+    geom_sf(data = domain$network_wtbd,inherit.aes = FALSE,color = "blue", fill = NA, size = 1) +
+    geom_sf(data = domain$off_network_wtbd,inherit.aes = FALSE,color = "blue", fill = NA, size = 1) +
+    #geom_sf(data = nhd$catchment,inherit.aes = FALSE,color = "blue", fill = NA, size = 1) +
     geom_sf(data = start_point_layer, inherit.aes = FALSE, color = "black", size = 10, pch =18) +
     geom_sf(data = point_layer, inherit.aes = FALSE, color = "white", fill = "black", size = 10, pch = 21) +
     theme(text = element_text(size = 30),axis.title.x=element_blank(),axis.title.y=element_blank()) +
@@ -114,7 +116,8 @@ model_geoprocessor <- function(seg_features) {
 # set up your dataframe of points you want displayed on the map (can be gages, intakes, facilities, anything!)
 gage_02054530 <- dataRetrieval::readNWISsite("02054530")
 gage_02055000 <- dataRetrieval::readNWISsite("02055000")
-points = data.frame(
+# find the watershed outlet. 
+outlet_point = data.frame(
   lat=c(37.221306000000),
   lon=c(-77.524348000000),
   label=c("Lake Chesdin ARWA")
@@ -161,14 +164,14 @@ for (i in 1:nrow(fac_case)) {
   )
 }
 map_gg <- mapgen(
-  start_point = data.frame(mp_points[1,]),
+  start_point = outlet_point,
   points = mp_points, 
   app_map
 )
 
 # save the map image as png
 fpath = "C:/Workspace/tmp/"
-fname = paste(fpath,"fig.location_map_test4.png",sep="")
+fname = paste(fpath,"fig.location_map_test12.png",sep="")
 ggsave(
   filename = fname,
   plot = map_gg,
