@@ -58,7 +58,7 @@ abdat <- om_get_rundata(ab_elid, runid, site = omsite)
 quantile(abdat$wd_upstream_mgd)
 
 chesdat <- om_get_rundata(rsvr_elid, runid, site = omsite)
-quantile(chesdat$wd_upstream_mgd)
+quantile(chesdat$flowby)
 
 
 # GET DA
@@ -114,9 +114,26 @@ seglist <- data.frame(riverseg = wshed_data$riverseg, propname = wshed_data$prop
 # 2. Use ds$get() call
 #    - this is a touch slower, but very concise
 seglist <- ds$get('dh_feature', config=list(ftype='vahydro',bundle='watershed'))
+seglist$riverseg <- str_replace(seglist$hydrocode, 'vahydrosw_wshed_', '')
 # 3. There is also a views public query available which should be super fast
 
 # Then, extract the basin using fn_extract_basin()
 app_segs <- fn_extract_basin(seglist, 'JA5_7480_0001')
+app_map <- model_geoprocessor(app_segs)
 
-
+model_geoprocessor <- function(seg_features) {
+  for (i in 1:nrow(seg_features)) {
+    spone <- sp::SpatialPolygonsDataFrame(
+      readWKT(seg_features[i,]$dh_geofield), 
+      data=as.data.frame(as.list(subset(seg_features[i,],select=-c(dh_geofield))))
+    )
+    if (i == 1) {
+      # start with one 
+      polygons_sp <- spone
+    } else {
+      # append
+      polygons_sp <- rbind(polygons_sp, spone)
+    }
+  }
+  return(polygons_sp)
+}
