@@ -65,7 +65,7 @@ fips <- read.csv(file = "U:\\OWS\\Report Development\\Annual Water Resources Rep
 
 ############### PULL DIRECTLY FROM VAHYDRO ###################################################
 #load in MGY from Annual Map Exports view
-tsdef_url <- paste0(site,"ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
+tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
 
 #NOTE: this takes 5-8 minutes (grab a snack; stay hydrated)
 multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")

@@ -41,15 +41,6 @@ mapgen <- function(start_point = data.frame(lat = 37.2863888889, lon = -80.07583
   start_point_labels <- as.data.frame(sf::st_coordinates(start_point_layer))
   start_point_labels$NAME <- start_point$label
   
-  sf_use_s2(FALSE) # switch off Spherical geometry (s2) 
-  domain <- st_buffer(st_as_sfc(st_bbox(start_point_layer)), .2)
-  nhd  <- plot_nhdplus(bbox = st_bbox(domain), actually_plot = FALSE)
-  
-  sf_bbox <- st_bbox(nhd$flowline)
-  ggmap_bbox <- setNames(sf_bbox, c("left", "bottom", "right", "top"))
-  basemap_toner <- get_map(source = "stamen", maptype = "toner", location = ggmap_bbox, zoom = 12)
-  toner_map <- ggmap(basemap_toner)
-  
   ######################################################################
   # process rseg layer
   rsegs_sf <- st_as_sf(rsegs_sp)
@@ -58,6 +49,19 @@ mapgen <- function(start_point = data.frame(lat = 37.2863888889, lon = -80.07583
   rsegs_centroids <- rgeos::gCentroid(rsegs_sp,byid=TRUE)
   rsegs_labels <- as.data.frame(sf::st_coordinates(st_as_sf(rsegs_centroids)))
   rsegs_labels$NAME <- rsegs_sf$riverseg
+  rseg_domain <- st_bbox(rsegs_sp)
+  #***************************
+  #*# Create domain
+  #*
+  
+  sf_use_s2(FALSE) # switch off Spherical geometry (s2) 
+  domain <- st_buffer(st_as_sfc(st_bbox(rsegs_sf)), .2)
+  nhd  <- plot_nhdplus(bbox = st_bbox(domain), actually_plot = FALSE)
+  
+  sf_bbox <- st_bbox(nhd$flowline)
+  ggmap_bbox <- setNames(sf_bbox, c("left", "bottom", "right", "top"))
+  basemap_toner <- get_map(source = "stamen", maptype = "toner", location = ggmap_bbox, zoom = 12)
+  toner_map <- ggmap(basemap_toner)
   
   ######################################################################
   # generate map gg object
@@ -110,9 +114,10 @@ model_geoprocessor <- function(seg_features) {
 # set up your dataframe of points you want displayed on the map (can be gages, intakes, facilities, anything!)
 gage_02054530 <- dataRetrieval::readNWISsite("02054530")
 gage_02055000 <- dataRetrieval::readNWISsite("02055000")
-points = data.frame(lat=c(37.234062, 37.4144, gage_02054530$dec_lat_va, gage_02055000$dec_lat_va),
-                    lon=c(-80.178434,-79.9338, gage_02054530$dec_long_va, gage_02055000$dec_long_va),
-                    label=c("SH Roanoke River Intake","Tinker Creek Intake", paste("USGS",gage_02054530$site_no), paste("USGS",gage_02055000$site_no))
+points = data.frame(
+  lat=c(37.221306000000),
+  lon=c(-77.524348000000),
+  label=c("Lake Chesdin ARWA")
 )
 
 # execute mapgen() function by supplying a starting_point (i.e. intake location) and your points dataframe
@@ -120,16 +125,50 @@ points = data.frame(lat=c(37.234062, 37.4144, gage_02054530$dec_lat_va, gage_020
 seglist <- ds$get('dh_feature', config=list(ftype='vahydro',bundle='watershed'))
 seglist$riverseg <- str_replace(seglist$hydrocode, 'vahydrosw_wshed_', '')
 # Then, extract the basin using fn_extract_basin()
-app_segs <- fn_extract_basin(seglist, 'OR3_7740_8271')
+app_segs <- fn_extract_basin(seglist, 'JA5_7480_0001')
 app_map <- model_geoprocessor(app_segs)
 
-map_gg <- mapgen(start_point = data.frame(lat = 37.286, lon = -80.076, label = "Salem WTP\nRoanoke River Intake"),
-                 points = points, 
-                 app_map)
+# Now get watershed users
+df = data.frame(runid=runid.list)
+df$model_version <- 'vahydro-1.0'
+df$metric <- 'wd_mgd'
+df$runlabel <- paste('WD MGD', df$runid)
+
+fac_data <- om_vahydro_metric_grid( 
+  metric=FALSE, runids=df, featureid='all', 
+  entity_type='dh_feature', bundle='facility',
+  ftype='all', model_version = 'vahydro-1.0',
+  base_url = "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export",
+  ds = ds
+)
+fac_case <- sqldf(
+  "select a.* from fac_data as a
+   left outer join app_segs as b
+   on (a.riverseg = b.riverseg)
+  where b.riverseg is not null 
+  "
+)
+# filter out WSP entries (optional)
+fac_case <- sqldf("select * from fac_case where hydrocode not like 'wsp_%'")
+mp_points = data.frame(lat=numeric(), lon=numeric(), label=character())
+for (i in 1:nrow(fac_case)) {
+  fc <- fac_case[i,]
+  fac <- RomFeature$new(ds,list(hydroid=fc$featureid), TRUE)
+  facg <- readWKT(fac$geom)
+  mp_points <- rbind(
+    mp_points,
+    data.frame(lat=facg$y, lon=facg$x, label=fac$name)
+  )
+}
+map_gg <- mapgen(
+  start_point = data.frame(mp_points[1,]),
+  points = mp_points, 
+  app_map
+)
 
 # save the map image as png
 fpath = "C:/Workspace/tmp/"
-fname = paste(fpath,"fig.location_map_test.png",sep="")
+fname = paste(fpath,"fig.location_map_test4.png",sep="")
 ggsave(
   filename = fname,
   plot = map_gg,
