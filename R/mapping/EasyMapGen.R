@@ -168,7 +168,7 @@ map_gg <- mapgen(
 
 # save the map image as png
 fpath = "C:/Workspace/tmp/"
-fname = paste(fpath,"fig.location_map_test3.png",sep="")
+fname = paste(fpath,"fig.location_map_test4.png",sep="")
 ggsave(
   filename = fname,
   plot = map_gg,
