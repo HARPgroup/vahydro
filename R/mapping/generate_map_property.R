@@ -1,10 +1,36 @@
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/GIS_functions/mapgen.R")
+# source("C:/Users/nrf46657/Desktop/GitHub/hydro-tools/GIS_functions/mapgen.R")
+
+######################################################################
+######################################################################
+# Get arguments (or supply defaults)
+# Rscript script.R myarray="c(1,3,4)"
+argst <- commandArgs(trailingOnly=T)
+if (length(argst) > 1) {
+  outlet_comid <- as.numeric(argst[1])
+  if (outlet_comid == -1) {
+    plat <- as.numeric(argst[2])
+    plon <- as.numeric(argst[3])
+  }
+  comp_name <- as.character(argst[4])
+} else {
+  cat("Outlet COMID (press ENTER to query by point):")
+  outlet_comid = readLines("stdin",n=1)
+  outlet_comid = as.numeric(outlet_comid)
+  if ( (outlet_comid == "") | (outlet_comid == "-1")) {
+    cat("Outlet latitude:")
+    plat = readLines("stdin",n=1)
+    plat = as.numeric(plat)
+    cat("Outlet longitude:")
+    plon = readLines("stdin",n=1)
+    plon = as.numeric(plon)
+  }
+  cat("File Name (default is [COMID].json):")
+  comp_name = readLines("stdin",n=1)
+}
 
 # User Inputs: 
-
-basepath='/var/www/R';
-source("/var/www/R/config.R")
-
+export_path <- "C:/Users/nrf46657/Desktop/VWP Modeling/Magnolia Green"
 filename <- paste0("MagnoliaGreen_nhdplus_map.png")
 
 # specify start point (typically intake location), map buffer is based on this point
@@ -20,11 +46,13 @@ gageid <- "02036500"
 
 # specify which rsegs to plot
 segswhere <- "hydrocode LIKE 'vahydrosw_wshed_J%'"
+######################################################################
+######################################################################
 
 # generate map gg object (simple example, using defaults)
-# map_gg <- mapgen()
+map_gg <- mapgen()
 
-# generate map gg object (simple example, overriding defaults)
+# generate map gg object
 map_gg <- mapgen(start_point=start_point,
                  points=points,
                  gageid=gageid,
