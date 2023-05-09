@@ -92,6 +92,7 @@ mapgen <- function(start_point = data.frame(lat = 37.2863888889, lon = -80.07583
 }
 
 # function to retrieve & format model segment metric & geometry data
+
 model_geoprocessor <- function(seg_features) {
   for (i in 1:nrow(seg_features)) {
     spone <- sp::SpatialPolygonsDataFrame(
@@ -113,33 +114,24 @@ model_geoprocessor <- function(seg_features) {
 # Example Generating A Map Using mapgen():
 
 # set up your dataframe of points you want displayed on the map (can be gages, intakes, facilities, anything!)
-# gage_02054530 <- dataRetrieval::readNWISsite("02054530")
-# gage_02055000 <- dataRetrieval::readNWISsite("02055000")
+gage_02054530 <- dataRetrieval::readNWISsite("02054530")
+gage_02055000 <- dataRetrieval::readNWISsite("02055000")
 # find the watershed outlet. 
-# outlet_point = data.frame(
-#   lat=c(37.221306000000),
-#   lon=c(-77.524348000000),
-#   label=c("Lake Chesdin ARWA")
-# )
-
 outlet_point = data.frame(
-  lat=c(37.493333333300),
-  lon=c(-79.917777777800),
-  label=c("Catawba Creek Intake")
+  lat=c(37.221306000000),
+  lon=c(-77.524348000000),
+  label=c("Lake Chesdin ARWA")
 )
-
 
 # execute mapgen() function by supplying a starting_point (i.e. intake location) and your points dataframe
 # Get all vahydro watersheds
 seglist <- ds$get('dh_feature', config=list(ftype='vahydro',bundle='watershed'))
 seglist$riverseg <- str_replace(seglist$hydrocode, 'vahydrosw_wshed_', '')
 # Then, extract the basin using fn_extract_basin()
-# Catawba Creek: JU1_7560_7500
-app_segs <- fn_extract_basin(seglist, 'JU1_7560_7500')
+app_segs <- fn_extract_basin(seglist, 'JA5_7480_0001')
 app_map <- model_geoprocessor(app_segs)
 
 # Now get watershed users
-runid.list = c('runid_11')
 df = data.frame(runid=runid.list)
 df$model_version <- 'vahydro-1.0'
 df$metric <- 'wd_mgd'
@@ -178,8 +170,7 @@ map_gg <- mapgen(
 )
 
 # save the map image as png
-# fpath = "C:/Workspace/tmp/"
-fpath = "C:/Users/nrf46657/Desktop/VWP Modeling/Botetourt Golf & Swim Club/"
+fpath = "C:/Workspace/tmp/"
 fname = paste(fpath,"fig.location_map_test12.png",sep="")
 ggsave(
   filename = fname,
