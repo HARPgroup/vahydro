@@ -62,7 +62,7 @@ mapgen <- function(start_point = data.frame(lat = 37.2863888889, lon = -80.07583
   
   sf_bbox <- st_bbox(domain$flowline)
   ggmap_bbox <- setNames(sf_bbox, c("left", "bottom", "right", "top"))
-  basemap_toner <- get_map(source = "stamen", maptype = "toner", location = ggmap_bbox, zoom = 12)
+  basemap_toner <- get_map(source = "stamen", maptype = "toner", color=c("color"), location = ggmap_bbox, zoom = 12)
   toner_map <- ggmap(basemap_toner)
   
   ######################################################################
@@ -118,9 +118,9 @@ gage_02054530 <- dataRetrieval::readNWISsite("02054530")
 gage_02055000 <- dataRetrieval::readNWISsite("02055000")
 # find the watershed outlet. 
 outlet_point = data.frame(
-  lat=c(37.221306000000),
-  lon=c(-77.524348000000),
-  label=c("Lake Chesdin ARWA")
+  lat=c(37.857835),
+  lon=c(-78.266634),
+  label=c("Rivanna River at Palmyra")
 )
 
 # execute mapgen() function by supplying a starting_point (i.e. intake location) and your points dataframe
@@ -128,10 +128,11 @@ outlet_point = data.frame(
 seglist <- ds$get('dh_feature', config=list(ftype='vahydro',bundle='watershed'))
 seglist$riverseg <- str_replace(seglist$hydrocode, 'vahydrosw_wshed_', '')
 # Then, extract the basin using fn_extract_basin()
-app_segs <- fn_extract_basin(seglist, 'JA5_7480_0001')
+app_segs <- fn_extract_basin(seglist, 'JL4_6520_6710')
 app_map <- model_geoprocessor(app_segs)
 
 # Now get watershed users
+runid.list = c("runid_600", "runid_400")
 df = data.frame(runid=runid.list)
 df$model_version <- 'vahydro-1.0'
 df$metric <- 'wd_mgd'
@@ -171,7 +172,7 @@ map_gg <- mapgen(
 
 # save the map image as png
 fpath = "C:/Workspace/tmp/"
-fname = paste(fpath,"fig.location_map_test12.png",sep="")
+fname = paste(fpath,"fig.location_map_rivanna8.png",sep="")
 ggsave(
   filename = fname,
   plot = map_gg,

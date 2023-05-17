@@ -34,6 +34,8 @@ if (length(argst) > 1) {
   cat("File Name (default is [COMID].json):")
   comp_name = readLines("stdin",n=1)
 }
+# if we've supplied a comid assume we know the desired
+# nhd network and just grab it
 if ( !( (outlet_comid == "") | (outlet_comid == "-1"))) {
   # we have been given a comid so pull the location data from NHD+
   pc = nhdplusTools::get_nhdplus(comid=outlet_comid)
@@ -67,7 +69,7 @@ if (comp_name == "") {
 } else {
   fname = paste0(comp_name, ".json")
 }
-outfile = paste0(export_path,"/",fname)
+outfile = paste0(fname)
                  
 # get the nhd flowline dataset  
 nhd <- get_nhdplus(m_cat$basin)
@@ -83,7 +85,7 @@ bc_comids = (paste(bc_comids,collapse=', '))
 nhd_network <- sqldf(str_interp("select * from nhd_df where comid in (${bc_comids}) order by comid"))
 nhd_network[,c('comid', 'gnis_name','fromnode', 'tonode', 'totdasqkm', 'areasqkm', 'lengthkm')]
 
-# render as a nested set ofobjects + equations
+# render as a nested set of objects + equations
 json_out = list()
 network_base = 'RCHRES_R001'
 json_out[[network_base]] = list(name='RCHRES_R001', object_class = 'ModelObject', value='0')
@@ -176,12 +178,32 @@ nhd_model_network <- function (wshed_info, nhd_network, json_network) {
   }
   return(json_network)
 }
-
-json_network = list()
+#json_network = list()
 json_network <- nhd_model_network(as.data.frame(nhd_out), nhd_network, json_network)
 
+# Get Upstream model inputs
+json_network[[wshed_name]][['read_from_children']] = list(
+  name='read_from_children', 
+  object_class = 'ModelBroadcast', 
+  broadcast_type = 'read', 
+  broadcast_channel = 'hydroObject', 
+  broadcast_hub = 'self', 
+  broadcast_params = list(
+    list("Qtrib","Qtrib"),
+    list("trib_area_sqmi","trib_area_sqmi")
+  )
+)
+# Overwrite IVOL with Qin result for main stem
+json_network[['IVOLwrite']] = list(
+  name = 'IVOLwrite', 
+  object_class = 'ModelLinkage',
+  left_path = '/STATE/RCHRES_R001/HYDR/IVOL',
+  right_path = '/STATE/RCHRES_R001/Qin',
+  link_type = 5
+)
 json_out[[network_base]] = json_network
 
 jsonData <- toJSON(json_out)
+print(paste("Writing to", outfile))
 write(jsonlite::prettify(jsonData), outfile)
 

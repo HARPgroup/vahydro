@@ -88,8 +88,11 @@ img_table = om_rmd_img_table(itable,table_cols)
 scenario <- scenarios[1] # assumes the first is the chosen (this is not really meant for multi anyhow)
 runid <- sub("runid_", "", scenario)
 elid <- find_name(ds$prop_json_cache[model_prop$pid],'om_element_connection')$value
-pr_data <- om_get_rundata(elid, runid, omsite, FALSE)
-fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
+if (!is.boolean(cu_pre_var)) {
+  
+  pr_data <- om_get_rundata(elid, runid, omsite, FALSE)
+  fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
+}
 
 ```
 
@@ -120,7 +123,12 @@ for (i in 1:length(model_pids)) {
 
 knitr::kable(img_table)
 x = length(img_table)
-cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", sname$value,"\n\n"))
-fqcu_table$caption_text <- paste("Consumptive use non-exceedence table for", sname$value)
-fqcu_table
+
+if (!is.boolean(cu_pre_var)) {
+  cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", sname$value,"\n\n"))
+  fqcu_table$caption_text <- paste("Consumptive use non-exceedence table for", sname$value)
+  fqcu_table
+} else {
+  cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", sname$value," not requested.\n\n"))
+}
 ```
