@@ -47,6 +47,7 @@ available_mgd = quantile(facdat_df$available_mgd, probs=probs_vector)
 wd_mgd = quantile(facdat_df$wd_mgd, probs=probs_vector)
 adj_demand_mgd = quantile(facdat_df$adj_demand_mgd, probs=probs_vector)
 refill_pump_mgd = quantile(facdat_df$refill_pump_mgd, probs=probs_vector)
+refill_available = quantile(facdat_df$refill_available, probs=probs_vector)
 wd_net_mgd = quantile(facdat_df$wd_net_mgd, probs=probs_vector)
 local_impoundment_Storage = quantile(facdat_df$local_impoundment_Storage, probs=probs_vector)
 local_impoundment_use_remain_mg = quantile(facdat_df$local_impoundment_use_remain_mg, probs=probs_vector)
@@ -61,6 +62,7 @@ round(
     wd_mgd,
     adj_demand_mgd,
     refill_pump_mgd,
+    refill_available,
     wd_net_mgd,
     local_impoundment_Storage,
     local_impoundment_use_remain_mg
@@ -79,7 +81,8 @@ qa <- sqldf("SELECT year,month,day,
             local_impoundment_Storage,
             local_impoundment_use_remain_mg,
             local_impoundment_Qin,
-            local_impoundment_Qout
+            local_impoundment_Qout,
+            local_impoundment_refill_full_mgd
             FROM facdat_df")
 
 ################################################################################################
