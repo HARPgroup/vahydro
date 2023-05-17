@@ -33,9 +33,8 @@ library(dplyr)
 
 pid <- 4827216 #Fac:Rseg model pid
 elid <- 306768 #Fac:Rseg model om_element_connection
-runid <- 217
-# runid <- 616
-
+# runid <- 400
+runid <- 600
 
 #facdat <- om_get_rundata(elid, runid, site = omsite)
 

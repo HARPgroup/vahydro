@@ -16,7 +16,7 @@ output:
 params: 
   doc_title: "USGS Gage vs VAHydro Model"
   elid: 251491
-  runid: 217
+  runid: 200
   gageid: '02054530'
   summary_text: ''
   area_factor: 1.0
@@ -119,13 +119,13 @@ fdc_plot <- hydroTSM::fdc(cbind(fdc_dat.df),
                           )
 ```
 
-## Scatter Plot USGS vs. Model
-```{r scatter-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
-plot(
-  model_flows ~
-  gage_flows
-)
-```
+<!-- ## Scatter Plot USGS vs. Model -->
+<!-- ```{r scatter-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE} -->
+<!-- plot( -->
+<!--   model_flows ~ -->
+<!--   gage_flows -->
+<!-- ) -->
+<!-- ``` -->
 
 \newpage
 
