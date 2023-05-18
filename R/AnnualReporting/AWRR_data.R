@@ -19,6 +19,7 @@ library("RCurl")
 options(scipen = 999)
 
 #NOTE: The start and end year need to be updated every year
+#syear = 1982
 syear = 2018
 eyear = 2022
 
@@ -64,7 +65,6 @@ fips <- read.csv(file = "U:\\OWS\\Report Development\\Annual Water Resources Rep
 
 ############### PULL DIRECTLY FROM VAHYDRO ###################################################
 #load in MGY from Annual Map Exports view
-#syear = 1982
 tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
 
 #NOTE: this takes 5-8 minutes (grab a snack; stay hydrated)
@@ -187,8 +187,8 @@ fiveyr_avg_mgy <- round((rowMeans(multi_yr_data[(length(multi_yr_data)-4):length
 multi_yr_data <- cbind(multi_yr_data,fiveyr_avg_mgy)
 
 #redefine year range
-syear <- 2017
-eyear <- 2021
+syear <- 2018
+eyear <- 2022
 eyearX <- paste0("X",eyear) #for sql statements that need X2021 column
 year.range <- syear:eyear
 
@@ -382,7 +382,8 @@ table1_tex %>%
 ########### TABLE1: wPower ##############
 #GM - make a new Table 1 that includes Power data
 cat_table <- read.csv(file = paste(export_path,eyear+1,"/Table1_",eyear-4,"-",eyear,".csv",sep = ""))
-pow_table <- read.csv(file = "C:\\Users\\rnv55934\\Documents\\Docs\\AnnualReport\\2022\\Table1_Power_2017-2021.csv")
+#pow_table comes from running POWER PULL FROM VAHYDRO section (currently towards the bottom of script), then return here and read in cat_table
+pow_table <- read.csv(file = paste(export_path,eyear+1,"/Table1_Power_",eyear-4,"-",eyear,".csv",sep = ""))
 cat_table <- rbind(cat_table, pow_table)
 cat_table <- cat_table[c(1:6,22:23, 7:12,24:25, 13:18,26:27, 19:21,28:30),] #rearange rows to merge power lines
 rownames(cat_table)<-1:nrow(cat_table) #correct index
@@ -392,12 +393,14 @@ cat_table$Category <- recode(cat_table$Category, "Municipal" = "Public Water Sup
 cat_table$Category <- recode(cat_table$Category, "Total (Gw + Sw)" = "Total (GW + SW)")
 
 #Calculate the total with power included
-cat_table2 <- cat_table %>%  filter(Category %in% c("Total (Gw + Sw)","Total (GW + SW)")) %>% select(X2017, X2018, X2019, X2020, X2021, multi_yr_avg,X..Change.2021.to.Avg.)
+#need to manually update year column names in next several lines
+cat_table2 <- cat_table %>%  filter(Category %in% c("Total (Gw + Sw)","Total (GW + SW)")) %>% select(X2018, X2019, X2020, X2021, X2022, multi_yr_avg,X..Change.2022.to.Avg.) 
 statesum <- colSums(cat_table2, na.rm=FALSE)
-statesum["X..Change.2021.to.Avg."] <- round(((statesum[eyearX]-statesum["multi_yr_avg"])/statesum["multi_yr_avg"])*100,1)
+statesum["X..Change.2022.to.Avg."] <- round(((statesum[eyearX]-statesum["multi_yr_avg"])/statesum["multi_yr_avg"])*100,1)
 statesum<-as.data.frame(t(statesum))
-statesum <-statesum %>% add_column(Category = "Total (GW + SW)", .before = "X2017") %>% add_column(Source.Type = "", .before = "Category")
+statesum <-statesum %>% add_column(Category = "Total (GW + SW)", .before = "X2018") %>% add_column(Source.Type = "", .before = "Category")
 cat_table <- rbind(cat_table,statesum)
+#write.csv(cat_table, paste0(export_path,eyear+1,"/Table1_TempCheck_",eyear-4,"-",eyear,".csv"), row.names = F) 
 
 
 table1_latex <- kable(cat_table[2:9],'latex', booktabs = T,
@@ -1096,8 +1099,8 @@ cat_table<- data.frame(expand.grid(a,b))
 colnames(cat_table) <- c('Use_Type', 'Source_Type')
 cat_table <- arrange(cat_table, Source_Type, Use_Type )
 #cat_table = FALSE
-syear = 2017
-eyear = 2021
+syear = 2018
+eyear = 2022
 year.range <- syear:eyear
 
 multi_yr_data <- list()
