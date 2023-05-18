@@ -19,9 +19,8 @@ library("RCurl")
 options(scipen = 999)
 
 #NOTE: The start and end year need to be updated every year
-# syear = 1982
-syear = 2020
-eyear = 2021
+syear = 2018
+eyear = 2022
 
 #NOTE: switch between file types to save in common drive folder; html or latex
 #file_extension <- ".html"
@@ -42,8 +41,8 @@ ds$get_token(rest_pw)
 #also, line 111, changed to mp_all_power. Not sure what MayQA section does. Also (eyear-4) in line 189/190
 
 
-# export_path <- "U:/OWS/foundation_datasets/awrr/"
-export_path <- "C:/Users/nrf46657/Desktop/DEQ_new/CEDS Migration/"
+export_path <- "U:/OWS/foundation_datasets/awrr/"
+#export_path <- "C:/Users/nrf46657/Desktop/DEQ_new/CEDS Migration/"
 
 #GLOBAL VARIABLES --------------------------------------------------------------------
 if (file_extension == ".html") {
@@ -65,7 +64,8 @@ fips <- read.csv(file = "U:\\OWS\\Report Development\\Annual Water Resources Rep
 
 ############### PULL DIRECTLY FROM VAHYDRO ###################################################
 #load in MGY from Annual Map Exports view
-tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
+#syear = 1982
+tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
 
 #NOTE: this takes 5-8 minutes (grab a snack; stay hydrated)
 multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
@@ -93,7 +93,7 @@ ELSE LOWER("Use Type")
 END AS "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", MAX("Year") AS Year, MAX("Water Use MGY") AS "Water Use MGY"
       FROM multi_yr_data
       WHERE "Use Type" NOT LIKE "gw2_%"
-      GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "OWS Planner", "Year"
+      GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "Year"
       ')
 
 # MP FOUNDATION DATASET - BEGINNING 1982 -----------------------------------------------------------------------------------------------------------------
