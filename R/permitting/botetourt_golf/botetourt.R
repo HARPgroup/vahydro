@@ -9,7 +9,7 @@ source("/var/www/R/config.R")
 rseg_om_id <- 213725
 fac_om_id <- 219133
 # runid <- 601
-runid <- 401
+runid <- 400
 
 gageid = "02018500"
 ################################################################################################
@@ -83,6 +83,14 @@ qa <- sqldf("SELECT year,month,day,
             local_impoundment_Qin,
             local_impoundment_Qout,
             local_impoundment_refill_full_mgd
+            FROM facdat_df")
+
+qa <- sqldf("SELECT year,month,day,
+            Qintake,
+            available_mgd,
+            refill_pump_mgd,
+            flowby,
+            unmet_demand_mgd
             FROM facdat_df")
 
 ################################################################################################
