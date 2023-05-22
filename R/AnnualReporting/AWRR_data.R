@@ -167,6 +167,14 @@ cat_table <- cbind(cat_table,'pct_chg' = pct_chg)
 
 #make Category values capital
 cat_table$Category <- str_to_title(cat_table$Category)
+
+#check if there are any 'agricultural' sums
+print(cat_table)
+
+#remove 'agricultural' keep 'agriculture'
+cat_table <- sqldf('select * from cat_table where Category != "Agricultural"')
+
+#view and check Table 1
 print(cat_table)
 
 # SAVE TABLE 1 SUMMARY --------------------------------------------------------------------------------------------
