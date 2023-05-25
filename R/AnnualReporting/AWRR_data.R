@@ -200,6 +200,8 @@ eyear <- 2022
 eyearX <- paste0("X",eyear) #for sql statements that need X2021 column
 year.range <- syear:eyear
 
+# End read in section, now can continue or jump to the individual table sections #############################################################
+
 ################### MAY QA CHECK ##########################################
 # kable(cat_table, booktabs = T) %>%
 #   kable_styling(latex_options = c("striped", "scale_down")) %>%
@@ -444,6 +446,8 @@ table1_tex %>%
 
 ################### TABLE 4 : TOP 20 USERS ##########################################
 
+#To run this section, read in the static table section first
+
 #GM additions so R and SQL statements recognize the column names
 colnames(multi_yr_data)[colnames(multi_yr_data)=="Use.Type"] <- "Use_Type"
 colnames(multi_yr_data)[colnames(multi_yr_data)=="Source.Type"] <- "Source_Type"
@@ -574,7 +578,7 @@ for (u in use_types) {
     top5_tex
     
     top5_tex %>%
-      cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\",u,"_top5-dup.tex",sep = '')) #GM remove year from filename
+      cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\",u,"_top5.tex",sep = '')) #GM remove year from filename
     
   }
 
@@ -648,11 +652,13 @@ for (u in use_types) {
 
 
 #cat_table <- cat_table2
-###### bySourceType - tables 5,7,9,11,13,16,19 ##################################################
+# bySourceType - tables 5,7,9,11,13,16,19 ##################################################
+# This section of tables requires the static table section to be read in first, and is expecting cat_table to be Table1 WITHOUT power.
+
 #change avg column name 
 syear <- eyear-4 #GM addition so syear is 2017 instead of 1982
 colnames(cat_table)[8] <- paste((eyear-syear)+1,"Year Avg.")
-#ag
+### AG #####
 agtable5 <- cat_table[c(1,7,13),-2]
 rownames(agtable5) <- c()
 
@@ -681,11 +687,11 @@ ag_tex <- gsub(pattern = "{lccccccc}",
 ag_tex %>%
   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Agriculture_table",file_ext,sep = ''))
 
-#kable(cat_table, booktabs = T) %>%  #GM is this supposed to be commented out? Ran one of these just in case so ignore the 5-24 table summary for now
-  kable_styling(latex_options = c("striped", "scale_down")) %>%
-  column_spec(8, width = "5em") %>%
-  column_spec(9, width = "5em") %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
+# #kable(cat_table, booktabs = T) %>%  #GM is this supposed to be commented out? Ran one of these just in case so ignore the 5-24 table summary for now
+#   kable_styling(latex_options = c("striped", "scale_down")) %>%
+#   column_spec(8, width = "5em") %>%
+#   column_spec(9, width = "5em") %>%
+#   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
 ### BAR GRAPH ###################################################################################
 #transform wide to long table
 agtable5 <- agtable5[-3,-8]
@@ -721,7 +727,7 @@ ggplot(data=agtable5, aes(x=Year, y=MGD, fill = Source)) +
 filename <- "Agriculture_BarGraph.pdf" #GM edit at request for easier overleaf changes next year, repeat this edit for usetypes
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/overleaf",sep = " "), width=12, height=6)
 
-#### irrig ######################################################################################
+### irrig ######################################################################################
 #irrig
 irrigtable7 <- cat_table[c(3,9,15),-2]
 rownames(irrigtable7) <- c()
@@ -786,7 +792,7 @@ ggplot(data=irrigtable7, aes(x=Year, y=MGD, fill = Source)) +
 filename <- "Irrigation_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
-##### commercial####################################################################################
+### commercial####################################################################################
 commtable9 <- cat_table[c(2,8,14),-2]
 rownames(commtable9) <- c()
 
@@ -918,7 +924,7 @@ filename <- "Mining_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 
-####manuf #####################################################################################
+###manuf #####################################################################################
 #manuf
 mantable13 <- cat_table[c(4,10,16),-2]
 rownames(mantable13) <- c()
@@ -984,7 +990,7 @@ filename <- "Manufacturing_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 
-#####municipal aka public water supply ########################################################
+###municipal aka public water supply ########################################################
 #muni aka pws
 munitable16 <- cat_table[c(6,12,18),-2]
 rownames(munitable16) <- c()
@@ -1096,7 +1102,7 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 
 
 ### POWER
-### POWER PULL FROM VAHYDRO - REPLACE WITH POWER FILTER FROM MULTI_YR_DATA AFTER FIXING TOP SECTION TO PULL WITHOUT FILTER ON POWER ####################################
+# POWER PULL FROM VAHYDRO - REPLACE WITH POWER FILTER FROM MULTI_YR_DATA AFTER FIXING TOP SECTION TO PULL WITHOUT FILTER ON POWER ####################################
 a <- c(
   'fossilpower',
   'nuclearpower'
@@ -1271,6 +1277,10 @@ print(cat_table)
 write.csv(cat_table, paste(export_path,eyear+1,"/Table1_Power_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
 
 ### POWER TABLE 19###########################################################
+#This table requires the power pull to be completed first
+#redefine cat_table to pull power table instead of non-power Table1
+cat_table <- read.csv(file = paste(export_path,eyear+1,"/Table1_Power_",eyear-4,"-",eyear,".csv",sep = ""))
+
 #Table 19: 20xx-20xx Power Generation Water Withdrawals by Source Type (MGD)
 powtable19 <- rbind(cat_table[1:2,],cat_table[7,],cat_table[3:4,],cat_table[8,],cat_table[9,])
 rownames(powtable19) <- NULL
@@ -1313,7 +1323,7 @@ pow_tex %>%
   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Power_table",file_ext,sep = ''))
 
 
-
+#GM 2023 - skip pow_wide?
 pow_wide <- pivot_wider(data = multi_yr_data, id_cols = c(HydroID, Source_Type, MP_Name, lat, lon, Facility_hydroid, Facility,Use_Type, fips), names_from = Year, values_from = mgy)
 
 write.csv(x = pow_wide, file = paste0("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_wide_power_",syear,"-",eyear,".csv"))
@@ -1371,6 +1381,8 @@ filename <-"Power_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf/",sep = " "), width=12, height=6)
 
 ################### TOP USERS BY USE TYPE  ############################
+
+# This section requires the static table section to be run first to load in multi_yr_data
 
 #Table: Highest Reported  Withdrawals in eyear (MGD)
 #make Category values capital
