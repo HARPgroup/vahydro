@@ -11,11 +11,14 @@ fac_om_id <- 219133
 # runid <- 601
 runid <- 401
 
+ccf_om_id <- 219113 # Catawba Creek to Carvins Cove WD
+
 gageid = "02018500"
 ################################################################################################
 
 
 facdat <- om_get_rundata(fac_om_id, runid, site = omsite)
+ccfacdat <- om_get_rundata(ccf_om_id, runid, site = omsite)
 rsegdat <- om_get_rundata(rseg_om_id, runid, site = omsite)
 mstart <- zoo::as.Date(as.POSIXct(min(index(rsegdat)),origin="1970-01-01"))
 mend <- zoo::as.Date(as.POSIXct(max(index(rsegdat)),origin="1970-01-01"))

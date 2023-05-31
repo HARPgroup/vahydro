@@ -1,0 +1,102 @@
+---
+date: "`r format(Sys.time(), '%m/%d/%Y')`"
+author: ""
+title: "`r params$doc_title`"
+output: 
+  officedown::rdocx_document:
+#  pdf_document:
+#    toc: true
+#    toc_depth: 2
+    mapstyles:
+      Normal: ['First Paragraph']
+    page_margins:
+      bottom: 0.5
+      top: 0.5
+      right: 1
+      left: 0.5
+      header: 0.0
+      footer: 0.0
+params: 
+  doc_title: "DEQ/OWS CIA Table"
+  model_feature: 456224 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "scenario_6014"
+  model_pid: FALSE
+  scenario: "scenario_400"
+  model_version: "vahydro-1.0"
+  image_names: [ "fig.unmet_heatmap_amt", "fig.imp_storage.all", "fig.monthly_demand" ]
+  column_descriptions: [ "Unmet Demand", "Storage by Year", "Monthly Demand" ]
+  cu_threshold: [-10.0, -20.0, -30.0]
+  cu_pre_var: "Qbaseline"
+  cu_post_var: "Qout"
+  cu_model: "river"
+  cu_min_valid: 0.1
+  cu_decimals: 1
+  table_cols: 1
+---
+```{r setup, include=FALSE}
+# load libraries
+library("hydrotools")
+library("openmi.om")
+library("jsonlite")
+library("knitr")
+# load remote code
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/rmd_utils.R")
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/find_name.R")
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cu_table.R")
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
+
+# set up data source access
+basepath='/var/www/R'
+source('/var/www/R/config.R')
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
+ds$json_obj_url <- json_obj_url
+# select entities and info to display
+model_feature <- params$model_feature
+scenario = params$scenario
+scenarios <- c(params$scenario ) # image routine can accomodate multiple
+image_names <- params$image_names
+model_version <- params$model_version
+model_pid<- params$model_pid
+column_descriptions <- params$column_descriptions
+# cu table details all optional, as defaults are set up top
+cu_threshold = params$cu_threshold
+cu_pre_var = params$cu_pre_var
+cu_post_var = params$cu_post_var
+cu_model = params$cu_model
+cu_min_valid = params$cu_min_valid
+cu_decimals = params$cu_decimals
+table_cols = params$table_cols
+
+# load up the models into the data source (they are cahed in ds$prop_json_cache)
+model_pids = list()
+if (is.boolean(model_pid)) {
+  hid<- model_feature
+  model_prop <- RomProperty$new(ds,list(featureid=hid, propcode=model_version),TRUE)
+  model_obj = ds$get_json_prop(model_prop$pid)
+  model_pids[[1]] <- model_prop$pid
+} else {
+  # We already know which model
+  # useful if facility has multiple models 
+  model_prop <- RomProperty$new(ds,list(pid=model_pid),TRUE)
+  model_obj = ds$get_json_prop(model_prop$pid)
+  model_pids[[1]] = model_prop$pid
+}
+elid = as.integer(model_obj$om_element_connection$value)
+# CU table
+scenario <- scenarios[1] # assumes the first is the chosen (this is not really meant for multi anyhow)
+runid <- sub("runid_", "", scenario)
+pr_data <- om_get_rundata(elid, runid, omsite, FALSE)
+fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
+
+```
+
+\newpage
+# Model CU Table
+
+```{r ModelOverview, echo=FALSE, results = "asis"}
+
+cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", sname$value,"\n\n"))
+fqcu_table$caption_text <- paste("Consumptive use non-exceedence table for", sname$value)
+fqcu_table
+
+```

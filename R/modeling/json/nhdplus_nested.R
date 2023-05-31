@@ -47,19 +47,6 @@ if ( !( (outlet_comid == "") | (outlet_comid == "-1"))) {
   plat = p_cent[[1]][[2]]
 }
 
-nhd_next_up <- function (comid, nhd_network) { 
-  next_ups <- sqldf(
-    paste(
-      "select * from nhd_network 
-       where tonode in (
-         select fromnode from nhd_network 
-         where comid = ", comid,
-      ")"
-    )
-  )
-  return(next_ups)
-}
-
 # watershed outlet
 out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
 nhd_out <- get_nhdplus(out_point)
@@ -109,77 +96,28 @@ json_network[['Runit']] = list(
   value='IVOLin / drainage_area_sqmi'
 )
 
-nhd_model_network <- function (wshed_info, nhd_network, json_network) {
+json_network = list()
+json_network <- nhd_model_network(as.data.frame(nhd_out), nhd_network, json_network)
+
+
+nhd_model_network2 <- function (wshed_info, nhd_network, json_network) {
   comid = wshed_info$comid
-  wshed_name = paste0('nhd_', comid)
-  json_network[[wshed_name]] = list(
-    name=wshed_name, 
-    object_class = 'ModelObject'
-  )
-  # base attributes
-  json_network[[wshed_name]][['local_area_sqmi']] = list(
-    name='local_area_sqmi', 
-    object_class = 'Equation', 
-    value=paste(wshed_info$areasqkm,' * 0.386102')
-  )
-  # Get Upstream model inputs
-  json_network[[wshed_name]][['read_from_children']] = list(
-    name='read_from_children', 
-    object_class = 'ModelBroadcast', 
-    broadcast_type = 'read', 
-    broadcast_channel = 'hydroObject', 
-    broadcast_hub = 'self', 
-    broadcast_params = list(
-      list("Qtrib","Qtrib"),
-      list("trib_area_sqmi","trib_area_sqmi")
-    )
-  )
-  # simulate flows
-  json_network[[wshed_name]][['Qlocal']] = list(
-    name='Qlocal', 
-    object_class = 'Equation', 
-    value=paste('local_area_sqmi * Runit')
-  )
-  json_network[[wshed_name]][['Qin']] = list(
-    name='Qin', 
-    object_class = 'Equation', 
-    equation=paste('Qlocal + Qtrib')
-  )
-  json_network[[wshed_name]][['Qout']] = list(
-    name='Qout', 
-    object_class = 'Equation', 
-    equation=paste('Qin * 1.0')
-  )
-  # calculate secondary properties
-  json_network[[wshed_name]][['drainage_area_sqmi']] = list(
-    name='drainage_area_sqmi', 
-    object_class = 'Equation', 
-    equation=paste('local_area_sqmi + trib_area_sqmi')
-  )
-  # send to parent object
-  json_network[[wshed_name]][['send_to_parent']] = list(
-    name='send_to_parent', 
-    object_class = 'ModelBroadcast', 
-    broadcast_type = 'send', 
-    broadcast_channel = 'hydroObject', 
-    broadcast_hub = 'parent', 
-    broadcast_params = list(
-      list("Qout","Qtrib"),
-      list("drainage_area_sqmi","trib_area_sqmi")
-    )
-  )
+  wshed_info$name = paste0('nhd_', comid)
+  json_network[[wshed_info$name]] = om_nestable_watershed(wshed_info)
   next_ups <- nhd_next_up(comid, nhd_network)
   num_tribs = nrow(next_ups)
   if (num_tribs > 0) {
     for (n in 1:num_tribs) {
       trib_info = next_ups[n,]
-      json_network[[wshed_name]] = nhd_model_network(trib_info, nhd_network, json_network[[wshed_name]])
+      trib_info$name = paste0('nhd_', trib_info$comid)
+      json_network[[wshed_info$name]][[trib_info$name]] = nhd_model_network2(trib_info, nhd_network, json_network[[wshed_info$name]])
     }
   }
   return(json_network)
 }
-#json_network = list()
-json_network <- nhd_model_network(as.data.frame(nhd_out), nhd_network, json_network)
+json_network2 = list()
+json_network2 <- nhd_model_network2(as.data.frame(nhd_out), nhd_network, json_network)
+
 
 # Get Upstream model inputs
 json_network[[wshed_name]][['read_from_children']] = list(
@@ -192,6 +130,17 @@ json_network[[wshed_name]][['read_from_children']] = list(
     list("Qtrib","Qtrib"),
     list("trib_area_sqmi","trib_area_sqmi")
   )
+)
+# simulate flows
+json_network[[wshed_name]][['Qlocal']] = list(
+  name='Qlocal', 
+  object_class = 'Equation', 
+  value=paste('local_area_sqmi * Runit')
+)
+json_network[[wshed_name]][['Qin']] = list(
+  name='Qin', 
+  object_class = 'Equation', 
+  equation=paste('Qlocal + Qtrib')
 )
 # Overwrite IVOL with Qin result for main stem
 json_network[['IVOLwrite']] = list(

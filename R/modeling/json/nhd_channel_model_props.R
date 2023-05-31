@@ -7,12 +7,26 @@ library("stringr")
 library("rjson")
 
 
-out_point = sf::st_sfc(sf::st_point(c(-77.639166666700, 38.351666666700)), crs = 4326)
+# Get arguments (or supply defaults)
+argst <- commandArgs(trailingOnly=T)
+if (length(argst) > 1) {
+  plat <- as.numeric(argst[2])
+  plon <- as.numeric(argst[3])
+} else {
+  cat("Outlet latitude:")
+  plat = readLines("stdin",n=1)
+  plat = as.numeric(plat)
+  cat("Outlet longitude:")
+  plon = readLines("stdin",n=1)
+  plon = as.numeric(plon)
+}
+
+out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
 nhd_out <- get_nhdplus(out_point)
 # 5.358322
 m_cat <- plot_nhdplus(list(nhd_out$comid))
 nhd <- get_nhdplus(m_cat$basin)
-trib_comids = get_UT(nhd, comid, distance = NULL)
+trib_comids = get_UT(nhd, nhd_out$comid, distance = NULL)
 nhd_df <- as.data.frame(st_drop_geometry(nhd))
 
 length_ft = as.numeric(sqldf(paste("select sum(lengthkm) from nhd_df where streamorde =",nhd_out$streamorde ))) * 3280.84
