@@ -14,13 +14,30 @@ cr_elid = 353091 # Crewe river
 crfac_elid = 338920 # Crewe WTP
 r_elid <- 245105 
 ro_elid <- 245125 # 353007
+usr_elid <- 245459 # Upstream Nottoway segment, contains Crewe etc.
 fac_elid <- 339022
 
-runid <- 401
+runid <- 400
 
 crdat <- om_get_rundata(cr_elid, runid, site = omsite)
+usrdat <- om_get_rundata(usr_elid, runid, site = omsite)
 rdat <- om_get_rundata(r_elid, runid, site = omsite)
 rodat <- om_get_rundata(ro_elid, runid, site = omsite)
+
+drought_crystal <- crdat[1055:1060,c('local_channel_Qin','Qout', 'wd_mgd', 'wd_cumulative_mgd', 'wd_upstream_mgd')]
+drought_crystal$cu_inout <- (1.0 - drought_crystal$Qout / drought_crystal$local_channel_Qin)
+drought_crystal$cu_wd <- (1.0 - (drought_crystal$Qout / (drought_crystal$Qout + drought_crystal$wd_cumulative_mgd * 1.547)))
+
+drought_nott <- usrdat[1055:1060,c('Qout','wd_mgd', 'wd_cumulative_mgd', 'wd_trib_mgd')]
+drought_nott$cu_inout <- (1.0 - drought_nott$Qout/(drought_nott$Qout + drought_crystal$local_channel_Qin))
+drought_nott$cu_wd <- (1.0 - (drought_nott$Qout / (drought_nott$Qout + drought_nott$wd_cumulative_mgd * 1.547)))
+
+kable(
+  round(drought_crystal,2)
+  )
+kable(
+  round(drought_nott,2)
+)
 
 kable(om_flow_table(rdat, "wd_cumulative_mgd"))
 kable(om_flow_table(rdat, "wd_upstream_mgd"))
