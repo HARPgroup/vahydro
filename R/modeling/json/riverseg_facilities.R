@@ -8,6 +8,7 @@ library("rjson")
 basepath='/var/www/R';
 site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 source(paste(basepath,'config.R',sep='/'))
+source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/modeling/json/om_nhd_model_utils.R")
 #> Linking to GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
 
 # Get arguments (or supply defaults)
