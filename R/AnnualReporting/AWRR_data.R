@@ -28,7 +28,7 @@ eyear = 2022
 file_extension <- ".tex"
 
 #Generate REST token for authentication --------------------------------------------
-
+#(REST no longer needed if generating foundation data through SQL)
 rest_uname = FALSE
 rest_pw = FALSE
 basepath ='/var/www/R'
@@ -42,8 +42,8 @@ ds$get_token(rest_pw)
 #also, line 111, changed to mp_all_power. Not sure what MayQA section does. Also (eyear-4) in line 189/190
 
 
+#resume running here
 export_path <- "U:/OWS/foundation_datasets/awrr/"
-#export_path <- "C:/Users/nrf46657/Desktop/DEQ_new/CEDS Migration/"
 
 #GLOBAL VARIABLES --------------------------------------------------------------------
 if (file_extension == ".html") {
@@ -63,37 +63,51 @@ year.range <- (eyear-4):eyear
 #GM correct 'county' / 'city of' naming convention
 fips <- read.csv(file = "U:\\OWS\\Report Development\\Annual Water Resources Report\\October 2022 Report\\fips_codes_propernames.csv")
 
-############### PULL DIRECTLY FROM VAHYDRO ###################################################
-#load in MGY from Annual Map Exports view
-tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
+############### PULL DIRECTLY FROM VAHYDRO #################################################
+#Use this section only if you want 5yr data, use SQL for full 1982-current foundation data
 
-#NOTE: this takes 5-8 minutes (grab a snack; stay hydrated)
-multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
-#exclude dalecarlia
-multi_yr_data <- multi_yr_data[-which(multi_yr_data$Facility=='DALECARLIA WTP'),]
-#backup<- multi_yr_data
-#multi_yr_data <- backup
-# duplicate_check <- sqldf('SELECT MP_hydroid, "MP Name", "Facility", "FIPS Code", "OWS Planner", count(MP_hydroid)
-#       FROM multi_yr_data
-#       GROUP BY MP_hydroid, Year
-#       HAVING count(MP_hydroid) > 1')
+# #load in MGY from Annual Map Exports view
+# tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
+# 
+# #NOTE: this takes 5-8 minutes (grab a snack; stay hydrated)
+# multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
+# #exclude dalecarlia
+# multi_yr_data <- multi_yr_data[-which(multi_yr_data$Facility=='DALECARLIA WTP'),]
+# #backup<- multi_yr_data
+# #multi_yr_data <- backup
+# # duplicate_check <- sqldf('SELECT MP_hydroid, "MP Name", "Facility", "FIPS Code", "OWS Planner", count(MP_hydroid)
+# #       FROM multi_yr_data
+# #       GROUP BY MP_hydroid, Year
+# #       HAVING count(MP_hydroid) > 1')
 
+
+################ PULL DIRECTLY FROM DEQ2 USING SQL ############################
+#Pull foundation data through SQL,VAHydro Issue #848
+#read in the resulting file
+multi_yr_data <- read.csv(paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"))
+no_gw2 <- sqldf('select * from multi_yr_data WHERE "Use.Type" NOT LIKE "gw2_%"')
+duplicate_check <- sqldf('SELECT *, count(mp_hydroid)
+      FROM no_gw2
+      GROUP BY mp_hydroid, year
+      HAVING count(mp_hydroid) > 1')
+
+names(multi_yr_data)
 #Group the MPs by HydroID, Year to account for MPs that are linked to multiple Facilities (GW2 & Permitted) 
-multi_yr_data <- sqldf('SELECT "MP_hydroid", "Hydrocode", 
+multi_yr_data <- sqldf('SELECT mp_hydroid as "MP_hydroid", hydrocode as "Hydrocode", 
 CASE
-WHEN LOWER("Source Type") LIKE "%well%" THEN "Groundwater"
-WHEN LOWER("Source Type") LIKE "%intake%" THEN "Surface Water"
-ELSE LOWER("Source Type")
+WHEN LOWER("Source.Type") LIKE "%well%" THEN "Groundwater"
+WHEN LOWER("Source.Type") LIKE "%intake%" THEN "Surface Water"
+ELSE LOWER("Source.Type")
 END AS "Source Type", 
-"MP Name", "Facility_hydroid", "Facility", 
+"MP.Name" as "MP Name", facility_hydroid as "Facility_hydroid", facility as "Facility", 
 CASE 
-WHEN LOWER("Use Type") LIKE "%agriculture%" THEN "agriculture"
-WHEN LOWER("Use Type") LIKE "%industrial%" THEN "manufacturing"
-ELSE LOWER("Use Type")
-END AS "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner", MAX("Year") AS Year, MAX("Water Use MGY") AS "Water Use MGY"
+WHEN LOWER("Use.Type") LIKE "%agriculture%" THEN "agriculture"
+WHEN LOWER("Use.Type") LIKE "%industrial%" THEN "manufacturing"
+ELSE LOWER("Use.Type")
+END AS "Use Type", latitude as "Latitude", longitude as "Longitude", "FIPS.Code" as "FIPS Code", locality as "Locality", "OWS.Planner" as "OWS Planner", MAX("year") AS Year, MAX(tsvalue) AS "Water Use MGY"
       FROM multi_yr_data
-      WHERE "Use Type" NOT LIKE "gw2_%"
-      GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "Year"
+      WHERE "Use.Type" NOT LIKE "gw2_%"
+      GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "OWS Planner", "Year" 
       ')
 
 # MP FOUNDATION DATASET - BEGINNING 1982 -----------------------------------------------------------------------------------------------------------------
