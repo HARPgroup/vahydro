@@ -177,17 +177,27 @@ model_geoprocessor <- function(ds,scenario_info,segswhere) {
 #                     label=c("POND #4", "OLD POND", "DUCK POND")
 # )
 
+# gage <- dataRetrieval::readNWISsite("02071530")
+# points = data.frame(lat=c(gage$dec_lat_va, 36.6302, 36.6491, 36.6599),
+#                     lon=c(gage$dec_long_va, -80.4053, -80.3958, -80.4261),
+#                     label=c(paste0("USGS ",gage$site_no),"Duck Pond (Pig Creek)","Old Pond (Little Dan River UT)","Pond #4 (Bent Springs Branch)")
+# )
+
 gage <- dataRetrieval::readNWISsite("02071530")
-points = data.frame(lat=c(gage$dec_lat_va),
-                    lon=c(gage$dec_long_va),
-                    label=c(paste0("USGS ",gage$site_no))
+points = data.frame(lat=c(gage$dec_lat_va, 36.6302, 36.6491, 36.6599),
+                    lon=c(gage$dec_long_va, -80.4053, -80.3958, -80.4261),
+                    label=c(paste0("USGS ",gage$site_no), "Duck Pond", "Old Pond", "Pond #4")
 )
 
+# 
+# map_gg <- mapgen(start_point = data.frame(lat = 36.661838210922504, lon = -80.43187974476945,
+#                                           label = "Primland Resort"),
+#                                           points = points,
+#                  segswhere = "hydrocode LIKE 'vahydrosw_wshed_OD%'"
+#                  )
 map_gg <- mapgen(start_point = data.frame(lat = 36.661838210922504, lon = -80.43187974476945,
                                           label = "Primland Resort"),
-                                          points = points,
-                 segswhere = "hydrocode LIKE 'vahydrosw_wshed_OD%'"
-                 )
+                 points = points)
 
 fpath = "C:/Users/nrf46657/Desktop/VWP Modeling/Primland Resort Golf Course/map/"
 fname = paste(fpath,"fig.location_map_Primland.png",sep="")

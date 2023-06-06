@@ -6,12 +6,12 @@ source("/var/www/R/config.R")
 
 ################################################################################################
 # LOAD MODEL IDs:
-rseg_om_id <- 229753
-fac_om_id <- 351272
+rseg_om_id <- 252979 # Dan River headwater
+fac_om_id <- 307284 # PRIMLAND RESORT:Dan River headwater
 
-runid <- 400
+runid <- 401
 
-gageid = "01658500"
+gageid = "02071530"
 ################################################################################################
 
 
@@ -25,7 +25,7 @@ rsegdat_df <- data.frame(rsegdat)
 
 sort(colnames(facdat_df))
 #-------------------------------------------------------------------------
-area_factor = 1.5/7.62
+area_factor = 0.05/26.3
 historic <- dataRetrieval::readNWISdv(gageid,'00060')
 historic$X_00060_00003 <- historic$X_00060_00003 * area_factor
 gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
@@ -43,7 +43,11 @@ usgs_gage_at_intake = quantile(gage_flows, probs=probs_vector)
 # Qriver_up = quantile(facdat_df$Qriver_up, probs=probs_vector)
 # Qintake_new = quantile((facdat_df$Qriver_up * 57.1/34.3), probs=probs_vector)
 Qintake = quantile(facdat_df$Qintake, probs=probs_vector)
-Q90 = quantile(facdat_df$Q90, probs=probs_vector)
+Qbent_pre = quantile(facdat_df$Qbent_pre, probs=probs_vector)
+Qbent_post = quantile(facdat_df$Qbent_post, probs=probs_vector)
+
+
+# Q90 = quantile(facdat_df$Q90, probs=probs_vector)
 # mif_monthly = quantile(facdat_df$mif_monthly, probs=probs_vector)
 flowby = quantile(facdat_df$flowby, probs=probs_vector)
 available_mgd = quantile(facdat_df$available_mgd, probs=probs_vector)
@@ -56,10 +60,12 @@ local_impoundment_Storage = quantile(facdat_df$local_impoundment_Storage, probs=
 local_impoundment_use_remain_mg = quantile(facdat_df$local_impoundment_use_remain_mg, probs=probs_vector)
 
 
+
 stats = round(
   rbind(usgs_gage_at_intake,
     Qintake,
-    Q90,
+    Qbent_pre,
+    Qbent_post,
     flowby,
     available_mgd,
     wd_mgd,
