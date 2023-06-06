@@ -62,7 +62,8 @@ mapgen <- function(start_point = data.frame(lat = 37.2863888889, lon = -80.07583
   
   sf_bbox <- st_bbox(domain$flowline)
   ggmap_bbox <- setNames(sf_bbox, c("left", "bottom", "right", "top"))
-  basemap_toner <- get_map(source = "stamen", maptype = "toner", color=c("color"), location = ggmap_bbox, zoom = 12)
+  # basemap_toner <- get_map(source = "stamen", maptype = "toner", color=c("color"), location = ggmap_bbox, zoom = 12)
+  basemap_toner <- get_map(source = "stamen", maptype = "terrain", color=c("color"), location = ggmap_bbox, zoom = 12)
   toner_map <- ggmap(basemap_toner)
   
   ######################################################################
@@ -171,8 +172,8 @@ map_gg <- mapgen(
 )
 
 # save the map image as png
-fpath = "C:/Workspace/tmp/"
-fname = paste(fpath,"fig.location_map_rivanna8.png",sep="")
+fpath = "C:/Users/nrf46657/Desktop/GitHub/vahydro/R/mapping/"
+fname = paste(fpath,"fig.location_map_rivanna13.png",sep="")
 ggsave(
   filename = fname,
   plot = map_gg,
