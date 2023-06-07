@@ -71,9 +71,9 @@ while IFS= read -r line; do
 done < /tmp/use_fractions.txt 
 
 # now, handle the facility's own gw_frac and sw_frac 
-cat modules/dh_wsp/sql/create_use_fractions_wsp_virtual.sql | psql -h dbase1 drupal.dh03
+cat modules/dh_wsp/sql/create_use_fractions_wsp_virtual.sql | psql -h dbase1 drupal.dh03 > /tmp/all_use_fractions.txt
 
-# County Virtual Well and Intakes 
+# Do SW and GW frac calculations
 frac_query="select entity_type, featureid, varkey, propname, propvalue from (
     select 'dh_feature' as entity_type, hydroid as featureid, 
     'om_class_Constant' as varkey, 
