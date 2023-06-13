@@ -19,8 +19,8 @@ library("RCurl")
 options(scipen = 999)
 
 #NOTE: The start and end year need to be updated every year
-#syear = 1982
-syear = 2018
+syear = 1982
+#syear = 2018
 eyear = 2022
 
 #NOTE: switch between file types to save in common drive folder; html or latex
@@ -91,7 +91,6 @@ duplicate_check <- sqldf('SELECT *, count(mp_hydroid)
       GROUP BY mp_hydroid, year
       HAVING count(mp_hydroid) > 1')
 
-names(multi_yr_data)
 #Group the MPs by HydroID, Year to account for MPs that are linked to multiple Facilities (GW2 & Permitted) 
 multi_yr_data <- sqldf('SELECT mp_hydroid as "MP_hydroid", hydrocode as "Hydrocode", 
 CASE
@@ -114,6 +113,23 @@ END AS "Use Type", latitude as "Latitude", longitude as "Longitude", "FIPS.Code"
 mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner"), names_from = "Year", values_from = "Water Use MGY", names_sort = T)
 
 write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"), row.names = F)
+
+# #for 2022 only, remove this UPDATE section next year, use type has been corrected in VAHydro##
+# correct_use2 <-sqldf(c("
+#              UPDATE mp_foundation_dataset 
+#              SET 'Use Type' = 'Agriculture' 
+#              WHERE Facility_Hydroid = 600890
+#              ",
+#                        "SELECT * FROM mp_foundation_dataset"))
+# write.csv(correct_use2, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
+# temp <- read.csv(paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"))
+# correct_use2 <-sqldf(c("
+#              UPDATE temp 
+#              SET 'Use.Type' = 'Agriculture' 
+#              WHERE Facility_Hydroid = 600890
+#              ",
+#                        "SELECT * FROM main.temp"))
+# write.csv(correct_use2, paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"), row.names = F)
 
 
 ##split into 2 datasets: POWER & NON-POWER -------------------------------------------------------------------------------------------------
@@ -185,8 +201,10 @@ cat_table$Category <- str_to_title(cat_table$Category)
 #check if there are any 'agricultural' sums
 print(cat_table)
 
-#remove 'agricultural' keep 'agriculture'
-cat_table <- sqldf('select * from cat_table where Category != "Agricultural"')
+#remove 'agricultural' keep 'agriculture', and remove null facilities for orphaned wells
+cat_table <- sqldf('select * from cat_table
+                   where Category != "Agricultural"
+                   AND Category != "Facility"')
 
 #view and check Table 1
 print(cat_table)
