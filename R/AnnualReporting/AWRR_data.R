@@ -106,6 +106,7 @@ ELSE LOWER("Use.Type")
 END AS "Use Type", latitude as "Latitude", longitude as "Longitude", "FIPS.Code" as "FIPS Code", locality as "Locality", "OWS.Planner" as "OWS Planner", MAX("year") AS Year, MAX(tsvalue) AS "Water Use MGY"
       FROM multi_yr_data
       WHERE "Use.Type" NOT LIKE "gw2_%"
+      AND "Facility" != "DALECARLIA WTP"
       GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "OWS Planner", "Year" 
       ')
 
@@ -115,21 +116,31 @@ mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydro
 write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"), row.names = F)
 
 # #for 2022 only, remove this UPDATE section next year, use type has been corrected in VAHydro##
+# temp <- read.csv(paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"))
+# correct_use <-sqldf(c("
+#              UPDATE temp
+#              SET 'Use.Type' = 'agriculture'
+#              WHERE Facility_Hydroid = 600890
+#              ",
+#                        "SELECT * FROM main.temp"))
+# write.csv(correct_use, paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"), row.names = F)
 # correct_use2 <-sqldf(c("
-#              UPDATE mp_foundation_dataset 
-#              SET 'Use Type' = 'Agriculture' 
+#              UPDATE mp_foundation_dataset
+#              SET 'Use Type' = 'agriculture'
 #              WHERE Facility_Hydroid = 600890
 #              ",
 #                        "SELECT * FROM mp_foundation_dataset"))
 # write.csv(correct_use2, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
-# temp <- read.csv(paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"))
-# correct_use2 <-sqldf(c("
-#              UPDATE temp 
-#              SET 'Use.Type' = 'Agriculture' 
-#              WHERE Facility_Hydroid = 600890
-#              ",
-#                        "SELECT * FROM main.temp"))
-# write.csv(correct_use2, paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"), row.names = F)
+# may or may not need to keep this, check use type assignment of Perdue #GM Flag
+correct_use3 <-sqldf(c("
+             UPDATE mp_foundation_dataset
+             SET 'Use Type' = 'manufacturing'
+             WHERE Facility_Hydroid = 67227
+             ",
+                       "SELECT * FROM main.mp_foundation_dataset"))
+write.csv(correct_use3, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
+
+
 
 
 ##split into 2 datasets: POWER & NON-POWER -------------------------------------------------------------------------------------------------
@@ -245,7 +256,8 @@ year.range <- syear:eyear
 ################### Total Facilities Count ##################
 
 #GM section add - generate fac_all of total withdrawals per facility
-mp_foundation <- read.csv(file = "U:\\OWS\\foundation_datasets\\awrr\\2022\\foundation_dataset_mgy_1982-2021.csv") # btw double backslash is same as forward slash
+#mp_foundation <- read.csv(file = "U:\\OWS\\foundation_datasets\\awrr\\2022\\foundation_dataset_mgy_1982-2021.csv") # btw double backslash is same as forward slash
+mp_foundation <- read.csv(file = paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"))
 
 #Note: need to remake it longer so that we can sum the mgy for all MPs for each hydroid, if you don't do this first, when you Group By facility the mgy value selected to represent the facility is from an arbitrary single MP which is not an accurate sum, but also it may be NA which will make the facility count inaccurate
 mp_long <- pivot_longer(mp_foundation, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
@@ -259,7 +271,7 @@ write.csv(fac_all, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\fac_a
 mp_wide <- pivot_wider(data = fac_all, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
 
 
-#GM FLAG to replace count function because it's not recounting properly when I run the nonpower version#####
+###GM FLAG to replace count function because it's not recounting properly when I run the nonpower version#####
 count_3D <- data.frame(Year = matrix(NA, nrow = nrow(mp_wide)), "Num_Reporting_Fac"=matrix(NA, nrow = nrow(mp_wide)), BGY = matrix(NA, nrow=nrow(mp_wide)))
 year.range.f <- 1982:eyear
 i<-0
@@ -293,7 +305,7 @@ fac_all_np <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") a
 #Count total number of reporting facilities for each year
 mp_wide_np <- pivot_wider(data = fac_all_np, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
 
-#GM FLAG 2 - working now, however total reported BGY doesn't match Table1 ####
+###GM FLAG 2 - working now, however total reported BGY doesn't match Table1 ####
 count_3D_np <- data.frame(Year = matrix(NA, nrow = nrow(mp_wide_np)), "Num_Reporting_Fac"=matrix(NA, nrow = nrow(mp_wide_np)), BGY = matrix(NA, nrow=nrow(mp_wide_np)))
 year.range.f <- 1982:eyear
 i<-0
@@ -392,7 +404,7 @@ count_fac <- sqldf(paste('SELECT*
                           FROM count_fac
                           WHERE mgy IS NOT NULL', sep=''))
 
-################### TABLE 1 : Summary ##########################################
+# TABLE 1 : w/o power Summary ##########################################
 #ONlY RUN THIS IF YOU WANT TABLE 1 WITHOUT POWER, OTHERWISE MOVE TO TABLE1 :wPOWER SECTION
 cat_table$Category <- recode(cat_table$Category, "Municipal" = "Public Water Supply")
 table1_latex <- kable(cat_table[2:9],'latex', booktabs = T,
