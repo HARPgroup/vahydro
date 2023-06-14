@@ -131,13 +131,14 @@ write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset
 #              ",
 #                        "SELECT * FROM mp_foundation_dataset"))
 # write.csv(correct_use2, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
-# may or may not need to keep this, check use type assignment of Perdue #GM Flag
+# # will no longer need this either, Perdue is back to being manuf in VAHydro 
 correct_use3 <-sqldf(c("
              UPDATE mp_foundation_dataset
              SET 'Use Type' = 'manufacturing'
              WHERE Facility_Hydroid = 67227
              ",
                        "SELECT * FROM main.mp_foundation_dataset"))
+mp_foundation_dataset <- correct_use3
 write.csv(correct_use3, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
 
 
@@ -455,6 +456,7 @@ statesum<-as.data.frame(t(statesum))
 statesum <-statesum %>% add_column(Category = "Total (GW + SW)", .before = "X2018") %>% add_column(Source.Type = "", .before = "Category")
 cat_table <- rbind(cat_table,statesum)
 #write.csv(cat_table, paste0(export_path,eyear+1,"/Table1_TempCheck_",eyear-4,"-",eyear,".csv"), row.names = F) 
+write.csv(cat_table, paste0(export_path,eyear+1,"/Table1_All_",eyear-4,"-",eyear,".csv"), row.names = F) 
 
 
 table1_latex <- kable(cat_table[2:9],'latex', booktabs = T,
@@ -503,12 +505,12 @@ multi_yr_data$Facility <- str_to_title(multi_yr_data$Facility)
 
 #GM - now that multi_yr_data is wide format and has 5yr avg tacked on already, replace pivot_wider and data_avg generation with simplified data_all below
 data_all <-multi_yr_data
-colnames(data_all)[colnames(data_all)=="Locality"] <- "Locality_NA"
-
-data_all <- sqldf('SELECT a.*, b.name AS Locality
-                  FROM data_all a
-                  LEFT OUTER JOIN fips b
-                  ON a.FIPS = b.code')
+# #commenting out the reassignment of locality names now that foundation locality column is fixed
+# colnames(data_all)[colnames(data_all)=="Locality"] <- "Locality_NA
+# data_all <- sqldf('SELECT a.*, b.name AS Locality
+#                   FROM data_all a
+#                   LEFT OUTER JOIN fips b
+#                   ON a.FIPS = b.code')
 
 data_all <- sqldf('SELECT a.*, 
                         CASE WHEN Source_Type = "Groundwater"
@@ -520,7 +522,7 @@ data_all <- sqldf('SELECT a.*,
                         END AS SW_Type
                   FROM data_all AS a')
 
-
+#no longer need to print a wide copy, foundation is now already wide
 #write.csv(data_all, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_wide_",syear,"-",eyear,".csv",sep = ""), row.names = F)
 
 
@@ -1319,6 +1321,8 @@ print(cat_table)
 
 #GM Add Power Table CSV Export, do we need a latex table of it too?
 write.csv(cat_table, paste(export_path,eyear+1,"/Table1_Power_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
+
+#Note, if generating Table1 with power, can now return back to Table 1 w/power section and continue running
 
 ### POWER TABLE 19###########################################################
 #This table requires the power pull to be completed first
