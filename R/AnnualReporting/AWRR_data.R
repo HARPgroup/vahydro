@@ -1371,10 +1371,10 @@ pow_tex %>%
   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Power_table",file_ext,sep = ''))
 
 
-#GM 2023 - skip pow_wide?
-pow_wide <- pivot_wider(data = multi_yr_data, id_cols = c(HydroID, Source_Type, MP_Name, lat, lon, Facility_hydroid, Facility,Use_Type, fips), names_from = Year, values_from = mgy)
-
-write.csv(x = pow_wide, file = paste0("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_wide_power_",syear,"-",eyear,".csv"))
+# #GM 2023 - skip pow_wide bc mp_power is already wide due to foundation data being wide
+# pow_wide <- pivot_wider(data = multi_yr_data, id_cols = c(HydroID, Source_Type, MP_Name, lat, lon, Facility_hydroid, Facility,Use_Type, fips), names_from = Year, values_from = mgy)
+# 
+# write.csv(x = pow_wide, file = paste0("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_wide_power_",syear,"-",eyear,".csv"))
 
 #JM: pow_facs is not used elsewhere - can probably delete
 
@@ -1430,7 +1430,7 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 
 ################### TOP USERS BY USE TYPE  ############################
 
-# This section requires the static table section to be run first to load in multi_yr_data
+# This section is expecting the POWER PULL section multi_yr_data to be run
 
 #Table: Highest Reported  Withdrawals in eyear (MGD)
 #make Category values capital
