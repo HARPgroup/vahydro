@@ -370,48 +370,22 @@ write.csv(mp_wide3_np, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\f
 # # }
 
 
-#---- Just for eyear
+## Just for eyear ####################
 
 #GM Calculate the total number of facilities here for either power or non-power
 #total facilities with power
-mp_foundation <- read.csv(file = paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"))
+mp_foundation <- read.csv(file = paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"))
 colnames(mp_foundation)[colnames(mp_foundation)=="Use.Type"] <- "Use_Type"
-count_fac <- sqldf(paste('SELECT *
-                          FROM mp_foundation
-                          WHERE ',eyearX,' IS NOT NULL
-                          GROUP BY Facility_hydroid', sep=''))
-totalfac <- nrow(count_fac)
-print(paste0("The total number of facilities including power is ", totalfac, " and if include Dalecarlia the total is ", totalfac+1)) 
-#if we need to exlcude hydropower
+
 count_fac <- sqldf(paste('SELECT *
                           FROM mp_foundation
                           WHERE ',eyearX,' IS NOT NULL AND
                            Use_Type NOT LIKE "hydropower"
                           GROUP BY Facility_hydroid', sep=''))
 totalfac <- nrow(count_fac)
-print(paste0("The total number of facilities including power but excluding hydropower is ", totalfac))
-#if we need to exclude all of power
-mp_all_mgy <- read.csv(file = paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".csv"))
-count_fac <- sqldf(paste('SELECT *
-                          FROM mp_all_mgy
-                          WHERE ',eyearX,' IS NOT NULL
-                          GROUP BY Facility_hydroid', sep=''))
-totalfac <- nrow(count_fac)
-print(paste0("The total number of facilities excluding power is ", totalfac))
-# GM, but if use two steps then you get 1014 facilities instead of 1177. Bc X2021 only gets one MP and it may be NA when another MP at same fac had a value
-# count_fac_test <- sqldf(paste('SELECT *
-#                           FROM mp_foundation
-#                           GROUP BY Facility_hydroid', sep=''))
-# count_fac_2021 <- sqldf(paste('SELECT* 
-#                               FROM count_fac_test 
-#                               WHERE X2021 IS NOT NULL', sep=''))
-# GM the below two steps are the same as the first version of one step because X2021 values are not dropped when MPs are combined, the where statement location doesn't matter, but which MP happens to get chosen when you group by facility hydroid does matter
-count_fac <- sqldf(paste('SELECT *, sum(',paste('"',eyearX,'"', sep = ''),') AS mgy
-                          FROM mp_foundation
-                          GROUP BY Facility_hydroid', sep=''))
-count_fac <- sqldf(paste('SELECT*
-                          FROM count_fac
-                          WHERE mgy IS NOT NULL', sep=''))
+print(paste0("The total number of facilities presented in the report includes nuclear & fossil power, excludes hydropower and includes Dalecarlia: ", totalfac+1," facilites"))
+
+
 
 # TABLE 1 : w/o power Summary ##########################################
 #ONlY RUN THIS IF YOU WANT TABLE 1 WITHOUT POWER, OTHERWISE MOVE TO TABLE1 :wPOWER SECTION
