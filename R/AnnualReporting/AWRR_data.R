@@ -1071,6 +1071,7 @@ ggplot(pws10_sum, aes(x = X1, y = X2)) +
   geom_smooth(method = "lm", color = "grey",linetype = "dashed", se = FALSE)+ #optional trendline
   geom_line() +
   labs(x = "Year", y = "Total Annual Withdrawal (MGD)")+
+  scale_x_continuous(breaks=c(eyear-9,eyear-6,eyear-3,eyear))+
   theme(panel.background = element_rect(fill = "white"),
         panel.grid.major.y = element_line(colour = "light gray", size=.3),
         axis.title.x=element_text(size=15),  # X axis title
