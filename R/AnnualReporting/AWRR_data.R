@@ -131,7 +131,8 @@ write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset
 #              ",
 #                        "SELECT * FROM mp_foundation_dataset"))
 # write.csv(correct_use2, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
-# # will no longer need this either, Perdue is back to being manuf in VAHydro 
+
+# # will no longer need this either, Perdue is back to being manuf in VAHydro, and Fort AP Hill is back to pws in VAHydro
 correct_use3 <-sqldf(c("
              UPDATE mp_foundation_dataset
              SET 'Use Type' = 'manufacturing'
@@ -139,7 +140,14 @@ correct_use3 <-sqldf(c("
              ",
                        "SELECT * FROM main.mp_foundation_dataset"))
 mp_foundation_dataset <- correct_use3
-write.csv(correct_use3, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
+correct_use4 <-sqldf(c("
+             UPDATE mp_foundation_dataset
+             SET 'Use Type' = 'municipal'
+             WHERE Facility_Hydroid = 90592
+             ",
+                       "SELECT * FROM main.mp_foundation_dataset"))
+mp_foundation_dataset <- correct_use4
+write.csv(correct_use4, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
 
 
 
@@ -1328,12 +1336,13 @@ write.csv(cat_table, paste(export_path,eyear+1,"/Table1_Power_",eyear-4,"-",eyea
 #This table requires the power pull to be completed first
 #redefine cat_table to pull power table instead of non-power Table1
 cat_table <- read.csv(file = paste(export_path,eyear+1,"/Table1_Power_",eyear-4,"-",eyear,".csv",sep = ""))
+yearrangeX <- c(paste0("X",year.range[1]), paste0("X",year.range[2]), paste0("X",year.range[3]), paste0("X",year.range[4]), paste0("X",year.range[5]))
 
 #Table 19: 20xx-20xx Power Generation Water Withdrawals by Source Type (MGD)
 powtable19 <- rbind(cat_table[1:2,],cat_table[7,],cat_table[3:4,],cat_table[8,],cat_table[9,])
 rownames(powtable19) <- NULL
 
-powtable19 <- sqldf(paste0('SELECT "Source Type",
+powtable19 <- sqldf(paste0('SELECT "Source.Type",
                     CASE 
                     WHEN "Category" LIKE "%fossil%"
                     THEN "Fossil"
@@ -1341,16 +1350,17 @@ powtable19 <- sqldf(paste0('SELECT "Source Type",
                     THEN "Nuclear"
                     ELSE "Category"
                     END AS "Category",
-                     "',year.range[1],'", "',year.range[2],'", "',year.range[3],'", "',year.range[4],'", "',year.range[5],'", "multi_yr_avg", "% Change ',eyear,' to Avg."
+                     "',yearrangeX[1],'", "',yearrangeX[2],'", "',yearrangeX[3],'", "',yearrangeX[4],'", "',yearrangeX[5],'", "multi_yr_avg", "X..Change.',eyear,'.to.Avg."
                     FROM powtable19'))
 
 pow_tex <- kable(powtable19[2:9], booktabs = T, align = c('l','c','c','c','c','c','c','c'),
                  caption = paste(syear,"-",eyear,"Power Generation Water Withdrawals by Source Type (MGD)",sep=" "),
                  label = paste(syear,"-",eyear,"Power Generation Water Withdrawal Trends(MGD)",sep=" "),
                  col.names = c("Power Type",
-                               colnames(powtable19[3:7]),
+                               year.range[1], year.range[2], year.range[3], year.range[4], year.range[5],
+                               #colnames(powtable19[3:7]),
                                paste((eyear-syear)+1,"Year Avg."),
-                               colnames(powtable19[9]))) %>%
+                               paste0("% Change ",eyear," to Avg."))) %>%
   kable_styling(latex_options = c("scale_down")) %>%
   pack_rows("Groundwater", 1, 3,  hline_after = F) %>%
   pack_rows("Surface Water", 4, 6, hline_before = T, hline_after = F) %>%
