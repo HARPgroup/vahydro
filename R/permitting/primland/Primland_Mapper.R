@@ -130,58 +130,6 @@ model_geoprocessor <- function(ds,scenario_info,segswhere) {
   return(polygons_sp)
 } 
 
-# ggrepel label version: 
-# library(ggrepel)
-# geom_label_repel(data = start_point_coords, aes(X, Y, group = 1, label = NAME), size = 10, fill="white", box.padding =1) +
-# geom_label_repel(data = irr_pond_12mg_coords, aes(X, Y, group = 1, label = NAME), size = 10, fill="white", box.padding =1) +
-# geom_label_repel(data = irr_pond_07mg_coords, aes(X, Y, group = 1, label = NAME), size = 10, fill="white", box.padding =1) +
-# geom_label_repel(data = gage_coords, aes(x = X, y = Y, group = 1, label = NAME), size = 10, fill="white", box.padding =1)
-
-################################################################################
-# Generate A Map Using mapgen()
-
-# gage <- dataRetrieval::readNWISsite("02018500")
-# points = data.frame(lat=c(37.234062, 37.4144, gage$dec_lat_va),
-#                     lon=c(-80.178434,-79.9338, gage$dec_long_va),
-#                     label=c("NA","NA", paste("USGS",gage$site_no))
-# )
-
-#irrigaeiton pond: 37.47588313222684, -79.93179402217645
-
-# gage <- dataRetrieval::readNWISsite("02018500")
-# points = data.frame(lat=c(37.474722222222, 37.47588313222684, gage$dec_lat_va),
-#                     lon=c(-79.927777777778, -79.93179402217645, gage$dec_long_va),
-#                     label=c("BGSC Facility", "Irrigation Pond", paste("USGS",gage$site_no))
-# )
-
-# gage <- dataRetrieval::readNWISsite("01657800")
-# gage2 <- dataRetrieval::readNWISsite("01658500")
-# # points = data.frame(lat=c(38.71727, gage$dec_lat_va, gage2$dec_lat_va),
-# #                     lon=c(-77.24877, gage$dec_long_va, gage2$dec_long_va),
-# #                     label=c("Lake", paste0("USGS ",gage$site_no), paste0("USGS ",gage2$site_no))
-# # )
-# 
-# 
-# points = data.frame(lat=c(gage2$dec_lat_va),
-#                     lon=c(gage2$dec_long_va),
-#                     label=c(paste0("USGS ",gage2$site_no))
-# )
-
-# map_gg <- mapgen(start_point = data.frame(lat = 38.714122437972, lon = -77.249888381909,
-#                                           label = "Giles Run Intake"),
-#                                           points = points)
-
-
-# points = data.frame(lat=c(36.649166666700, 36.630277777800, 36.630277777800),
-#                     lon=c(-80.395833333300, -80.405277777800, -80.405277777800),
-#                     label=c("POND #4", "OLD POND", "DUCK POND")
-# )
-
-# gage <- dataRetrieval::readNWISsite("02071530")
-# points = data.frame(lat=c(gage$dec_lat_va, 36.6302, 36.6491, 36.6599),
-#                     lon=c(gage$dec_long_va, -80.4053, -80.3958, -80.4261),
-#                     label=c(paste0("USGS ",gage$site_no),"Duck Pond (Pig Creek)","Old Pond (Little Dan River UT)","Pond #4 (Bent Springs Branch)")
-# )
 
 gage <- dataRetrieval::readNWISsite("02071530")
 points = data.frame(lat=c(gage$dec_lat_va, 36.6302, 36.6491, 36.6599),

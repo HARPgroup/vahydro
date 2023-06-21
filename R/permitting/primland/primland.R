@@ -1,19 +1,16 @@
 library('hydrotools')
 library('zoo')
+library('knitr') # needed for kable()
 basepath='/var/www/R';
 source("/var/www/R/config.R")
-
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
 
 ################################################################################################
 # LOAD MODEL IDs:
 rseg_om_id <- 252979 # Dan River headwater
 fac_om_id <- 307284 # PRIMLAND RESORT:Dan River headwater
-
-runid <- 401
-
-gageid = "02071530"
+runid <- 400
 ################################################################################################
-
 
 facdat <- om_get_rundata(fac_om_id, runid, site = omsite)
 rsegdat <- om_get_rundata(rseg_om_id, runid, site = omsite)
@@ -25,78 +22,95 @@ rsegdat_df <- data.frame(rsegdat)
 
 # sort(colnames(facdat_df))
 #-------------------------------------------------------------------------
-area_factor = 0.06/26.3
-historic <- dataRetrieval::readNWISdv(gageid,'00060')
-historic$X_00060_00003 <- historic$X_00060_00003 * area_factor
-gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
-gage_flows <- window(gage_flows, start = mstart, end = mend)
-gagedat_df <- data.frame(gage_flows)
+# gageid = "02071530"
+# area_factor = 0.05/26.3
+# historic <- dataRetrieval::readNWISdv(gageid,'00060')
+# historic$X_00060_00003 <- historic$X_00060_00003 * area_factor
+# gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
+# gage_flows <- window(gage_flows, start = mstart, end = mend)
+# gagedat_df <- data.frame(gage_flows)
 #-------------------------------------------------------------------------
+# metrics <- c("Qintake","Runit","Qbent_pre","Qbent_post","flowby","available_mgd","wd_mgd",
+#                   "adj_demand_mgd","refill_pump_mgd","wd_net_mgd",
+#                   "local_impoundment_Storage","local_impoundment_use_remain_mg",
+#                   "Qnatural_below_OldDuck", "Qbelow_OldDuck", "unmet_demand_mgd")
+# q_df <- om_quantile_table(metrics)
+# kable(q_df, 'markdown')
 
 
-# om_flow_table(rsegdat_df, "wd_cumulative_mgd")
-# hydrotools::om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
-probs_vector = c(0,0.1,0.25,0.5,0.75,0.9,1.0)
-usgs_gage_at_intake = quantile(gage_flows, probs=probs_vector)
-Qintake = quantile(facdat_df$Qintake, probs=probs_vector)
-Runit = quantile(facdat_df$Runit, probs=probs_vector)
-Qbent_pre = quantile(facdat_df$Qbent_pre, probs=probs_vector)
-Qbent_post = quantile(facdat_df$Qbent_post, probs=probs_vector)
-flowby = quantile(facdat_df$flowby, probs=probs_vector)
-available_mgd = quantile(facdat_df$available_mgd, probs=probs_vector)
-wd_mgd = quantile(facdat_df$wd_mgd, probs=probs_vector)
-adj_demand_mgd = quantile(facdat_df$adj_demand_mgd, probs=probs_vector)
-refill_pump_mgd = quantile(facdat_df$refill_pump_mgd, probs=probs_vector)
-refill_available = quantile(facdat_df$refill_available, probs=probs_vector)
-wd_net_mgd = quantile(facdat_df$wd_net_mgd, probs=probs_vector)
-local_impoundment_Storage = quantile(facdat_df$local_impoundment_Storage, probs=probs_vector)
-local_impoundment_use_remain_mg = quantile(facdat_df$local_impoundment_use_remain_mg, probs=probs_vector)
+# Pond4 <- om_quantile_table(c("local_impoundment_Storage","local_impoundment_use_remain_mg"))
+# OldDuck <- om_quantile_table(c("Qdivert_Old","OldDuck_Qin","Qbelow_OldDuck","Qnatural_below_OldDuck",
+#                                "available_mgd","wd_pond4_mgd","remain_demand_mgd","wd_OldDuck_mgd",
+#                                "OldDuck_use_remain_mg","OldDuck_Qout"))
 
-stats = round(
-  rbind(usgs_gage_at_intake,
-    Qintake,
-    Runit,
-    Qbent_pre,
-    Qbent_post,
-    flowby,
-    available_mgd,
-    wd_mgd,
-    adj_demand_mgd,
-    refill_pump_mgd,
-    refill_available,
-    wd_net_mgd,
-    local_impoundment_Storage,
-    local_impoundment_use_remain_mg
-  ),
-  2
-)
-
-
+OldDuck <- om_quantile_table(facdat_df, metrics = c("DA_OldDuck","DA_below_OldDuck",
+                                                    "Qdivert_Old","OldDuck_Inflow","Qbelow_OldDuck",
+                                                    "flowby_below_OldDuck","Qnatural_below_OldDuck",
+                                                    "vwp_demand_mgd","adj_demand_mgd","available_mgd",
+                                                    "wd_pond4_mgd","wd_max_Pond4","remain_demand_mgd","wd_OldDuck_mgd","wd_max_OldDuck",
+                                                    "OldDuck_use_remain_mg","OldDuck_Qout","unmet_demand_mgd",
+                                                    "OldDuck_wd_enabled","wd_mgd"),
+                             rdigits = 3)
+kable(OldDuck,'markdown')
 # sort(colnames(facdat_df))
-
-library('knitr')
-kable(stats, 'markdown')
-
-# quantile(facdat_df$Runit, probs=probs_vector)
-################################################################################################
-# qa <- sqldf("SELECT year,month,day,
-#             local_impoundment_max_usable,
-#             local_impoundment_demand,
-#             local_impoundment_demand_met_mgd,
-#             local_impoundment_Storage,
-#             local_impoundment_use_remain_mg,
-#             local_impoundment_Qin,
-#             local_impoundment_Qout,
-#             local_impoundment_refill_full_mgd
-#             FROM facdat_df")
+# OldDuck_4012 <- OldDuck
+# OldDuck_410 <- OldDuck
 # 
-# qa <- sqldf("SELECT year,month,day,
-#             Qintake,
-#             available_mgd,
-#             refill_pump_mgd,
-#             flowby,
-#             unmet_demand_mgd
-#             FROM facdat_df")
+# 
+# OldDuck_4012
+# OldDuck_410
+# quantile(facdat_df$OldDuck_wd_enabled)
+
+rsegdat_df$wd_mgd
+################################################################################################
+################################################################################################
+# sort(colnames(rsegdat))
+# om_quantile_table(rsegdat, metrics = c("Qout","ps_mgd"))
+
+# unmet_demand_mgd =  base_demand_mgd - wd_pond4_mgd - wd_OldDuck_mgd
+# 
+# 
+# mean(facdat_df$base_demand_mgd)
+# mean(facdat_df$wd_pond4_mgd)
+# mean(facdat_df$wd_OldDuck_mgd)
+# mean(facdat_df$wd_pond4_mgd) + mean(facdat_df$wd_OldDuck_mgd)
+# 
+# max(facdat_df$base_demand_mgd)
+# max(facdat_df$wd_pond4_mgd)
+# max(facdat_df$wd_OldDuck_mgd)
+# max(facdat_df$wd_pond4_mgd) + max(facdat_df$wd_OldDuck_mgd)
+# 
+# max(facdat_df$base_demand_mgd) - max(facdat_df$wd_pond4_mgd) - max(facdat_df$wd_OldDuck_mgd)
+# 
+
+# verify flowby is working appropriately:
+qa <- sqldf("SELECT year,month,day,
+                    base_demand_mgd,
+                    wd_pond4_mgd,
+                    wd_OldDuck_mgd,
+                    Qbelow_OldDuck,
+                    flowby_below_OldDuck,
+                    OldDuck_wd_enabled
+             FROM 'facdat_df'")
+
+
+# check pond withdrawals exceeding permit limits:
+qa_pond4 <- sqldf("SELECT year,month,day,
+                    base_demand_mgd,
+                    wd_pond4_mgd,
+                    4.55/31 AS pond4_limit
+             FROM 'facdat_df'
+             WHERE wd_pond4_mgd > (4.55/31)
+            ")
+
+qa_OldDuck <- sqldf("SELECT year,month,day,
+                    base_demand_mgd,
+                    wd_OldDuck_mgd,
+                    wd_max_OldDuck
+             FROM 'facdat_df'
+             WHERE wd_OldDuck_mgd > wd_max_OldDuck
+            ")
+# WHERE wd_OldDuck_mgd > ((4.5+0.75)/31)
 
 ################################################################################################
 ################################################################################################

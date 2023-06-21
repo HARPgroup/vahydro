@@ -17,33 +17,32 @@ library(hydrotools)
 ds <- RomDataSource$new(site, rest_uname)
 ds$get_token(rest_pw)
 
-# Read Args
-# argst <- commandArgs(trailingOnly=T)
-# pid <- as.integer(argst[1])
-# elid <- as.integer(argst[2])
-# runid <- as.integer(argst[3])
 
 #-------------------------
 # save_directory <- 'C:/Users/nrf46657/Desktop/GitHub/om/R/summarize'
-save_directory <- "C:/Users/nrf46657/Desktop/GitHub/vahydro/R/permitting/laurel_hill"
+save_directory <- "C:/Users/nrf46657/Desktop/VWP Modeling/vwp - Primland Resort Golf Course"
 #-------------------------
 
-# Rseg
-# pid <- 4703307
-# elid <- 229753
-
 # Fac
-pid <- 4824423
-elid <- 351272 
-
-# # runid.list <- c(217,616)
-# runid.list <- c(400,600)
-# legend_text <- c("8.00 mgd & No Flow-by",
-#                  "6.64 mgd & 85% Flow-by")
+pid <- 4828546
+elid <- 307284 
 
 runid.list <- c(400)
-# legend_text <- c("0.075 mgd & 90% Flow-by\n(Qintake - (refill_pump_mgd * 1.547))")
-legend_text <- c("Total Permitted Flow\n(Qintake - (refill_pump_mgd * 1.547))")
+
+#-------------------------------------------
+legend_text = c("Baseline Flow (Below Pond #4)",
+                "Total Permitted Flow (Below Pond #4)")
+base_var = "Qbent_pre"
+comp_var = "Qbent_post"
+fname_append = "Pond4"
+#-------------------------------------------
+# legend_text = c("Baseline Flow (Below Pond OldDuck)",
+#                 "Total Permitted Flow (Below Pond OldDuck)")
+# base_var = "Qnatural_below_OldDuck"
+# comp_var = "Qbelow_OldDuck"
+# fname_append = "OldDuck"
+#-------------------------------------------
+
 
 dat_all <- list()
 #i<-1
@@ -104,10 +103,13 @@ for (i in 1:length(runid.list)) {
 # base_var <- "Qbaseline" #BASE VARIABLE USED IN FDCs AND HYDROGRAPHS
 # comp_var <- "Qout" #VARIABLE TO COMPARE AGAINST BASE VARIABLE, DEFAULT Qout
 
-base_var <- "Qintake"
-# comp_var <- "refill_pump_mgd"
-# comp_var <- "qa"
-comp_var <- "Qintake_post_wd"
+# base_var <- "Qintake"
+# # comp_var <- "refill_pump_mgd"
+# # comp_var <- "qa"
+# comp_var <- "Qintake_post_wd"
+
+# base_var = "Qbent_pre"
+# comp_var = "Qbent_post"
 
 # build data frame of data needed for constructing the fdc curves
 dat_base <- dat_all[[1]]
@@ -133,7 +135,7 @@ fname <- paste(
   save_directory,
   paste0(
     'fdc.',
-    elid, '.',paste(runid.list, collapse = "."), '.png'
+    elid, '.',paste(runid.list, collapse = "."),".",fname_append, '.png'
   ),
   sep = '/'
 )
@@ -148,12 +150,12 @@ furl <- paste(
   sep = '/'
 )
 
-
-if (legend_text != FALSE){
-  legend_text = c("Baseline Flow (Qintake)",legend_text)
-} else {
-  legend_text = c("Baseline Flow (Qintake)",runid.list)
-}
+# 
+# if (legend_text != FALSE){
+#   legend_text = c("Baseline Flow (Qintake)",legend_text)
+# } else {
+#   legend_text = c("Baseline Flow (Qintake)",runid.list)
+# }
 
 
 # head(fdc_dat[1])
