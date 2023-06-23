@@ -115,6 +115,13 @@ mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydro
 
 write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"), row.names = F)
 
+#Add 5yr avg calculation to the foundation dataset. 
+#To improve, do this using sql and confirm that NAs are not counted in the average, then perpetuate this change into the script
+fiveyr_avg_mgy <- round((rowMeans(mp_foundation_dataset[(length(mp_foundation_dataset)-4):length(mp_foundation_dataset)], na.rm = TRUE, dims = 1)),2)
+mp_foundation_dataset <- cbind(mp_foundation_dataset,fiveyr_avg_mgy)
+write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,"_5ya.csv"), row.names = F)
+
+
 # #for 2022 only, remove this UPDATE section next year, use type has been corrected in VAHydro##
 # temp <- read.csv(paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"))
 # correct_use <-sqldf(c("
