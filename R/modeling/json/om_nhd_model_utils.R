@@ -70,18 +70,23 @@ om_watershed_container <- function(wshed_info) {
     object_class = 'Equation', 
     value='IVOLin / drainage_area_sqmi'
   )
+  # Compute withrawal in cfs which is hsp units
+  wshed_props[['wd_cfs']] = list(
+    name = 'wd_cfs', 
+    object_class = 'Equation', 
+    value='wd_mgd * 1.547'
+  )
   # Get Local & Upstream model inputs
-  wshed_props[['read_from_children']] = list(
-    name='read_from_children', 
-    object_class = 'ModelBroadcast', 
-    broadcast_type = 'read', 
-    broadcast_channel = 'hydroObject', 
-    broadcast_hub = 'self', 
-    broadcast_params = list(
-      list("Qtrib","Qtrib"),
-      list("trib_area_sqmi","trib_area_sqmi"),
-      list("child_wd_mgd","wd_mgd")
-    )
+  wshed_props[['read_from_children']] = list
+  # inflow and unit area
+  wshed_props[['O1']] = list(
+    name = 'O1', 
+    object_class = 'ModelLinkage',
+    #right_path = paste0('/STATE/', rchres_id, '/wd_cfs'),
+    # instead of spelling it out, I think we can just use the linking
+    right_path = 'wd_cfs',
+    left_path = paste0('/STATE/', rchres_id, '/HYDR/O1'),
+    link_type = 2
   )
   return(wshed_props)
 }

@@ -1,15 +1,19 @@
-library(nhdplusTools)
+suppressPackageStartupMessages(library(nhdplusTools))
 #> USGS Support Package: https://owi.usgs.gov/R/packages.html#support
-library(sf)
-library("sqldf")
-library("stringr")
-library("rjson")
+suppressPackageStartupMessages(library(sf))
+suppressPackageStartupMessages(library("sqldf"))
+suppressPackageStartupMessages(library("stringr"))
+suppressPackageStartupMessages(library("rjson"))
+suppressPackageStartupMessages(library("hydrotools"))
+suppressPackageStartupMessages(library("rgeos"))
 # Load Libraries
 basepath='/var/www/R';
 site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 source(paste(basepath,'config.R',sep='/'))
 source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/modeling/json/om_nhd_model_utils.R")
 #> Linking to GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
 
 # Get arguments (or supply defaults)
 argst <- commandArgs(trailingOnly=T)
@@ -50,7 +54,7 @@ json_out <- om_watershed_container(wshed_info)
 
 
 if (exists("json_obj_url")) {
-  fac_obj_url <- paste(json_obj_url, fac.model$pid, sep="/")
+  fac_obj_url <- paste(json_obj_url, facility_pid, sep="/")
   fac_model_info <- ds$auth_read(fac_obj_url, "text/json", "")
   fac_model_info <- fromJSON(fac_model_info)
 } else {
@@ -62,4 +66,5 @@ if (exists("json_obj_url")) {
 jsonData <- toJSON(json_out)
 print(paste("Writing to", outfile))
 write(jsonlite::prettify(jsonData), outfile)
+
 
