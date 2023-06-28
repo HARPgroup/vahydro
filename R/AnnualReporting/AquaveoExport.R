@@ -30,7 +30,8 @@ ds$get_token(rest_pw)
 
 #import data ################################
 import_path <- export_path
-CPRUIDlist <- read.csv(file=paste0(import_path,"/IDlist_CP_RU_workingcopy3.csv", header = TRUE)) #Data Source Note cont.: csv version of coastal plain reported use identifiers tab
+CPRUIDlist <- read.csv(file=paste0(import_path,"/IDlist_CP_RU_workingcopy3.csv"), header = TRUE) #Data Source Note cont.: csv version of coastal plain reported use identifiers tab
+ESRUIDlist <- read.csv(file=paste0(import_path,"/IDlist_ES_RU_workingcopy.csv"), header = TRUE) #Data Source Note cont.: csv version of eastern shore reported use identifiers tab
 MNW_QA <- read.csv(file=paste0(import_path,"/MNW_QA.csv")) #source: csv version of "Historic" tab of MNW original file
 TP <- read.csv(file=paste0(import_path,"/trimmed_aquaveo_total_permitted_query_scinot.csv")) #source: (http://deq1.bse.vt.edu/d.dh/aquaveo-total-permitted-query),filtered to better match modeled wells by removing well types (monitoring/observation, etc) permit statuses (application, inactive, etc) and some duplicates.
 
@@ -38,7 +39,7 @@ TP <- read.csv(file=paste0(import_path,"/trimmed_aquaveo_total_permitted_query_s
 
 ### DOWNLOAD VAHYDRO MAP EXPORT FOR ALL YEARS AND READ IT IN ############################
 # Information: map export was used last year. It has same useful columns as foundation data, a few more rows, even though it has 2 duplicate well rows even if you group by hydroid mpid and well#"
-multi_yr_data <- read.csv(file=paste0(import_path,"/ows_annual_report_map_exports.csv",header=TRUE, sep=","))
+multi_yr_data <- read.csv(file=paste0(import_path,"/ows_annual_report_map_exports.csv"), header=TRUE)
 
 #exclude dalecarlia
 multi_yr_data <- multi_yr_data[-which(multi_yr_data$facility_name=='DALECARLIA WTP'),]
@@ -61,7 +62,9 @@ multi_yr_data <- sqldf('SELECT "MP_hydroid", "Hydrocode","MP_Name", "MPID", "DEQ
 duplicate_check2 <- sqldf('SELECT * FROM multi_yr_data GROUP BY MP_hydroid,Year HAVING count(MP_hydroid)>1')
 #write.csv(duplicate_check2,file=paste0(export_path,"/writecsv/duplicate_check2.csv"))
 
-############## Aquaveo's list of IDs ######################
+#########################################################################x
+# Aquaveo's list of Coastal Plain IDs ######################
+#########################################################################x
 
 #add column so the individual ID matched rows can be reordered back to their excel sheet order 
 nums <- array(1:nrow(CPRUIDlist))
@@ -96,7 +99,7 @@ choose_mpid <- sqldf('SELECT * FROM joined_mpid WHERE Ord IN (
               SELECT Ord FROM joined_mpid GROUP BY MPID HAVING count(*)>1
               )')
 write.csv(choose_mpid, file=paste0(export_path,"/writecsv/choose_mpid.csv")) #see notes in excel on why hydroids were chosen
-#Informatin: chose the hydroid with reporting data, wells not surface water, or the hydroid Aquaveo used
+#Information: chose the hydroid with reporting data, wells not surface water, or the hydroid Aquaveo used
 
 #remove duplicate mpid matches
 joined_mpid <- sqldf('SELECT * FROM joined_mpid WHERE MP_Hydroid NOT IN (1406,60779,61053,61000,63072,68418,63030,193515)')
@@ -282,25 +285,9 @@ write.csv(mismatch, file=paste0(export_path,"/writecsv/misidentified_hydroids.cs
 # 63202 is an active vs they noted the duplicate hydroid
 # 170251 and 170253 appear to be swapped potentially
 
-############### OLD - PULL DIRECTLY FROM VAHYDRO ###################################################
-#load in MGY from Annual Map Exports view
-tsdef_url <- paste0(site,"ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
-
-#https://deq1.bse.vt.edu/d.dh/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=2021-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake
-
-#tsdef_url <- paste0(site,"ows-annual-report-map-exports?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=2021-12-31&bundle%5B%5D=well&bundle%5B%5D=intake&hydroid=") RESULT IS FALSE
-
-#https://deq1.bse.vt.edu/d.dh/ows-annual-report-map-exports?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=2021-12-31&bundle%5B%5D=well&bundle%5B%5D=intake&hydroid=
-
-#NOTE: this takes 5-8 minutes
-multi_yr_data_awrr <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
-
-backup<- multi_yr_data_awrr
-multi_yr_data_awrr <- backup
-
-#the above pulls from VAHydro using the same URL as the map exports, by just setting date, as it's automatically on selection for wells/intakes, EXCEPT the URL uses ows-awrr instead of ows-annual-report, could that be why we don't get the same columns out?
-
-############### TP QUERY ###############################
+#########################################################################
+# TP QUERY ###############################
+#########################################################################
 
 #remove remaining duplicates from map export data, 
 #because 449343 associated with 100-1440 and 100-01440, and 449370 associated with 100-1446 and 100-01446
@@ -351,4 +338,154 @@ write.csv(joined_export2, file=paste0(export_path,"/writecsv/TotalPermitted_Matc
 
 #The only difference between the foundation pull and the map export pull is the "awrr" vs "annual-report" in the following URLs. Foundation: https://deq1.bse.vt.edu/d.dh/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=2021-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake  vs. Map Export: https://deq1.bse.vt.edu/d.dh/ows-annual-report-map-exports?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=1982-01-01&tstime%5Bmax%5D=2021-12-31&bundle%5B%5D=well&bundle%5B%5D=intake&hydroid= There aren't other filters apparent in the URL other than date, and selection of the wells/intakes bundle type. I don't see behind the scenes of the view if there are other filters. 
 
-#will need to do ESRUIDs like CPRUIDs
+
+#########################################################################
+# Aquaveo's list of Eastern Shore IDs ######################
+#########################################################################
+
+#add column so the individual ID matched rows can be reordered back to their excel sheet order 
+nums <- array(1:nrow(ESRUIDlist))
+IDlist <- cbind(nums,ESRUIDlist)
+names(IDlist) <- c("Ord","ESRUIDs")
+summary(IDlist)
+
+#select recent years of interest from multi_yr_data, because their spreadsheet includes since 2003
+multiyr_sel <- sqldf('SELECT * FROM multi_yr_data WHERE Year >= 2003')
+multiyr_wid <- pivot_wider(multiyr_sel,names_from = "Year", values_from = "Water_Use_MGY")
+
+#join MPIDs to the map export data #####
+join_on_mpid <- sqldf('SELECT a.*, b.*
+                  FROM IDlist a
+                  LEFT JOIN multiyr_wid b
+                  ON a.ESRUIDs = b.MPID')
+joined_mpid <- sqldf('SELECT * FROM join_on_mpid WHERE MPID IS NOT NULL')
+remainder <- sqldf('SELECT Ord, ESRUIDs FROM join_on_mpid WHERE MPID IS NULL')
+nrow(remainder)
+
+#checks
+nrow(joined_mpid)+nrow(remainder) == nrow(IDlist) # False because there's 2 extra rows, IDList is 612 rows
+join_check <- sqldf('SELECT * FROM joined_mpid GROUP BY MPID HAVING count(*)>1') #includes just duplicates created by the join on mpid
+
+#remove the extra rows we don't think are correct from joined_mpid, based on MPIDs that showed up in join_check
+choose_mpid <- sqldf('SELECT * FROM joined_mpid WHERE Ord IN (
+              SELECT Ord FROM joined_mpid GROUP BY MPID HAVING count(*)>1
+              )')
+#rows were identical other than DEQ Well#, Aquaveo used neither, so keeping the instance where the DEQ Well # matches the Well # in the hydrocode
+
+#remove duplicate mpid matches
+joined_mpid <- sqldf('SELECT * FROM joined_mpid WHERE DEQ_Well_Number NOT IN ("100-01440","100-01446")')
+join_check <- sqldf('SELECT * FROM joined_mpid GROUP BY MPID HAVING count(*)>1')
+nrow(joined_mpid)+nrow(remainder) == nrow(IDlist) # Now should be True
+
+
+#join on DEQ WELL NUMBER ######
+join_on_well <-  sqldf('SELECT a.*, b.*
+                  FROM remainder a
+                  LEFT JOIN multiyr_wid b
+                  ON a.ESRUIDs = b.DEQ_Well_Number')
+joined_well <- sqldf('SELECT * FROM join_on_well WHERE DEQ_Well_Number IS NOT NULL')
+remainder <- sqldf('SELECT Ord, ESRUIDs FROM join_on_well WHERE DEQ_Well_Number IS NULL')
+nrow(remainder)
+#nrow(joined_well)+nrow(remainder) #no extra rows because this matches prior remainder count of 19
+join_check4 <- sqldf('SELECT * FROM joined_well GROUP BY DEQ_Well_Number HAVING count(*)>1')
+
+#join on HYDROID ######
+#N/A
+
+#remainder #####
+#combine the individual join types and merge with original IDlist
+joined_bind <- rbind(joined_mpid, joined_well) 
+joined_sum3 <- sqldf('SELECT a.Ord as Ord_1, a.ESRUIDs as ESRUIDs_1, b.*
+                    FROM IDlist a
+                    LEFT JOIN joined_bind b
+                    on a.ESRUIDs = b.ESRUIDs')
+remainder4 <- sqldf('SELECT Ord_1, ESRUIDs_1 FROM joined_sum3 WHERE ESRUIDs IS NULL')
+join_byhand <- sqldf('SELECT Ord_1, ESRUIDs_1
+                     FROM remainder4 
+                     WHERE ESRUIDs_1 NOT LIKE "MD%"
+                     AND ESRUIDs_1 NOT LIKE "NC%"')
+#write.csv(join_byhand,file=paste0(export_path,"/writecsv/join_byhand_es.csv"))
+#write.csv(joined_sum3, file=paste0(export_path, "/writecsv/ESRUID_MapExportData.csv")) 
+
+
+### MANUALLY JOIN THE REMAINDER ROWS ######
+
+#Information: Determine and correct unmatched hydroids based on hydrocodes that contain hydroids, Aquaveo's mastersheet containing potential hydroid matches, and investigating hydro for duplicates. See notes in join_byhand.xlsx on which were chosen. Hydroids of zero denote rows that are already have a hydroid represented in the ESRUIDs list, and should be removed from the model.Hydroids of 1 mean there was no matching hydroid and these need outside investigation before using in this script.
+
+#Add hydroids to unmatched ESRUIDs
+manual <- sqldf('SELECT Ord_1 as Ord, ESRUIDs_1 as ESRUIDs,
+               CASE
+                WHEN ESRUIDs_1 = 371323075585201 THEN 1
+                WHEN ESRUIDs_1 = 374817075382402 THEN 1
+                WHEN ESRUIDs_1 = 373749075415602 THEN 449343
+                WHEN ESRUIDs_1 = 373748075415603 THEN 1
+                WHEN ESRUIDs_1 = 373743075415808 THEN 449370
+                WHEN ESRUIDs_1 = 373721075472802 THEN 440150
+                WHEN ESRUIDs_1 = 373916075455808 THEN 441017
+                WHEN ESRUIDs_1 = 374945075350901 THEN 1
+                WHEN ESRUIDs_1 = 380013075375701 THEN 1
+                WHEN ESRUIDs_1 = 380043075385901 THEN 1
+                WHEN ESRUIDs_1 = 380103075393601 THEN 1
+                WHEN ESRUIDs_1 = 380148075324301 THEN 1
+                WHEN ESRUIDs_1 = 380257075324201 THEN 1
+                WHEN ESRUIDs_1 = 380417075334301 THEN 1
+                WHEN ESRUIDs_1 = 380758075254301 THEN 1
+                WHEN ESRUIDs_1 = 380929075414501 THEN 1
+                WHEN ESRUIDs_1 = 381018075411901 THEN 1
+                WHEN ESRUIDs_1 = 381148075414201 THEN 1
+                WHEN ESRUIDs_1 = 381305075391001 THEN 1
+                END AS MP_hydroid_manual
+                FROM remainder4')
+
+#join manually identified hydroids with withdrawal data
+joined_manual <- sqldf('SELECT a.Ord, a.ESRUIDs, b.*
+                        FROM manual a 
+                        LEFT JOIN multiyr_wid b
+                       ON a.MP_hydroid_manual = b.MP_Hydroid')
+
+#Row bind all the joins
+joined_all <- sqldf('SELECT * from joined_mpid
+                     UNION ALL SELECT * from joined_well
+                     UNION ALL SELECT * from joined_manual
+                     ORDER BY Ord ASC')
+#last checks
+remainder <- sqldf('SELECT Ord, ESRUIDs FROM joined_all WHERE MP_hydroid IS NULL 
+                    AND ESRUIDs NOT LIKE "MD%"AND ESRUIDs NOT LIKE "NC%"') #should just be the 15 that were unmatched
+join_check6 <- sqldf('SELECT * FROM joined_all GROUP BY ESRUIDs HAVING count(*)>1') #should be 0
+duplicate_check <- sqldf('SELECT * from joined_all group by MP_Hydroid Having count(*)>1') # should be 1 to represent rows that weren't joined
+duplicate_check <- sqldf('SELECT * from joined_all group by Ord having count(*)>1') #should be 0 if the Union worked properly
+
+
+#export data for Aquaveo
+joined_export <- joined_all
+colnames(joined_export)[colnames(joined_export)=="ESRUIDs"] <- "List of ES 2020 RU IDs"
+write.csv(joined_export, file=paste0(export_path, "/writecsv/ESRUID_MatchedExport.csv")) 
+
+
+
+# Extra Checks #################
+##check joins and duplicates 
+# check that the right row of map export got joined to the ESRUIDs
+dup_mpid <- sqldf('SELECT * FROM multiyr_wid GROUP BY MPID HAVING count(*)>1') #same as join_check2, resolved 
+dup_well <- sqldf('SELECT * FROM multiyr_wid GROUP BY DEQ_Well_Number HAVING count(*)>1') #these don't matter because they aren't in the ESRUIDs list as shown by choose_well
+choose_well <- sqldf('SELECT * FROM IDlist WHERE ESRUIDs IN (
+                 SELECT DEQ_Well_Number FROM dup_well
+                 )')
+
+
+
+## Aquaveo hydroid to VAhydroID      
+#does Aquaveo's hydroid to MNW ID vlookup match our hydroid to CPRUID joins?
+MNW_QA <- sqldf('SELECT HydroID,"MPID.MNW.IDENTIFIER" as mnwID FROM MNW_QA')
+join_MNW <- sqldf("SELECT a.ESRUIDs, a.MP_Hydroid, b.*
+                  FROM joined_sum3 a
+                  INNER JOIN MNW_QA b
+                  ON a.ESRUIDs = b.mnwID ") #no matches, their MNW list probably isn't for Eastern Shore then
+# join_MNW <- sqldf('SELECT *, 
+#                   CASE WHEN MP_hydroid = Hydroid
+#                   THEN 0 ELSE 1 END AS Match 
+#                   FROM join_MNW')
+# misidentified <- sqldf('SELECT * FROM join_MNW WHERE Match = 1') 
+# write.csv(mismatch, file=paste0(export_path,"/writecsv/misidentified_hydroids.csv"))
+# #flag the mismatches for Aquaveo 
+
