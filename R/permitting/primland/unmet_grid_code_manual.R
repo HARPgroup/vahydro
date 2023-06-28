@@ -10,7 +10,7 @@ site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 #save_directory <-  "/var/www/html/data/proj3/out"
-save_directory <- "C:/Users/nrf46657/Desktop/GitHub/vahydro/R/permitting/Salem WTP"
+save_directory <- "C:/Users/nrf46657/Desktop/GitHub/vahydro/R/permitting/primland"
 # save_directory <- "C:/Users/nrf46657/Desktop/VWP Modeling/City of Salem WTP/June2022/PLOTS"
 library(hydrotools)
 # authenticate
@@ -31,10 +31,9 @@ library(dplyr)
 # runid <- as.integer(argst[3])
 #omsite <- "http://deq1.bse.vt.edu"
 
-pid <- 4827216 #Fac:Rseg model pid
-elid <- 306768 #Fac:Rseg model om_element_connection
-# runid <- 400
-runid <- 600
+pid <- 4828546 #Fac:Rseg model pid
+elid <- 307284  #Fac:Rseg model om_element_connection
+runid <- 4011
 
 #facdat <- om_get_rundata(elid, runid, site = omsite)
 
@@ -383,35 +382,35 @@ yrdatdf <- as.data.frame(yrdat)
 #                   from yrdatdf")
 # #colnames(yrdatdf)
 
-yrdatdf <- sqldf("select *, unmet_demand_mgd - (2.6 - gw_demand_mgd) AS final_unmet_demand_mgd
-                  from yrdatdf")
+# yrdatdf <- sqldf("select *, unmet_demand_mgd - (2.6 - gw_demand_mgd) AS final_unmet_demand_mgd
+#                   from yrdatdf")
+# #######################################################
+# 
+# # FOR QA PURPOSES ONLY
+# yrdatdf_qa <- sqldf("select *
+#                   from yrdatdf
+#                   WHERE year = 2001 AND month = 10
+#                  ")
+
 #######################################################
 
-# FOR QA PURPOSES ONLY
-yrdatdf_qa <- sqldf("select *
-                  from yrdatdf
-                  WHERE year = 2001 AND month = 10
-                 ")
 
-#######################################################
-
-
-# yrmodat <- sqldf("SELECT month months, 
-#                         year years,
-#                         sum(unmet_demand_mgd) sum_unmet, 
-#                         count(*) count 
-#                   FROM yrdatdf 
-#                   WHERE unmet_demand_mgd > 0
-#                   GROUP BY month, year") #Counts sum of unmet_days by month and year
+yrmodat <- sqldf("SELECT month months,
+                        year years,
+                        sum(unmet_demand_mgd) sum_unmet,
+                        count(*) count
+                  FROM yrdatdf
+                  WHERE unmet_demand_mgd > 0
+                  GROUP BY month, year") #Counts sum of unmet_days by month and year
 
 #NEW VERSION -> USING FINAL UNMET DEMAND
-yrmodat <- sqldf("SELECT month months, 
-                        year years,
-                        sum(final_unmet_demand_mgd) sum_unmet, 
-                        count(*) count 
-                  FROM yrdatdf 
-                  WHERE final_unmet_demand_mgd > 0
-                  GROUP BY month, year") #Counts sum of unmet_days by month and year
+# yrmodat <- sqldf("SELECT month months, 
+#                         year years,
+#                         sum(final_unmet_demand_mgd) sum_unmet, 
+#                         count(*) count 
+#                   FROM yrdatdf 
+#                   WHERE final_unmet_demand_mgd > 0
+#                   GROUP BY month, year") #Counts sum of unmet_days by month and year
 
 #converts unmet_mgd sums to averages for cells
 yrmodat$avg_unmet <- yrmodat$sum_unmet / yrmodat$count
