@@ -27,7 +27,7 @@ eyear = 2022
 #file_extension <- ".html"
 file_extension <- ".tex"
 
-#Generate REST token for authentication --------------------------------------------
+##Generate REST token for authentication --------------------------------------------
 #(note for 2024- REST no longer needed if generating foundation data through SQL)
 rest_uname = FALSE
 rest_pw = FALSE
@@ -110,7 +110,7 @@ END AS "Use Type", latitude as "Latitude", longitude as "Longitude", "FIPS.Code"
       GROUP BY "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Latitude", "Longitude", "FIPS Code", "OWS Planner", "Year" 
       ')
 
-# MP FOUNDATION DATASET - BEGINNING 1982 -----------------------------------------------------------------------------------------------------------------
+##MP FOUNDATION DATASET - BEGINNING 1982 -----------------------------------------------------------------------------------------------------------------
 mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner"), names_from = "Year", values_from = "Water Use MGY", names_sort = T)
 
 write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"), row.names = F)
@@ -120,44 +120,6 @@ write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset
 fiveyr_avg_mgy <- round((rowMeans(mp_foundation_dataset[(length(mp_foundation_dataset)-4):length(mp_foundation_dataset)], na.rm = TRUE, dims = 1)),2)
 mp_foundation_dataset <- cbind(mp_foundation_dataset,fiveyr_avg_mgy)
 write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,"_5ya.csv"), row.names = F)
-
-
-# #for 2022 only, remove this UPDATE section next year, use type has been corrected in VAHydro##
-# temp <- read.csv(paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"))
-# correct_use <-sqldf(c("
-#              UPDATE temp
-#              SET 'Use.Type' = 'agriculture'
-#              WHERE Facility_Hydroid = 600890
-#              ",
-#                        "SELECT * FROM main.temp"))
-# write.csv(correct_use, paste0(export_path,eyear+1,"/awrr_foundation_2023.csv"), row.names = F)
-# correct_use2 <-sqldf(c("
-#              UPDATE mp_foundation_dataset
-#              SET 'Use Type' = 'agriculture'
-#              WHERE Facility_Hydroid = 600890
-#              ",
-#                        "SELECT * FROM mp_foundation_dataset"))
-# write.csv(correct_use2, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
-
-# # will no longer need this either, Perdue is back to being manuf in VAHydro, and Fort AP Hill is back to pws in VAHydro
-correct_use3 <-sqldf(c("
-             UPDATE mp_foundation_dataset
-             SET 'Use Type' = 'manufacturing'
-             WHERE Facility_Hydroid = 67227
-             ",
-                       "SELECT * FROM main.mp_foundation_dataset"))
-mp_foundation_dataset <- correct_use3
-correct_use4 <-sqldf(c("
-             UPDATE mp_foundation_dataset
-             SET 'Use Type' = 'municipal'
-             WHERE Facility_Hydroid = 90592
-             ",
-                       "SELECT * FROM main.mp_foundation_dataset"))
-mp_foundation_dataset <- correct_use4
-write.csv(correct_use4, paste0(export_path,eyear+1,"/foundation_dataset_mgy_1982-",eyear,".csv"), row.names = F)
-
-
-
 
 ##split into 2 datasets: POWER & NON-POWER -------------------------------------------------------------------------------------------------
 #NON-POWER
@@ -236,7 +198,7 @@ cat_table <- sqldf('select * from cat_table
 #view and check Table 1
 print(cat_table)
 
-# SAVE TABLE 1 SUMMARY --------------------------------------------------------------------------------------------
+## SAVE TABLE 1 SUMMARY --------------------------------------------------------------------------------------------
 
 #save the cat_table to use for data reference - we can refer to that csv when asked questions about the data
 write.csv(cat_table, paste(export_path,eyear+1,"/Table1_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
@@ -259,7 +221,7 @@ eyear <- 2022
 eyearX <- paste0("X",eyear) #for sql statements that need X2021 column
 year.range <- syear:eyear
 
-# End read in section, now can continue or jump to the individual table sections #############################################################
+## End read in section, now can continue or jump to the individual table sections #############################################################
 
 ################### MAY QA CHECK ##########################################
 # kable(cat_table, booktabs = T) %>%
@@ -269,7 +231,7 @@ year.range <- syear:eyear
 #   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
 
 
-################### Total Facilities Count ##################
+# Total Facilities Count ##################
 
 ## Fac_all #########################
 
@@ -350,7 +312,7 @@ print(paste0("The total number of facilities presented in the report includes nu
 
 
 
-# TABLE 1 : w/o power Summary ##########################################
+#TABLE 1 : w/o power Summary ##########################################
 #ONlY RUN THIS IF YOU WANT TABLE 1 WITHOUT POWER, OTHERWISE MOVE TO TABLE1 :wPOWER SECTION
 cat_table$Category <- recode(cat_table$Category, "Municipal" = "Public Water Supply")
 table1_latex <- kable(cat_table[2:9],'latex', booktabs = T,
