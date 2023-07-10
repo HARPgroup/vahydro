@@ -56,13 +56,30 @@ SMLdat <- om_get_rundata(SML_om_id, runid, site = omsite)
 SMLdat_df <- data.frame(SMLdat)
 sort(colnames(SMLdat_df))
 
-SML_imp <- om_quantile_table(SMLdat_df, metrics = c("impoundment_demand","impoundment_demand_met_mgd","impoundment_Storage","impoundment_use_remain_mg","impoundment_days_remaining","impoundment_Qout",
-                                                    "Leesville_Lake_demand","Leesville_Lake_demand_met_mgd","Leesville_Lake_Storage","Leesville_Lake_use_remain_mg","Leesville_Lake_days_remaining","Leesville_Lake_Qout",
-                                                    "wd_mgd","pump_lees","refill_lees","Qin","Qout","release_sml","sml_use_remain_mg",
-                                                    "trigger1","trigger2","trigger3"
-                                                    ),
-                         rdigits = 2)
+SML_imp <- om_quantile_table(SMLdat_df, metrics = c(
+  "sml_elev","lees_min","Tbrook", "Qbrook", "Rbrook", "impoundment_demand","impoundment_demand_met_mgd","impoundment_Storage","impoundment_use_remain_mg","impoundment_days_remaining","impoundment_Qin","impoundment_Qout",
+  "Leesville_Lake_demand","Leesville_Lake_demand_met_mgd","Leesville_Lake_Storage","Leesville_Lake_use_remain_mg","Leesville_Lake_days_remaining","Leesville_Lake_Qout",
+  "wd_mgd","pump_lees","refill_lees","Qin","Qout","release_sml","sml_use_remain_mg",
+  "trigger1","trigger2","trigger3"
+  ),
+  rdigits = 2
+)
 kable(SML_imp,'markdown')
+
+quantile(SMLdat$impoundment_Qout)
+quantile(SMLdat$impoundment_Qin - SMLdat$impoundment_evap_mgd * 1.547 - SMLdat$impoundment_demand * 1.547)
+mean(SMLdat$impoundment_Qin)
+mean(SMLdat$impoundment_evap_mgd * 1.547)
+mean(SMLdat$impoundment_Qout)
+mean(SMLdat$Leesville_Lake_Qin)
+mean(SMLdat$Leesville_Lake_evap_mgd * 1.547)
+mean(SMLdat$Leesville_Lake_Qout)
+
+mean(SMLdat$Rbrook)
+
+mean(SMLdat$impoundment_Qin - SMLdat$impoundment_evap_mgd * 1.547 - SMLdat$impoundment_demand * 1.547)
+
+mean(SMLdat$impoundment_Qin - SMLdat$impoundment_evap_mgd * 1.547 - SMLdat$impoundment_demand * 1.547)
 
 ################################################################################################
 ################################################################################################

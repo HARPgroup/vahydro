@@ -56,6 +56,16 @@ om_watershed_container <- function(wshed_info) {
     object_class = 'Constant', 
     value = area_sqmi
   )
+  wshed_props[['run_mode']] = list(
+    name = 'run_mode', 
+    object_class = 'Constant', 
+    value = run_mode
+  )
+  wshed_props[['flow_mode']] = list(
+    name = 'flow_mode', 
+    object_class = 'Constant', 
+    value = flow_mode
+  )
   # inflow and unit area
   wshed_props[['IVOLin']] = list(
     name = 'IVOLin', 
@@ -84,6 +94,31 @@ om_watershed_container <- function(wshed_info) {
     )
   )
   return(wshed_props)
+}
+
+
+
+om_facility_model <- function(facility_info) {
+  if (!("name" %in% names(facility_info))) {
+    message("Error: Facility info must have 'name' field")
+    return(FALSE)
+  }
+  facility_props = list(
+    name=facility_info$name, 
+    object_class = 'ModelObject'
+  )
+  facility_props[['send_to_parent']] = list(
+    name='send_to_parent', 
+    object_class = 'ModelBroadcast', 
+    broadcast_type = 'send', 
+    broadcast_channel = 'hydroObject', 
+    broadcast_hub = 'parent', 
+    broadcast_params = list(
+      list("wd_mgd","wd_mgd"),
+      list("discharge_mgd","ps_nextdown_mgd")
+    )
+  )
+  return(facility_props)
 }
 
 om_nestable_watershed <- function(wshed_info) {
