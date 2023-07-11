@@ -125,7 +125,9 @@ write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset
 #NON-POWER
 mp_all <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source Type", "MP Name", "Facility_hydroid", "Facility", "Use Type", "Latitude", "Longitude", "FIPS Code", "Locality", "OWS Planner","',eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
                 FROM mp_foundation_dataset
-                WHERE "Use Type" NOT LIKE "%power%"'))
+                WHERE "Use Type" NOT LIKE "%power%"
+                       '))
+
 write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".csv"), row.names = F)  
 
 #POWER
@@ -188,7 +190,7 @@ cat_table <- cbind(cat_table,'pct_chg' = pct_chg)
 cat_table$Category <- str_to_title(cat_table$Category)
 
 #check if there are any 'agricultural' sums
-print(cat_table)
+#print(cat_table)
 
 #remove 'agricultural' keep 'agriculture', and remove null facilities for orphaned wells
 cat_table <- sqldf('select * from cat_table
@@ -205,7 +207,7 @@ write.csv(cat_table, paste(export_path,eyear+1,"/Table1_",eyear-4,"-",eyear,".cs
 
 #IS THERE A STATIC TABLE? READ THAT IN AND BEGIN FROM HERE ##########################################################
 
-
+export_path <- "U:/OWS/foundation_datasets/awrr/"
 cat_table <- read.csv(file = paste(export_path,eyear+1,"/Table1_",eyear-4,"-",eyear,".csv",sep = ""))
 #colnames(cat_table) <- c('Source Type', 'Category',year.range,'multi_yr_avg', paste('% Change',eyear,'to Avg.'))
 
@@ -356,7 +358,7 @@ cat_table$Category <- recode(cat_table$Category, "Total (Gw + Sw)" = "Total (GW 
 
 #Calculate the total with power included
 #need to manually update year column names in next several lines
-cat_table2 <- cat_table %>%  filter(Category %in% c("Total (Gw + Sw)","Total (GW + SW)")) %>% select(X2018, X2019, X2020, X2021, X2022, multi_yr_avg,X..Change.2022.to.Avg.) 
+cat_table2 <- cat_table %>%  filter(Category %in% c("Total (Gw + Sw)","Total (GW + SW)")) %>% dplyr::select(X2018, X2019, X2020, X2021, X2022, multi_yr_avg,X..Change.2022.to.Avg.) 
 statesum <- colSums(cat_table2, na.rm=FALSE)
 statesum["X..Change.2022.to.Avg."] <- round(((statesum[eyearX]-statesum["multi_yr_avg"])/statesum["multi_yr_avg"])*100,1)
 statesum<-as.data.frame(t(statesum))
@@ -653,7 +655,7 @@ agtable5 <- pivot_longer(data = agtable5, cols = paste0(syear):paste0(eyear), na
 #plot bar graph
 ggplot(data=agtable5, aes(x=Year, y=MGD, fill = Source)) +
   geom_col(position=position_dodge(), colour = "gray") + 
-  geom_hline(aes(yintercept = agtable5$Average, colour = Source), size = .8, linetype = "dashed") +
+  geom_hline(aes(yintercept = agtable5$multi_yr_avg, colour = Source), size = .8, linetype = "dashed") +
   labs( y="Million Gallons per Day", fill = "Source Type") +
   theme(panel.background = element_rect(fill = "white"),
         panel.grid.major.y = element_line(colour = "light gray", size=.3),
@@ -670,7 +672,7 @@ ggplot(data=agtable5, aes(x=Year, y=MGD, fill = Source)) +
   geom_text(aes(label=MGD),
             position=position_dodge(width=0.9), 
             vjust = -.8) +
-  annotate("text", y=agtable5$Average, x=5.85, label = paste(agtable5$Average, " MGD")) +
+  annotate("text", y=agtable5$multi_yr_avg, x=5.85, label = paste(agtable5$Average, " MGD")) +
   scale_fill_brewer(palette = "Dark2", direction = -1) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
@@ -781,7 +783,7 @@ commtable9 <- pivot_longer(data = commtable9, cols = paste0(syear):paste0(eyear)
 #plot bar graph
 ggplot(data=commtable9, aes(x=Year, y=MGD, fill = Source)) +
   geom_col(position=position_dodge(), colour = "gray") + 
-  geom_hline(aes(yintercept = commtable9$Average, colour = Source), size = .8, linetype = "dashed") +
+  geom_hline(aes(yintercept = commtable9$multi_yr_avg, colour = Source), size = .8, linetype = "dashed") +
   labs( y="Million Gallons per Day", fill = "Source Type") +
   theme(panel.background = element_rect(fill = "white"),
         panel.grid.major.y = element_line(colour = "light gray", size=.3),
@@ -798,7 +800,7 @@ ggplot(data=commtable9, aes(x=Year, y=MGD, fill = Source)) +
   geom_text(aes(label=MGD),
             position=position_dodge(width=0.9), 
             vjust = -.8) +
-  annotate("text", y=commtable9$Average, x=5.85, label = paste(commtable9$Average, " MGD")) +
+  annotate("text", y=commtable9$multi_yr_avg, x=5.85, label = paste(commtable9$Average, " MGD")) +
   scale_fill_brewer(palette = "Dark2", direction = -1) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
@@ -874,8 +876,8 @@ filename <- "Mining_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 
-###manuf #####################################################################################
-#manuf
+###manufacturing #####################################################################################
+#manufacturing
 mantable13 <- cat_table[c(4,10,16),-2]
 rownames(mantable13) <- c()
 
@@ -914,7 +916,7 @@ mantable13 <- pivot_longer(data = mantable13, cols = paste0(syear):paste0(eyear)
 #plot bar graph
 ggplot(data=mantable13, aes(x=Year, y=MGD, fill = Source)) +
   geom_col(position=position_dodge(), colour = "gray") + 
-  geom_hline(aes(yintercept = mantable13$Average, colour = Source), size = .8, linetype = "dashed") +
+  geom_hline(aes(yintercept = mantable13$multi_yr_avg, colour = Source), size = .8, linetype = "dashed") +
   labs( y="Million Gallons per Day", fill = "Source Type") +
   theme(panel.background = element_rect(fill = "white"),
         panel.grid.major.y = element_line(colour = "light gray", size=.3),
@@ -931,7 +933,7 @@ ggplot(data=mantable13, aes(x=Year, y=MGD, fill = Source)) +
   geom_text(aes(label=MGD),
             position=position_dodge(width=0.9), 
             vjust = -.8) +
-  annotate("text", y=mantable13$Average, x=5.85, label = paste(mantable13$Average, " MGD")) +
+  annotate("text", y=mantable13$multi_yr_avg, x=5.85, label = paste(mantable13$Average, " MGD")) +
   scale_fill_brewer(palette = "Dark2", direction = -1) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
@@ -1016,7 +1018,8 @@ Xyears <- array()
 ten <- 10:1
 for (y in ten) { Xyears[y] = paste0("X",(eyear+1)-ten[y]) }
 
-pws10 <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source.Type", "MP.Name", "Facility_hydroid", "Facility", "Use.Type", "Latitude", "Longitude", "FIPS.Code", "Locality", "OWS.Planner", ',Xyears[1],', ',Xyears[2],', ',Xyears[3],', ',Xyears[4],', ',Xyears[5],', ',Xyears[6],', ',Xyears[7],', ',Xyears[8],', ',Xyears[9],', ',Xyears[10],'
+pws10 <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source.Type", "MP.Name", "Facility_hydroid", "Facility", "Use.Type", "Latitude", "Longitude", "FIPS.Code", "Locality", "OWS.Planner", ',
+                Xyears[1],', ',Xyears[2],', ',Xyears[3],', ',Xyears[4],', ',Xyears[5],', ',Xyears[6],', ',Xyears[7],', ',Xyears[8],', ',Xyears[9],', ',Xyears[10],'
                 FROM mp_foundation_dataset
                 WHERE "Use.Type" LIKE "municipal"'))
 
@@ -1081,7 +1084,8 @@ for (y in year.range) {
   destfile <- paste(localpath,filename,sep="\\") 
   
   #has 3 issuing authorities, ONLY power
-  download.file(paste("https://deq1.bse.vt.edu/d.dh/ows-awrr-map-export/wd_mgy?ftype_op=contains&ftype=power&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B0%5D=well&bundle%5B1%5D=intake&dh_link_admin_reg_issuer_target_id%5B0%5D=65668&dh_link_admin_reg_issuer_target_id%5B1%5D=91200&dh_link_admin_reg_issuer_target_id%5B2%5D=77498",sep=""), destfile = destfile, method = "libcurl")  
+  download.file(paste("https://deq1.bse.vt.edu/d.dh/ows-awrr-map-export/wd_mgy?ftype_op=contains&ftype=power&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",
+                      startdate,"&tstime%5Bmax%5D=",enddate,"&bundle%5B0%5D=well&bundle%5B1%5D=intake&dh_link_admin_reg_issuer_target_id%5B0%5D=65668&dh_link_admin_reg_issuer_target_id%5B1%5D=91200&dh_link_admin_reg_issuer_target_id%5B2%5D=77498",sep=""), destfile = destfile, method = "libcurl")  
   data.power <- read.csv(file=paste(localpath , filename,sep="\\"), header=TRUE, sep=",")
   
   data_power <- data.power
