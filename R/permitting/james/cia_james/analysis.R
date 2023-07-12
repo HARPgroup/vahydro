@@ -1,15 +1,18 @@
 library('hydrotools')
 library('zoo')
+library("knitr")
 basepath='/var/www/R';
 source("/var/www/R/config.R")
-
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
+ds <- RomDataSource$new(site, rest_uname = rest_uname)
+ds$get_token(rest_pw = rest_pw)
 
 # GET VAHydro 1.0 RIVERSEG l90_Qout DATA
 df <- data.frame(
-  'model_version' = c('vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
-  'runid' = c('runid_400', 'runid_600', 'runid_400', 'runid_600', 'runid_11'),
-  'metric' = c('Qout','Qout', 'wd_cumulative_mgd', 'wd_cumulative_mgd','Qout'),
-  'runlabel' = c('Qout_perm', 'Qout_prop', 'wdc_400', 'wdc_600', 'Qout_wsp2020')
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0','vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_600', 'runid_800', 'runid_600', 'runid_800', 'runid_11', 'runid_401'),
+  'metric' = c('Qout','Qout', 'wd_mgd', 'wd_mgd','l30_Qout', 'l30_Qout'),
+  'runlabel' = c('Qout_perm', 'Qout_800', 'wd_400', 'wd_800', 'l30_Qout_wsp2020', 'l30_401')
 )
 wshed_data <- om_vahydro_metric_grid(
   metric = metric, runids = df,
@@ -33,6 +36,27 @@ wshed_data6 <- om_vahydro_metric_grid(
   base_url = paste(site,'entity-model-prop-level-export',sep="/"),
   ds = ds
 )
+jar_data6 = fn_extract_basin(wshed_data6,'JL7_7070_0001')
+
+# Get Runoff Data for QA
+rodf <- data.frame(
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0'),
+  'runid' = c('runid_600', 'runid_800'),
+  'metric' = c('Runit','Runit'),
+  'runlabel' = c('Runit_perm', 'Runit_800')
+)
+ro_data <- om_vahydro_metric_grid(
+  metric = metric, runids = rodf, bundle = "landunit", ftype = "cbp6_lrseg",
+  base_url = paste(site,'entity-model-prop-level-export',sep="/"),
+  ds = ds
+)
+
+# RO too small, check for missing lrseg: JU2_7140_7330, JU2_7450_7360
+# - in these, a single Landseg was missing, from WV: N54063 
+jar_rodata = fn_extract_basin(ro_data,'JL7_7070_0001')
+fn_upstream('JL7_7070_0001', seglist)
+fn_upstream('JL7_7070_0001', wshed_data$riverseg)
+
 
 rockid <- 213049 
 romid <- 214907 # james river 7000
@@ -88,3 +112,56 @@ mean(rdat4$Qup)
 mean(rdat6$Qup)
 
 
+# get Jackson
+rdat_jack400 <- om_get_rundata(214595, 400, site=omsite)
+rdat_jack401 <- om_get_rundata(214595, 401, site=omsite)
+j6950_df401 <- as.data.frame(rdat_jack401)
+j6950_df400 <- as.data.frame(rdat_jack400)
+cmp6950 <- sqldf(
+  "select a.year, a.month, a.day, a.Qup, b.Qup as Qup_400, 
+   a.Qout, b.Qout as Qout_400, 
+   a.wd_mgd, b.wd_mgd as wd_mgd_400,
+   a.ps_mgd, b.ps_mgd as ps_mgd_400
+  from j6950_df401 as a 
+  left outer join j6950_df400 as b 
+  on (a.year = b.year and a.month = b.month and a.day = b.day)
+  order by a.year, a.month, a.day
+  "
+)
+quantile(cmp6950$Qout_400)
+quantile(cmp6950$Qout)
+
+jacK_6950 <- om_quantile_table(as.data.frame(rdat_jack401), metrics = c(
+  "Qup","Qout","wd_mgd","wd_cumulative_mgd",
+  "ps_mgd","ps_cumulative_mgd"
+),
+rdigits = 2
+)
+kable(jacK_6950,'markdown')
+
+rdat_jack7330_400 <- om_get_rundata(213253, 400, site=omsite)
+rdat_jack7330_401 <- om_get_rundata(213253, 401, site=omsite)
+j7330_df401 <- as.data.frame(rdat_jack7330_401)
+j7330_df400 <- as.data.frame(rdat_jack7330_400)
+cmp7330 <- sqldf(
+  "select a.year, a.month, a.day, a.Qup, b.Qup as Qup_400, 
+   a.Qout, b.Qout as Qout_400, 
+   a.wd_mgd, b.wd_mgd as wd_mgd_400,
+   a.ps_mgd, b.ps_mgd as ps_mgd_400
+  from j7330_df401 as a 
+  left outer join j7330_df400 as b 
+  on (a.year = b.year and a.month = b.month and a.day = b.day)
+  order by a.year, a.month, a.day
+  "
+)
+
+jacK_7330 <- om_quantile_table(as.data.frame(rdat_jack7330_401), metrics = c(
+  "Qup","Qout","wd_mgd","wd_cumulative_mgd",
+  "ps_mgd","ps_cumulative_mgd"
+),
+rdigits = 2
+)
+kable(jacK_7330,'markdown')
+
+
+chan_jack_6950 <- om_get_rundata(213289, 400, site=omsite)
