@@ -28,19 +28,15 @@ eyear = 2022
 file_extension <- ".tex"
 
 ##Generate REST token for authentication --------------------------------------------
-#(note for 2024- REST no longer needed if generating foundation data through SQL)
-rest_uname = FALSE
-rest_pw = FALSE
-basepath ='/var/www/R'
-source(paste0(basepath,'/auth.private'))
-source(paste0(basepath,'/config.R'))
+# REST no longer needed if generating foundation data through SQL)
+# rest_uname = FALSE
+# rest_pw = FALSE
+# basepath ='/var/www/R'
+# source(paste0(basepath,'/auth.private'))
+# source(paste0(basepath,'/config.R'))
 
-# ds <- RomDataSource$new(site)
-# ds$get_token()
-ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
-ds$get_token(rest_pw)
-#also, line 111, changed to mp_all_power. Not sure what MayQA section does. Also (eyear-4) in line 189/190
-
+# ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+# ds$get_token(rest_pw)
 
 #resume running here
 export_path <- "U:/OWS/foundation_datasets/awrr/"
@@ -230,10 +226,10 @@ print(cat_table)
 ## SAVE TABLE 1 SUMMARY --------------------------------------------------------------------------------------------
 
 #save the cat_table to use for data reference - we can refer to that csv when asked questions about the data
-write.csv(cat_table, paste(export_path,eyear+1,"/Table1_All_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
+write.csv(cat_table, paste(export_path,eyear+1,"/Table1_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
 
 cat_table_np <- cat_table[c(1:7,9:15,17:22,25:27),]
-write.csv(cat_table_np, paste(export_path,eyear+1,"/Table1_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
+write.csv(cat_table_np, paste(export_path,eyear+1,"/Table1_np_",eyear-4,"-",eyear,".csv",sep = ""), row.names = F)
 
 
 #IS THERE A STATIC TABLE? READ THAT IN AND BEGIN FROM HERE ##########################################################
@@ -346,7 +342,6 @@ print(paste0("The total number of facilities presented in the report includes nu
 
 #TABLE 1 : w/o power Summary ##########################################
 #ONlY RUN THIS IF YOU WANT TABLE 1 WITHOUT POWER, OTHERWISE MOVE TO TABLE1 :wPOWER SECTION
-cat_table$Category <- recode(cat_table$Category, "Municipal" = "Public Water Supply")
 table1_latex <- kable(cat_table[2:9],'latex', booktabs = T,
                       caption = paste("Summary of Virginia Water Withdrawals by Use Category and Source Type",eyear-4,"-",eyear,"(MGD)",sep=" "),
                       label = paste("Summary of Virginia Water Withdrawals by Use Category and Source Type",eyear-4,"-",eyear,"(MGD)",sep=" "),
@@ -608,15 +603,12 @@ for (u in use_types) {
 
 
 
-#cat_table <- cat_table2
 # bySourceType - tables 5,7,9,11,13,16,19 ##################################################
 # This section of tables requires the static table section to be read in first, and is expecting cat_table to be Table1 WITHOUT power.
 
-#change avg column name 
-syear <- eyear-4
-colnames(cat_table)[8] <- paste((eyear-syear)+1,"Year Avg.")
+
 ### AG #####
-agtable5 <- cat_table[c(1,7,13),-2]
+agtable5 <- cat_table[c(1,9,17),-2]
 rownames(agtable5) <- c()
 
 colnames(agtable5)[colnames(agtable5)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.")
@@ -688,7 +680,7 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 
 ### irrig ######################################################################################
 #irrig
-irrigtable7 <- cat_table[c(3,9,15),-2]
+irrigtable7 <- cat_table[c(3,11,19),-2]
 rownames(irrigtable7) <- c()
 
 colnames(irrigtable7)[colnames(irrigtable7)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") 
@@ -752,7 +744,7 @@ filename <- "Irrigation_BarGraph.pdf"
 ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
 
 ### commercial####################################################################################
-commtable9 <- cat_table[c(2,8,14),-2]
+commtable9 <- cat_table[c(2,10,18),-2]
 rownames(commtable9) <- c()
 
 colnames(commtable9)[colnames(commtable9)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") 
@@ -817,7 +809,7 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 
 ###mining #########################################################################################
 #mining
-mintable11 <- cat_table[c(5,11,17),-2]
+mintable11 <- cat_table[c(5,13,21),-2]
 rownames(mintable11) <- c()
 
 colnames(mintable11)[colnames(mintable11)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") 
@@ -885,7 +877,7 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 
 ###manufacturing #####################################################################################
 #manufacturing
-mantable13 <- cat_table[c(4,10,16),-2]
+mantable13 <- cat_table[c(4,12,20),-2]
 rownames(mantable13) <- c()
 
 colnames(mantable13)[colnames(mantable13)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.") 
@@ -951,7 +943,7 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 
 ###municipal aka public water supply ########################################################
 #muni aka pws
-munitable16 <- cat_table[c(6,12,18),-2]
+munitable16 <- cat_table[c(6,14,22),-2]
 rownames(munitable16) <- c()
 
 colnames(munitable16)[colnames(munitable16)==paste0("X..Change.",eyear,".to.Avg.")] <- paste0("% Change ",eyear," to Avg.")
@@ -1064,25 +1056,7 @@ ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resou
 
 
 #POWER TABLE 19###########################################################
-#This table requires the power pull to be completed first
-#redefine cat_table to pull power table instead of non-power Table1
-cat_table <- read.csv(file = paste(export_path,eyear+1,"/Table1_Power_",eyear-4,"-",eyear,".csv",sep = ""))
-yearrangeX <- c(paste0("X",year.range[1]), paste0("X",year.range[2]), paste0("X",year.range[3]), paste0("X",year.range[4]), paste0("X",year.range[5]))
-
-#Table 19: 20xx-20xx Power Generation Water Withdrawals by Source Type (MGD)
-powtable19 <- rbind(cat_table[1:2,],cat_table[7,],cat_table[3:4,],cat_table[8,],cat_table[9,])
-rownames(powtable19) <- NULL
-
-powtable19 <- sqldf(paste0('SELECT "Source.Type",
-                    CASE 
-                    WHEN "Category" LIKE "%fossil%"
-                    THEN "Fossil"
-                    WHEN "Category" LIKE "%nuclear%"
-                    THEN "Nuclear"
-                    ELSE "Category"
-                    END AS "Category",
-                     "',yearrangeX[1],'", "',yearrangeX[2],'", "',yearrangeX[3],'", "',yearrangeX[4],'", "',yearrangeX[5],'", "multi_yr_avg", "X..Change.',eyear,'.to.Avg."
-                    FROM powtable19'))
+powtable19 <- cat_table[c(7:8,28,15:16,29,30),]
 
 pow_tex <- kable(powtable19[2:9], booktabs = T, align = c('l','c','c','c','c','c','c','c'),
                  caption = paste(syear,"-",eyear,"Power Generation Water Withdrawals by Source Type (MGD)",sep=" "),
@@ -1115,12 +1089,13 @@ pow_tex %>%
 ### POWER BAR GRAPH FIGURE 26 ############################################################
 
 #transform wide to long table
-power <- cat_table[1:4,-9]
+power <- cat_table[c(7:8,15:16),-9]
 colnames(power) <- c('Source', 'Power', year.range, 'Average')
 
-power <- gather(power,Year, MGD, paste(syear):paste(eyear), factor_key = TRUE)
+power <- pivot_longer(power,cols = all_of(as.character(year.range)), names_to = "Year", values_to = "MGD")
+power2 <- gather(power,Year, MGD, paste(syear):paste(eyear), factor_key = TRUE)
 
-mean_mgd <- power[1:4,1:3]
+mean_mgd <- power[c(1,6,11,16),1:3]
 colnames(mean_mgd) <- c('Source', 'Power', 'MGD')
 
 #plot bar graph
