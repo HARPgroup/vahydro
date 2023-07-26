@@ -23,13 +23,14 @@ params:
   scenario: "scenario_400"
   model_version: "vahydro-1.0"
   image_names: [ "fig.unmet_heatmap_amt", "fig.imp_storage.all", "fig.monthly_demand" ]
-  column_descriptions: [ "Unmet Demand", "Storage by Year", "Monthly Demand" ]
+  image_descriptions: [ "Unmet Demand", "Storage by Year", "Monthly Demand" ]
   cu_threshold: [-10.0, -20.0, -30.0]
   cu_pre_var: "Qbaseline"
   cu_post_var: "Qout"
-  cu_model: "river"
+  cu_model: "feature"
   cu_min_valid: 0.1
   cu_decimals: 1
+  preferred_runid: FALSE
   table_cols: 1
 ---
 ```{r setup, include=FALSE}
@@ -57,7 +58,7 @@ scenarios <- c(params$scenario ) # image routine can accomodate multiple
 image_names <- params$image_names
 model_version <- params$model_version
 model_pid<- params$model_pid
-column_descriptions <- params$column_descriptions
+image_descriptions <- params$image_descriptions
 # cu table details all optional, as defaults are set up top
 cu_threshold = params$cu_threshold
 cu_pre_var = params$cu_pre_var
@@ -66,6 +67,8 @@ cu_model = params$cu_model
 cu_min_valid = params$cu_min_valid
 cu_decimals = params$cu_decimals
 table_cols = params$table_cols
+preferred_runid = params$preferred_runid
+
 
 # load up the models into the data source (they are cahed in ds$prop_json_cache)
 model_pids = list()
@@ -81,13 +84,29 @@ if (is.boolean(model_pid)) {
   ds$get_json_prop(model_prop$pid)
   model_pids[[1]] = model_prop$pid
 }
-itable = om_multi_image_list(ds, model_pids, scenarios, image_names, column_descriptions)
+if (cu_model != 'feature') {
+  # we have a different feature for the CU model
+  cu_model_prop <- RomProperty$new(ds,list(featureid=cu_model, propcode=model_version),TRUE)
+  # load the json into cache for later access
+  ds$get_json_prop(cu_model_prop$pid)
+} else {
+  cu_model_prop <- cu_model_prop
+}
+itable = om_multi_image_list(ds, model_pids, scenarios, image_names, image_descriptions)
 img_table = om_rmd_img_table(itable,table_cols)
 
 # CU table
-scenario <- scenarios[1] # assumes the first is the chosen (this is not really meant for multi anyhow)
+
+if (!is.logical(preferred_runid)) {
+  scenario <- scenarios[which(scenarios == preferred_runid)]
+} else {
+  scenario <- scenarios[1] # assumes the first is the chosen (this is not really meant for multi anyhow)
+  preferred_runid <- scenario
+}
+
 runid <- sub("runid_", "", scenario)
-elid <- find_name(ds$prop_json_cache[model_prop$pid],'om_element_connection')$value
+elid <- find_name(ds$prop_json_cache[cu_model_prop$pid],'om_element_connection')$value
+
 if (!is.boolean(cu_pre_var)) {
   
   pr_data <- om_get_rundata(elid, runid, omsite, FALSE)
@@ -96,39 +115,57 @@ if (!is.boolean(cu_pre_var)) {
 
 ```
 
-\newpage
-# Model Overview and Scenario Descriptions
-
 ```{r ModelOverview, echo=FALSE, results = "asis"}
 for (i in 1:length(model_pids)) {
   model = ds$prop_json_cache[model_pids[[i]]]
   reports = find_name(model,"reports")
+  cat("__Project Overview__\n")
+  cat(paste(reports$project_intro$value,"\n\n"))
   cat("__Facility & Intake Model Description__\n")
   cat(paste(reports$model_overview$value,"\n\n"))
-  for ( i in length(scenarios)) {
-    scenario = scenarios[i]
-    scenario_info = find_name(model, scenario)
-    sname = find_name(scenario_info,"scenario_short_name")
-    sintro = find_name(scenario_info, "scenario_intro")
-    san = find_name(scenario_info, "scenario_analysis")
-    cat(
-      paste(
-        "*", paste0("__",sname$value,"__", 
-        ":")," ",sintro$value,"  ", san$value,"\n\n"
+  num_scens = length(scenarios)
+  preferred_text = ""
+  if (num_scens > 0) {
+    if (num_scens > 1) {
+      scen_num = "scenarios were"
+      cat(paste("\n\n", length(scenarios), "model", scen_num, "simulated to evaluate proposed project impacts:","\n\n"))
+    }
+    
+    for ( i in 1:length(scenarios)) {
+      scenario = scenarios[i]
+      scenario_info = find_name(model, scenario)
+      sname = find_name(scenario_info,"scenario_short_name")
+      sintro = find_name(scenario_info, "scenario_intro")
+      san = find_name(scenario_info, "scenario_analysis")
+      if (scenario == preferred_runid) {
+        preferred_text = find_name(scenario_info, "conclusions")
+        preferred_name = sname$value
+      }
+      cat(
+        paste(
+          paste0("__",sname$value,"__", 
+          ":")," ",sintro$value,"  \n\n")
+        )
+      cat(
+        paste(paste0("__Analysis:__"), san$value,"\n\n")
       )
-    )
+    }
   }
   
+}
+
+if (!is.boolean(preferred_runid)) {
+  cat(paste0("\n\n__Conclusions__ ",preferred_text$value, "\n\n"))
 }
 
 knitr::kable(img_table)
 x = length(img_table)
 
 if (!is.boolean(cu_pre_var)) {
-  cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", sname$value,"\n\n"))
-  fqcu_table$caption_text <- paste("Consumptive use non-exceedence table for", sname$value)
+  cat(paste0("__Table ",x + 1,"__\n", " Consumptive use frequency non-exceedence table for ", preferred_name,"\n\n"))
+  fqcu_table$caption_text <- paste("Consumptive use non-exceedence table for", preferred_name)
   fqcu_table
 } else {
-  cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", sname$value," not requested.\n\n"))
+  cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", preferred_name," not requested.\n\n"))
 }
 ```
