@@ -8,14 +8,15 @@ ds <- RomDataSource$new(site, rest_uname = rest_uname)
 ds$get_token(rest_pw = rest_pw)
 
 jamesc_elid = 211097
+james_helid = 212617 # James at Henrico
 henrico_elid = 219573 
 
 # GET VAHydro 1.0 RIVERSEG l90_Qout DATA
 df <- data.frame(
   'model_version' = c('vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0','vahydro-1.0',  'vahydro-1.0'),
-  'runid' = c('runid_800', 'runid_401', 'runid_601', 'runid_800', 'runid_401', 'runid_601'),
+  'runid' = c('runid_400', 'runid_2', 'runid_600', 'runid_800', 'runid_400', 'runid_600'),
   'metric' = c('Qout','Qout', 'Qout', 'wd_cumulative_mgd','wd_cumulative_mgd', 'wd_cumulative_mgd'),
-  'runlabel' = c('Qout_800', 'Qout_perm', 'Qout_prop', 'wd_800', 'wd_401', 'wd_601')
+  'runlabel' = c('Qout_perm', 'Qout_2', 'Qout_prop', 'wd_800', 'wd_400', 'wd_600')
 )
 wshed_data <- om_vahydro_metric_grid(
   metric = metric, runids = df,
@@ -24,11 +25,11 @@ wshed_data <- om_vahydro_metric_grid(
 )
 
 # Jameas RVA = JL7_7070_0001, James at Cartersville = JL6_6740_7100 
-jar_data = fn_extract_basin(wshed_data,'JL6_6740_7100')
+jar_data = fn_extract_basin(wshed_data,'JL7_7070_0001')
 
 
 # get Jackson
-runid = 601
+runid = 600
 rdat_cobbs <- om_get_rundata(337692, runid, site=omsite)
 fdat_henrico <- om_get_rundata(henrico_elid, runid, site=omsite)
 quantile(fdat_henrico$wd_mgd)
@@ -51,11 +52,17 @@ rdigits = 2
 )
 kable(cobbs_quants,'markdown')
 # stash
-cobbs_401 = cobbs_quants
-cobbs_601 = cobbs_quants
-kable(cobbs_401,'markdown')
-kable(cobbs_601,'markdown')
+cobbs_400 = cobbs_quants
+cobbs_600 = cobbs_quants
+kable(cobbs_400,'markdown')
+kable(cobbs_600,'markdown')
 mean(rdat_cobbs$refill_pump_mgd)
 
 
 om_flow_table(rdat_cobbs, "release")
+
+rdat_henrico <- om_get_rundata(james_helid, 2, site=omsite)
+om_flow_table(rdat_henrico, "wd_cumulative_mgd")
+
+rdat_henrico <- om_get_rundata(james_helid, 600, site=omsite)
+om_flow_table(rdat_henrico, "wd_cumulative_mgd")
