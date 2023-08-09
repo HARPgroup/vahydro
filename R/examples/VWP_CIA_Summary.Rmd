@@ -810,23 +810,37 @@ for (i in 1:length(runid.list)){
 for (i in 1:length(runid.list)){
   # get river model run prop 
   runid.i <- runid.list[i]
-  rseg_run <- find_name(rseg_model_info, runid.i)
-  fig_prop <- invisible(find_name(rseg_run, "fig.fdc"))
-  if (!(is.null(fig_prop))) {
-    fig_path <- fig_prop$code
-    # we have an image, show it 
-    cat("\n\n#### ",short_names[[runid.i]],":","\n\n")
-    cat(paste0("![](",fig_path,")"),"\n")
+  if (!is.logical(impoundment_fid)) {
+    # impoundment specified, use imp fdc and drought plots 
+    # no imppoundment, use river seg FDC and drought 
+    imp_run <- find_name(imp_model_info, runid.i)
+    fig_prop <- invisible(find_name(imp_run, "fig.fdc.all."))
+    if (!(is.null(fig_prop))) {
+      fig_path <- fig_prop$code
+      # we have an image, show it 
+      cat("\n\n#### ",short_names[[runid.i]],":","\n\n")
+      cat(paste0("![](",fig_path,")"),"\n")
+    }
+  } else {
+    # no imppoundment, use river seg FDC and drought 
+    rseg_run <- find_name(rseg_model_info, runid.i)
+    fig_prop <- invisible(find_name(rseg_run, "fig.fdc"))
+    if (!(is.null(fig_prop))) {
+      fig_path <- fig_prop$code
+      # we have an image, show it 
+      cat("\n\n#### ",short_names[[runid.i]],":","\n\n")
+      cat(paste0("![](",fig_path,")"),"\n")
+    }
+    
+    fig_prop <- invisible(find_name(rseg_run, "fig.hydrograph_dry"))
+    if (!(is.null(fig_prop))) {
+      fig_path <- fig_prop$code
+      # we have an image, show it 
+      cat("\n\n#### ",short_names[[runid.i]],":","\n\n")
+      cat(paste0("![](",fig_path,")"),"\n")
+      #cat("\n\n\\pagebreak\n")
+    } 
   }
-  
-  fig_prop <- invisible(find_name(rseg_run, "fig.hydrograph_dry"))
-  if (!(is.null(fig_prop))) {
-    fig_path <- fig_prop$code
-    # we have an image, show it 
-    cat("\n\n#### ",short_names[[runid.i]],":","\n\n")
-    cat(paste0("![](",fig_path,")"),"\n")
-    #cat("\n\n\\pagebreak\n")
-  } 
   
   cat("\n\n\\pagebreak\n")
   

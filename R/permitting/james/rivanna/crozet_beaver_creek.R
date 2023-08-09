@@ -13,6 +13,7 @@ relid <- 351963
 roelid <- 351959 
 
 bcdatf4 <- om_get_rundata(felid, 401, site=omsite)
+bcdatf6 <- om_get_rundata(felid, 601, site=omsite)
 
 bcdatr4 <- om_get_rundata(relid, 401, site=omsite)
 
