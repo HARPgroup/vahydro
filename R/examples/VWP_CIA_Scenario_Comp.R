@@ -5,7 +5,7 @@ library(zoo);
 library(hydrotools);
 library(plotly);
 # save_directory should be set in config.local.private which gets loaded below in config.R
-site <- "http://deq2.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+site <- "http://deq1.bse.vt.edu:81/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 omsite = site
 
 # Load Libraries

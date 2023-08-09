@@ -17,7 +17,7 @@ roelid = 279207
 datr11 <- om_get_rundata(relid, 11, site = omsite)
 quantile(datr11$Runit)
 datr401 <- om_get_rundata(relid, 401, site = omsite)
-datr601 <- om_get_rundata(relid, 601, site = omsite)
+datl6 <- om_get_rundata(lelid, 600, site = omsite)
 datr801 <- om_get_rundata(relid, 801, site = omsite)
 bccc <- as.data.frame(
   datbc602[,
@@ -28,10 +28,15 @@ bccc <- as.data.frame(
 )
 
 
-dati4 <- om_get_rundata(ielid, 401, site = omsite)
-quantile(dati4$use_remain_mg)
+dati <- om_get_rundata(ielid, 400, site = omsite)
+datidf <- as.data.frame(dati)
+quantile(dati$use_remain_mg)
+sqldf("select year, min(days_remaining), max(pct_use_remain) from datidf group by year order by year")
+sqldf("select year, min(use_remain_mg) from datidf group by year order by year")
 
-datf4 <- om_get_rundata(felid, 401, site = omsite)
+datf4 <- om_get_rundata(felid, 400, site = omsite)
+datf4df <- as.data.frame(datf4)
+sqldf("select year, min(available_mgd) from datf4df group by year order by year")
 quantile(datf4$available_mgd)
 quantile(datf4$wd_mgd)
 quantile(datf4$base_demand_pstatus_mgd)
