@@ -53,7 +53,7 @@ source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_uti
 # LOAD MODEL IDs:
 rseg_om_id <- 258123 # Rapidan River
 fac_om_id <- 348716 # WILDERNESS SERVICE AREA:Rapidan River
-runid <- 6001
+runid <- 401 #6001
 ################################################################################################
 
 facdat <- om_get_rundata(fac_om_id, runid, site = omsite)
@@ -69,9 +69,12 @@ sort(colnames(facdat_df))
 
 #-------------------------------------------------------------------------
 
-SML <- om_quantile_table(facdat_df, metrics = c("wd_mgd","unmet_demand_mgd", "Qintake"),
-                         rdigits = 3)
+SML <- om_quantile_table(facdat_df, metrics = c("wd_mgd","unmet_demand_mgd", "Qintake", "Qriver","Qreach", "Qreach14","Qriver_up", "vwp_max_mgd", "vwp_base_mgd","vwp_pumptier_mgd"),
+                         rdigits = 3,
+                         quantiles = c(0,0.01,0.05,0.1,0.25,0.5,1.0))
 kable(SML,'markdown')
+test<-sqldf('select wd_mgd,Qreach,unmet_demand_mgd, vwp_max_mgd, vwp_base_mgd,vwp_pumptier_mgd,flowby, year, month, day from facdat_df
+      where vwp_pumptier_mgd < 3 and unmet_demand_mgd > 0')
 
 
 ################################################################################################
