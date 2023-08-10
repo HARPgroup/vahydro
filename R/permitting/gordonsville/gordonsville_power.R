@@ -28,9 +28,11 @@ r_mid = sqrt(sa_mid/pi)
 
 # imp_geom = data.frame(x=c(0,2,6,10,12),y=c(7,4,0,4,7))
 imp_geom = data.frame(x=c(0,r_max-r_mid,r_max,r_max+r_mid,r_max+r_max),y=c(7,4,0,4,7))
-plot(imp_geom,xlab="ft",ylab="ft")
+plot(imp_geom,xlab="ft",ylab="ft",xaxt = 'n')
 lines(imp_geom, type = "l", lty = 1)
+axis(1, at = seq(0, 800, by = 50), las=2)
 
+dev.off(dev.list()["RStudioGD"])
 ################################################################################################
 ################################################################################################
 
