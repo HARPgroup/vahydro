@@ -17,22 +17,45 @@ wb_wkt = wellknown::sf_convert(wb$geometry)
 plot(wb$geometry)
 wb$areasqkm
 
-# assuming the reservoir is circular in shape
+# assuming the reservoir is conical in shape
 # surface area max = 12 acres = 522720 sqft
-sa_max = 522720
-r_max = sqrt(sa_max/pi)
+sa_a = 522720
+r_a = sqrt(sa_a/pi)
+y_a = 70
 
-# surface area mid = 8 acres = 348480 sqft
-sa_mid = 348480
-r_mid = sqrt(sa_mid/pi)
+# surface area b = 12 acres = 522720 sqft (assumes cylinder in withdrawable portion)
+sa_b = 522720
+r_b = sqrt(sa_b/pi)
+y_b = 63
 
-# imp_geom = data.frame(x=c(0,2,6,10,12),y=c(7,4,0,4,7))
-imp_geom = data.frame(x=c(0,r_max-r_mid,r_max,r_max+r_mid,r_max+r_max),y=c(7,4,0,4,7))
-plot(imp_geom,xlab="ft",ylab="ft",xaxt = 'n')
+# surface area c = 8 acres = 348480 sqft
+sa_c = 348480
+r_c = sqrt(sa_c/pi)
+y_c = 40
+
+imp_geom = data.frame(
+  x = c(0, r_a - r_b, r_b - r_c, r_a, r_a + r_c, r_a + r_b, r_a + r_a),
+  y = c(y_a, y_b, y_c, 0, y_c, y_b, y_a)
+)
+plot(imp_geom,xlab="ft",ylab="ft",xaxt = 'n',pch=16)
 lines(imp_geom, type = "l", lty = 1)
-axis(1, at = seq(0, 800, by = 50), las=2)
+axis(1, at = seq(0, 1000, by = 50), las=2)
 
-dev.off(dev.list()["RStudioGD"])
+# dev.off(dev.list()["RStudioGD"])
+
+
+#########################
+# vol calcs: 
+
+top_cylinder = pi*(r_a^2)*7
+partial_cone = (1/3)*pi*(y_b-y_c)*((r_b^2) + r_b*r_c + (r_c^2))
+bottom_cone = pi*(r_c^2)*(1/3)*y_c
+total_vol_cubic_ft = top_cylinder+partial_cone+bottom_cone
+total_vol_acft = total_vol_cubic_ft/43560
+
+top_cylinder/43560
+(partial_cone+bottom_cone)/43560
+bottom_cone/43560
 ################################################################################################
 ################################################################################################
 
@@ -42,39 +65,12 @@ dev.off(dev.list()["RStudioGD"])
 # clear run
 # php fn_clearRun.php 252117 401
 
-# SML Impoundment:
-
-
-
-# max(SMLdat$trigger1)
-# ##############################################################################SML_om_id <- 252119 
-# # runid <- 401
-# runid <- 400
-# SML_om_id <- 252119
-# SMLdat <- om_get_rundata(SML_om_id, runid, site = omsite)
-# SMLdat_df <- data.frame(SMLdat)
-# sort(colnames(SMLdat_df))
-# 
-# SML_imp <- om_quantile_table(SMLdat_df, metrics = c("impoundment_demand","impoundment_demand_met_mgd",'impoundment_lake_elev',"impoundment_Storage","impoundment_use_remain_mg","impoundment_days_remaining","impoundment_Qin","impoundment_Qout",
-#                                                     "Leesville_Lake_demand","Leesville_Lake_demand_met_mgd","Leesville_Lake_lake_elev","Leesville_Lake_Storage","Leesville_Lake_use_remain_mg","Leesville_Lake_days_remaining","Leesville_Lake_Qin","Leesville_Lake_Qout","Leesville_Lake_release","Leesville_Lake_refill_full_mgd",
-#                                                     "wd_mgd","pump_lees","refill_lees","Qin","Qout","release_sml","sml_use_remain_mg",
-#                                                     "trigger1","trigger2","trigger3","trigger3_tbl","trigger_level","Qbrook","Rbrook","Tbrook","lees_min",
-#                                                     "sml_elev"
-#                                                     ),rdigits = 2)
-# kable(SML_imp,'markdown')
-# 
-# 
-# test <- sqldf("SELECT year, month, day, sml_elev, trigger1, trigger2, trigger3, trigger3_tbl, trigger_level
-#                 FROM SMLdat_df
-#                 ORDER BY sml_elev
-#               ")
-# 
-# 
 ################################################################################################
 # LOAD MODEL IDs:
 rseg_om_id <- 207771 # South Anna River
 fac_om_id <- 284961  # Gordonsville Power Station:South Anna River
 runid <- 401
+# runid <- 4011
 ################################################################################################
 
 facdat <- om_get_rundata(fac_om_id, runid, site = omsite)
@@ -91,7 +87,7 @@ sort(colnames(facdat_df))
 #-------------------------------------------------------------------------
 
 gord <- om_quantile_table(facdat_df, metrics = c("vwp_max_mgy","vwp_max_mgd","wd_mgd",
-                                               "unmet_demand_mgd",
+                                               "unmet_demand_mgd","adj_demand_mgd",
                                                "local_impoundment_area","local_impoundment_days_remaining", 
                                                "local_impoundment_demand","local_impoundment_demand_met_mgd", 
                                                "local_impoundment_evap_mgd",            
@@ -100,11 +96,15 @@ gord <- om_quantile_table(facdat_df, metrics = c("vwp_max_mgy","vwp_max_mgd","wd
                                                "local_impoundment_Qout","local_impoundment_refill",         
                                                "local_impoundment_refill_full_mgd","local_impoundment_release",        
                                                "local_impoundment_spill",        
-                                               "local_impoundment_Storage","local_impoundment_use_remain_mg"),
+                                               "local_impoundment_Storage","local_impoundment_use_remain_mg",
+                                               "refill_pump_mgd","refill_plus_demand","refill_available_mgd","refill_max_mgd",
+                                               "flowby","Qintake"),
                          rdigits = 3)
 
 
 kable(gord)
+
+round(quantile(rsegdat_df$Qout,c(0,0.1,0.25,0.5,0.75,0.9,1.0)), 3)
 
 ################################################################################################
 ################################################################################################
