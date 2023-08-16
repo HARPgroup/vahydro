@@ -40,6 +40,10 @@ sa_d = 173375
 r_d = sqrt(sa_d/pi)
 y_d = 15
 
+# imp_geom = data.frame(
+#   x = c(0, r_a - r_b, r_b - r_c, r_a, r_a + r_c, r_a + r_b, r_a + r_a),
+#   y = c(y_a, y_b, y_c, 0, y_c, y_b, y_a)
+# )
 imp_geom = data.frame(
   x = c(0, r_a - r_b, r_b - r_c, r_b - r_d, r_a, r_a + r_d, r_a + r_c, r_a + r_b, r_a + r_a),
   y = c(y_a, y_b, y_c, y_d, 0, y_d, y_c, y_b, y_a)
@@ -54,10 +58,21 @@ axis(1, at = seq(0, 1000, by = 50), las=2)
 #########################
 # vol calcs: 
 
+# top_cylinder = pi*(r_a^2)*7
+# partial_cone = (1/3)*pi*(y_b-y_c)*((r_b^2) + r_b*r_c + (r_c^2))
+# bottom_cone = pi*(r_c^2)*(1/3)*y_c
+# total_vol_cubic_ft = top_cylinder+partial_cone+bottom_cone
+# total_vol_acft = total_vol_cubic_ft/43560
+#  
+# top_cylinder/43560
+# (partial_cone+bottom_cone)/43560
+# bottom_cone/43560
+
 partial_cone_1 = (1/3)*pi*(y_a-y_b)*((r_a^2) + r_a*r_b + (r_b^2))
 partial_cone_2 = (1/3)*pi*(y_b-y_c)*((r_b^2) + r_b*r_c + (r_c^2))
 partial_cone_3 = (1/3)*pi*(y_c-y_d)*((r_c^2) + r_c*r_d + (r_d^2))
 complete_cone_4 = pi*(r_d^2)*(1/3)*y_d
+# partial_cone_4 = (1/3)*pi*(y_d-y_e)*((r_d^2) + r_d*r_e + (r_e^2))
 
 complete_cone_4/43560
 (complete_cone_4+partial_cone_3)/43560
@@ -109,14 +124,13 @@ gord <- om_quantile_table(facdat_df, metrics = c("vwp_max_mgy","vwp_max_mgd","wd
                                                "local_impoundment_spill",        
                                                "local_impoundment_Storage","local_impoundment_use_remain_mg",
                                                "refill_pump_mgd","refill_plus_demand","refill_available_mgd","refill_max_mgd",
-                                               "flowby","Qintake","Qintake_mgd","drawdown_mgd","quarry_inflow_mgd",
-                                               "pct_use_remain"),
+                                               "flowby","Qintake","pct_use_remain"),
                          rdigits = 3)
 
 
 kable(gord)
 
-# round(quantile(rsegdat_df$Qout,c(0,0.1,0.25,0.5,0.75,0.9,1.0)), 3)
+round(quantile(rsegdat_df$Qout,c(0,0.1,0.25,0.5,0.75,0.9,1.0)), 3)
 
 ################################################################################################
 ################################################################################################
@@ -130,12 +144,9 @@ imp_analysis <- sqldf(imp_model_query)
 head(imp_analysis)
 ################################################################################################
 ################################################################################################
-# source("C:/Users/nrf46657/Desktop/GitHub/hydro-tools/R/imp_utils.R") # for dev only
-fname <- paste(export_path,paste0('dev_imp_storage.',fac_om_id, '.', runid, '.png'),sep = '')
-# png(fname, width = 480, height = 480)
-png(fname)
+
 fn_plot_impoundment_flux(facdat,"pct_use_remain","local_impoundment_Qin", "local_impoundment_Qout", "wd_mgd")
-dev.off()
+
 
 ################################################################################################
 ################################################################################################
