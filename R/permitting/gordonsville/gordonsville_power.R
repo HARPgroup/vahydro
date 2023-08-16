@@ -58,15 +58,28 @@ axis(1, at = seq(0, 1000, by = 50), las=2)
 #########################
 # vol calcs: 
 
-top_cylinder = pi*(r_a^2)*7
-partial_cone = (1/3)*pi*(y_b-y_c)*((r_b^2) + r_b*r_c + (r_c^2))
-bottom_cone = pi*(r_c^2)*(1/3)*y_c
-total_vol_cubic_ft = top_cylinder+partial_cone+bottom_cone
-total_vol_acft = total_vol_cubic_ft/43560
+# top_cylinder = pi*(r_a^2)*7
+# partial_cone = (1/3)*pi*(y_b-y_c)*((r_b^2) + r_b*r_c + (r_c^2))
+# bottom_cone = pi*(r_c^2)*(1/3)*y_c
+# total_vol_cubic_ft = top_cylinder+partial_cone+bottom_cone
+# total_vol_acft = total_vol_cubic_ft/43560
+# 
+# top_cylinder/43560
+# (partial_cone+bottom_cone)/43560
+# bottom_cone/43560
 
-top_cylinder/43560
-(partial_cone+bottom_cone)/43560
-bottom_cone/43560
+partial_cone_1 = (1/3)*pi*(y_a-y_b)*((r_a^2) + r_a*r_b + (r_b^2))
+partial_cone_2 = (1/3)*pi*(y_b-y_c)*((r_b^2) + r_b*r_c + (r_c^2))
+partial_cone_3 = (1/3)*pi*(y_c-y_d)*((r_c^2) + r_c*r_d + (r_d^2))
+complete_cone_4 = pi*(r_d^2)*(1/3)*y_d
+# partial_cone_4 = (1/3)*pi*(y_d-y_e)*((r_d^2) + r_d*r_e + (r_e^2))
+
+complete_cone_4/43560
+(complete_cone_4+partial_cone_3)/43560
+(complete_cone_4+partial_cone_3+partial_cone_2)/43560
+
+total_vol_cubic_ft = partial_cone_1+partial_cone_2+partial_cone_3+complete_cone_4
+total_vol_acft = total_vol_cubic_ft/43560
 ################################################################################################
 ################################################################################################
 
