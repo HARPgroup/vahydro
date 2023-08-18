@@ -117,7 +117,6 @@ gord <- om_quantile_table(facdat_df, metrics = c("vwp_max_mgy","vwp_max_mgd","wd
 kable(gord)
 
 # round(quantile(rsegdat_df$Qout,c(0,0.1,0.25,0.5,0.75,0.9,1.0)), 3)
-
 ################################################################################################
 ################################################################################################
 
@@ -146,8 +145,26 @@ nyears = nrow(facdat_df)/365
 # wd_mgd should not exceed the Maximum Annual Withdrawal Limit 13.43 mgy
 sum(facdat_df$wd_mgd)/nyears
 
-
-
-
 ################################################################################################
 ################################################################################################
+# monthly demand analysis 
+sort(colnames(facdat_df))
+
+historic_use_query <- "SELECT month,historic_monthly_pct,
+                              vwp_max_mgy,
+                              vwp_base_mgd,
+                              vwp_max_mgd,
+                              vwp_demand_mgd,
+                              avg(Qintake_mgd)
+                    FROM facdat_df
+                    GROUP BY month
+                    "
+historic_use <- sqldf(historic_use_query)
+
+
+
+
+
+
+
+
