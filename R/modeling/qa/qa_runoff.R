@@ -14,9 +14,9 @@ ds$get_token(rest_pw = rest_pw)
 # summaries since landseg data *COULD BE* summarized in the database.
 rodf <- data.frame(
   'model_version' = c('vahydro-1.0', 'vahydro-1.0'),
-  'runid' = c('runid_400', 'runid_600'),
+  'runid' = c('runid_400', 'runid_801'),
   'metric' = c('Runit','Runit'),
-  'runlabel' = c('Runit_perm', 'Runit_600')
+  'runlabel' = c('Runit_perm', 'Runit_801')
 )
 ro_data <- om_vahydro_metric_grid(
   metric = metric, runids = rodf, bundle = "landunit", ftype = "cbp6_lrseg",
@@ -26,4 +26,4 @@ ro_data <- om_vahydro_metric_grid(
 
 # RO too small, check for missing lrseg: JU2_7140_7330, JU2_7450_7360
 # - in these, a single Landseg was missing, from WV: N54063 
-jar_rodata = fn_extract_basin(ro_data,'JL7_7070_0001')
+jar_rodata = fn_extract_basin(ro_data,'JL2_6441_6520')

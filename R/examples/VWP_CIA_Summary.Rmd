@@ -24,6 +24,7 @@ params:
   cu_pre_var: "Qbaseline"
   cu_post_var: "Qout"
   cu_model: "river"
+  cu_base_runid: FALSE # new method allows a baseline model run
   cu_min_valid: 0.1
   cu_decimals: 1
   intake_stats_fid: FALSE
@@ -97,6 +98,7 @@ cu_threshold = params$cu_threshold
 cu_pre_var = params$cu_pre_var
 cu_post_var = params$cu_post_var
 cu_model = params$cu_model
+cu_base_runid = params$cu_base_runid
 cu_min_valid = params$cu_min_valid
 cu_decimals = params$cu_decimals
 elfgen = params$elfgen
@@ -382,7 +384,7 @@ cols <- names(dat_current)
 if(!(intake_stats_varname %in% cols)) {
   dat_current[,intake_stats_varname] <- dat_current$Qriver
 }
-intake_sum_current <- om_flow_table(dat_current, intake_stats_varname)
+intake_sum_current <- om_flow_table(dat_current, intake_stats_varname, rdigits = cu_decimals)
 ex_col = "10%"
 jan_ex <- intake_sum_current[1,ex_col]
 if (jan_ex == 0) {
@@ -471,18 +473,41 @@ runid.i <- preferred_runid
 run.i <- sub("runid_", "", runid.i)
 if (cu_model == "river") {
   # use the river as the entity to compare
-  pr_data <- om_get_rundata(rseg.elid, run.i, omsite, FALSE)
+  cu_elid = rseg.elid
 } else {
   if (cu_model == "facility") {
     # use the facility
-    pr_data <- om_get_rundata(fac.elid, run.i, omsite, FALSE)
+    cu_elid = fac.elid
   } else {
     # try this attribute as a elementid
-    pr_data <- om_get_rundata(cu_model, run.i, omsite, FALSE)
+    cu_elid = cu_model
   }
 }
+pr_data <- om_get_rundata(cu_elid, run.i, omsite, FALSE)
+# now, if the user has specified a scenario to use as baseline, 
+# get that data, then join it, using the same pre/post column but 
+# joining the baseline column on as Qbaseline 
+use_pre_var = cu_pre_var
+if (cu_base_runid != FALSE) {
+  base_data <- as.data.frame(om_get_rundata(cu_elid, cu_base_runid, omsite, FALSE))
+  pr_data_df <- as.data.frame(pr_data)
+  base_msg = "" # a holder in case we have trouble we need to report
+  if (nrow(pr_data_df) != nrow(base_data)) {
+    base_msg = " Note: Pre and Post data are of different lengths, therefore, comparisons have been made only on overlapping days which may skew the percentile flow values as compared to those that would be calculated from the full time period."
+  }
+  pr_data_cmp <- sqldf(
+    paste0(
+      "select a.year, a.month, a.day, a.",cu_post_var,
+      ", b.", cu_pre_var, " as Qbaseline ",
+      "from pr_data_df as a left outer join base_data as b on ",
+      "(a.year = b.year and a.month = b.month and a.day = b.day)",
+      "order by a.year, a.month, a.day"
+    )
+  )
+  use_pre_var = "Qbaseline"
+}
 
-fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
+fqcu_table <- om_cu_table(fac_report_info, pr_data_cmp, cu_post_var, use_pre_var, cu_threshold, cu_decimals) 
 fqcu_caption <- paste(
   "Modeled monthly consumptive use statistics in the ", 
   rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive user % due to cumulative demands for", 
@@ -490,7 +515,8 @@ fqcu_caption <- paste(
   ". Simulated demands include all up-stream demands and demands at ", 
   fac_report_info$intake_name$value, 
   " and all upstream point-source flows.  ", 
-  "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs."
+  "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs.",
+  base_msg
 )
 fqcu_table$caption_text <- fqcu_caption
 
@@ -694,27 +720,50 @@ for (i in 1:length(runid.list)){
   run.i <- sub("runid_", "", runid.i)
   if (cu_model == "river") {
     # use the river as the entity to compare
-    pr_data <- om_get_rundata(rseg.elid, run.i, omsite, FALSE)
+    cu_elid = rseg.elid
   } else {
     if (cu_model == "facility") {
       # use the facility
-      pr_data <- om_get_rundata(fac.elid, run.i, omsite, FALSE)
+      cu_elid = fac.elid
     } else {
       # try this attribute as a elementid
-      pr_data <- om_get_rundata(cu_model, run.i, omsite, FALSE)
+      cu_elid = cu_model
     }
   }
+  pr_data <- om_get_rundata(cu_elid, run.i, omsite, FALSE)
+  # now, if the user has specified a scenario to use as baseline, 
+  # get that data, then join it, using the same pre/post column but 
+  # joining the baseline column on as Qbaseline 
+  use_pre_var = cu_pre_var
+  if (cu_base_runid != FALSE) {
+    base_data <- as.data.frame(om_get_rundata(cu_elid, cu_base_runid, omsite, FALSE))
+    pr_data_df <- as.data.frame(pr_data)
+    base_msg = "" # a holder in case we have trouble we need to report
+    if (nrow(pr_data_df) != nrow(base_data)) {
+      base_msg = " Note: Pre and Post data are of different lengths, therefore, comparisons have been made only on overlapping days which may skew the percentile flow values as compared to those that would be calculated from the full time period."
+    }
+    pr_data_cmp <- sqldf(
+      paste0(
+        "select a.year, a.month, a.day, a.",cu_post_var,
+        ", b.", cu_pre_var, " as Qbaseline ",
+        "from pr_data_df as a left outer join base_data as b on ",
+        "(a.year = b.year and a.month = b.month and a.day = b.day)",
+        "order by a.year, a.month, a.day"
+      )
+    )
+    use_pre_var = "Qbaseline"
+  }
   
-  fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
-  fac_run_info <- find_name(fac_model_info,runid.i)
+  fqcu_table <- om_cu_table(fac_report_info, pr_data_cmp, cu_post_var, use_pre_var, cu_threshold, cu_decimals) 
   fqcu_caption <- paste(
     "Modeled monthly consumptive use statistics in the ", 
-    rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive use % due to cumulative demands for", 
-    fac_run_info$reports$scenario_name$value, 
+    rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive user % due to cumulative demands for", 
+    run_info$reports$scenario_name$value, 
     ". Simulated demands include all up-stream demands and demands at ", 
-    fac_feature$name, fac_report_info$intake_name$value, 
-    ") and cumulative return flows.  ", 
-    "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs."
+    fac_report_info$intake_name$value, 
+    " and all upstream point-source flows.  ", 
+    "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs.",
+    base_msg
   )
   fqcu_table$caption_text <- fqcu_caption
   #fqcu_table
