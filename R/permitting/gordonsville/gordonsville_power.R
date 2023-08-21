@@ -79,6 +79,7 @@ total_vol_acft = total_vol_cubic_ft/43560
 rseg_om_id <- 207771 # South Anna River
 fac_om_id <- 284961  # Gordonsville Power Station:South Anna River
 runid <- 401
+# runid <- 402
 # runid <- 4011
 ################################################################################################
 
@@ -116,6 +117,7 @@ gord <- om_quantile_table(facdat_df, metrics = c("vwp_max_mgy","vwp_max_mgd","wd
 
 kable(gord)
 
+facdat_df$vwp_max_mgd
 # round(quantile(rsegdat_df$Qout,c(0,0.1,0.25,0.5,0.75,0.9,1.0)), 3)
 ################################################################################################
 ################################################################################################
@@ -162,9 +164,27 @@ historic_use_query <- "SELECT month,historic_monthly_pct,
 historic_use <- sqldf(historic_use_query)
 
 
+inflow_query <- "SELECT month,
+                        avg(quarry_inflow_mgd),
+                        avg(vwp_base_mgd),
+                        avg(Qintake_mgd),
+                        (avg(quarry_inflow_mgd)/avg(Qintake_mgd))*100
+                    FROM facdat_df
+                    GROUP BY month
+                    "
+inflow <- sqldf(inflow_query)
 
 
 
+################################################################################################
+################################################################################################
+# monthly inflow figure 
+modat <- sqldf("select month, avg(quarry_inflow_mgd) as quarry_inflow_mgd from facdat_df group by month")
 
-
-
+fname <- paste(export_path,paste0('fig.monthly_inflow.',fac_om_id, '.', runid, '.png'),sep = '')
+png(fname)
+barplot(modat$quarry_inflow_mgd ~ modat$month, xlab="Month", ylab="Quarry Inflow (mgd)",main="Subsurface Inflow From South Anna River",
+        ylim = c(0, 0.05))
+dev.off()
+################################################################################################
+################################################################################################
