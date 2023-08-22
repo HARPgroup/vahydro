@@ -131,7 +131,6 @@ om_flow_table(facdat_df, q_col = "Qintake_post", rdigits=3)
 
 ################################################################################################
 ################################################################################################
-
 imp_model_query <- "SELECT year, month, day,
                           vwp_base_mgd, 
                           wd_mgd, 
@@ -139,6 +138,85 @@ imp_model_query <- "SELECT year, month, day,
                     FROM facdat_df"
 imp_analysis <- sqldf(imp_model_query)
 head(imp_analysis)
+################################################################################################
+################################################################################################
+# point source investigations: 
+om_quantile_table(facdat_df, metrics = c("wd_mgd","discharge_mgd"),rdigits = 3)
+mean(facdat_df$wd_mgd)
+mean(facdat_df$discharge_mgd)
+
+ps_query <- "SELECT year, month, day,
+                          wd_mgd, 
+                          discharge_mgd, 
+                          wd_mgd * 0.985 AS calc
+                    FROM facdat_df"
+ps_analysis <- sqldf(ps_query)
+sum(ps_analysis$discharge_mgd)
+sum(ps_analysis$calc)
+#--------------------------------------
+
+library(echor)
+id_df <- data.frame("id" = c('VA0087033'))
+dmr <- echor::downloadDMRs(id_df, idColumn=id)
+dmr_df <- as.data.frame(dmr$dmr)
+# sort(colnames(dmr_df))
+
+dmr_df[['datetime']] <- as.POSIXct(dmr_df[['monitoring_period_end_date']],format = "%m/%d/%Y")
+# dmr_df[['month']] <- stringr::str_remove(format(as.Date(dmr_df$datetime, format="%d/%m/%Y"),"%m"), "^0+")
+dmr_df[['month']] <- format(as.Date(dmr_df$datetime, format="%d/%m/%Y"),"%m")
+dmr_query <- "SELECT npdes_id, perm_feature_nmbr, monitoring_period_end_date, datetime, month, 
+                     statistical_base_code, statistical_base_short_desc,
+                     dmr_value_standard_units, standard_unit_desc
+              FROM dmr_df
+              WHERE perm_feature_type_code = 'EXO'
+                AND parameter_code = 50050
+                AND statistical_base_code = 'MK'
+              ORDER BY datetime DESC  
+             "
+dmr_analysis <- sqldf(dmr_query)
+dmr_analysis$dmr_value_standard_units <- as.numeric(dmr_analysis$dmr_value_standard_units)
+
+# monthly discharge figures
+# ECHO ----------------------------------------------------------------------------
+startdate <- as.character(min(dmr_analysis$datetime))
+enddate <- as.character(max(dmr_analysis$datetime))
+modat <- sqldf("select month, avg(dmr_value_standard_units) as dmr_value_standard_units from dmr_analysis group by month order by month ASC")
+fname <- paste(export_path,paste0('fig.monthly_discharge_echo.',id_df$id, '001.png'),sep = '')
+png(fname)
+barplot(modat$dmr_value_standard_units ~ modat$month, ylim=c(0,0.1),
+        xlab="Month", ylab="Outfall Discharge (mgd)",
+        main=paste0("Outfall Discharge\nECHO Reported: ", id_df$id,"001\n(",startdate," - ",enddate,")"))
+dev.off()
+# VAHYDRO ----------------------------------------------------------------------------
+modat <- sqldf("select month, avg(discharge_mgd) as discharge_mgd from facdat_df group by month order by month ASC")
+modat$month <- c("01","02","03","04","05","06","07","08","09","10","11","12")
+fname <- paste(export_path,paste0('fig.monthly_discharge_model.',fac_om_id, '.', runid, '.png'),sep = '')
+png(fname)
+barplot(modat$discharge_mgd ~ modat$month, ylim=c(0,0.1),
+        xlab="Month", ylab="Outfall Discharge (mgd)",
+        main=paste0("Outfall Discharge\nVAHydro Modeled: ", fac_om_id," ",runid,"\n(",mstart," - ",mend,")"))
+dev.off()
+
+
+# VAHYDRO REPORTED WD----------------------------------------------------------------------------
+# sort(colnames(facdat_df))
+# facdat_df$current_mgy
+# facdat_df$historic_monthly_pct
+# facdat_df$current_mgy 
+# options(scipen=999)
+# modat <- sqldf("select month,
+#                avg(current_mgy)*historic_monthly_pct/365 as current_mgd
+#                from facdat_df
+#                group by month
+#                order by month ASC")
+modat <- sqldf("select month, avg(current_mgd) as current_mgd from facdat_df group by month order by month ASC")
+modat$month <- c("01","02","03","04","05","06","07","08","09","10","11","12")
+fname <- paste(export_path,paste0('fig.monthly_withdrawal_reported.',fac_om_id, '.', runid, '.png'),sep = '')
+png(fname)
+barplot(modat$current_mgd ~ modat$month, ylim=c(0,0.1),
+        xlab="Month", ylab="Intake Withdrawal (mgd)",
+        main=paste0("Intake Withdrawal\nVAHydro Reported: ", fac_om_id," ",runid,"\n(",mstart," - ",mend,")"))
+dev.off()
 ################################################################################################
 ################################################################################################
 # source("C:/Users/nrf46657/Desktop/GitHub/hydro-tools/R/imp_utils.R") # for dev only
