@@ -192,7 +192,8 @@ modat <- sqldf("select month, avg(discharge_mgd) as discharge_mgd from facdat_df
 modat$month <- c("01","02","03","04","05","06","07","08","09","10","11","12")
 fname <- paste(export_path,paste0('fig.monthly_discharge_model.',fac_om_id, '.', runid, '.png'),sep = '')
 png(fname)
-barplot(modat$discharge_mgd ~ modat$month, ylim=c(0,0.1),
+# barplot(modat$discharge_mgd ~ modat$month, ylim=c(0,0.1),
+barplot(modat$discharge_mgd ~ modat$month,
         xlab="Month", ylab="Outfall Discharge (mgd)",
         main=paste0("Outfall Discharge\nVAHydro Modeled: ", fac_om_id," ",runid,"\n(",mstart," - ",mend,")"))
 dev.off()
@@ -242,6 +243,18 @@ discharge_analysis <- om_quantile_table(rsegdat_df, metrics = c("ps_mgd","ps_cum
                                                                "ps_upstream_mgd","ps_nextdown_mgd"),
                                         rdigits = 3)
 kable(discharge_analysis)
+
+
+
+imp_out <- om_quantile_table(facdat_df, metrics = c("quarry_inflow_mgd", "local_impoundment_Qout"),rdigits = 3)
+kable(imp_out)
+
+imp_out_query <- "SELECT year, month, day,
+                              quarry_inflow_mgd,
+                              local_impoundment_Qout
+                    FROM facdat_df
+                    "
+imp_out_analysis <- sqldf(imp_out_query)
 
 ################################################################################################
 ################################################################################################
@@ -297,8 +310,21 @@ modat <- sqldf("select month, avg(quarry_inflow_mgd) as quarry_inflow_mgd from f
 
 fname <- paste(export_path,paste0('fig.monthly_inflow.',fac_om_id, '.', runid, '.png'),sep = '')
 png(fname)
-barplot(modat$quarry_inflow_mgd ~ modat$month, xlab="Month", ylab="Quarry Inflow (mgd)",main="Subsurface Inflow From South Anna River")
+barplot(modat$quarry_inflow_mgd ~ modat$month, ylim=c(0,0.05),
+        xlab="Month", ylab="Quarry Inflow (mgd)",main="Subsurface Inflow From South Anna River")
         # ylim = c(0, 0.05))
+dev.off()
+################################################################################################
+################################################################################################
+# impoundment evap figure 
+# sort(colnames(facdat_df))
+modat <- sqldf("select month, avg(local_impoundment_evap_mgd) as local_impoundment_evap_mgd from facdat_df group by month")
+
+fname <- paste(export_path,paste0('fig.monthly_impoundment_evap.',fac_om_id, '.', runid, '.png'),sep = '')
+png(fname)
+barplot(modat$local_impoundment_evap_mgd ~ modat$month, ylim=c(0,0.05),
+        xlab="Month", ylab="Impoundment Evaporation (mgd)",main="")
+# ylim = c(0, 0.05))
 dev.off()
 ################################################################################################
 ################################################################################################
