@@ -217,6 +217,32 @@ barplot(modat$current_mgd ~ modat$month, ylim=c(0,0.1),
         xlab="Month", ylab="Intake Withdrawal (mgd)",
         main=paste0("Intake Withdrawal\nVAHydro Reported: ", fac_om_id," ",runid,"\n(",mstart," - ",mend,")"))
 dev.off()
+
+################################################################################################
+################################################################################################
+# revised refill_max_mgd  equation 8/23/23:
+sort(colnames(facdat_df))
+
+discharge_analysis <- om_quantile_table(facdat_df, metrics = c("refill_pump_mgd","refill_plus_demand","refill_available_mgd","refill_max_mgd",
+                                                               "quarry_inflow_mgd","wd_mgd","cova_withdrawal","discharge_mgd"),rdigits = 3)
+kable(discharge_analysis)
+
+refill_query <- "SELECT year, month, day,
+                              refill_max_mgd,
+                              quarry_inflow_mgd,
+                              discharge_mgd,
+                              quarry_inflow_mgd + discharge_mgd,
+                              round((quarry_inflow_mgd + discharge_mgd - refill_max_mgd),7)
+                    FROM facdat_df
+                    "
+refill_analysis <- sqldf(refill_query)
+
+sort(colnames(rsegdat_df))
+discharge_analysis <- om_quantile_table(rsegdat_df, metrics = c("ps_mgd","ps_cumulative_mgd","ps_trib_mgd",
+                                                               "ps_upstream_mgd","ps_nextdown_mgd"),
+                                        rdigits = 3)
+kable(discharge_analysis)
+
 ################################################################################################
 ################################################################################################
 # source("C:/Users/nrf46657/Desktop/GitHub/hydro-tools/R/imp_utils.R") # for dev only
