@@ -246,16 +246,40 @@ kable(discharge_analysis)
 
 
 
-imp_out <- om_quantile_table(facdat_df, metrics = c("quarry_inflow_mgd", "local_impoundment_Qout"),rdigits = 3)
+imp_out <- om_quantile_table(facdat_df, metrics = c("Qintake_mgd", "drawdown_mgd", "quarry_inflow_mgd", 
+                                                    "discharge_mgd", "refill_max_mgd" ,"local_impoundment_Qout",
+                                                    "local_impoundment_lake_elev","Runit","precip_in"),rdigits = 3)
 kable(imp_out)
 
 imp_out_query <- "SELECT year, month, day,
                               quarry_inflow_mgd,
-                              local_impoundment_Qout
+                              local_impoundment_Qout,
+                              Runit,
+                              precip_in
                     FROM facdat_df
                     "
 imp_out_analysis <- sqldf(imp_out_query)
 
+sort(colnames(facdat_df))
+
+################################################################################################
+################################################################################################
+# precip figures
+modat <- sqldf("select month, avg(precip_in) as precip_in from facdat_df group by month")
+fname <- paste(export_path,paste0('fig.precip_in.',fac_om_id, '.', runid, '.png'),sep = '')
+png(fname)
+barplot(modat$precip_in ~ modat$month, ylim=c(0,0.05),
+        xlab="Month", ylab="precip_in",main="")
+# ylim = c(0, 0.05))
+dev.off()
+
+precip_df <- facdat_df
+precip_df$date <- row.names(precip_df) 
+fname <- paste(export_path,paste0('fig.precip_in_scatter.',fac_om_id, '.', runid, '.png'),sep = '')
+png(fname)
+plot(as.Date(precip_df$date), precip_df$precip_in, type = "b", pch = 19, 
+     col = "red", xlab = "Model Flow Period", ylab = "precip_in",main="facdat_df$precip_in")
+dev.off()
 ################################################################################################
 ################################################################################################
 # source("C:/Users/nrf46657/Desktop/GitHub/hydro-tools/R/imp_utils.R") # for dev only
