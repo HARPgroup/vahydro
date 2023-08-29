@@ -5,6 +5,7 @@ library("knitr")
 basepath='/var/www/R';
 source("/var/www/R/config.R")
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/imp_utils.R")
 
 
 # Set up our data source
@@ -13,37 +14,47 @@ ds$get_token(rest_pw)
 
 felid <- 347352
 relid <- 351963
+mrelid <- 337722
 roelid <- 351959 
 
-bcdatf <- om_get_rundata(felid, 401, site=omsite)
-bcdatfd <- as.data.frame(bcdatf)
-quantile(bcdatfd$impoundment_use_remain_mg, probs=c(0.01,0.02,0.03,0.04,0.05,0.1,0.25))
-quantile(bcdatfd$available_mgd, probs=c(0.01,0.02,0.03,0.04,0.05,0.1,0.25))
-quantile(bcdatfd$base_demand_mgd)
-quantile(bcdatfd$unmet_demand_mgd, probs=c(0.99,0.98,0.97,0.96,0.95,0.9,0.75))
-quantile(bcdatfd$wd_mgd)
+bcdatf <- om_get_rundata(felid, 601, site=omsite)
+bcdatf_stats <- om_quantile_table(
+  bcdatf, 
+  metrics = c(
+    "Qout", "impoundment_use_remain_mg","wd_mgd",'base_demand_mgd', 'unmet_demand_mgd',
+    "release", "release_current", "release_proposed","release_historic",
+    "Qrecharge", "release_max_tiered"
+  ),rdigits = 2)
+kable(bcdatf_stats,'markdown')
+quantile(bcdatf$R10_r_last_q)
 
 
-bcdatr <- om_get_rundata(relid, 600, site=omsite)
-quantile(bcdatr$impoundment_demand * 1.547)
-quantile(bcdatr$impoundment_Qout)
-quantile(bcdatr$wd_imp_mgd)
-quantile(bcdatr$impoundment_Qin)
-quantile(bcdatr$child_wd_mgd)
-bcdatr$pct_use_remain <- 3.07*bcdatr$impoundment_use_remain_mg / bcdatr$impoundment_max_usable
 
+mrdatr <- om_get_rundata(mrelid, 600, site=omsite)
+mrdatr_stats <- om_quantile_table(
+  mrdatr, 
+  metrics = c(
+    "Qout","wd_mgd", "wd_cumulative_mgd","ps_mgd", "ps_cumulative_mgd"
+  ),rdigits = 2)
+kable(mrdatr_stats,'markdown')
+bcpulse = l
+runid = 600
+bcdatr <- om_get_rundata(relid, runid, site=omsite)
 bcdatr_stats <- om_quantile_table(
   bcdatr, 
   metrics = c(
-    "impoundment_demand","impoundment_demand_met_mgd",'impoundment_lake_elev', 'impoundment_release',
+    "Qout", "impoundment_demand","impoundment_demand_met_mgd",'impoundment_lake_elev',
     "impoundment_Storage","impoundment_use_remain_mg","impoundment_days_remaining",
     "impoundment_Qin","impoundment_Qout", "local_channel_Qin", "local_channel_Qout",
-    "Runit_mode", "release_dgif", "release_rwsa","wd_mgd", "pct_use_remain"
-),rdigits = 2)
+    "Runit_mode", "release_dgif", "release_rwsa","wd_mgd", "impoundment_pct_use_remain",
+    "release_cfs", 'impoundment_release', 'release_factor'),
+  quantiles=c(0,0.01,0.02,0.05,0.1,0.25, 0.3, 0.5),
+  rdigits = 2)
 kable(bcdatr_stats,'markdown')
+bcpulse[[runid]] <- IHA::group4(bcdatr$Qout)
 
-
-fn_plot_impoundment_flux(bcdatr,"pct_use_remain","impoundment_Qin", "impoundment_Qout", "wd_mgd")
+quantile(bcdatr$impoundment_pct_use_remain, probs=)
+fn_plot_impoundment_flux(bcdatr,"impoundment_pct_use_remain","impoundment_Qin", "impoundment_Qout", "wd_mgd")
 
 
 quantile(bcdatr$wd_mgd)

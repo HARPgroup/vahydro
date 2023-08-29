@@ -86,7 +86,7 @@ if (is.boolean(model_pid)) {
 }
 if (cu_model != 'feature') {
   # we have a different feature for the CU model
-  cu_model_prop <- RomProperty$new(ds,list(featureid=cu_model, entity_type='dh_feature', propcode=model_version),TRUE)
+  cu_model_prop <- RomProperty$new(ds,list(pid=cu_model),TRUE)
   # load the json into cache for later access
   ds$get_json_prop(cu_model_prop$pid)
 } else {
