@@ -6,6 +6,9 @@ source("/var/www/R/config.R")
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/imp_utils.R")
 
+# ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+# ds$get_token(rest_pw)
+
 ################################################################################################
 ################################################################################################
 # Quarry NHDPlus Feature
@@ -122,13 +125,38 @@ facdat_df$vwp_max_mgd
 
 CU <- om_quantile_table(facdat_df, metrics = c("quarry_inflow_mgd", "Qintake", "Qintake_post","Runit"),rdigits = 3)
 kable(CU)
-# round(quantile(rsegdat_df$Qout,c(0,0.1,0.25,0.5,0.75,0.9,1.0)), 3)
+CU_query <- "SELECT year, month, day,
+                          quarry_inflow_mgd,
+                          quarry_inflow_mgd * 1.547, 
+                          Qintake, 
+                          Qintake_post,
+                          wd_mgd,
+                          discharge_mgd,
+                          quarry_inflow_mgd - wd_mgd
+                    FROM facdat_df"
+cu_analysis <- sqldf(CU_query)
 
 om_flow_table(facdat_df, q_col = "wd_mgd", rdigits=3)
 om_flow_table(facdat_df, q_col = "local_impoundment_evap_mgd", rdigits=3)
 om_flow_table(facdat_df, q_col = "quarry_inflow_mgd", rdigits=3)
 om_flow_table(facdat_df, q_col = "Qintake_post", rdigits=3)
 
+################################################################################################
+################################################################################################
+unmet_query <- "SELECT year, month, day,
+                          base_demand_mgd,
+                          wd_mgd,
+                          unmet_demand_mgd,
+                          max_mgd,available_mgd,adj_demand_mgd,
+                          drought_pct, rejected_demand_pct
+                    FROM facdat_df
+                    WHERE year = 2019 AND month = 10
+
+                "
+# WHERE year = 2002 AND month = 8
+#WHERE year = 2019 AND month = 10
+unmet_analysis <- sqldf(unmet_query)
+head(unmet_analysis)
 ################################################################################################
 ################################################################################################
 imp_model_query <- "SELECT year, month, day,
@@ -334,7 +362,7 @@ modat <- sqldf("select month, avg(quarry_inflow_mgd) as quarry_inflow_mgd from f
 
 fname <- paste(export_path,paste0('fig.monthly_inflow.',fac_om_id, '.', runid, '.png'),sep = '')
 png(fname)
-barplot(modat$quarry_inflow_mgd ~ modat$month, ylim=c(0,0.05),
+barplot(modat$quarry_inflow_mgd ~ modat$month,
         xlab="Month", ylab="Quarry Inflow (mgd)",main="Subsurface Inflow From South Anna River")
         # ylim = c(0, 0.05))
 dev.off()
@@ -346,8 +374,8 @@ modat <- sqldf("select month, avg(local_impoundment_evap_mgd) as local_impoundme
 
 fname <- paste(export_path,paste0('fig.monthly_impoundment_evap.',fac_om_id, '.', runid, '.png'),sep = '')
 png(fname)
-barplot(modat$local_impoundment_evap_mgd ~ modat$month, ylim=c(0,0.05),
-        xlab="Month", ylab="Impoundment Evaporation (mgd)",main="")
+barplot(modat$local_impoundment_evap_mgd ~ modat$month,
+        xlab="Month", ylab="Impoundment Evaporation (mgd)",main="Impoundment Evaporation")
 # ylim = c(0, 0.05))
 dev.off()
 ################################################################################################
