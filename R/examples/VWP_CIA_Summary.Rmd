@@ -488,10 +488,10 @@ pr_data <- om_get_rundata(cu_elid, run.i, omsite, FALSE)
 # get that data, then join it, using the same pre/post column but 
 # joining the baseline column on as Qbaseline 
 use_pre_var = cu_pre_var
+base_msg = "" # a holder in case we have trouble we need to report
 if (cu_base_runid != FALSE) {
   base_data <- as.data.frame(om_get_rundata(cu_elid, cu_base_runid, omsite, FALSE))
   pr_data_df <- as.data.frame(pr_data)
-  base_msg = "" # a holder in case we have trouble we need to report
   if (nrow(pr_data_df) != nrow(base_data)) {
     base_msg = " Note: Pre and Post data are of different lengths, therefore, comparisons have been made only on overlapping days which may skew the percentile flow values as compared to those that would be calculated from the full time period."
   }
