@@ -146,8 +146,8 @@ gfz = zoo(agf_1997$Flow/1.547, order.by = as.Date(agf_1997$Date))
 gf_gf = group2(gfz, "calendar")
 
 yr <- year(index(gfz))
-rollx <- runmean.iha(gfz, year = yr, mimic.tnc = TRUE)
-q30s <- rollx$w30
+rollx <- as.data.frame(runmean.iha(gfz, year = yr, mimic.tnc = TRUE))
+q30s <- rollx$w3  
 
 gfaz = zoo(agf_1997$Flow_curr/1.547, order.by = as.Date(agf_1997$Date))
 gfa_gf = group2(gfaz, "calendar")
@@ -256,7 +256,7 @@ lm_aso_all <- lm(gf_aso_alt_usgs$flow_obs ~ index(gf_aso_alt_usgs))
 barplot(
   flow_obs ~ year, data=gf_aso_alt_usgs,
   col=c("blue"),
-  main="Aug-Sep Flow, 1895-2022",
+  main="Aug-Sep Flow, 1895-2023",
   beside=TRUE,
   ylim=c(0,25000)
 )

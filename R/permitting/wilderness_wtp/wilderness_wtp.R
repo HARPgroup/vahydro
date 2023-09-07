@@ -53,7 +53,7 @@ source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_uti
 # LOAD MODEL IDs:
 rseg_om_id <- 258123 # Rapidan River
 fac_om_id <- 348716 # WILDERNESS SERVICE AREA:Rapidan River
-runid <- 401 #6001
+runid <- 601 #6001
 ################################################################################################
 
 facdat <- om_get_rundata(fac_om_id, runid, site = omsite)
@@ -69,7 +69,7 @@ sort(colnames(facdat_df))
 
 #-------------------------------------------------------------------------
 
-SML <- om_quantile_table(facdat_df, metrics = c("wd_mgd","unmet_demand_mgd", "Qintake", "Qriver","Qreach", "Qreach14","Qriver_up", "vwp_max_mgd", "vwp_base_mgd","vwp_pumptier_mgd"),
+SML <- om_quantile_table(facdat, metrics = c("wd_mgd","unmet_demand_mgd", "Qintake", "Qriver","Qreach", "Qreach14","Qriver_up", "vwp_max_mgd", "vwp_base_mgd","vwp_pumptier_mgd"),
                          rdigits = 3,
                          quantiles = c(0,0.01,0.05,0.1,0.25,0.5,1.0))
 kable(SML,'markdown')
@@ -79,3 +79,37 @@ test<-sqldf('select wd_mgd,Qreach,unmet_demand_mgd, vwp_max_mgd, vwp_base_mgd,vw
 
 ################################################################################################
 ################################################################################################
+
+
+df <- data.frame(
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_401', 'runid_401', 'runid_601', 'runid_601', 'runid_601'),
+  'metric' = c('l90_Qout', 'wd_cumulative_mgd','l90_Qout', 'wd_mgd', 'wd_cumulative_mgd'),
+  'runlabel' = c('L90_400', 'wdc_mgd_400', 'l90_600', 'wd_mgd_600', 'wdc_mgd_600')
+)
+cc_data <- om_vahydro_metric_grid(
+  metric, df, "all", "dh_feature",
+  "watershed", "vahydro", "vahydro-1.0",
+  "http://deq1.bse.vt.edu:81/d.dh/entity-model-prop-level-export", ds = ds
+)
+
+
+riv_data = fn_extract_basin(cc_data,'RU4_6040_6030')
+
+
+# summaries since landseg data *COULD BE* summarized in the database.
+rodf <- data.frame(
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
+  'runid' = c('runid_400', 'runid_600', 'runid_401', 'runid_601'),
+  'metric' = c('Runit','Runit','Runit','Runit'),
+  'runlabel' = c('Runit_400', 'Runit_600', 'Runit_401', 'Runit_601')
+)
+ro_data <- om_vahydro_metric_grid(
+  metric = metric, runids = rodf, bundle = "landunit", ftype = "cbp6_lrseg",
+  base_url = paste(site,'entity-model-prop-level-export',sep="/"),
+  ds = ds
+)
+
+# RO too small, check for missing lrseg: JU2_7140_7330, JU2_7450_7360
+# - in these, a single Landseg was missing, from WV: N54063 
+riv_rodata = fn_extract_basin(ro_data,'RU4_6040_6030')

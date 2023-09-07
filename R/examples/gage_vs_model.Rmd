@@ -161,7 +161,7 @@ legend_text <- c("gage","model")
 fdc_plot <- hydroTSM::fdc(cbind(fdc_dat.df),
                           yat = c(1, 5, 10, 50, 100, seq(0,round(max(fdc_dat.df),0), by = 500)),
                           leg.txt = legend_text,
-                          main=paste("Flow Duration Curve ", gage_number, ":", gage_name,"\n","(Model Flow Period ",gstart," to ",gend,")",sep=""),
+                          main=paste("Flow Duration Curve ", gageid, ":", gage_name,"\n","(Model Flow Period ",gstart," to ",gend,")",sep=""),
                           ylab = "Flow (cfs)",
                           ylim=c(min(fdc_dat.df), max(fdc_dat.df)),
                           cex.main=1,

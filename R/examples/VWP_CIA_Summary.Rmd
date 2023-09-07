@@ -505,6 +505,8 @@ if (cu_base_runid != FALSE) {
     )
   )
   use_pre_var = "Qbaseline"
+} else {
+  pr_data_cmp <- pr_data
 }
 
 fqcu_table <- om_cu_table(fac_report_info, pr_data_cmp, cu_post_var, use_pre_var, cu_threshold, cu_decimals) 
@@ -718,6 +720,7 @@ for (i in 1:length(runid.list)){
   runid.i <- runid.list[i]
   # generate a CU table for each run
   run.i <- sub("runid_", "", runid.i)
+  base_msg = "" # a holder in case we have trouble we need to report
   if (cu_model == "river") {
     # use the river as the entity to compare
     cu_elid = rseg.elid
@@ -738,7 +741,6 @@ for (i in 1:length(runid.list)){
   if (cu_base_runid != FALSE) {
     base_data <- as.data.frame(om_get_rundata(cu_elid, cu_base_runid, omsite, FALSE))
     pr_data_df <- as.data.frame(pr_data)
-    base_msg = "" # a holder in case we have trouble we need to report
     if (nrow(pr_data_df) != nrow(base_data)) {
       base_msg = " Note: Pre and Post data are of different lengths, therefore, comparisons have been made only on overlapping days which may skew the percentile flow values as compared to those that would be calculated from the full time period."
     }

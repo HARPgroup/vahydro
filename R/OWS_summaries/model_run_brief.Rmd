@@ -27,6 +27,7 @@ params:
   cu_threshold: [-10.0, -20.0, -30.0]
   cu_pre_var: "Qbaseline"
   cu_post_var: "Qout"
+  cu_base_runid: FALSE # new method allows a baseline model run
   cu_model: "feature"
   cu_min_valid: 0.1
   cu_decimals: 1
@@ -62,6 +63,7 @@ image_descriptions <- params$image_descriptions
 # cu table details all optional, as defaults are set up top
 cu_threshold = params$cu_threshold
 cu_pre_var = params$cu_pre_var
+cu_base_runid = params$cu_base_runid
 cu_post_var = params$cu_post_var
 cu_model = params$cu_model
 cu_min_valid = params$cu_min_valid
@@ -70,7 +72,7 @@ table_cols = params$table_cols
 preferred_runid = params$preferred_runid
 
 
-# load up the models into the data source (they are cahed in ds$prop_json_cache)
+# load up the models into the data source (they are cached in ds$prop_json_cache)
 model_pids = list()
 if (is.boolean(model_pid)) {
   hid<- model_feature
@@ -90,7 +92,7 @@ if (cu_model != 'feature') {
   # load the json into cache for later access
   ds$get_json_prop(cu_model_prop$pid)
 } else {
-  cu_model_prop <- cu_model_prop
+  cu_model_prop <- model_prop
 }
 itable = om_multi_image_list(ds, model_pids, scenarios, image_names, image_descriptions)
 img_table = om_rmd_img_table(itable,table_cols)
@@ -110,7 +112,32 @@ elid <- find_name(ds$prop_json_cache[cu_model_prop$pid],'om_element_connection')
 if (!is.boolean(cu_pre_var)) {
   
   pr_data <- om_get_rundata(elid, runid, omsite, FALSE)
-  fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, cu_pre_var, cu_threshold, cu_decimals) 
+  use_pre_var = cu_pre_var
+  # now, if the user has specified a scenario to use as baseline, 
+  # get that data, then join it, using the same pre/post column but 
+  # joining the baseline column on as Qbaseline 
+  use_pre_var = cu_pre_var
+  if (cu_base_runid != FALSE) {
+    base_data <- as.data.frame(om_get_rundata(elid, cu_base_runid, omsite, FALSE))
+    pr_data_df <- as.data.frame(pr_data)
+    base_msg = "" # a holder in case we have trouble we need to report
+    if (nrow(pr_data_df) != nrow(base_data)) {
+      base_msg = " Note: Pre and Post data are of different lengths, therefore, comparisons have been made only on overlapping days which may skew the percentile flow values as compared to those that would be calculated from the full time period."
+    }
+    pr_data_cmp <- sqldf(
+      paste0(
+        "select a.year, a.month, a.day, a.",cu_post_var,
+        ", b.", cu_pre_var, " as Qbaseline ",
+        "from pr_data_df as a left outer join base_data as b on ",
+        "(a.year = b.year and a.month = b.month and a.day = b.day)",
+        "order by a.year, a.month, a.day"
+      )
+    )
+    use_pre_var = "Qbaseline"
+    pr_data = pr_data_cmp
+  }
+
+  fqcu_table <- om_cu_table(fac_report_info, pr_data, cu_post_var, use_pre_var, cu_threshold, cu_decimals) 
 }
 
 ```
