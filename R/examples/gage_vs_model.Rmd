@@ -58,6 +58,7 @@ historic <- dataRetrieval::readNWISdv(gageid,'00060')
 gage_info <- dataRetrieval::readNWISsite(gageid)
 gage_name <- gage_info$station_nm
 historic$X_00060_00003 <- historic$X_00060_00003 * area_factor
+#gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = as.POSIXct(historic$Date));
 gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
 gage_flows <- window(gage_flows, start = mstart, end = mend)
 gstart <- as.Date(min(index(gage_flows)))
@@ -502,6 +503,12 @@ usgs_fx
 model_fx <- qflextable(om_flow_table(model_data, 'Qout'))
 set_caption(model_fx,"Model non-exceedence chart.")
 
+both_flows <- as.data.frame(cbind(as.numeric(gage_flows), as.numeric(model_flows)))
+names(both_flows) <- c('usgs', 'model')
+lt_mean_flows <- sqldf(paste("select * from both_flows where usgs <", gage_info$drain_area_va))
+lt_plot <- plot(lt_mean_flows$model ~ lt_mean_flows$usgs, ylim=c(0, gage_info$drain_area_va))
+lt_low_flows <- sqldf(paste("select * from both_flows where usgs <", 0.1 * gage_info$drain_area_va))
+ltl_plot <- plot(lt_low_flows$model ~ lt_low_flows$usgs, ylim=c(0, 0.1 * gage_info$drain_area_va))
 ######################
 ```
 
@@ -512,6 +519,7 @@ usgs_fx
 
 model_fx 
 
+lt_plot
 ```
 
 ```{r CriticalPdChart, echo=FALSE}

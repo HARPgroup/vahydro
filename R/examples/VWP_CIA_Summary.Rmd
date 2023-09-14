@@ -754,6 +754,8 @@ for (i in 1:length(runid.list)){
       )
     )
     use_pre_var = "Qbaseline"
+  } else {
+    pr_data_cmp = pr_data
   }
   
   fqcu_table <- om_cu_table(fac_report_info, pr_data_cmp, cu_post_var, use_pre_var, cu_threshold, cu_decimals) 
