@@ -128,9 +128,9 @@ well.sf <- well.sf %>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                 annotate("rect", xmin = -76.9, xmax = -75.1, ymin = 35.3, ymax =35.5,alpha= 0.75,fill = "white") +
                 annotate("text", x = -76.0, y = 35.4,label = paste0("Updated: ",Sys.Date()), color="black",size=3, fontface="italic")
   
-deqlogo <- png::readPNG(paste(dependencies,"HiResDEQLogo.png",sep=''))
+deqlogo <- png::readPNG(paste(dependencies,"/HiResDEQLogo.png",sep=''))
 deqlogo <- grid::rasterGrob(deqlogo, interpolate=TRUE)
-indicators_legend <- png::readPNG(paste(dependencies,"indicators_legend.png",sep=''))
+indicators_legend <- png::readPNG(paste(dependencies,"/indicators_legend.png",sep=''))
 indicators_legend <- grid::rasterGrob(indicators_legend, interpolate=TRUE)
 drought_map_draw <- finalmap.obj + patchwork::inset_element(p = indicators_legend, left = 0.45, bottom = 0.81, right = 0.91, top = 0.996) +
                                    patchwork::inset_element(p = deqlogo, left = 0.01, bottom = 0.013, right = 0.2, top = 0.12) 
