@@ -14,7 +14,8 @@ basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 # 
 # dependencies <- "C:/Users/nrf46657/Desktop/DMTF/web_map/drought_map_dependencies/"
-dependencies <- paste0(github_location,"/vahydro/drupal/dh_drought/src/r/summary_map/drought_map_dependencies/")
+# dependencies <- paste0(github_location,"/vahydro/drupal/dh_drought/src/r/summary_map/drought_map_dependencies/")
+dependencies <- paste0("drought/summary_map/drought_map_dependencies")
 # export_path <- paste0("C:/Users/nrf46657/Desktop/DMTF/web_map/")
 # export_path <-"/var/www/html/drought/state/images/maps"
 source(paste(dependencies,"base.layers.R",sep = '/'))
