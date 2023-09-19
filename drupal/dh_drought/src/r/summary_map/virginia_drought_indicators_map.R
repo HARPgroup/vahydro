@@ -2,6 +2,10 @@
 # LOAD FILES
 ######################################################################################################
 library("dataRetrieval")
+library("sqldf")
+library("png")
+library("grid")
+library("patchwork")
 color_list <- sort(colors())
 options(scipen=9999)
 
@@ -123,9 +127,13 @@ well.sf <- well.sf %>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                 annotate("rect", xmin = -76.9, xmax = -75.1, ymin = 35.3, ymax =35.5,alpha= 0.75,fill = "white") +
                 annotate("text", x = -76.0, y = 35.4,label = paste0("Updated: ",Sys.Date()), color="black",size=3, fontface="italic")
   
-deqlogo <- draw_image(paste(dependencies,"HiResDEQLogo.tif",sep=''),scale = 0.175, height = 1, x = -.388, y = -0.413) #LEFT BOTTOM LOGO
-indicators_legend <- draw_image(paste(dependencies,"indicators_legend.png",sep=''),scale = 0.45, height = 1, x = 0.18, y = 0.393)
-drought_map_draw <- ggdraw(finalmap.obj)+deqlogo+indicators_legend 
+deqlogo <- png::readPNG(paste(dependencies,"HiResDEQLogo.png",sep=''))
+deqlogo <- grid::rasterGrob(deqlogo, interpolate=TRUE)
+indicators_legend <- png::readPNG(paste(dependencies,"indicators_legend.png",sep=''))
+indicators_legend <- grid::rasterGrob(indicators_legend, interpolate=TRUE)
+drought_map_draw <- finalmap.obj + patchwork::inset_element(p = indicators_legend, left = 0.45, bottom = 0.81, right = 0.91, top = 0.996) +
+                                   patchwork::inset_element(p = deqlogo, left = 0.01, bottom = 0.013, right = 0.2, top = 0.12) 
+
 ggsave(plot = drought_map_draw, file = paste0(export_path, "virginia_drought_indicators.png",sep = ""), width=6.5, height=4.95) #FINAL MAP SAVES HERE
 
 #############################################################################################

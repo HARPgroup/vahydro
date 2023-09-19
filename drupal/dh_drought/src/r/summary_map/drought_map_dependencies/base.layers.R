@@ -7,7 +7,7 @@ base.layers <- function(baselayers,extent = data.frame(x = c(-84, -75),y = c(35.
   STATES <- baselayers[[which(names(baselayers) == "STATES")]]
   MajorRivers.csv <- baselayers[[which(names(baselayers) == "MajorRivers.csv")]]
   fips.csv <- baselayers[[which(names(baselayers) == "fips.csv")]]
-
+  
   print(extent)
   ######################################################################################################
   
@@ -52,7 +52,7 @@ base.layers <- function(baselayers,extent = data.frame(x = c(-84, -75),y = c(35.
   state@data <- state@data[,-c(2:3)]
   state.df <- fortify(state, region = 'id')
   state.df <- merge(state.df, state@data, by = 'id') 
- 
+  
   ######################################################################################################
   ### PROCESS FIPS LAYER  ##############################################################################
   ######################################################################################################
@@ -107,7 +107,7 @@ base.layers <- function(baselayers,extent = data.frame(x = c(-84, -75),y = c(35.
                                  centroid_longitude="",
                                  centroid_latitude="",
                                  stringsAsFactors=FALSE) 
-
+  
   rivs_layer$id <- rivs_layer$feature
   rivs.list <- list()
   
@@ -139,7 +139,7 @@ base.layers <- function(baselayers,extent = data.frame(x = c(-84, -75),y = c(35.
   rivs <- do.call('rbind', rivs.list)
   rivs@data <- merge(rivs@data, rivs_layer, by = 'id')
   rivs.df <- rivs
-
+  
   baselayers.gg <- list("bb.gg" = bbDF, 
                         "states.gg" = state.df,
                         "fips.gg" = fips.df,
@@ -154,16 +154,9 @@ load_MapLayers <- function(site,localpath = tempdir()){
   library(ggplot2)
   library(rgeos)
   library(ggsn)
-  library(rgdal) # needed for readOGR()
   library(dplyr) # needed for case_when()
   library(sf) # needed for st_read()
   library(sqldf)
-  library(kableExtra)
-  library(viridis) #magma
-  library(wellknown) #Replaces the wicket package for wkt_centroid()
-  library(cowplot) #plot static legend
-  library(magick) #plot static legend
-  library(ggrepel) #needed for geom_text_repel()
   library(ggmap) #used for get_stamenmap, get_map
   
   #DOWNLOAD STATES AND MINOR BASIN LAYERS DIRECT FROM GITHUB
