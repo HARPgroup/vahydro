@@ -9,7 +9,7 @@ library("patchwork")
 color_list <- sort(colors())
 options(scipen=9999)
 
-site <- "http://deq1.bse.vt.edu/d.dh/"
+site <- "http://deq1.bse.vt.edu/d.dh"
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
 # 
@@ -59,7 +59,7 @@ rivs.gg <- baselayers.gg[[which(names(baselayers.gg) == "rivs.gg")]]
 rivs.gg <- geom_path(data = rivs.gg, aes(x = long, y = lat, group = group), color="dodgerblue3",lwd=0.4,na.rm=TRUE)
 
 # LOAD RESERVOIRS LAYER
-res_csv <- data.table::fread(paste0(site, "reservoir-drought-features-export"))
+res_csv <- data.table::fread(paste0(site, "/reservoir-drought-features-export"))
 # res.sf <- st_as_sf(res_csv, wkt = 'Geometry')
 res_csv.normal <- sqldf(paste('SELECT * FROM res_csv WHERE Drought_Status_propcode = 0',sep=""))
 res_csv.watch <- sqldf(paste('SELECT * FROM res_csv WHERE Drought_Status_propcode = 1',sep=""))
@@ -71,7 +71,7 @@ res.sf.warning <- st_as_sf(res_csv.warning, wkt = 'Geometry')
 res.sf.emergency <- st_as_sf(res_csv.emergency, wkt = 'Geometry')
 
 # LOAD STREAMGAGE LAYER
-gage_csv <- data.table::fread(paste0(site, "streamflow-drought-timeseries-all-export"))
+gage_csv <- data.table::fread(paste0(site, "/streamflow-drought-timeseries-all-export"))
 gage_csv <-sqldf(paste('SELECT *
                         FROM gage_csv
                         WHERE drought_evaluation_region IS NOT "" '
@@ -82,7 +82,7 @@ gage.sf <- gage.sf %>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                                      lat = sf::st_coordinates(.)[,2])
 
 # LOAD WELL LAYER
-well_csv <- data.table::fread(paste0(site, "groundwater-drought-timeseries-all-export"))
+well_csv <- data.table::fread(paste0(site, "/groundwater-drought-timeseries-all-export"))
 well.sf <- st_as_sf(well_csv, wkt = 'Geometry')
 # create lat and lon columns from WKT column
 well.sf <- well.sf %>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
