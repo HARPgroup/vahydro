@@ -135,6 +135,7 @@ indicators_legend <- grid::rasterGrob(indicators_legend, interpolate=TRUE)
 drought_map_draw <- finalmap.obj + patchwork::inset_element(p = indicators_legend, left = 0.45, bottom = 0.81, right = 0.91, top = 0.996) +
                                    patchwork::inset_element(p = deqlogo, left = 0.01, bottom = 0.013, right = 0.2, top = 0.12) 
 
+print(paste0("Saving map image: ",export_path, "virginia_drought_indicators.png",sep = ""))
 ggsave(plot = drought_map_draw, file = paste0(export_path, "virginia_drought_indicators.png",sep = ""), width=6.5, height=4.95) #FINAL MAP SAVES HERE
 
 #############################################################################################
