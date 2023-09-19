@@ -45,6 +45,10 @@ wget -O virginia_drought.png "https://localhost/cgi-bin/mapserv?map=/var/www/htm
 newmap=`ls -rt /var/www/html/drought/state/images/maps/ | grep imageMapFile | tail -n 1`
 mv /var/www/html/drought/state/images/maps/${newmap} /var/www/html/drought/state/images/maps/virginia_drought.png
 
+# Create a static version of the next-gen R indicators map for each day.
+cd /var/www/R
+sudo -u www-data Rscript drought/summary_map/virginia_drought_indicators_map.R
+
 date > /home/denton/mydate
 mail -s "DEQ1 drought.sh ran" denton@vt.edu < /home/denton/mydate
 
