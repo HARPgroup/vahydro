@@ -11,7 +11,7 @@ from datetime import date
 
 # specify filepaths
 # export_path = "C:/Users/nrf46657/Desktop/GitHub/vahydro/drupal/dh_drought/src/python/"
-export_path = "/var/www/html/drought/state/"
+export_path = "/var/www/html/drought/state/deq_daily_drought_summaries/"
 drought_summary_map_file = "https://deq1.bse.vt.edu/drought/state/images/maps/virginia_drought.png"
 drought_indicator_map_file = "https://deq1.bse.vt.edu/drought/state/images/maps/virginia_drought_indicators.png"
 
