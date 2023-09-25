@@ -27,6 +27,8 @@ params:
   cu_base_runid: FALSE # new method allows a baseline model run
   cu_min_valid: 0.1
   cu_decimals: 1
+  fac_decimals: 2
+  rseg_decimals: 2
   intake_stats_fid: FALSE
   fac_model_pid: FALSE
   intake_stats_runid: 11
@@ -56,7 +58,7 @@ ds$get_token(rest_pw)
 
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cia_table.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_cu_table.R")
-
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_model_table.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/om_demand_table.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/fn_get_prop.R") #Used during development
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/VAHydro-2.0/rest_functions.R") #Used during development
@@ -101,6 +103,8 @@ cu_model = params$cu_model
 cu_base_runid = params$cu_base_runid
 cu_min_valid = params$cu_min_valid
 cu_decimals = params$cu_decimals
+fac_decimals = params$fac_decimals
+rseg_decimals = params$rseg_decimals
 elfgen = params$elfgen
 
 if (is.logical(intake_stats_fid)) {
@@ -384,6 +388,7 @@ cols <- names(dat_current)
 if(!(intake_stats_varname %in% cols)) {
   dat_current[,intake_stats_varname] <- dat_current$Qriver
 }
+
 intake_sum_current <- om_flow_table(dat_current, intake_stats_varname, rdigits = cu_decimals)
 ex_col = "10%"
 jan_ex <- intake_sum_current[1,ex_col]
@@ -399,14 +404,9 @@ demand_url <- drun_info$fig.monthly_demand$code
 ```{r SiteTable, echo=FALSE, results = "asis"}
 #Round Table Values (Following McGurk request: "The tabulated values should be rounded to the nearest whole number.  The flow estimates at the stream gages are not precise or accurate enough for digits to the right of the decimal, and are not reported that way.  Therefore, modeled values should not be considered more accurate.")
 # I allowed this to be 1 decimal place because when you have small watersheds, you can end up with a table of flows that are half populated with zeros. This results in the table being LESS accurate IMO than rounding to 1 place.  FWIW, the decimal places are not accuracy, they're precision so I'd argue that the model can be more precise cause it's a numerical calculation and therefore more precise :)
-mism <- median(intake_sum_current$Mean)
-if (mism < 20.0) {
-  dps <- 1
-} else {
-  dps = 0
-}
+
 round_intake_sum_current <- intake_sum_current[2:length(intake_sum_current)]
-round_intake_sum_current <- round(round_intake_sum_current,dps)
+round_intake_sum_current <- round(round_intake_sum_current,cu_decimals)
 intake_sum_current <- cbind(intake_sum_current[1],round_intake_sum_current)
 
 # Format table
@@ -574,7 +574,8 @@ fac_table <- om_model_table(model_info = fac_model_info,
                             runid.list = runid.list,
                             metric.list = fac.metric.list,
                             site = site,
-                            site_base = omsite
+                            site_base = omsite,
+                            rdigits = fac_decimals
 )
 fac_table <- cbind(rownames(fac_table),fac_table)
 names(fac_table)[names(fac_table) == 'rownames(fac_table)'] <- 'Desc'
@@ -604,7 +605,8 @@ rseg_table <- om_model_table(model_info = rseg_model_info,
                              metric.list = rseg.metric.list,
                              include.elfgen = TRUE,
                              site = site,
-                             site_base = omsite
+                             site_base = omsite,
+                             rdigits = rseg_decimals
 )
 rseg_table <- cbind(rownames(rseg_table),rseg_table)
 names(rseg_table)[names(rseg_table) == 'rownames(rseg_table)'] <- 'Desc'
