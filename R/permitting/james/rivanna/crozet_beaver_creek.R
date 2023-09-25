@@ -17,16 +17,39 @@ relid <- 351963
 mrelid <- 337722
 roelid <- 351959 
 
-bcdatf <- om_get_rundata(felid, 601, site=omsite)
+bcdatf <- om_get_rundata(felid, 6001, site=omsite)
 bcdatf_stats <- om_quantile_table(
   bcdatf, 
   metrics = c(
     "Qout", "impoundment_use_remain_mg","wd_mgd",'base_demand_mgd', 'unmet_demand_mgd',
     "release", "release_current", "release_proposed","release_historic",
-    "Qrecharge", "release_max_tiered"
-  ),rdigits = 2)
+    "Qrecharge", "release_max_tiered", "R10_r_q"
+  ),
+  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.9, 1.0),
+  rdigits = 2)
 kable(bcdatf_stats,'markdown')
-quantile(bcdatf$R10_r_last_q)
+quantile(bcdatf$R10_r_q)
+
+gage_number = '02031000'
+startdate = '1900-01-01'
+enddate = '2022-12-31'
+# Get and format gage data
+gage_data <- dataRetrieval::readNWISdv(gage_number,'00060')
+gage_zoo <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date)
+#mode(gage_data) <- 'numeric'
+gage_data$month <- month(gage_data$Date)
+gage_data$year <- year(gage_data$Date)
+
+om_flow_table(gage_data, 'X_00060_00003')
+gage_df <- as.data.frame(gage_data)
+sqldf("
+  select year, month, avg(X_00060_00003) 
+  from gage_df 
+  where year in (1945, 1946, 1948)
+  group by year, month
+  order by year, month
+")
+IHA::group2(gage_zoo, 'calendar')
 
 
 

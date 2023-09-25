@@ -117,7 +117,7 @@ if (!is.boolean(cu_pre_var)) {
   # get that data, then join it, using the same pre/post column but 
   # joining the baseline column on as Qbaseline 
   use_pre_var = cu_pre_var
-  if (cu_base_runid != FALSE) {
+  if (!is.logical(cu_base_runid)) {
     base_data <- as.data.frame(om_get_rundata(elid, cu_base_runid, omsite, FALSE))
     pr_data_df <- as.data.frame(pr_data)
     base_msg = "" # a holder in case we have trouble we need to report

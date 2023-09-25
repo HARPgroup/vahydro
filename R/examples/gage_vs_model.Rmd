@@ -59,8 +59,15 @@ gage_info <- dataRetrieval::readNWISsite(gageid)
 gage_name <- gage_info$station_nm
 historic$X_00060_00003 <- historic$X_00060_00003 * area_factor
 #gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = as.POSIXct(historic$Date));
-gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
-gage_flows <- window(gage_flows, start = mstart, end = mend)
+gage_flows_all <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
+gage_flows <- window(gage_flows_all, start = mstart, end = mend)
+# make something we can use with om_flow_table 
+gage_data <- as.data.frame(gage_flows)
+names(gage_data) <- c("X_00060_00003")
+gage_data$year <- year(as.Date(index(gage_flows)))
+gage_data$month <- month(as.Date(index(gage_flows)))
+gage_data$day <- day(as.Date(index(gage_flows)))
+
 gstart <- as.Date(min(index(gage_flows)))
 gend <- as.Date(max(index(gage_flows)))
 model_flows <- window(model_flows, start = gstart, end = gend)
@@ -203,6 +210,10 @@ abline(h=min(cmp_l90$Model), col="black", lty = "dashed")
 mtext(round(min(cmp_l90$USGS),1), side=2, line=0, las=1, at=min(cmp_l90$USGS), cex=0.6, col="blue")
 mtext(round(min(cmp_l90$Model),1), side=4, line=0, las=1, at=(min(cmp_l90$Model)), cex=0.6, col="black")
 ```
+## L90 Range Comparison Plot:
+```{r l90-barplot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
+boxplot(cmp_l90$USGS, cmp_l90$Model, ylim=c(0,ymax_val), names = c("USGS", "Model"), main = "Comparison of range of modeled vs observed 90-day low flows")
+```
 
 ## L30 Model Performance Bar Plot:
 ```{r l30-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
@@ -223,6 +234,27 @@ abline(h=min(cmp_l30$USGS), col="blue", lty = "dashed")
 abline(h=min(cmp_l30$Model), col="black", lty = "dashed")
 mtext(round(min(cmp_l30$USGS),1), side=2, line=0, las=1, at=min(cmp_l30$USGS), cex=0.6, col="blue")
 mtext(round(min(cmp_l30$Model),1), side=4, line=0, las=1, at=(min(cmp_l30$Model)), cex=0.6, col="black")
+gfa <- IHA::group2(gage_flows_all)
+gfadf <- as.data.frame(gfa$`30 Day Min`)
+names(gfadf) <- c('usgs')
+gfadf$year <- as.numeric(gfa$year)
+gfadf <- sqldf("select a.year, a.usgs, CASE WHEN b.Model IS NULL THEN 0.0 ELSE b.Model END as Model from gfadf as a left outer join cmp_l30 as b on (a.year = b.Year) order by a.year")
+barplot(
+  cbind(usgs, Model) ~ year, data=gfadf,
+  col=c("blue", "black"),
+  main=paste("USGS vs VAHydro, 30 Day Low Flow ",title_param,sep=""),
+  beside=TRUE,
+  ylab = "Streamflow (cfs)",
+  ylim = c(0,ymax_val),
+  cex.main=0.8,
+  cex.axis=0.9,
+  cex.lab=1,
+  cex.names=0.7
+)
+```
+## L30 Range Comparison Plot:
+```{r l30-barplot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
+boxplot(cmp_l30$USGS, cmp_l30$Model, ylim=c(0,ymax_val), names = c("USGS", "Model"), main = "Comparison of range of modeled vs observed 30-day low flows")
 ```
 
 ## L7 Model Performance Bar Plot:
@@ -244,6 +276,11 @@ abline(h=min(cmp_l7$USGS), col="blue", lty = "dashed")
 abline(h=min(cmp_l7$Model), col="black", lty = "dashed")
 mtext(round(min(cmp_l7$USGS),1), side=2, line=0, las=1, at=min(cmp_l7$USGS), cex=0.6, col="blue")
 mtext(round(min(cmp_l7$Model),1), side=4, line=0, las=1, at=(min(cmp_l7$Model)), cex=0.6, col="black")
+
+```
+## L7 Range Comparison Plot:
+```{r l7-barplot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
+boxplot(cmp_l7$USGS, cmp_l7$Model, ylim=c(0,ymax_val), names = c("USGS", "Model"), main = "Comparison of range of modeled vs observed 7-day low flows")
 ```
 
 ## L1 Model Performance Bar Plot:
@@ -265,6 +302,14 @@ abline(h=min(cmp_l1$USGS), col="blue", lty = "dashed")
 abline(h=min(cmp_l1$Model), col="black", lty = "dashed")
 mtext(round(min(cmp_l1$USGS),1), side=2, line=0, las=1, at=min(cmp_l1$USGS), cex=0.6, col="blue")
 mtext(round(min(cmp_l1$Model),1), side=4, line=0, las=1, at=(min(cmp_l1$Model)), cex=0.6, col="black")
+
+```
+## L1 Range Comparison Plot:
+```{r l1-barplot)
+rmarkdown::render(
+'/usr/local/home/git/vahydro/R/examples/gage_vs_model.Rmd',
+, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
+boxplot(cmp_l1$USGS, cmp_l1$Model, ylim=c(0,ymax_val), names = c("USGS", "Model"), main = "Comparison of range of modeled vs observed 1-day low flows")
 ```
 
 
@@ -497,29 +542,43 @@ metrics_table = rbind(metrics_table,c("l7",round(gage_l7_Qout,2),gage_l7_year,ro
 metrics_table = rbind(metrics_table,c("l1",round(gage_l1_Qout,2),gage_l1_year,round(model_l1_Qout,2),model_l1_year))
 colnames(metrics_table) <- c("stat","gage","gage_year","model","model_year")
 
-usgs_fx <- qflextable(om_flow_table(historic, 'X_00060_00003'))
+usgs_fx <- qflextable(om_flow_table(gage_data, 'X_00060_00003'))
 set_caption(usgs_fx,"USGS non-exceedence chart.")
-usgs_fx
 model_fx <- qflextable(om_flow_table(model_data, 'Qout'))
 set_caption(model_fx,"Model non-exceedence chart.")
 
+historic_fx <- qflextable(om_flow_table(historic, "X_00060_00003"))
+# note: to print this out for use in a TE,
+# enter:  kable(historic_fx$body$dataset,'markdown')
+set_caption(historic_fx,paste("Historic non-exceedence chart at USGS", gageid, "from", as.Date(min(historic$Date)),"to",as.Date(max(historic$Date)),"area weighted to model intake."))
+
+######################
+# assemble flows for scatterplots
 both_flows <- as.data.frame(cbind(as.numeric(gage_flows), as.numeric(model_flows)))
 names(both_flows) <- c('usgs', 'model')
 lt_mean_flows <- sqldf(paste("select * from both_flows where usgs <", gage_info$drain_area_va))
-lt_plot <- plot(lt_mean_flows$model ~ lt_mean_flows$usgs, ylim=c(0, gage_info$drain_area_va))
 lt_low_flows <- sqldf(paste("select * from both_flows where usgs <", 0.1 * gage_info$drain_area_va))
-ltl_plot <- plot(lt_low_flows$model ~ lt_low_flows$usgs, ylim=c(0, 0.1 * gage_info$drain_area_va))
-######################
+
 ```
 
 ```{r MetricsTable, echo=FALSE}
-qflextable(metrics_table)
 
+cat(paste("### USGS gage flows during modeled time period  of", mstart, "to", mend))
 usgs_fx
 
+cat(paste("### Model flows during modeled time period  of", mstart, "to", mend))
 model_fx 
 
-lt_plot
+cat(paste("Historic non-exceedence chart at USGS", gageid, "from", as.Date(min(historic$Date)),"to",as.Date(max(historic$Date)),"area weighted to model intake."))
+historic_fx 
+
+```
+
+```{r l1-scatterplots, fig.width=8, fig.height=4.5, dev='png', echo=FALSE}
+
+plot(lt_low_flows$model ~ lt_low_flows$usgs, ylim=c(0, 0.1 * gage_info$drain_area_va))
+
+plot(lt_mean_flows$model ~ lt_mean_flows$usgs, ylim=c(0, gage_info$drain_area_va))
 ```
 
 ```{r CriticalPdChart, echo=FALSE}
