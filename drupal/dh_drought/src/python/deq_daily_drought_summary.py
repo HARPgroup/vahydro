@@ -137,7 +137,7 @@ res_pd = pd.DataFrame(res_status_df)
 ###############################################################
 output_filename = "DEQ_Daily_Drought_Summary_{}.pdf".format(date.today().strftime('%Y.%m.%d'))
 
-my_doc = SimpleDocTemplate(export_path + output_filename,pagesize=letter)
+my_doc = SimpleDocTemplate(export_path + output_filename, pagesize=letter, title=output_filename, author="DEQ")
 portrait_frame = Frame(my_doc.leftMargin, my_doc.bottomMargin, my_doc.width, my_doc.height, id='portrait_frame ')
 landscape_frame = Frame(my_doc.leftMargin, my_doc.bottomMargin, my_doc.height, my_doc.width, id='landscape_frame ')
 styles = getSampleStyleSheet()
