@@ -135,7 +135,7 @@ res_pd = pd.DataFrame(res_status_df)
 ###############################################################
 # format data for pdf output
 ###############################################################
-output_filename = "DEQ_Daily_Drought_Summary_{}.pdf".format(date.today().strftime('%m.%d.%Y'))
+output_filename = "DEQ_Daily_Drought_Summary_{}.pdf".format(date.today().strftime('%Y.%m.%d'))
 
 my_doc = SimpleDocTemplate(export_path + output_filename,pagesize=letter)
 portrait_frame = Frame(my_doc.leftMargin, my_doc.bottomMargin, my_doc.width, my_doc.height, id='portrait_frame ')
