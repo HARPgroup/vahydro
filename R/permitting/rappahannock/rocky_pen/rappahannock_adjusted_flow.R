@@ -30,15 +30,16 @@ hdat = aggregate(
 )
 
 # Get and format gage data
-gage_data <- gage_import_data_cfs(gage_number, startdate, enddate)
-gage_data <- as.zoo(gage_data, as.POSIXct(gage_data$date,tz="EST"))
-mode(gage_data) <- 'numeric'
-gage_data$month <- month(gage_data$date)
-om_flow_table(gage_data, 'flow')
+gage_data <- dataRetrieval::readNWISdv(gage_number,'00060')
+#gage_data <- as.zoo(gage_data, as.POSIXct(gage_data$Date,tz="EST"))
+#mode(gage_data) <- 'numeric'
+gage_data$month <- month(gage_data$Date)
+om_flow_table(gage_data, 'X_00060_00003')
 available_mgd <- gage_data
-available_mgd$available_mgd <- (available_mgd$flow * 0.05) / 1.547
+available_mgd$available_mgd <- (available_mgd$X_00060_00003 * 0.05) / 1.547
 avail_table = om_flow_table(available_mgd, 'available_mgd')
 kable(avail_table, 'markdown')
+qflextable(avail_table)
 
 #limit to hourly model period
 hstart <- min(index(hdat))
