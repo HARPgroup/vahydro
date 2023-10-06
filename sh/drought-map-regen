@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Create a static version of the map for each day.
+cd /var/www/html/drought/state/images/maps
+# wget -O virginia_drought.png "https://localhost/cgi-bin/mapserv?map=/var/www/html/mapserv/vahydro_drought_status-4-metrics-live.map&layers=poli_bounds&layers=proj_seggroups&mode=map&format=image/png" --no-check-certificate
+wget -O virginia_drought.png "https://localhost/cgi-bin/mapserv?map=/var/www/html/mapserv/vahydro_drought_status-4-metrics-live.map&layers=poli_bounds&layers=proj_seggroups" --no-check-certificate
+newmap=`ls -rt /var/www/html/drought/state/images/maps/ | grep imageMapFile | tail -n 1`
+mv /var/www/html/drought/state/images/maps/${newmap} /var/www/html/drought/state/images/maps/virginia_drought.png
+
