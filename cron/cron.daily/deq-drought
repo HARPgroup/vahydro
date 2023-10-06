@@ -35,8 +35,18 @@ sudo -u www-data Rscript drought/USGS_monthly_frequency_plot_gen.R
 # Download the file 
 cd /var/www/html/drought/state/images/maps
 wget -O va-dmtf-precip --no-check-certificate  https://localhost/d.dh/va-dmtf-precip
-cd /var/www/html/d.dh
-drush scr modules/om/src/om_setprop.php file /var/www/html/drought/state/images/maps/va-dmtf-precip
+
+thismonth=`date +"%m"`
+autoprecip=1
+if [[ $thismonth -ge 10 ]]; then
+  if [[ $thismonth -lt 12 ]]; then
+    autoprecip=0
+  fi
+fi
+if [[ $autoprecip -eq 1 ]]; then
+  cd /var/www/html/d.dh
+  drush scr modules/om/src/om_setprop.php file /var/www/html/drought/state/images/maps/va-dmtf-precip
+fi
 
 # Create a static version of the map for each day.
 cd /var/www/html/drought/state/images/maps
