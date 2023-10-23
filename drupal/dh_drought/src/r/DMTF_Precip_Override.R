@@ -7,11 +7,11 @@ library(httr)
 # library(stringr)
 library(sqldf)
 
-
+setwd("C:/")
 
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
-# source('/var/www/R/config.R')
+ source('/var/www/R/config.R')
 
 #load libraries
 source(paste(hydro_tools,"VAHydro-2.0/rest_functions.R", sep = "/"));
@@ -26,11 +26,13 @@ precip_df <- read.csv(URL, sep = ",")
 
 ##################################################################
 # GENERATE OVERRIDE VALUES USING SQL
-precip_df <- sqldf(paste('SELECT *, CASE
-                                          WHEN drought_region == "Eastern Shore" THEN 2
-                                          ELSE 0
-                                      END AS status_override
-                            FROM precip_df',sep="")) 
+precip_df <- sqldf(paste('
+SELECT *, 
+CASE
+  WHEN drought_region == "Eastern Shore" THEN 1
+  ELSE 0
+END AS status_override
+FROM precip_df',sep="")) 
 ##################################################################
 
 region_hydroids <- precip_df$hydroid 
