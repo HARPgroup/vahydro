@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # downloading NOA data now done in /etc/cron.daily/deq-drought-model (due to raster2pgsql trouble on deq1)
 # Process Scripts in Drupal Root
@@ -38,12 +38,12 @@ wget -O va-dmtf-precip --no-check-certificate  https://localhost/d.dh/va-dmtf-pr
 
 thismonth=`date +"%m"`
 autoprecip=1
-if [[ $thismonth -ge 10 ]]; then
-  if [[ $thismonth -lt 12 ]]; then
+if [ $thismonth -ge 10 ]; then
+  if [ $thismonth -lt 12 ]; then
     autoprecip=0
   fi
 fi
-if [[ $autoprecip -eq 1 ]]; then
+if [ $autoprecip -eq 1 ]; then
   cd /var/www/html/d.dh
   drush scr modules/om/src/om_setprop.php file /var/www/html/drought/state/images/maps/va-dmtf-precip
 fi
