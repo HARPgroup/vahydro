@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Create a static version of the map for each day.
 cd /var/www/html/drought/state/images/maps
