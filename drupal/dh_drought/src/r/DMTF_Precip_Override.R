@@ -7,7 +7,7 @@ library(httr)
 # library(stringr)
 library(sqldf)
 
-setwd("C:/")
+
 
 basepath <- "/var/www/R/"
 source(paste(basepath,"config.local.private",sep = '/'))
