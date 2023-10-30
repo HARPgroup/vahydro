@@ -27,11 +27,6 @@ sudo -u www-data Rscript drought/USGS_monthly_frequency_plot_gen.R
 #cd ./state
 #./daily.sh
 
-# Manually trigger feeds importer (cron is busted?) of precip summary
-# drush scr modules/dh_drought/src/import.dmtf.php
-# New Method because cert does not work
-
-# this section was commented out 10.18.22, beginning of water year. Un-comment in December
 # Download the file 
 cd /var/www/html/drought/state/images/maps
 wget -O va-dmtf-precip --no-check-certificate  https://localhost/d.dh/va-dmtf-precip
@@ -43,7 +38,13 @@ if [ $thismonth -ge 10 ]; then
     autoprecip=0
   fi
 fi
+
+thisdate=`date`
+echo "Auto Precip Setting on $thisdate for month $thismonth = $autoprecip" >> /tmp/dmtf-autoprecip
+
 if [ $autoprecip -eq 1 ]; then
+  thisdate=`date`
+  echo "Auto precip update required, performing at $thisdate" >> /tmp/dmtf-autoprecip
   cd /var/www/html/d.dh
   drush scr modules/om/src/om_setprop.php file /var/www/html/drought/state/images/maps/va-dmtf-precip
 fi
