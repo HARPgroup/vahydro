@@ -267,7 +267,7 @@ mp_foundation <- read.csv(file = paste0(export_path,eyear+1,"/foundation_dataset
 
 #Remake long version so that we can sum the mgy for all MPs of each Facility hydroid
 mp_long <- pivot_longer(mp_foundation, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
-fac_all <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "Use.Type" as "Use_Type", "FIPS.Code" as FIPS
+fac_all <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "Use_Type" as "Use_Type", "FIPS_Code" as FIPS
                   FROM mp_long
                   GROUP BY Facility_hydroid, Year')
 #export long format
@@ -280,38 +280,34 @@ write.csv(fac_all, paste(export_path,eyear+1,"\\fac_all_1982-",eyear,".csv",sep 
 ## Counts total number of reporting facilities and total use for 1982-eyear, currently for internal analysis not for in report
 
 ### Including power
+fac_all <- sqldf('SELECT * FROM fac_all WHERE Use_Type NOT IN ("hydropower","facility")')
 mp_wide <- pivot_wider(data = fac_all, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
 
 year.range.f <- 1982:eyear
-count_3D <- data.frame(Year = year.range.f, "Num_Reporting_Fac"=matrix(NA, nrow = length(year.range.f)), BGD = matrix(NA, nrow=length(year.range.f)))
+count_3D <- data.frame(Year = year.range.f, "Num_Reporting_Fac"= NA, BGD = NA)
 
-for (i in 1:length(year.range.f)) {
-  test <- sqldf(paste0('SELECT "',year.range.f[i],'" FROM mp_wide WHERE "',year.range.f[i],'" IS NOT NULL'))
-  count_3D[i,2] <- nrow(test)
-  count_3D[i,3] <- sum(test)/1000/365
-} 
+count_3D$BGD <- sapply(count_3D$Year,function(x) {sum(fac_all$mgd[fac_all$Year==x],na.rm = TRUE)})/1000
+count_3D$Num_Reporting_Fac <- sapply(count_3D$Year,function(x) {sum(fac_all$Year == x & !is.na(fac_all$mgy), na.rm = TRUE)})
 
 write.csv(count_3D, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\total_fac_wpower_1982-",eyear,".csv",sep = ""), row.names = F)
 
 
 ### Excluding power
-mp_foundation_np <-  sqldf(paste0('SELECT * FROM mp_foundation WHERE "Use.Type" NOT LIKE "%power%"'))
+mp_foundation_np <-  sqldf(paste0('SELECT * FROM mp_foundation WHERE "Use_Type" NOT LIKE "%power%"'))
 
 mp_long_np <- pivot_longer(mp_foundation_np, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
-fac_all_np <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "Use.Type" as Use_Type, "FIPS.Code" as FIPS
+fac_all_np <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "Use_Type" as Use_Type, "FIPS_Code" as FIPS
                     FROM mp_long_np
                     GROUP BY Facility_hydroid, Year')
 #Count total number of reporting facilities for each year
 mp_wide_np <- pivot_wider(data = fac_all_np, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
 
-count_3D_np <- data.frame(Year = year.range.f, "Num_Reporting_Fac"=matrix(NA, nrow = length(year.range.f)), BGD = matrix(NA, nrow=length(year.range.f)))
 year.range.f <- 1982:eyear
+count_3D <- data.frame(Year = year.range.f, "Num_Reporting_Fac"= NA, BGD = NA)
 
-for (i in 1:length(year.range.f)) {
-  test <- sqldf(paste0('SELECT "',year.range.f[i],'" FROM mp_wide_np WHERE "',year.range.f[i],'" IS NOT NULL'))
-  count_3D_np[i,2] <- nrow(test)
-  count_3D_np[i,3] <- sum(test)/1000/365
-} 
+count_3D$BGD <- sapply(count_3D$Year,function(x) {sum(fac_all$mgd[fac_all$Year==x],na.rm = TRUE)})/1000
+count_3D$Num_Reporting_Fac <- sapply(count_3D$Year,function(x) {sum(fac_all$Year == x & !is.na(fac_all$mgy), na.rm = TRUE)})
+
 
 write.csv(count_3D_np, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\total_fac_nonpower_1982-",eyear,".csv",sep = ""), row.names = F)
 
@@ -970,10 +966,10 @@ Xyears <- array()
 ten <- 10:1
 for (y in ten) { Xyears[y] = paste0("X",(eyear+1)-ten[y]) }
 
-pws10 <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source.Type", "MP.Name", "Facility_hydroid", "Facility", "Use.Type", "Latitude", "Longitude", "FIPS.Code", "Locality", "OWS.Planner", ',
+pws10 <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source_Type", "MP_Name", "Facility_hydroid", "Facility", "Use_Type", "Latitude", "Longitude", "FIPS_Code", "Locality", "OWS_Planner", ',
                 Xyears[1],', ',Xyears[2],', ',Xyears[3],', ',Xyears[4],', ',Xyears[5],', ',Xyears[6],', ',Xyears[7],', ',Xyears[8],', ',Xyears[9],', ',Xyears[10],'
                 FROM mp_foundation_dataset
-                WHERE "Use.Type" LIKE "municipal"'))
+                WHERE "Use_Type" LIKE "municipal"'))
 
 #If we go back to the 15yr version, correct the reporting value for EARLYSVILLE FOREST WELL #2 (MP hydroid 64631), appears to be entered in gallons instead of MG #pws15[2120, 15] <- 0.0861
 
