@@ -37,8 +37,8 @@ params:
 ```{r setup, include=FALSE}
 # load libraries
 library("hydrotools")
-library("openmi.om")
-#library("jsonlite")
+#library("openmi.om")
+library("jsonlite")
 library("knitr")
 # load remote code
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/rmd_utils.R")
