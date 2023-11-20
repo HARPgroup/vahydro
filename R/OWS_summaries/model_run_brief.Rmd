@@ -38,7 +38,7 @@ params:
 # load libraries
 library("hydrotools")
 library("openmi.om")
-library("jsonlite")
+#library("jsonlite")
 library("knitr")
 # load remote code
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/rmd_utils.R")
@@ -109,7 +109,7 @@ if (!is.logical(preferred_runid)) {
 runid <- sub("runid_", "", scenario)
 elid <- find_name(cu_model_json,'om_element_connection')$value
 
-if (!is.boolean(cu_pre_var)) {
+if (!is.logical(cu_pre_var)) {
   
   pr_data <- om_get_rundata(elid, runid, omsite, FALSE)
   use_pre_var = cu_pre_var
@@ -181,14 +181,14 @@ for (i in 1:length(model_pids)) {
 }
 
 
-if (!is.boolean(preferred_runid)) {
+if (!is.logical(preferred_runid)) {
   cat(paste0("\n\n__Conclusions__ ",preferred_text$value, "\n\n"))
 }
 
 knitr::kable(img_table)
 x = length(img_table)
 
-if (!is.boolean(cu_pre_var)) {
+if (!is.logical(cu_pre_var)) {
   cat(paste0("__Table ",x + 1,"__\n", " Consumptive use frequency non-exceedence table for ", preferred_name,"\n\n"))
   fqcu_table$caption_text <- paste("Consumptive use non-exceedence table for", preferred_name)
   fqcu_table
