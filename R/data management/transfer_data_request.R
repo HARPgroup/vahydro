@@ -14,7 +14,7 @@ library("beepr")
 
 #load variables
 syear = 1982
-eyear = 2020
+eyear = 2022
 
 ## LOAD CONFIG FILE ###################################################################
 source(paste("/var/www/R/config.local.private", sep = ""))
@@ -24,7 +24,37 @@ localpath <- paste(github_location,"/USGS_Consumptive_Use", sep = "")
 source(paste(localpath,"/Code/VAHydro to NWIS/from_vahydro.R", sep = ""))
 datasite <- "http://deq1.bse.vt.edu:81/d.dh"
 
-#PART 1 RETRIEVE ANNUAL WITHDRAWAL DATA FROM SPECIFIC FACILITIES OUTLINED IN EMAIL #########################
+#PART 1 RETRIEVE ANNUAL WITHDRAWAL DATA FOR ALL TRANSFERS #########################
+all_transfer_data <- list()
+
+mgy_vars <- c("dl_mgy", "rl_mgy")
+for (m in mgy_vars) {
+  
+    print(paste0("PROCESSING YEAR(S): ", syear," - ", eyear))
+    startdate <- paste(syear, "-01-01",sep='')
+    enddate <- paste(eyear, "-12-31", sep='')
+    
+    #with power
+    export_view <- paste0("ows-awrr-map-export/",m,"?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"&tstime%5Bmax%5D=",eyear,"&bundle%5B0%5D=transfer")
+    output_filename <- "dl_mgy_export.csv"
+    transfer_annual <- from_vahydro(datasite,export_view,localpath,output_filename)
+    
+    all_transfer_data <- rbind(all_transfer_data, transfer_annual)
+}
+
+# sqldf('SELECT DISTINCT "MP.Name", Facility, Facility_hydroid
+#         FROM all_transfer_data
+#         ')
+#remove duplicates - GROUP BY USING MAX
+transfer_ann <- sqldf('SELECT "MP_hydroid","Hydrocode","Source.Type","MP.Name","Facility_hydroid","Facility","Use.Type","Year",max("Water.Use.MGY") AS "Water.Use.MGY","Latitude","Longitude","Locality","FIPS.Code" 
+               FROM all_transfer_data
+               WHERE Facility != "DALECARLIA WTP"
+               GROUP BY "MP_hydroid","Hydrocode","Source.Type","MP.Name","Facility_hydroid","Facility","Use.Type","Year","Latitude","Longitude","Locality","FIPS.Code"
+                ORDER BY "Water.Use.MGY" DESC ')
+
+write.csv(transfer_ann, "C:/Users/ejp42531/Documents/OWS_transfer_mgy_1982-2022.csv", row.names = F)
+
+#PART 2 RETRIEVE ANNUAL WITHDRAWAL DATA FROM SPECIFIC FACILITIES OUTLINED IN EMAIL #########################
 transfer_annual_data <- list()
 
 ## Facility HydroID range
@@ -57,33 +87,3 @@ transfer_ann <- sqldf('SELECT "MP_hydroid","Hydrocode","Source.Type","MP.Name","
                WHERE Facility != "DALECARLIA WTP"
                GROUP BY "MP_hydroid","Hydrocode","Source.Type","MP.Name","Facility_hydroid","Facility","Use.Type","Year","Latitude","Longitude","Locality","FIPS.Code"
                 ORDER BY "Water.Use.MGY" DESC ')
-
-#PART 1 RETRIEVE ANNUAL WITHDRAWAL DATA FOR ALL TRANSFERS #########################
-all_transfer_data <- list()
-
-mgy_vars <- c("dl_mgy", "rl_mgy")
-for (m in mgy_vars) {
-  
-    print(paste0("PROCESSING YEAR(S): ", syear," - ", eyear))
-    startdate <- paste(syear, "-01-01",sep='')
-    enddate <- paste(eyear, "-12-31", sep='')
-    
-    #with power
-    export_view <- paste0("ows-awrr-map-export/",m,"?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"&tstime%5Bmax%5D=",eyear,"&bundle%5B0%5D=transfer&hydroid=")
-    output_filename <- "dl_mgy_export.csv"
-    transfer_annual <- from_vahydro(datasite,export_view,localpath,output_filename)
-    
-    all_transfer_data <- rbind(all_transfer_data, transfer_annual)
-}
-
-# sqldf('SELECT DISTINCT "MP.Name", Facility, Facility_hydroid
-#         FROM all_transfer_data
-#         ')
-#remove duplicates - GROUP BY USING MAX
-transfer_ann <- sqldf('SELECT "MP_hydroid","Hydrocode","Source.Type","MP.Name","Facility_hydroid","Facility","Use.Type","Year",max("Water.Use.MGY") AS "Water.Use.MGY","Latitude","Longitude","Locality","FIPS.Code" 
-               FROM all_transfer_data
-               WHERE Facility != "DALECARLIA WTP"
-               GROUP BY "MP_hydroid","Hydrocode","Source.Type","MP.Name","Facility_hydroid","Facility","Use.Type","Year","Latitude","Longitude","Locality","FIPS.Code"
-                ORDER BY "Water.Use.MGY" DESC ')
-
-write.csv(transfer_ann, "C:/Users/maf95834/Documents/OWS_transfer_mgy_1982-2020.csv", row.names = F)
