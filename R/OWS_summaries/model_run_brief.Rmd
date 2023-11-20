@@ -19,9 +19,9 @@ output:
 params: 
   doc_title: "DEQ/OWS Yield Analysis - [INSERT PROJECT NAME HERE]"
   model_feature: 456224 # Ex: Blue Ridge Shadows = 71977, BIG STONE GAP WTP = 72672: "scenario_6014"
-  model_pid: FALSE
   scenario: "scenario_400"
   model_version: "vahydro-1.0"
+  model_pid: FALSE
   image_names: [ "fig.unmet_heatmap_amt", "fig.imp_storage.all", "fig.monthly_demand" ]
   image_descriptions: [ "Unmet Demand", "Storage by Year", "Monthly Demand" ]
   cu_threshold: [-10.0, -20.0, -30.0]
@@ -53,19 +53,19 @@ ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
 ds$get_token(rest_pw)
 ds$json_obj_url <- json_obj_url
 # select entities and info to display
-model_feature <- params$model_feature
+model_feature <- params$model_feature # the facility or feature to show info/images for
+model_pid <- params$model_pid # if the feature has more than one model use this
 scenario = params$scenario
 scenarios <- c(params$scenario ) # image routine can accomodate multiple
 image_names <- params$image_names
 model_version <- params$model_version
-model_pid<- params$model_pid
 image_descriptions <- params$image_descriptions
 # cu table details all optional, as defaults are set up top
 cu_threshold = params$cu_threshold
 cu_pre_var = params$cu_pre_var
 cu_base_runid = params$cu_base_runid
 cu_post_var = params$cu_post_var
-cu_model = params$cu_model
+cu_model = params$cu_model # The model to use for flows, if empty default to model_feature
 cu_min_valid = params$cu_min_valid
 cu_decimals = params$cu_decimals
 table_cols = params$table_cols
@@ -74,26 +74,26 @@ preferred_runid = params$preferred_runid
 
 # load up the models into the data source (they are cached in ds$prop_json_cache)
 model_pids = list()
-if (is.boolean(model_pid)) {
-  hid<- model_feature
+# get the facility model
+hid<- model_feature
+if (model_pid == FALSE) {
   model_prop <- RomProperty$new(ds,list(featureid=hid, entity_type='dh_feature', propcode=model_version),TRUE)
-  ds$get_json_prop(model_prop$pid)
-  model_pids[[1]] <- model_prop$pid
 } else {
-  # We already know which model
-  # useful if facility has multiple models 
   model_prop <- RomProperty$new(ds,list(pid=model_pid),TRUE)
-  ds$get_json_prop(model_prop$pid)
-  model_pids[[1]] = model_prop$pid
 }
+
+# todo: allow multiple features?
+model_pids[[1]] = model_prop$pid
+cu_model_json = ds$get_json_prop(model_prop$pid)
+
 if (cu_model != 'feature') {
   # we have a different feature for the CU model
   cu_model_prop <- RomProperty$new(ds,list(pid=cu_model),TRUE)
-  # load the json into cache for later access
-  ds$get_json_prop(cu_model_prop$pid)
-} else {
-  cu_model_prop <- model_prop
+  cu_model_json = ds$get_json_prop(cu_model_prop$pid)
+  # note: we do NOT put this into the model_pids list for image display, 
+  #       if this should also be image display element use the model_feature only
 }
+# load the json into cache for later access
 itable = om_multi_image_list(ds, model_pids, scenarios, image_names, image_descriptions)
 img_table = om_rmd_img_table(itable,table_cols)
 
@@ -107,7 +107,7 @@ if (!is.logical(preferred_runid)) {
 }
 
 runid <- sub("runid_", "", scenario)
-elid <- find_name(ds$prop_json_cache[cu_model_prop$pid],'om_element_connection')$value
+elid <- find_name(cu_model_json,'om_element_connection')$value
 
 if (!is.boolean(cu_pre_var)) {
   
@@ -178,8 +178,8 @@ for (i in 1:length(model_pids)) {
       )
     }
   }
-  
 }
+
 
 if (!is.boolean(preferred_runid)) {
   cat(paste0("\n\n__Conclusions__ ",preferred_text$value, "\n\n"))

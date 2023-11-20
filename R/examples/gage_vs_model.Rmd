@@ -22,7 +22,10 @@ params:
   summary_text: ''
   crit_pd_start: FALSE
   crit_pd_end: FALSE
+  model_output_file: FALSE
   area_factor: 1.0
+  model_qvar: "Qout"
+  model_da: FALSE
 ---
 
 ```{r setup, include=FALSE}
@@ -30,6 +33,7 @@ library("dataRetrieval")
 library("zoo")
 library("hydrotools")
 library("flextable")
+library(lubridate)
 
 basepath='/var/www/R'
 source('/var/www/R/config.R')
@@ -42,21 +46,38 @@ summary_text <- params$summary_text
 crit_pd_start <- params$crit_pd_start
 crit_pd_end <- params$crit_pd_end
 area_factor <- as.numeric(params$area_factor)
+model_da <- params$model_da
+model_qvar <- params$model_qvar
+model_output_file <- params$model_output_file
+
 
 ```
 
 ```{r getdata, include=FALSE}
-model_data <- om_get_rundata(elid, runid, site=omsite)
-model_flows <- zoo(as.numeric(as.character( model_data$Qout )), order.by = index(model_data) );
+if (!is.logical(model_output_file)) {
+  model_data <- read.table(model_output_file, header = TRUE, sep = ",")
+  model_flows <- zoo(as.numeric(as.character( model_data[,model_qvar] )), order.by = make_datetime(model_data$year, model_data$month, model_data$day, as.integer(model_data$hour)) )
+} else {
+  # standard OM output
+  model_data <- om_get_rundata(elid, runid, site=omsite)
+  model_flows <- zoo(as.numeric(as.character( model_data[,model_qvar] )), order.by = index(model_data) );
+}
 # mstart <- as.Date(min(index(model_flows)))
 # mend <- as.Date(max(index(model_flows)))
-model_data <- as.data.frame(model_data)
+model_data <- as.data.frame(model_data[,c("year", "month", "day", model_qvar)])
+# insure Qout
+colnames(model_data)[colnames(model_data) == model_qvar] <- "Qout"
 mstart <- zoo::as.Date(as.POSIXct(min(index(model_flows)),origin="1970-01-01"))
 mend <- zoo::as.Date(as.POSIXct(max(index(model_flows)),origin="1970-01-01"))
 
-historic <- dataRetrieval::readNWISdv(gageid,'00060')
-gage_info <- dataRetrieval::readNWISsite(gageid)
+#historic <- dataRetrieval::readNWISdv(gageid,'00060')
+historic <- memo_readNWISdv(gageid,'00060')
+gage_info <- memo_readNWISsite(gageid)
 gage_name <- gage_info$station_nm
+if (!is.logical(model_da)) {
+  # auto-calc area_factor
+  area_factor <- as.numeric(model_da) / gage_info$drain_area_va
+}
 historic$X_00060_00003 <- historic$X_00060_00003 * area_factor
 #gage_flows <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = as.POSIXct(historic$Date));
 gage_flows_all <- zoo(as.numeric(as.character( historic$X_00060_00003 )), order.by = historic$Date);
@@ -87,8 +108,8 @@ both_data <- sqldf(
 # mean(gage_flows)
 
 # do IHA
-model_loflows <- IHA::group2(model_flows)
-gage_loflows <- IHA::group2(gage_flows)
+model_loflows <- IHA::group2(model_flows, year="calendar")
+gage_loflows <- IHA::group2(gage_flows, year="calendar")
 
 title_param <- paste0("\nrunid #",runid)
 
@@ -108,6 +129,10 @@ cmp_l90 <- sqldf(
 names(cmp_l90) <- c("Year", "USGS", "Model")
 #set ymax to largest value in the 2 data sets, in order to generate plots with consistent axis limits
 ymax_val <- max(c(cmp_l90$USGS,cmp_l90$Model))
+
+#Mean data ####################################################### 
+cmp_qmean <- sqldf("select year, avg(flow) as usgs_mean, avg(Qout) as model_mean from both_data group by year order by year")
+names(cmp_qmean) <- c("Year", "USGS", "Model")
 
 #l30 data ####################################################### 
 model_l30 <- model_loflows[c("year","30 Day Min")]
@@ -213,6 +238,29 @@ mtext(round(min(cmp_l90$Model),1), side=4, line=0, las=1, at=(min(cmp_l90$Model)
 ## L90 Range Comparison Plot:
 ```{r l90-barplot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
 boxplot(cmp_l90$USGS, cmp_l90$Model, ylim=c(0,ymax_val), names = c("USGS", "Model"), main = "Comparison of range of modeled vs observed 90-day low flows")
+```
+
+## Qmean Model Performance Bar Plot:
+```{r qmean-plot, fig.width=7, fig.height=4.8, dev='png', echo=FALSE}
+ymax_val = max(cmp_qmean$USGS, cmp_qmean$Model)
+barplot(
+  cbind(USGS, Model) ~ Year, data=cmp_qmean,
+  col=c("blue", "black"),
+  main=paste("USGS vs VAHydro, Qmean ",title_param,sep=""),
+  beside=TRUE,
+  ylab = "Streamflow (cfs)",
+  ylim = c(0,ymax_val),
+  cex.main=0.8,
+  cex.axis=0.9,
+  cex.lab=1,
+  cex.names=0.7
+)
+legend("topleft",legend=c("USGS", "VAHydro"),fill=c("blue", "black"),cex=1)
+abline(h=min(cmp_qmean$USGS), col="blue", lty = "dashed")
+abline(h=min(cmp_qmean$Model), col="black", lty = "dashed")
+mtext(round(min(cmp_qmean$USGS),1), side=2, line=0, las=1, at=min(cmp_qmean$USGS), cex=0.6, col="blue")
+mtext(round(min(cmp_qmean$Model),1), side=4, line=0, las=1, at=(min(cmp_qmean$Model)), cex=0.6, col="black")
+
 ```
 
 ## L30 Model Performance Bar Plot:
@@ -557,7 +605,7 @@ set_caption(historic_fx,paste("Historic non-exceedence chart at USGS", gageid, "
 both_flows <- as.data.frame(cbind(as.numeric(gage_flows), as.numeric(model_flows)))
 names(both_flows) <- c('usgs', 'model')
 lt_mean_flows <- sqldf(paste("select * from both_flows where usgs <", gage_info$drain_area_va))
-lt_low_flows <- sqldf(paste("select * from both_flows where usgs <", 0.1 * gage_info$drain_area_va))
+lt_low_flows <- sqldf(paste("select * from both_flows where usgs <", median(gage_l90$`90 Day Min`)))
 
 ```
 
@@ -576,7 +624,7 @@ historic_fx
 
 ```{r l1-scatterplots, fig.width=8, fig.height=4.5, dev='png', echo=FALSE}
 
-plot(lt_low_flows$model ~ lt_low_flows$usgs, ylim=c(0, 0.1 * gage_info$drain_area_va))
+plot(lt_low_flows$model ~ lt_low_flows$usgs,xlim=c(0,max(max(lt_low_flows$model), max(lt_low_flows$usgs))), ylim=c(0,max(max(lt_low_flows$model), max(lt_low_flows$usgs))))
 
 plot(lt_mean_flows$model ~ lt_mean_flows$usgs, ylim=c(0, gage_info$drain_area_va))
 ```

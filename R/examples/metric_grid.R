@@ -50,3 +50,36 @@ wshed_data <- sqldf(
   WHERE a.hydrocode not like '%0000'
   order by da
   ")
+
+
+#### Runoff Data from land-river segs
+rodf <- data.frame(
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
+  'runid' = c('runid_0', 'runid_2', 'runid_400','runid_0', 'runid_400'),
+  'metric' = c('Runit','Runit','Runit', 'l90_RUnit', 'l90_RUnit'),
+  'runlabel' = c('Runit_0', 'Runit_2', 'Runit_400', 'l90_RUnit_0', 'l90_RUnit_400')
+)
+# ftype options,
+# sova: cbp532_lrseg
+# others: cbp6_lrseg
+ro_data <- om_vahydro_metric_grid(
+  metric = metric, runids = rodf, bundle = "landunit", ftype = "cbp532_lrseg",
+  base_url = paste(site,'entity-model-prop-level-export',sep="/"),
+  ds = ds
+)
+
+# Facility data example
+
+df <- data.frame(
+  'model_version' = c('vahydro-1.0',  'vahydro-1.0', 'vahydro-1.0'),
+  'runid' = c('runid_2', 'runid_400','runid_600'),
+  'metric' = c('wd_mgd', 'wd_mgd', 'wd_mgd'),
+  'runlabel' = c('wd_curr', 'wd_tp', 'wd_tpp')
+)
+fac_data <- om_vahydro_metric_grid( 
+  metric = NA, 
+  runids = df, 
+  bundle = 'facility',ftype = 'all',
+  model_version = "vahydro-1.0", ds = ds
+)
+roa_wddata = fn_extract_basin(fac_data,'OR7_8490_0000')

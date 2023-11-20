@@ -17,12 +17,12 @@ relid <- 351963
 mrelid <- 337722
 roelid <- 351959 
 
-bcdatf <- om_get_rundata(felid, 6001, site=omsite)
+bcdatf <- om_get_rundata(felid, 6012, site=omsite)
 bcdatf_stats <- om_quantile_table(
   bcdatf, 
   metrics = c(
-    "Qout", "impoundment_use_remain_mg","wd_mgd",'base_demand_mgd', 'unmet_demand_mgd',
-    "release", "release_current", "release_proposed","release_historic",
+    "Qriver", "impoundment_use_remain_mg","wd_mgd",'base_demand_mgd', 'unmet_demand_mgd',
+    "release", "release_current", "release_proposed","release_factor",
     "Qrecharge", "release_max_tiered", "R10_r_q"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.9, 1.0),
@@ -61,7 +61,7 @@ mrdatr_stats <- om_quantile_table(
   ),rdigits = 2)
 kable(mrdatr_stats,'markdown')
 bcpulse = l
-runid = 600
+runid = 6012
 bcdatr <- om_get_rundata(relid, runid, site=omsite)
 bcdatr_stats <- om_quantile_table(
   bcdatr, 
@@ -71,7 +71,7 @@ bcdatr_stats <- om_quantile_table(
     "impoundment_Qin","impoundment_Qout", "local_channel_Qin", "local_channel_Qout",
     "Runit_mode", "release_dgif", "release_rwsa","wd_mgd", "impoundment_pct_use_remain",
     "release_cfs", 'impoundment_release', 'release_factor'),
-  quantiles=c(0,0.01,0.02,0.05,0.1,0.25, 0.3, 0.5),
+  quantiles=c(0,0.05,0.1,0.25, 0.5,0.75,0.9,1.0),
   rdigits = 2)
 kable(bcdatr_stats,'markdown')
 bcpulse[[runid]] <- IHA::group4(bcdatr$Qout)

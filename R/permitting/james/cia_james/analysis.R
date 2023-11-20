@@ -1,3 +1,4 @@
+options(scipen=999)
 library('hydrotools')
 library('zoo')
 library("knitr")
@@ -10,9 +11,9 @@ ds$get_token(rest_pw = rest_pw)
 # GET VAHydro 1.0 RIVERSEG l90_Qout DATA
 df <- data.frame(
   'model_version' = c('vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0','vahydro-1.0',  'vahydro-1.0'),
-  'runid' = c('runid_400', 'runid_800', 'runid_400', 'runid_800', 'runid_11', 'runid_401'),
+  'runid' = c('runid_400', 'runid_600', 'runid_400', 'runid_600', 'runid_400', 'runid_600'),
   'metric' = c('Qout','Qout', 'wd_cumulative_mgd', 'wd_cumulative_mgd','l30_Qout', 'l30_Qout'),
-  'runlabel' = c('Qout_perm', 'Qout_800', 'wd_400', 'wd_800', 'l30_Qout_wsp2020', 'l30_401')
+  'runlabel' = c('Qout_400', 'Qout_600', 'wd_400', 'wd_600', 'l30_400', 'l30_600')
 )
 wshed_data <- om_vahydro_metric_grid(
   metric = metric, runids = df,

@@ -139,7 +139,7 @@ rseg_feature <- RomFeature$new(
 )
 
 #FAC MODEL INFO
-if (!is.boolean(fac_model_pid)) {
+if (!is.logical(fac_model_pid)) {
   # this is a feature with multiple models, so we need to specify
   fac.model <- RomProperty$new(
     ds,
@@ -278,7 +278,7 @@ fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
 
 ```{r LocationMap, echo=FALSE, results = "asis"}
 
-if (!is.null(fig_prop) & !(is.boolean(fig_prop))) {
+if (!is.null(fig_prop) & !(is.logical(fig_prop))) {
   map_path <- fig_prop$propcode
   cat(paste0("![](",map_path,")"),"\n")
 } else {
@@ -793,7 +793,7 @@ for (i in 1:length(runid.list)){
   cat("\n")
   #cutab = format(cu_tables[[i]], type = "docx")
   cutab = cu_tables[[i]]
-  flextable::flextable_to_rmd(cutab)
+  cat(flextable::flextable_to_rmd(cutab))
   #cutab <- c(
   #  "before",
   #  knitr::knit_print(cutab),
