@@ -1,9 +1,12 @@
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 library('knitr')
+library("hydrotools")
 
 elid = 353101 #bedford hydro snowden
 relid = 211633 # James River
+celid = 211669 # channel element in james model
+runid=400
 gage_number = '01667500' # Rapidan
 startdate <- "1984-10-01"
 enddate <- "2020-09-30"
@@ -67,3 +70,21 @@ kable(m_stats,'markdown')
 deets <- as.data.frame(mdata[,c(
   "year", "month", "day", "Qin", "Qout", "target", "flowby", "flowby_cov", "min_release", "release"
 )])
+
+
+cdata <- om_get_rundata(celid, runid, site=omsite)
+c_stats <- om_quantile_table(
+  cdata, 
+  metrics = c(
+    "Qin", "Qout", "target", "flowby", "flowby_cov", "min_release", "release"
+  ),
+  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
+  rdigits = 2
+)
+kable(c_stats,'markdown')
+lfcdata <- cdata[which(cdata$Qout < 1000),]
+plot(100.0*(lfcdata$Storage / lfcdata$depth)/max(cdata$Storage / cdata$depth) ~ lfcdata$Qout, ylim=c(0,100))
+plot(100.0*(cdata$Storage / cdata$depth)/max(cdata$Storage / cdata$depth) ~ cdata$Qout, ylim=c(0,100))
+plot(100.0*(cdata$Storage / cdata$depth)/max(cdata$Storage / cdata$depth) ~ cdata$Qout, ylim=c(0,100), xlim=c(0,1000))
+plot(100.0*(cdata$Storage / cdata$depth)/max(cdata$Storage / cdata$depth) ~ cdata$Qout, ylim=c(0,100), xlim=c(0,2000))
+

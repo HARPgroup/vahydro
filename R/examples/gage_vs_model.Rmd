@@ -24,6 +24,7 @@ params:
   crit_pd_end: FALSE
   model_output_file: FALSE
   area_factor: 1.0
+  model_qvar: "Qout"
   model_da: FALSE
 ---
 
@@ -46,6 +47,7 @@ crit_pd_start <- params$crit_pd_start
 crit_pd_end <- params$crit_pd_end
 area_factor <- as.numeric(params$area_factor)
 model_da <- params$model_da
+model_qvar <- params$model_qvar
 model_output_file <- params$model_output_file
 
 
@@ -54,15 +56,17 @@ model_output_file <- params$model_output_file
 ```{r getdata, include=FALSE}
 if (!is.logical(model_output_file)) {
   model_data <- read.table(model_output_file, header = TRUE, sep = ",")
-  model_flows <- zoo(as.numeric(as.character( model_data$Qout )), order.by = make_datetime(model_data$year, model_data$month, model_data$day, as.integer(model_data$hour)) )
+  model_flows <- zoo(as.numeric(as.character( model_data[,model_qvar] )), order.by = make_datetime(model_data$year, model_data$month, model_data$day, as.integer(model_data$hour)) )
 } else {
   # standard OM output
   model_data <- om_get_rundata(elid, runid, site=omsite)
-  model_flows <- zoo(as.numeric(as.character( model_data$Qout )), order.by = index(model_data) );
+  model_flows <- zoo(as.numeric(as.character( model_data[,model_qvar] )), order.by = index(model_data) );
 }
 # mstart <- as.Date(min(index(model_flows)))
 # mend <- as.Date(max(index(model_flows)))
-model_data <- as.data.frame(model_data)
+model_data <- as.data.frame(model_data[,c("year", "month", "day", model_qvar)])
+# insure Qout
+colnames(model_data)[colnames(model_data) == model_qvar] <- "Qout"
 mstart <- zoo::as.Date(as.POSIXct(min(index(model_flows)),origin="1970-01-01"))
 mend <- zoo::as.Date(as.POSIXct(max(index(model_flows)),origin="1970-01-01"))
 
