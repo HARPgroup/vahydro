@@ -40,6 +40,8 @@ hdata[1:5,c("Qreach", "Qintake", "reach_area_sqmi", "intake_drainage_area")]
 quantile(hdata$wp_bypass, probs=c(0,0.25, 0.5, 0.75, 0.9, 0.95, 1.0), na.rm=TRUE)
 quantile(hdata$wp_pre, na.rm=TRUE)
 
+hydroTSM::fdc(hdata[,c("Qintake", "Qbypass")])
+
 
 rdata <- om_get_rundata(relid, runid, site=omsite)
 r_stats <- om_quantile_table(

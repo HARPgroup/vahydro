@@ -33,6 +33,7 @@ params:
   cu_decimals: 1
   preferred_runid: FALSE
   table_cols: 1
+  include_appendices: c() # options: hydropower, modeling
 ---
 ```{r setup, include=FALSE}
 # load libraries
@@ -71,6 +72,11 @@ cu_decimals = params$cu_decimals
 table_cols = params$table_cols
 preferred_runid = params$preferred_runid
 
+# appendix files
+appendix_files = list(
+  modeling = "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/OWS_summaries/appendix_modeling.md",
+  hydropower = "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/OWs_summaries/evaluating_hydropower.md"
+)
 
 # load up the models into the data source (they are cached in ds$prop_json_cache)
 model_pids = list()
@@ -194,5 +200,14 @@ if (!is.logical(cu_pre_var)) {
   fqcu_table
 } else {
   cat(paste0("__Table ",x,"__\n", " Consumptive use frequency non-exceedence table for ", preferred_name," not requested.\n\n"))
+}
+```
+
+```{r Appendix, echo=FALSE, results = "asis"}
+for (i in 1:length(include_appendices)) {
+  if (!is.na(appendix_files[include_appendices[i]])) {
+    fname = as.character( appendix_files[include_appendices[i]] )
+    atext <- paste(readLines(fname), collapse="\n")
+  }
 }
 ```
