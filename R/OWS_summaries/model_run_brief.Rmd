@@ -75,7 +75,7 @@ preferred_runid = params$preferred_runid
 # appendix files
 appendix_files = list(
   modeling = "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/OWS_summaries/appendix_modeling.md",
-  hydropower = "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/OWs_summaries/evaluating_hydropower.md"
+  hydropower = "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/OWS_summaries/evaluating_hydropower.md"
 )
 
 # load up the models into the data source (they are cached in ds$prop_json_cache)
@@ -161,8 +161,10 @@ for (i in 1:length(model_pids)) {
   if (num_scens > 0) {
     if (num_scens > 1) {
       scen_num = "scenarios were"
-      cat(paste("\n\n", length(scenarios), "model", scen_num, "simulated to evaluate proposed project impacts:","\n\n"))
+    } else {
+      scen_num = "scenario was"
     }
+    cat(paste("\n\n", length(scenarios), "model", scen_num, "simulated to evaluate proposed project impacts:","\n\n"))
     
     for ( i in 1:length(scenarios)) {
       scenario = scenarios[i]
@@ -204,10 +206,12 @@ if (!is.logical(cu_pre_var)) {
 ```
 
 ```{r Appendix, echo=FALSE, results = "asis"}
+cat("### Appendices\n\n\n")
 for (i in 1:length(include_appendices)) {
   if (!is.na(appendix_files[include_appendices[i]])) {
     fname = as.character( appendix_files[include_appendices[i]] )
     atext <- paste(readLines(fname), collapse="\n")
+    cat(paste(atext, "\n\n"))
   }
 }
 ```
