@@ -29,11 +29,17 @@ hdat = aggregate(
   'mean'
 )
 
+dat <- om_get_rundata(elid, 400, site = omsite)
+datf <- as.data.frame(dat)
+
 # Get and format gage data
 gage_data <- dataRetrieval::readNWISdv(gage_number,'00060')
 #gage_data <- as.zoo(gage_data, as.POSIXct(gage_data$Date,tz="EST"))
 #mode(gage_data) <- 'numeric'
 gage_data$month <- month(gage_data$Date)
+gage_data$year <- year(gage_data$Date)
+gage_data$day <- day(gage_data$Date)
+
 om_flow_table(gage_data, 'X_00060_00003')
 available_mgd <- gage_data
 available_mgd$available_mgd <- (available_mgd$X_00060_00003 * 0.05) / 1.547
@@ -46,12 +52,33 @@ hstart <- min(index(hdat))
 hend <- max(index(hdat))
 gagehdat <- window(gage_data, start = hstart, end = hend)
 
+datboth <- sqldf(
+  "select a.thisdate, a.year, a.month, a.day, a.Qout as vahydro, b.X_00060_00003 as usgs 
+   from datf as a left outer join gage_data as b on (a.year = b.year and a.month = b.month and a.day = b.day)
+   order by a.year, a.month, a.day
+  "
+)
 
-dat4low <- sqldf("select * from dat3 where usgs <= 2000")
+datlow <- sqldf("select * from datboth where usgs <= 500")
 lm2 <- lm(
-  dat4low$usgs ~ I(dat4low$vahydro)
+  datlow$usgs ~ I(datlow$vahydro)
 )
 summary(lm2)
+llm2 <- lm(
+  datlow$usgs ~ I(log10(datlow$vahydro))
+)
+summary(llm2)
+
+plot(datlow$usgs ~ datlow$vahydro)
+r_stats <- om_quantile_table(
+  datboth, 
+  metrics = c(
+    "usgs", "vahydro"
+  ),
+  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
+  rdigits = 2
+)
+kable(r_stats,'markdown')
 
 dat2$vreg <- (-31.645 + (0.795360 * dat2$vahydro))
 dat2$vreg[which(dat2$vreg <0)] <- 0

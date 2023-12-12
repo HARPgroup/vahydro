@@ -71,6 +71,7 @@ cu_min_valid = params$cu_min_valid
 cu_decimals = params$cu_decimals
 table_cols = params$table_cols
 preferred_runid = params$preferred_runid
+include_appendices = params$include_appendices
 
 # appendix files
 appendix_files = list(
@@ -164,7 +165,7 @@ for (i in 1:length(model_pids)) {
     } else {
       scen_num = "scenario was"
     }
-    cat(paste("\n\n", length(scenarios), "model", scen_num, "simulated to evaluate proposed project impacts:","\n\n"))
+    cat(paste("\n\n__Scenarios:__ ", length(scenarios), "model", scen_num, "simulated to evaluate proposed project impacts:","\n\n"))
     
     for ( i in 1:length(scenarios)) {
       scenario = scenarios[i]

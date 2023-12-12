@@ -248,6 +248,34 @@ sqldf(
    group by \"Exemption Data Source\"
   "
 )
+
+# Total Exempt 89
+sqldf(
+  "select count(*) as num_facs, sum(max_pre89_mgm) / 31.0 as exempt_1989
+  from Anydata
+  where final_exempt_propcode not in ('vwp_mgm', 'vwp_mgy', 'vwp_mgd', '401_certification')
+  and Facility_type not like '%power%'
+")
+
+# All pre89
+all89 <- sqldf(
+  "select Facility_NAme, Facility_type, Facility_Status, Locality, 
+    CASE WHEN max_pre89_mgm > 0 THEN
+       max_pre89_mgm, max_pre89_mgm / 31.0 as exempt_1989_mgd
+    ELSE 
+  from Anydata
+  where final_exempt_propcode not in ('vwp_mgm', 'vwp_mgy', 'vwp_mgd', '401_certification')
+  and Facility_type not like '%power%'
+")
+
+sqldf(
+  "
+   select final_exempt_propcode, count(*) 
+   from Anydata group by final_exempt_propcode
+  "
+)
+
+
 app_file <- paste(save_directory,'app_exempt_data.csv',sep='/')
 
 #WRITE KABLE TABLE
