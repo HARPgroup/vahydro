@@ -226,8 +226,8 @@ $handler->display->display_options['filters']['tstime']['id'] = 'tstime';
 $handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
 $handler->display->display_options['filters']['tstime']['field'] = 'tstime';
 $handler->display->display_options['filters']['tstime']['operator'] = 'between';
-$handler->display->display_options['filters']['tstime']['value']['min'] = '2021-01-01';
-$handler->display->display_options['filters']['tstime']['value']['max'] = '2021-12-31';
+$handler->display->display_options['filters']['tstime']['value']['min'] = '2022-01-01';
+$handler->display->display_options['filters']['tstime']['value']['max'] = '2022-12-31';
 $handler->display->display_options['filters']['tstime']['value']['value'] = '2015-01-01';
 $handler->display->display_options['path'] = 'vwuds---hardcopy-monthly-use-table-previous';
 
@@ -289,8 +289,8 @@ $handler->display->display_options['filters']['tstime']['id'] = 'tstime';
 $handler->display->display_options['filters']['tstime']['table'] = 'dh_timeseries';
 $handler->display->display_options['filters']['tstime']['field'] = 'tstime';
 $handler->display->display_options['filters']['tstime']['operator'] = 'between';
-$handler->display->display_options['filters']['tstime']['value']['min'] = '2020-01-01';
-$handler->display->display_options['filters']['tstime']['value']['max'] = '2020-12-31';
+$handler->display->display_options['filters']['tstime']['value']['min'] = '2021-01-01';
+$handler->display->display_options['filters']['tstime']['value']['max'] = '2021-12-31';
 $handler->display->display_options['filters']['tstime']['value']['value'] = '2015-01-01';
 $handler->display->display_options['path'] = 'vwuds---hardcopy-monthly-use-table-two-years';
 
