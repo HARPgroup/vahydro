@@ -25,12 +25,12 @@ rmarkdown::render(
 )
 
 # 
-runid = 600
+runid = 401
 hdata <- om_get_rundata(elid, runid, site=omsite)
 wr_stats <- om_quantile_table(
   hdata, 
   metrics = c(
-    "Qreach", "Qturbine", "Qavail_divert", "Qbypass", "flowby", "Qintake"
+    "Qreach", "Qturbine", "Qavail_divert", "Qbypass", "flowby", "Qintake", "wp_bypass"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
   rdigits = 2

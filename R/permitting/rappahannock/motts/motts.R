@@ -14,40 +14,36 @@ dath <- om_get_rundata(hrelid, runid, site = omsite)
 om_flow_table(datm,"ps_refill_pump_mgd")
 om_flow_table(dath,"ps_refill_pump_mgd")
 
-r_stats <- om_quantile_table(
+h_stats <- om_quantile_table(
   dath, 
   metrics = c(
-    "Qout", "Qrapidan", "available_mgd", "ps_refill_pump_mgd", "impoundment_use_remain_mg", "impoundment_demand", "system_urm", "hr_urm"
+    "Qout", "Qrapidan", "flowby", "available_mgd", "ps_refill_pump_mgd", "impoundment_use_remain_mg", "impoundment_demand", "system_urm", "hr_urm"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
-  rdigits = 2
+  rdigits = 1
 )
-kable(r_stats,'markdown')
+kable(h_stats,'markdown')
 
-r_stats <- om_quantile_table(
+m_stats <- om_quantile_table(
   datm, 
   metrics = c(
-    "Qout", "Qrapidan", "available_mgd", "ps_refill_pump_mgd", "impoundment_use_remain_mg", "impoundment_demand", "system_urm", "hr_urm"
+    "Qout", "Qintake", "flowby", "available_mgd", "ps_refill_pump_mgd", "impoundment_use_remain_mg", "impoundment_demand", "system_urm", "hr_urm"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
-  rdigits = 2
+  rdigits = 1
 )
-kable(r_stats,'markdown')
+kable(m_stats,'markdown')
 
+avail_table = om_flow_table(datm, 'available_mgd')
+kable(avail_table, 'markdown')
+qflextable(avail_table)
+
+quantile(datm$impoundment_Qin)
+quantile(dath$impoundment_Qin)
 
 # river
 relid = 258123 # Rapidan
 datrap <- om_get_rundata(relid, 400, site = omsite)
-rpid = 6605616
-hrelid = 352159
-mrelid = 352157
-dathr401 <- om_get_rundata(hrelid, 401, site = omsite)
-datmr401 <- om_get_rundata(mrelid, 401, site = omsite)
-quantile(datmr401$wd_hr_mgd)
-quantile(datmr401$wd_mr_mgd)
-quantile(datmr401$wd_hr_mgd + datmr401$wd_mr_mgd)
-quantile(datmr401$child_wd_mgd)
-quantile(datmr401$system_urm)
 
 
 # HR Rapp adjusted flow
@@ -79,14 +75,33 @@ gage_data <- dataRetrieval::readNWISdv(gage_number,'00060')
 #gage_data <- as.zoo(gage_data, as.POSIXct(gage_data$Date,tz="EST"))
 #mode(gage_data) <- 'numeric'
 gage_data$month <- month(gage_data$Date)
-om_flow_table(gage_data, 'X_00060_00003')
+allflows = om_flow_table(gage_data, 'X_00060_00003')
+qflextable(allflows)
+
 available_mgd <- gage_data
+mif_cfs <- 29.0 * 1.547
 available_mgd$available_mgd <- (available_mgd$X_00060_00003 * 0.05) / 1.547
+available_mgd$available_mgd[which(available_mgd$available_mgd > mif_cfs] <- mif_cfs
 avail_table = om_flow_table(available_mgd, 'available_mgd')
 kable(avail_table, 'markdown')
-qflextable(avail_table)
+qflextable(avail_table) # available PoF
+# 321 cfs Mar-Jun, 621 all other months 
+available_mgd$tiered_available_mgd <- (available_mgd$X_00060_00003 - 621)
+available_mgd$tiered_available_mgd[which(available_mgd$month %in% c(3,4,5,6))] <- (available_mgd$X_00060_00003[which(available_mgd$month %in% c(3,4,5,6))] - 321) #limit to hourly model period
+available_mgd$tiered_available_mgd[which(available_mgd$tiered_available_mgd < 0)] <- 0 # remove negatives
+available_mgd$available_mgd[which(available_mgd$available_mgd > mif_cfs)] <- mif_cfs # limit to max pump
 
-#limit to hourly model period
+tiered_avail_table = om_flow_table(available_mgd, 'tiered_available_mgd')
+kable(tiered_avail_table, 'markdown')
+qflextable(tiered_avail_table) # available PoF
+
 hstart <- min(index(hdat))
 hend <- max(index(hdat))
 gagehdat <- window(gage_data, start = hstart, end = hend)
+
+
+
+# Debug model plotting
+datm$storage_pct <- datm$impoundment_use_remain_mg * 3.07 / datm$impoundment_max_usable
+flows <- zoo(as.numeric(as.character( datm$Qout )), order.by = index(datm));
+# convert to daily

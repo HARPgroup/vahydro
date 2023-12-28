@@ -123,8 +123,18 @@ kable(gord)
 
 facdat_df$vwp_max_mgd
 
-CU <- om_quantile_table(facdat_df, metrics = c("quarry_inflow_mgd", "Qintake", "Qintake_post","Runit"),rdigits = 3)
-kable(CU)
+CU <- om_quantile_table(
+  facdat, 
+  metrics = c(
+    "quarry_inflow_mgd", "Qintake", 
+    "Qintake_post","Runit",
+    "local_impoundment_lake_elev",
+    "local_impoundment_evap_mgd"
+  ),
+  rdigits = 3
+)
+
+kable(CU, 'markdown')
 CU_query <- "SELECT year, month, day,
                           quarry_inflow_mgd,
                           quarry_inflow_mgd * 1.547, 
