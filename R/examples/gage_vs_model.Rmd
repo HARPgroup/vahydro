@@ -17,7 +17,6 @@ params:
   doc_title: "USGS Gage vs Model Model"
   elid: 251491
   runid: 200
-  model_flow_col: 'Qout'
   gageid: '02054530'
   summary_text: ''
   crit_pd_start: FALSE
@@ -40,7 +39,6 @@ source('/var/www/R/config.R')
 
 elid <- params$elid
 runid <- params$runid
-model_flow_col <- params$model_flow_col
 gageid <- params$gageid
 summary_text <- params$summary_text
 crit_pd_start <- params$crit_pd_start
