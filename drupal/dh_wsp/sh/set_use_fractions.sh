@@ -54,7 +54,7 @@ fi
 
 echo $frac_query 
 
-echo $frac_query | psql -h dbase1 drupal.dh03 > /tmp/use_fractions.txt 
+echo $frac_query | psql -h dbase2 drupal.dh03 > /tmp/use_fractions.txt 
 
 n=`< /tmp/use_fractions.txt wc -l`
 nm="$((n - 2))"
@@ -71,7 +71,7 @@ while IFS= read -r line; do
 done < /tmp/use_fractions.txt 
 
 # now, handle the facility's own gw_frac and sw_frac 
-cat modules/dh_wsp/sql/create_use_fractions_wsp_virtual.sql | psql -h dbase1 drupal.dh03 > /tmp/all_use_fractions.txt
+cat modules/dh_wsp/sql/create_use_fractions_wsp_virtual.sql | psql -h dbase2 drupal.dh03 > /tmp/all_use_fractions.txt
 
 # Do SW and GW frac calculations
 frac_query="select entity_type, featureid, varkey, propname, propvalue from (
@@ -95,7 +95,7 @@ fi
 
 echo $frac_query 
  
-echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase1 drupal.dh03 > /tmp/facility_swgw_fractions.txt 
+echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase2 drupal.dh03 > /tmp/facility_swgw_fractions.txt 
 
 n=`< /tmp/facility_swgw_fractions.txt wc -l`
 nm="$((n - 2))"

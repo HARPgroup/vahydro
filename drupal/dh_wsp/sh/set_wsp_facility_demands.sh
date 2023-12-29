@@ -9,7 +9,7 @@ fi
 
 hydroids=$1
 
-cat ./modules/dh_wsp/sql/create_wsp_facility_demands.sql | psql -h dbase1 drupal.dh03 
+cat ./modules/dh_wsp/sql/create_wsp_facility_demands.sql | psql -h dbase2 drupal.dh03 
 
 frac_query="
 select 'dh_feature' as entity_type, 
@@ -22,7 +22,7 @@ from tmp_wsp_fac_net
 where hydroid in ($hydroids)
 group by hydroid;
 "
-echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase1 drupal.dh03 > /tmp/wsp_facility_current.txt 
+echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase2 drupal.dh03 > /tmp/wsp_facility_current.txt 
 
 n=`< /tmp/wsp_facility_current.txt wc -l`
 nm="$((n - 2))"
@@ -49,7 +49,7 @@ from tmp_wsp_fac_net
 where hydroid in ($hydroids)
 group by hydroid;
 "
-echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase1 drupal.dh03 > /tmp/wsp_facility_future.txt 
+echo $frac_query | PGOPTIONS='--client-min-messages=warning' psql -h dbase2 drupal.dh03 > /tmp/wsp_facility_future.txt 
 
 n=`< /tmp/wsp_facility_future.txt wc -l`
 nm="$((n - 2))"
@@ -65,7 +65,7 @@ while IFS= read -r line; do
 done < /tmp/wsp_facility_future.txt 
 
 # Now clean up
-cat modules/dh_wsp/sql/cleanup_wsp_facility_demands.sql | psql -h dbase1 drupal.dh03
+cat modules/dh_wsp/sql/cleanup_wsp_facility_demands.sql | psql -h dbase2 drupal.dh03
 rm /tmp/wsp_facility_future.txt
 rm /tmp/wsp_facility_current.txt
 rm /tmp/fhead.txt 
