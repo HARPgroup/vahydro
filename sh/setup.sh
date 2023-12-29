@@ -34,6 +34,5 @@ chown www-data -Rf /var/www/html/d.alpha/sites/default/files
 
 # model data directories are mounted via NAS, defined in /etc/fstab 
 # model output data *.log files go here
-sudo mount deqnas:/data
 # phase 6 data for runoff and phase 5 runoff cache files like /media/model/p6/vahydro/runoff/TU3_9230_9260.vahydro.cbp532.log
-sudo mount dbase1:/backup
+sudo mount dbase2:/media/model
