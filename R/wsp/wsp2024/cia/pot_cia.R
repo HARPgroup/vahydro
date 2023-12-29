@@ -21,7 +21,7 @@ wshed_data <- om_vahydro_metric_grid(
   ds = ds
 )
 
-nr_data = fn_extract_basin(wshed_data,'NR6_8000_0000')
+pot_data = sqldf("select * from wshed_data where hydrocode like 'vahydrosw_wshed_P%'")
 
 # Get cbp-6.0 data for water balance comparison
 
