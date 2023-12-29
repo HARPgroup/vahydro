@@ -27,8 +27,10 @@ rmarkdown::render(
 )
 
 # 
-runid = 401
+runid = 400
 ydata <- om_get_rundata(yelid, runid, site=omsite)
+om_flow_table(ydata, "wa_bypass")
+
 wr_stats <- om_quantile_table(
   ydata, 
   metrics = c(
@@ -43,6 +45,7 @@ quantile(hdata$wp_bypass, probs=c(0,0.25, 0.5, 0.75, 0.9, 0.95, 1.0), na.rm=TRUE
 quantile(hdata$wp_pre, na.rm=TRUE)
 
 udata <- om_get_rundata(uelid, runid, site=omsite)
+om_flow_table(udata, "wa_bypass")
 wr_stats <- om_quantile_table(
   udata, 
   metrics = c(
