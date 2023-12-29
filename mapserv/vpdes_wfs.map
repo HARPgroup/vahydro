@@ -47,7 +47,7 @@ LAYER
       "wfs_enable_request" "*"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=vpdes_ro password=vpd3sROpw dbname=vpdes"
+   CONNECTION "host=192.168.0.21 user=vpdes_ro password=vpd3sROpw dbname=vpdes"
    TYPE POINT
    STATUS DEFAULT
    DUMP TRUE

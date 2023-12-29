@@ -79,7 +79,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=model"
    TYPE POLYGON
    STATUS DEFAULT
    DUMP TRUE
@@ -115,7 +115,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=model"
    TYPE POLYGON
    STATUS DEFAULT
    DUMP TRUE

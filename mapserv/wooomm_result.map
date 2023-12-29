@@ -96,7 +96,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=model"
    TYPE POLYGON
    STATUS DEFAULT
    DUMP TRUE
@@ -132,7 +132,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=model"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -253,7 +253,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=model"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -302,7 +302,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=model"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -463,7 +463,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=model"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -620,7 +620,7 @@ LAYER
    VALIDATION
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=model"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE

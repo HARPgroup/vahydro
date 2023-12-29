@@ -133,7 +133,7 @@ LAYER
 	   "gml_nid_type" "integer"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -220,7 +220,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=model"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=model"
    NAME poli_bounds
    GROUP poli_bounds
    TYPE POLYGON
@@ -273,7 +273,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -317,7 +317,7 @@ LAYER
 	   "gml_nid_type" "integer"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -386,7 +386,7 @@ LAYER
       'default_nscen' '95'
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -556,7 +556,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -745,7 +745,7 @@ LAYER
 	  "wfs_version" "1.0.0"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -918,7 +918,7 @@ LAYER
    VALIDATION
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS DEFAULT
    DUMP TRUE
@@ -1077,7 +1077,7 @@ LAYER
    VALIDATION
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -1314,7 +1314,7 @@ LAYER
    VALIDATION
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -1550,7 +1550,7 @@ LAYER
    VALIDATION
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -1788,7 +1788,7 @@ LAYER
    VALIDATION
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -1991,7 +1991,7 @@ LAYER
    VALIDATION
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -2187,7 +2187,7 @@ LAYER
 	   "gml_nid_type" "integer"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -2253,7 +2253,7 @@ LAYER
 	   "gml_nid_type" "integer"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -2323,7 +2323,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -2432,7 +2432,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -2550,7 +2550,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -2668,7 +2668,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -2791,7 +2791,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -2937,7 +2937,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -3056,7 +3056,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -3175,7 +3175,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS off
    DUMP TRUE
@@ -3293,7 +3293,7 @@ LAYER
    END
    #GROUP vwuds_max
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS OFF
    DUMP TRUE

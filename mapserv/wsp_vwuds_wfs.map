@@ -64,7 +64,7 @@ LAYER
 	   "gml_vwuds_current_mgd_type" "double"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS OFF
    DUMP TRUE
@@ -112,7 +112,7 @@ LAYER
 	   "gml_vwuds_current_mgd_type" "double"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS OFF
    DUMP TRUE
@@ -165,7 +165,7 @@ LAYER
 	   "gml_vwuds_current_mgd_type" "double"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POINT
    STATUS OFF
    DUMP TRUE
@@ -213,7 +213,7 @@ LAYER
       "wfs_enable_request" "*"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE LINE
    STATUS OFF
    DUMP TRUE
@@ -246,7 +246,7 @@ LAYER
       "wfs_enable_request" "*"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE LINE
    STATUS OFF
    DUMP TRUE

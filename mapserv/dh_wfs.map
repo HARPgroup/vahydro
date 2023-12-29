@@ -97,7 +97,7 @@ LAYER
 	   "gml_proj_pct_complete_type" "double"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal.dh01"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal.dh01"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -157,7 +157,7 @@ LAYER
 	   "gml_proj_pct_complete_type" "double"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal.dev"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal.dev"
    TYPE POINT
    STATUS OFF
    DUMP OFF
@@ -214,7 +214,7 @@ LAYER
 	   "gml_proj_pct_complete_type" "double"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal.dh03"
    TYPE POINT
    STATUS OFF
    DUMP OFF
@@ -290,7 +290,7 @@ LAYER
 	   "gml_proj_pct_complete_type" "double"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal.dev"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal.dev"
    TYPE POINT
    STATUS OFF
    DEBUG 4

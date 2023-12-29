@@ -81,7 +81,7 @@ LAYER
 	   "gml_proj_pct_complete_type" "double"
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -259,7 +259,7 @@ LAYER
       'default_nscen' '95'
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -405,7 +405,7 @@ LAYER
       'default_nscen' '95'
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -563,7 +563,7 @@ LAYER
       'default_nscen' '95'
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -732,7 +732,7 @@ LAYER
       'default_type_abbrev' 'SSU_sm'
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -890,7 +890,7 @@ LAYER
       'default_nscen' '95'
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE
@@ -1041,7 +1041,7 @@ LAYER
       'default_nscen' '95'
    END
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=wsp_ro password=314159 dbname=drupal715"
+   CONNECTION "host=192.168.0.21 user=wsp_ro password=314159 dbname=drupal715"
    TYPE POLYGON
    STATUS OFF
    DUMP TRUE

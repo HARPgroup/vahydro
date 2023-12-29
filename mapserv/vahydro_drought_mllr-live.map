@@ -112,7 +112,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=noaa"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=noaa"
    NAME poli_bounds
    #GROUP poli_bounds
    TYPE POLYGON
@@ -161,7 +161,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME usgs_mllr
    #GROUP usgs_mllr
    TYPE POLYGON
@@ -276,7 +276,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME usgs_mllr_hist
    #GROUP usgs_mllr
    TYPE POLYGON
@@ -394,7 +394,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME usgs_mllr_alltime
    TYPE POLYGON
    STATUS ON
@@ -508,7 +508,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME usgs_mllr_2year
    #GROUP usgs_mllr
    TYPE POLYGON
@@ -657,7 +657,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME proj_seggroups
    #GROUP proj_seggroups
    TYPE POLYGON
@@ -701,7 +701,7 @@ END
 
 LAYER
    CONNECTIONTYPE postgis
-   CONNECTION "host=192.168.0.20 user=postgres password=314159 dbname=drupal.dh03"
+   CONNECTION "host=192.168.0.21 user=postgres password=314159 dbname=drupal.dh03"
    NAME date_precip
    GROUP date_precip
    TYPE POINT
