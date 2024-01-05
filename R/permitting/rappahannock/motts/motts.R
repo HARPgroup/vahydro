@@ -81,7 +81,7 @@ qflextable(allflows)
 available_mgd <- gage_data
 mif_cfs <- 29.0 * 1.547
 available_mgd$available_mgd <- (available_mgd$X_00060_00003 * 0.05) / 1.547
-available_mgd$available_mgd[which(available_mgd$available_mgd > mif_cfs] <- mif_cfs
+available_mgd$available_mgd[which(available_mgd$available_mgd > mif_cfs)] <- mif_cfs # limit to max pump
 avail_table = om_flow_table(available_mgd, 'available_mgd')
 kable(avail_table, 'markdown')
 qflextable(avail_table) # available PoF
@@ -89,11 +89,15 @@ qflextable(avail_table) # available PoF
 available_mgd$tiered_available_mgd <- (available_mgd$X_00060_00003 - 621)
 available_mgd$tiered_available_mgd[which(available_mgd$month %in% c(3,4,5,6))] <- (available_mgd$X_00060_00003[which(available_mgd$month %in% c(3,4,5,6))] - 321) #limit to hourly model period
 available_mgd$tiered_available_mgd[which(available_mgd$tiered_available_mgd < 0)] <- 0 # remove negatives
-available_mgd$available_mgd[which(available_mgd$available_mgd > mif_cfs)] <- mif_cfs # limit to max pump
+available_mgd$tiered_available_mgd[which(available_mgd$tiered_available_mgd > mif_cfs)] <- mif_cfs # limit to max pump
 
 tiered_avail_table = om_flow_table(available_mgd, 'tiered_available_mgd')
 kable(tiered_avail_table, 'markdown')
 qflextable(tiered_avail_table) # available PoF
+
+quantile(available_mgd$tiered_available_mgd)
+quantile(available_mgd$available_mgd)
+
 
 hstart <- min(index(hdat))
 hend <- max(index(hdat))

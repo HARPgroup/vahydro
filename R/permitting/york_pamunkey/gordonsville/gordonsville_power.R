@@ -102,7 +102,7 @@ sort(colnames(rsegdat_df))
 sort(colnames(facdat_df))
 
 #-------------------------------------------------------------------------
-gord <- om_quantile_table(facdat_df, metrics = c("vwp_max_mgy","vwp_max_mgd","wd_mgd",
+gord <- om_quantile_table(facdat, metrics = c("vwp_max_mgy","vwp_max_mgd","wd_mgd", "discharge_mgd",
                                                "unmet_demand_mgd","adj_demand_mgd",
                                                "local_impoundment_area","local_impoundment_days_remaining", 
                                                "local_impoundment_demand","local_impoundment_demand_met_mgd", 

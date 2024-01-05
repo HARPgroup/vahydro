@@ -2,6 +2,7 @@ library(nhdplusTools)
 #> USGS Support Package: https://owi.usgs.gov/R/packages.html#support
 library(sf)
 library("sqldf")
+library("hydrotools")
 library("stringr")
 library("rjson")
 # Load Libraries
@@ -19,8 +20,10 @@ if (length(argst) > 1) {
   if (outlet_comid == -1) {
     plat <- as.numeric(argst[2])
     plon <- as.numeric(argst[3])
+    comp_name <- as.character(argst[4])
+  } else {
+    comp_name <- as.character(argst[2])
   }
-  comp_name <- as.character(argst[4])
 } else {
   cat("Outlet COMID (press ENTER to query by point):")
   outlet_comid = readLines("stdin",n=1)
@@ -52,6 +55,7 @@ if ( !( (outlet_comid == "") | (outlet_comid == "-1"))) {
 # watershed outlet
 out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
 nhd_out <- get_nhdplus(out_point)
+wshed_name = nhd_out$comid
 m_cat <- plot_nhdplus(list(nhd_out$comid))
 if (comp_name == "") {
   fname = paste0(nhd_out$comid, ".json")
@@ -74,16 +78,30 @@ bc_comids = (paste(bc_comids,collapse=', '))
 nhd_network <- sqldf(str_interp("select * from nhd_df where comid in (${bc_comids}) order by comid"))
 nhd_network[,c('comid', 'gnis_name','fromnode', 'tonode', 'totdasqkm', 'areasqkm', 'lengthkm')]
 
-# render as a nested set of objects + equations
-json_out = list()
-network_base = 'RCHRES_R001'
-json_out[[network_base]] = list(name='RCHRES_R001', object_class = 'ModelObject', value='0')
-json_network = json_out[[network_base]]
-json_network[['area_sqkm']] = list(name = 'area_sqkm', object_class = 'Constant', value=nhd_out$areasqkm)
-json_network[['area_sqmi']] = list(name = 'area_sqmi', object_class = 'Equation', value="area_sqkm * 0.386102")
-json_network[['drainage_area_sqkm']] = list(name = 'drainage_area_sqkm', object_class = 'Constant', value=nhd_out$totdasqkm)
-json_network[['drainage_area_sqmi']] = list(name = 'drainage_area_sqmi', object_class = 'Equation', value="drainage_area_sqkm * 0.386102")
-# inflow and unit area
+
+nhd_model_network2 <- function (wshed_info, nhd_network, json_network) {
+  comid = wshed_info$comid
+  wshed_info$name = paste0('nhd_', comid)
+  message(paste("Found", wshed_info$comid))
+  json_network[[wshed_info$name]] = om_nestable_watershed(wshed_info)
+  next_ups <- nhd_next_up(comid, nhd_network)
+  num_tribs = nrow(next_ups)
+  message(paste(comid,"has",num_tribs))
+  if (num_tribs > 0) {
+    for (n in 1:num_tribs) {
+      trib_info = next_ups[n,]
+      trib_info$name = paste0('nhd_', trib_info$comid)
+      message(paste("Getting upstream for", trib_info$comid))
+      json_network[[wshed_info$name]] = nhd_model_network2(trib_info, nhd_network, json_network[[wshed_info$name]])
+    }
+  }
+  return(json_network)
+}
+json_network = list()
+message("Calling nhd_model_network2() to establish base network")
+json_network <- nhd_model_network2(as.data.frame(nhd_out), nhd_network, json_network)
+
+# Now add inflow and unit area
 json_network[['IVOLin']] = list(
   name = 'IVOLin', 
   object_class = 'ModelLinkage',
@@ -97,62 +115,16 @@ json_network[['Runit']] = list(
   object_class = 'Equation', 
   value='IVOLin / drainage_area_sqmi'
 )
+# 
+# encapsulate in generic container
+# and render as a nested set of objects + equations
+network_base = 'RCHRES_R001'
+json_out = list()
 
-json_network = list()
-json_network <- nhd_model_network(as.data.frame(nhd_out), nhd_network, json_network)
-
-
-nhd_model_network2 <- function (wshed_info, nhd_network, json_network) {
-  comid = wshed_info$comid
-  wshed_info$name = paste0('nhd_', comid)
-  json_network[[wshed_info$name]] = om_nestable_watershed(wshed_info)
-  next_ups <- nhd_next_up(comid, nhd_network)
-  num_tribs = nrow(next_ups)
-  if (num_tribs > 0) {
-    for (n in 1:num_tribs) {
-      trib_info = next_ups[n,]
-      trib_info$name = paste0('nhd_', trib_info$comid)
-      json_network[[wshed_info$name]][[trib_info$name]] = nhd_model_network2(trib_info, nhd_network, json_network[[wshed_info$name]])
-    }
-  }
-  return(json_network)
-}
-json_network2 = list()
-json_network2 <- nhd_model_network2(as.data.frame(nhd_out), nhd_network, json_network)
-
-
-# Get Upstream model inputs
-json_network[[wshed_name]][['read_from_children']] = list(
-  name='read_from_children', 
-  object_class = 'ModelBroadcast', 
-  broadcast_type = 'read', 
-  broadcast_channel = 'hydroObject', 
-  broadcast_hub = 'self', 
-  broadcast_params = list(
-    list("Qtrib","Qtrib"),
-    list("trib_area_sqmi","trib_area_sqmi")
-  )
-)
-# simulate flows
-json_network[[wshed_name]][['Qlocal']] = list(
-  name='Qlocal', 
-  object_class = 'Equation', 
-  value=paste('local_area_sqmi * Runit')
-)
-json_network[[wshed_name]][['Qin']] = list(
-  name='Qin', 
-  object_class = 'Equation', 
-  equation=paste('Qlocal + Qtrib')
-)
-# Overwrite IVOL with Qin result for main stem
-json_network[['IVOLwrite']] = list(
-  name = 'IVOLwrite', 
-  object_class = 'ModelLinkage',
-  left_path = '/STATE/RCHRES_R001/HYDR/IVOL',
-  right_path = '/STATE/RCHRES_R001/Qin',
-  link_type = 5
-)
 json_out[[network_base]] = json_network
+json_out[[network_base]][["name"]] = network_base
+json_out[[network_base]][["object_class"]] = 'ModelObject'
+json_out[[network_base]][["value"]] ='0'
 
 jsonData <- toJSON(json_out)
 print(paste("Writing to", outfile))

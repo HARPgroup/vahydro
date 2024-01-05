@@ -11,13 +11,6 @@ source('/var/www/R/config.R')
 
 # Establish memoise function
 #unlink(dir, recursive = TRUE, force = TRUE)
-dir <- Sys.getenv("USGS_cache_dir")
-db <- memoise::cache_filesystem(dir)
-one_day <- 24*60^2
-one_year <- 365 * one_day
-memo_get_nhdplus <- memoise::memoise(nhdplusTools::get_nhdplus, ~memoise::timeout(one_year), cache = db)
-memo_get_UT <- memoise::memoise(nhdplusTools::get_UT, ~memoise::timeout(one_year), cache = db)
-memo_plot_nhdplus <- memoise::memoise(nhdplusTools::plot_nhdplus, ~memoise::timeout(one_year), cache = db)
 
 # Get arguments (or supply defaults)
 argst <- commandArgs(trailingOnly=T)
@@ -35,7 +28,12 @@ if (length(argst) > 1) {
 
 out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
 nhd_out <- memo_get_nhdplus(out_point)
-# 5.358322
+# handle timeout in memo function
+if (is.null(nhd_out)) {
+  nhd_out <- get_nhdplus(out_point)
+}
+message(paste("NHD+ outlet: ", nhd_out$comid))
+  # 5.358322
 m_cat <- memo_plot_nhdplus(list(nhd_out$comid))
 nhd <- memo_get_nhdplus(m_cat$basin)
 trib_comids = memo_get_UT(nhd, nhd_out$comid, distance = NULL)
