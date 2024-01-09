@@ -260,3 +260,27 @@ nhd_model_network <- function (wshed_info, nhd_network, json_network) {
   }
   return(json_network)
 }
+
+
+nhd_model_network2 <- function (wshed_info, nhd_network, json_network, skip_comids) {
+  comid = wshed_info$comid
+  if (comid %in% skip_comids) {
+    message(paste("Skipping comid", comid))
+    return(json_network)
+  }
+  wshed_info$name = paste0('nhd_', comid)
+  message(paste("Found", wshed_info$comid))
+  json_network[[wshed_info$name]] = om_nestable_watershed(wshed_info)
+  next_ups <- nhd_next_up(comid, nhd_network)
+  num_tribs = nrow(next_ups)
+  message(paste(comid,"has",num_tribs))
+  if (num_tribs > 0) {
+    for (n in 1:num_tribs) {
+      trib_info = next_ups[n,]
+      trib_info$name = paste0('nhd_', trib_info$comid)
+      message(paste("Getting upstream for", trib_info$comid))
+      json_network[[wshed_info$name]] = nhd_model_network2(trib_info, nhd_network, json_network[[wshed_info$name]])
+    }
+  }
+  return(json_network)
+}
