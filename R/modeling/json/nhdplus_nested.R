@@ -10,6 +10,8 @@ basepath='/var/www/R';
 site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 source(paste(basepath,'config.R',sep='/'))
 source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/modeling/json/om_nhd_model_utils.R")
+ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds$get_token(rest_pw)
 
 #> Linking to GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
 
@@ -38,6 +40,8 @@ if (length(argst) > 1) {
   }
   cat("File Name (default is [COMID].json):")
   comp_name = readLines("stdin",n=1)
+  cat("Comid(s) to omit (comma-separated, will skip all upstream of comid, default=''):")
+  comid_skip = readLines("stdin",n=1)
 }
 # if we've supplied a comid assume we know the desired
 # nhd network and just grab it
@@ -79,30 +83,21 @@ nhd_network <- sqldf(str_interp("select * from nhd_df where comid in (${bc_comid
 nhd_network[,c('comid', 'gnis_name','fromnode', 'tonode', 'totdasqkm', 'areasqkm', 'lengthkm')]
 
 
-nhd_model_network2 <- function (wshed_info, nhd_network, json_network) {
-  comid = wshed_info$comid
-  wshed_info$name = paste0('nhd_', comid)
-  message(paste("Found", wshed_info$comid))
-  json_network[[wshed_info$name]] = om_nestable_watershed(wshed_info)
-  next_ups <- nhd_next_up(comid, nhd_network)
-  num_tribs = nrow(next_ups)
-  message(paste(comid,"has",num_tribs))
-  if (num_tribs > 0) {
-    for (n in 1:num_tribs) {
-      trib_info = next_ups[n,]
-      trib_info$name = paste0('nhd_', trib_info$comid)
-      message(paste("Getting upstream for", trib_info$comid))
-      json_network[[wshed_info$name]] = nhd_model_network2(trib_info, nhd_network, json_network[[wshed_info$name]])
-    }
-  }
-  return(json_network)
-}
 json_network = list()
 message("Calling nhd_model_network2() to establish base network")
 json_network <- nhd_model_network2(as.data.frame(nhd_out), nhd_network, json_network)
-
+# 
+# encapsulate in generic container
+# and render as a nested set of objects + equations
+network_base = 'RCHRES_R001'
+json_out = list()
+# shift the final outlet to the base of the object
+json_out[[network_base]] = json_network[[names(json_network)[1]]]
+json_out[[network_base]][["name"]] = network_base
+json_out[[network_base]][["object_class"]] = 'ModelObject'
+json_out[[network_base]][["value"]] ='0'
 # Now add inflow and unit area
-json_network[['IVOLin']] = list(
+json_out[[network_base]][['IVOLin']] = list(
   name = 'IVOLin', 
   object_class = 'ModelLinkage',
   right_path = '/STATE/RCHRES_R001/HYDR/IVOL',
@@ -110,21 +105,11 @@ json_network[['IVOLin']] = list(
 )
 # this is a fudge, only valid for headwater segments
 # till we get DSN 10 in place
-json_network[['Runit']] = list(
+json_out[[network_base]][['Runit']] = list(
   name = 'Runit', 
   object_class = 'Equation', 
   value='IVOLin / drainage_area_sqmi'
 )
-# 
-# encapsulate in generic container
-# and render as a nested set of objects + equations
-network_base = 'RCHRES_R001'
-json_out = list()
-
-json_out[[network_base]] = json_network
-json_out[[network_base]][["name"]] = network_base
-json_out[[network_base]][["object_class"]] = 'ModelObject'
-json_out[[network_base]][["value"]] ='0'
 
 jsonData <- toJSON(json_out)
 print(paste("Writing to", outfile))
