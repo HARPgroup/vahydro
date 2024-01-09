@@ -23,9 +23,12 @@ if (length(argst) > 1) {
     plat <- as.numeric(argst[2])
     plon <- as.numeric(argst[3])
     comp_name <- as.character(argst[4])
+    skip_arg = 5
   } else {
     comp_name <- as.character(argst[2])
+    skip_arg = 3
   }
+  comid_skip = as.character(argst[skip_arg])
 } else {
   cat("Outlet COMID (press ENTER to query by point):")
   outlet_comid = readLines("stdin",n=1)
@@ -38,11 +41,13 @@ if (length(argst) > 1) {
     plon = readLines("stdin",n=1)
     plon = as.numeric(plon)
   }
-  cat("File Name (default is [COMID].json):")
+  cat("Component Name (for array key and file - default is [COMID] and [COMID].json):")
   comp_name = readLines("stdin",n=1)
   cat("Comid(s) to omit (comma-separated, will skip all upstream of comid, default=''):")
   comid_skip = readLines("stdin",n=1)
 }
+skip_comids <- str_split(comid_skip, ",")[[1]]
+
 # if we've supplied a comid assume we know the desired
 # nhd network and just grab it
 if ( !( (outlet_comid == "") | (outlet_comid == "-1"))) {
@@ -85,8 +90,8 @@ nhd_network[,c('comid', 'gnis_name','fromnode', 'tonode', 'totdasqkm', 'areasqkm
 
 json_network = list()
 message("Calling nhd_model_network2() to establish base network")
-json_network <- nhd_model_network2(as.data.frame(nhd_out), nhd_network, json_network)
-# 
+json_network <- nhd_model_network2(as.data.frame(nhd_out), nhd_network, json_network, skip_comids)
+
 # encapsulate in generic container
 # and render as a nested set of objects + equations
 network_base = 'RCHRES_R001'

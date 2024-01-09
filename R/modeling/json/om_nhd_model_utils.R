@@ -262,8 +262,12 @@ nhd_model_network <- function (wshed_info, nhd_network, json_network) {
 }
 
 
-nhd_model_network2 <- function (wshed_info, nhd_network, json_network) {
+nhd_model_network2 <- function (wshed_info, nhd_network, json_network, skip_comids) {
   comid = wshed_info$comid
+  if (comid %in% skip_comids) {
+    message(paste("Skipping comid", comid))
+    return(json_network)
+  }
   wshed_info$name = paste0('nhd_', comid)
   message(paste("Found", wshed_info$comid))
   json_network[[wshed_info$name]] = om_nestable_watershed(wshed_info)
