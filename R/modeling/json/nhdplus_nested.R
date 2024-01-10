@@ -63,20 +63,16 @@ if ( ( (outlet_comid[1] == "") | (outlet_comid[1] == "-1"))) {
 # IS this a workaround to get the same set of tribs without grabbing the map?
 message(paste("Getting flowlines that drain to outlet comid", outlet_comid))
 flowline <- memo_navigate_nldi(
-  list(featureSource = "comid",
-       featureID = outlet_comid, 
-       mode = "upstreamTributaries", 
-       distance_km = 1000
-  )
+  list(featureSource = "comid", featureID = outlet_comid), 
+  mode = "UT", 
+  distance_km = 1000
 )
 # handle timeout in memo function
 if (is.null(flowline)) {
   flowline <- navigate_nldi(
-    list(featureSource = "comid",
-         featureID = outlet_comid, 
-         mode = "upstreamTributaries", 
-         distance_km = 1000
-    )
+    list(featureSource = "comid", featureID = outlet_comid), 
+    mode = "UT", 
+    distance_km = 1000
   )
 }
 if (comp_name == "") {
@@ -87,7 +83,7 @@ if (comp_name == "") {
                  
 # get the nhd flowline dataset  
 #nhd <- get_nhdplus(m_cat$basin)
-message(paste("Retrieving stream and catchment info with get_nhdplus()"))
+message(paste("Retrieving stream and catchment info with get_nhdplus() for comid", outlet_comid,"and",nrow(flowline$UT_flowlines) - 1,"upstream catchments"))
 nhd <- get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid)
 nhd_network <- as.data.frame(st_drop_geometry(nhd))
 # find the outlet point of this flowline dataset
