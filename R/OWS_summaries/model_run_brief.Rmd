@@ -50,7 +50,7 @@ source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_uti
 # set up data source access
 basepath='/var/www/R'
 source('/var/www/R/config.R')
-ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+ds <- RomDataSource$new(site, rest_uname)
 ds$get_token(rest_pw)
 ds$json_obj_url <- json_obj_url
 # select entities and info to display
