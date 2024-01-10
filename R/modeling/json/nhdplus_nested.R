@@ -70,10 +70,17 @@ wshed_name = nhd_out$comid
 #m_cat <- plot_nhdplus(list(nhd_out$comid))
 # IS this a workaround to get the same set of tribs without grabbing the map?
 message(paste("Getting flowlines that drain to outlet location", plon, plat))
-flowline <- navigate_nldi(list(featureSource = "comid", 
+flowline <- memo_navigate_nldi(list(featureSource = "comid", 
                                featureID = nhd_out$comid), 
                           mode = "upstreamTributaries", 
                           distance_km = 1000)
+# handle timeout in memo function
+if (is.null(flowline)) {
+  flowline <- navigate_nldi(list(featureSource = "comid", 
+                                      featureID = nhd_out$comid), 
+                                 mode = "upstreamTributaries", 
+                                 distance_km = 1000)
+}
 if (comp_name == "") {
   fname = paste0(nhd_out$comid, ".json")
 } else {
@@ -85,18 +92,8 @@ outfile = paste0(fname)
 #nhd <- get_nhdplus(m_cat$basin)
 message(paste("Finding upstream tribs with get_nhdplus()"))
 nhd <- get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid)
-nhd_df <- as.data.frame(st_drop_geometry(nhd))
+nhd_network <- as.data.frame(st_drop_geometry(nhd))
 # find the outlet point of this flowline dataset
-
-# beaver creek lake comid is 8567221
-# Mechums just above the confluence with Moormans is comid = 8566905
-comid = nhd_out$comid  # 8567221 # 8566905
-# the stuff upstream
-bc_comids = get_UT(nhd, comid, distance = NULL)
-bc_comids = (paste(bc_comids,collapse=', '))
-nhd_network <- sqldf(str_interp("select * from nhd_df where comid in (${bc_comids}) order by comid"))
-nhd_network[,c('comid', 'gnis_name','fromnode', 'tonode', 'totdasqkm', 'areasqkm', 'lengthkm')]
-
 
 json_network = list()
 message("Calling nhd_model_network2() to establish base network")
