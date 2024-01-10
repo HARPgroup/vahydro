@@ -279,7 +279,7 @@ nhd_model_network2 <- function (wshed_info, nhd_network, json_network, skip_comi
       trib_info = next_ups[n,]
       trib_info$name = paste0('nhd_', trib_info$comid)
       message(paste("Getting upstream for", trib_info$comid))
-      json_network[[wshed_info$name]] = nhd_model_network2(trib_info, nhd_network, json_network[[wshed_info$name]])
+      json_network[[wshed_info$name]] = nhd_model_network2(trib_info, nhd_network, json_network[[wshed_info$name]], skip_comids)
     }
   }
   return(json_network)

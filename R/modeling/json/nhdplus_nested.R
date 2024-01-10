@@ -62,10 +62,18 @@ if ( !( (outlet_comid == "") | (outlet_comid == "-1"))) {
 }
 
 # watershed outlet
+message(paste("Getting outlet location", plon, plat))
 out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
 nhd_out <- get_nhdplus(out_point)
 wshed_name = nhd_out$comid
-m_cat <- plot_nhdplus(list(nhd_out$comid))
+# this is how we get the full set of tribs,
+#m_cat <- plot_nhdplus(list(nhd_out$comid))
+# IS this a workaround to get the same set of tribs without grabbing the map?
+message(paste("Getting flowlines that drain to outlet location", plon, plat))
+flowline <- navigate_nldi(list(featureSource = "comid", 
+                               featureID = nhd_out$comid), 
+                          mode = "upstreamTributaries", 
+                          distance_km = 1000)
 if (comp_name == "") {
   fname = paste0(nhd_out$comid, ".json")
 } else {
@@ -74,7 +82,9 @@ if (comp_name == "") {
 outfile = paste0(fname)
                  
 # get the nhd flowline dataset  
-nhd <- get_nhdplus(m_cat$basin)
+#nhd <- get_nhdplus(m_cat$basin)
+message(paste("Finding upstream tribs with get_nhdplus()"))
+nhd <- get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid)
 nhd_df <- as.data.frame(st_drop_geometry(nhd))
 # find the outlet point of this flowline dataset
 
