@@ -56,6 +56,8 @@ if ( ( (outlet_comid[1] == "") | (outlet_comid[1] == "-1"))) {
   out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
   nhd_out <- get_nhdplus(out_point)
   outlet_comid = nhd_out$comid
+} else {
+  nhd_out = get_nhdplus(comid = outlet_comid)
 }
 
 # this is how we get the full set of tribs,
