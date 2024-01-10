@@ -61,7 +61,7 @@ if ( ( (outlet_comid[1] == "") | (outlet_comid[1] == "-1"))) {
 # this is how we get the full set of tribs,
 #m_cat <- plot_nhdplus(list(nhd_out$comid))
 # IS this a workaround to get the same set of tribs without grabbing the map?
-message(paste("Getting flowlines that drain to outlet location", plon, plat))
+message(paste("Getting flowlines that drain to outlet comid", outlet_comid))
 flowline <- memo_navigate_nldi(
   list(featureSource = "comid",
        featureID = outlet_comid, 
