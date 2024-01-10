@@ -51,7 +51,7 @@ fips_df <-sqldf(paste('SELECT *,fips_geom AS geom,
                           END AS col
                         FROM fips_csv 
                         WHERE fips_code NOT LIKE "3%"',sep="")) #EXCLUDE NC LOCALITIES
-fips.sf <- st_as_sf(fips_df, wkt = 'geom')
+fips.sf <- st_as_sf(fips_df, wkt = 'geom', crs = st_crs(4326))
 # fips.gg <- geom_sf(data = fips.sf,aes(fill = factor(col)),lwd=0.4, col = "black", alpha = 0.5, inherit.aes = FALSE, show.legend =TRUE)
 
 # LOAD RIVERS LAYER
@@ -65,10 +65,10 @@ res_csv.normal <- sqldf(paste('SELECT * FROM res_csv WHERE Drought_Status_propco
 res_csv.watch <- sqldf(paste('SELECT * FROM res_csv WHERE Drought_Status_propcode = 1',sep=""))
 res_csv.warning <- sqldf(paste('SELECT * FROM res_csv WHERE Drought_Status_propcode = 2',sep=""))
 res_csv.emergency <- sqldf(paste('SELECT * FROM res_csv WHERE Drought_Status_propcode = 3',sep=""))
-res.sf.normal <- st_as_sf(res_csv.normal, wkt = 'Geometry')
-res.sf.watch <- st_as_sf(res_csv.watch, wkt = 'Geometry')
-res.sf.warning <- st_as_sf(res_csv.warning, wkt = 'Geometry')
-res.sf.emergency <- st_as_sf(res_csv.emergency, wkt = 'Geometry')
+res.sf.normal <- st_as_sf(res_csv.normal, wkt = 'Geometry', crs = st_crs(4326))
+res.sf.watch <- st_as_sf(res_csv.watch, wkt = 'Geometry', crs = st_crs(4326))
+res.sf.warning <- st_as_sf(res_csv.warning, wkt = 'Geometry', crs = st_crs(4326))
+res.sf.emergency <- st_as_sf(res_csv.emergency, wkt = 'Geometry', crs = st_crs(4326))
 
 # LOAD STREAMGAGE LAYER
 gage_csv <- data.table::fread(paste0(site, "/streamflow-drought-timeseries-all-export"))
@@ -76,18 +76,20 @@ gage_csv <-sqldf(paste('SELECT *
                         FROM gage_csv
                         WHERE drought_evaluation_region IS NOT "" '
                        ,sep=""))
-gage.sf <- st_as_sf(gage_csv, wkt = 'Geometry')
+gage.sf <- st_as_sf(gage_csv, wkt = 'Geometry', crs = st_crs(4326))
 # create lat and lon columns from WKT column
 gage.sf <- gage.sf %>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                                      lat = sf::st_coordinates(.)[,2])
 
 # LOAD WELL LAYER
 well_csv <- data.table::fread(paste0(site, "/groundwater-drought-timeseries-all-export"))
-well.sf <- st_as_sf(well_csv, wkt = 'Geometry')
+well.sf <- st_as_sf(well_csv, wkt = 'Geometry', crs = st_crs(4326))
 # create lat and lon columns from WKT column
 well.sf <- well.sf %>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                                      lat = sf::st_coordinates(.)[,2])
 
+#Establish bounding box
+extent <- data.frame(x = c(-84, -75),y = c(35.25, 40.6))
 ######################################################################################################
 # Generate Map #######################################################################################
 ######################################################################################################
@@ -120,6 +122,8 @@ well.sf <- well.sf %>% dplyr::mutate(lon = sf::st_coordinates(.)[,1],
                 geom_sf(data = res.sf.emergency, color="#B80000",lwd=1.0, inherit.aes = FALSE, show.legend =FALSE) +
                 geom_point(data = gage.sf, aes(color=factor(nonex_pct_propcode), x = lon, y = lat), pch = 17, size = 3, show.legend =FALSE) +
                 geom_point(data = well.sf, aes(color=factor(nonex_pct_propcode), x = lon, y = lat), pch = 19, size = 3) +
+                # Add a bounding box, else the rivers expand it again
+                coord_sf(xlim = extent$x, ylim = extent$y, expand = F) +
                 scale_color_manual(values = c("0" = "#5CC85C", "1" = "#FFFF33", "2" = "#FFCC33", "3" = "#B80000"),
                                    name="Indicator Status",
                                    labels=c("0" = "Normal", "1" = "Watch", "2" = "Warning", "3" = "Emergency"),
@@ -136,6 +140,7 @@ drought_map_draw <- finalmap.obj + patchwork::inset_element(p = indicators_legen
                                    patchwork::inset_element(p = deqlogo, left = 0.01, bottom = 0.013, right = 0.2, top = 0.12) 
 
 print(paste0("Saving map image: ",export_path, "virginia_drought_indicators.png",sep = ""))
+
 ggsave(plot = drought_map_draw, file = paste0(export_path, "virginia_drought_indicators.png",sep = ""), width=6.5, height=4.95) #FINAL MAP SAVES HERE
 
 #############################################################################################

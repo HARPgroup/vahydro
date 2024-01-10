@@ -15,17 +15,23 @@ base.map <- function(baselayers.gg,extent=data.frame(x = c(-84, -75),y = c(35.25
   states.gg <- baselayers.gg[[which(names(baselayers.gg) == "states.gg")]]
   rivs.gg <- baselayers.gg[[which(names(baselayers.gg) == "rivs.gg")]]
   
-  tile_layer <- get_map(
-    location = c(left = extent$x[1],
-                 bottom = extent$y[1],
-                 right = extent$x[2],
-                 top = extent$y[2]),
-    source = "stamen", zoom = plot_zoom, maptype = "terrain-background"
-  )
-  #source = "osm", zoom = plot_zoom, maptype = "satellite" #good
-  base_layer <- ggmap(tile_layer)
+  # tile_layer <- get_map(
+  #   location = c(left = extent$x[1],
+  #                bottom = extent$y[1],
+  #                right = extent$x[2],
+  #                top = extent$y[2]),
+  #   source = "stamen", zoom = plot_zoom, maptype = "terrain-background"
+  # )
+  # #source = "osm", zoom = plot_zoom, maptype = "satellite" #good
+  # base_layer <- ggmap(tile_layer)
   
-  map <- base_layer +
+  df <- data.frame(lat = 40.6, lon = -84) # Need to start with an sf for some reason
+  df <- st_as_sf(x = df,                         
+                 coords = c("lon", "lat"),
+                 crs = st_crs(4326))
+  
+  
+  map <- ggplot() +geom_sf(data=df)+
     #ADD STATE BORDER LAYER
     geom_path(data = states.gg,aes(x = long, y = lat, group = group), color="gray20",lwd=0.5,na.rm=TRUE) +
     
@@ -34,6 +40,9 @@ base.map <- function(baselayers.gg,extent=data.frame(x = c(-84, -75),y = c(35.25
 
      #ADD BORDER LAYER
     geom_polygon(data = bb.gg,aes(x = long, y = lat, group = group), color="black", fill = NA,lwd=0.5,na.rm=TRUE)+
+    
+    #Bound to only area of interest
+    coord_sf(xlim = extent$x, ylim = extent$y, expand = F) +
     
     #ADD NORTH BAR
     annotation_north_arrow(which_north = "grid", location = "tr",
