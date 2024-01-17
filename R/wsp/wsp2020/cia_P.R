@@ -145,3 +145,17 @@ PU_data <- sqldf(
 
 sqldf("select count(*) from P_data")
 sqldf("select count(*) from P_data where CU_2040 > 0.1")
+
+
+# testing cbp-6.2
+df <- data.frame(
+  'model_version' = c('cbp-6.2',  'vahydro-1.0',  'vahydro-1.0'),
+  'runid' = c('runid_11', '0.%20River%20Channel', 'local_channel'),
+  'runlabel' = c('QBaseline_2020', 'comp_da', 'subcomp_da'),
+  'metric' = c('Qbaseline', 'drainage_area', 'drainage_area')
+)
+fac_data <- om_vahydro_metric_grid(
+  metric, df, "all", "dh_feature",
+  "facility", "vahydro", "cbp-6.2",
+  "http://deq1.bse.vt.edu/d.dh/entity-model-prop-level-export"
+)

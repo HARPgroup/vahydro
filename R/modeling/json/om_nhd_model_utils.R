@@ -96,7 +96,17 @@ om_watershed_container <- function(wshed_info) {
   return(wshed_props)
 }
 
-
+om_local_channel <- function(wshed_info){
+  
+  channel_props = list(
+    name = "local_channel",
+    object_class = "SimpleChannel",
+    Qin = "Qtrib",
+    Rin = "Qlocal",
+    solver = 0
+  )
+  return(channel_props)
+}
 
 om_facility_model <- function(facility_info) {
   if (!("name" %in% names(facility_info))) {
@@ -118,6 +128,32 @@ om_facility_model <- function(facility_info) {
       list("discharge_mgd","ps_nextdown_mgd")
     )
   )
+  facility_props[['Qreach']] = list(
+    name='Qreach', 
+    object_class = 'ModelLinkage', 
+    link_type = 0, # this is a basic property input connector
+    right_path = '[parent]/Qout'
+  )
+  facility_props[['base_demand_mgy']] = list(
+    name='base_demand_mgy', 
+    object_class = 'Constant', 
+    value=facility_info$base_demand_mgy
+  )
+  facility_props[['base_demand_mgd']] = list(
+    name='base_demand_mgd', 
+    object_class = 'Equation', 
+    value="base_demand_mgd / 365.0"
+  )
+  facility_props[['flowby']] = list(
+    name='base_demand_mgd', 
+    object_class = 'Equation', 
+    value="0.9 * Qreach"
+  )
+  facility_props[['available_mgd']] = list(
+    name='base_demand_mgd', 
+    object_class = 'Equation', 
+    value="(Qreach - flowby) / 1.547"
+  )
   return(facility_props)
 }
 
@@ -137,7 +173,7 @@ om_nestable_watershed <- function(wshed_info) {
   area_sqmi = om_handle_wshed_area(wshed_info)
   nested_props[['local_area_sqmi']] = list(
     name='local_area_sqmi', 
-    object_class = 'Equation', 
+    object_class = 'Constant', 
     value=area_sqmi
   )
   # Get Upstream model inputs

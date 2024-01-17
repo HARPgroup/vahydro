@@ -85,13 +85,33 @@ if (comp_name == "") {
                  
 # get the nhd flowline dataset  
 #nhd <- get_nhdplus(m_cat$basin)
-message(paste("Retrieving stream and catchment info with get_nhdplus() for comid", outlet_comid,"and",nrow(flowline$UT_flowlines) - 1,"upstream catchments"))
-nhd <- get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid)
+ncat <- nrow(flowline$UT_flowlines)
+message(paste("Retrieving stream and catchment info with get_nhdplus() for comid", outlet_comid,"and",ncat - 1,"upstream catchments"))
+nhd <- FALSE
+totes <- 0
+i <- 0
+while (totes < ncat) {
+  brow <- i * 50 + 1
+  erow <- min( (brow+49), ncat)
+  nhd_batch <- memo_get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid[brow:erow])
+  if (is.null(nhd_batch)) {
+    nhd_batch <- get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid[brow:erow])
+  }
+  if (is.logical(nhd)) {
+    nhd <- nhd_batch
+  } else {
+    nhd <- rbind(nhd, nhd_batch)
+  }
+  totes <- totes + nrow(nhd_batch)
+  i <- i + 1
+}
+
 nhd_network <- as.data.frame(st_drop_geometry(nhd))
 # find the outlet point of this flowline dataset
 
 json_network = list()
 message("Calling nhd_model_network2() to establish base network")
+message(paste("Using outlet", outlet_comid, "and skipping", skip_comids))
 json_network <- nhd_model_network2(as.data.frame(nhd_out), nhd_network, json_network, skip_comids)
 
 # encapsulate in generic container
