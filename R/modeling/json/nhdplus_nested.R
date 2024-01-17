@@ -14,7 +14,7 @@ ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
 ds$get_token(rest_pw)
 
 #> Linking to GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
-
+plon = -1; plat = -1
 # Get arguments (or supply defaults)
 argst <- commandArgs(trailingOnly=T)
 if (length(argst) > 1) {
@@ -50,53 +50,68 @@ skip_comids <- str_split(comid_skip, ",")[[1]]
 
 # if we've supplied a comid assume we know the desired
 # nhd network and just grab it
-if ( !( (outlet_comid == "") | (outlet_comid == "-1"))) {
-  # we have been given a comid so pull the location data from NHD+
-  pc = nhdplusTools::get_nhdplus(comid=outlet_comid)
-  # Get centroid of NHD catchment
-  p_cent = st_centroid(pc$geometry)
-  # get lat and lon
-  plon = p_cent[[1]][[1]]
-  # [1] -78.66296
-  plat = p_cent[[1]][[2]]
+if ( ( (outlet_comid[1] == "") | (outlet_comid[1] == "-1"))) {
+  # watershed outlet
+  message(paste("Getting outlet location", plon, plat))
+  out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
+  nhd_out <- get_nhdplus(out_point)
+  outlet_comid = nhd_out$comid
+} else {
+  nhd_out = get_nhdplus(comid = outlet_comid)
 }
 
-# watershed outlet
-message(paste("Getting outlet location", plon, plat))
-out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
-nhd_out <- get_nhdplus(out_point)
-wshed_name = nhd_out$comid
 # this is how we get the full set of tribs,
 #m_cat <- plot_nhdplus(list(nhd_out$comid))
 # IS this a workaround to get the same set of tribs without grabbing the map?
-message(paste("Getting flowlines that drain to outlet location", plon, plat))
-flowline <- memo_navigate_nldi(list(featureSource = "comid", 
-                               featureID = nhd_out$comid), 
-                          mode = "upstreamTributaries", 
-                          distance_km = 1000)
+message(paste("Getting flowlines that drain to outlet comid", outlet_comid))
+flowline <- memo_navigate_nldi(
+  list(featureSource = "comid", featureID = outlet_comid), 
+  mode = "UT", 
+  distance_km = 1000
+)
 # handle timeout in memo function
 if (is.null(flowline)) {
-  flowline <- navigate_nldi(list(featureSource = "comid", 
-                                      featureID = nhd_out$comid), 
-                                 mode = "upstreamTributaries", 
-                                 distance_km = 1000)
+  flowline <- navigate_nldi(
+    list(featureSource = "comid", featureID = outlet_comid), 
+    mode = "UT", 
+    distance_km = 1000
+  )
 }
 if (comp_name == "") {
-  fname = paste0(nhd_out$comid, ".json")
+  outfile = paste0(outlet_comid, ".json")
 } else {
-  fname = paste0(comp_name, ".json")
+  outfile = paste0(comp_name, ".json")
 }
-outfile = paste0(fname)
                  
 # get the nhd flowline dataset  
 #nhd <- get_nhdplus(m_cat$basin)
-message(paste("Finding upstream tribs with get_nhdplus()"))
-nhd <- get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid)
+ncat <- nrow(flowline$UT_flowlines)
+message(paste("Retrieving stream and catchment info with get_nhdplus() for comid", outlet_comid,"and",ncat - 1,"upstream catchments"))
+nhd <- FALSE
+totes <- 0
+i <- 0
+while (totes < ncat) {
+  brow <- i * 50 + 1
+  erow <- min( (brow+49), ncat)
+  nhd_batch <- memo_get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid[brow:erow])
+  if (is.null(nhd_batch)) {
+    nhd_batch <- get_nhdplus(comid = flowline$UT_flowlines$nhdplus_comid[brow:erow])
+  }
+  if (is.logical(nhd)) {
+    nhd <- nhd_batch
+  } else {
+    nhd <- rbind(nhd, nhd_batch)
+  }
+  totes <- totes + nrow(nhd_batch)
+  i <- i + 1
+}
+
 nhd_network <- as.data.frame(st_drop_geometry(nhd))
 # find the outlet point of this flowline dataset
 
 json_network = list()
 message("Calling nhd_model_network2() to establish base network")
+message(paste("Using outlet", outlet_comid, "and skipping", skip_comids))
 json_network <- nhd_model_network2(as.data.frame(nhd_out), nhd_network, json_network, skip_comids)
 
 # encapsulate in generic container

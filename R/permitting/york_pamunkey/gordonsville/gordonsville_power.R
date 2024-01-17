@@ -121,6 +121,20 @@ gord <- om_quantile_table(facdat, metrics = c("vwp_max_mgy","vwp_max_mgd","wd_mg
 
 kable(gord)
 
+gord <- om_quantile_table(
+  facdat, 
+  metrics = c(
+    "vwp_max_mgy","vwp_max_mgd","wd_mgd", "discharge_mgd",
+    "local_impoundment_demand","local_impoundment_demand_met_mgd", 
+    "local_impoundment_evap_mgd", "Qintake_post",
+    "flowby","Qintake","Qintake_mgd","drawdown_mgd","quarry_inflow_mgd"
+  ),
+   rdigits = 3)
+
+
+kable(gord)
+
+
 facdat_df$vwp_max_mgd
 
 CU <- om_quantile_table(
