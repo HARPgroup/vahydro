@@ -13,6 +13,30 @@ nhd_next_up <- function (comid, nhd_network) {
 }
 
 
+nhd_next_down <- function (comid, nhd_network, try_nav=TRUE) { 
+  # this only works if the nhd_network df has data downstream of the requested comid
+  next_down <- sqldf(
+    paste(
+      "select a.comid as from_comid, a.tonode as ws_to_node, b.* from nhd_network as a",
+      "left outer join nhd_network as b ",
+      " on (b.fromnode = a.tonode)",
+      " where a.comid = ", comid
+    )
+  )
+  if (is.na(next_down$comid[1])) {
+    if (try_nav == TRUE) {
+      message(paste("nhd_network data frame does not have downstream data for comid", comid, "trying navigate_network(",comid,",mode='DM')"))
+      nav_network <- as.data.frame(st_drop_geometry(nhdplusTools::navigate_network(comid, mode="DM")))
+      next_down <- nhd_next_down(comid, nav_network, FALSE)
+    } else {
+      message(paste("Could not find downstream node for comid=",comid))
+    }
+    
+  }
+  return(next_down)
+}
+
+
 om_handle_wshed_area <- function(wshed_info) {
   if ("local_area_sqmi" %in% names(wshed_info)) {
     area_sqmi = wshed_info$local_area_sqmi

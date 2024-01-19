@@ -14,3 +14,5 @@ ro_omid <- 213265
 runid = 0
 hcdat <- om_get_rundata(hc_elid, runid, site=omsite)
 hccdat <- om_get_rundata(hc_cid, runid, site=omsite)
+quantile(hccdat$Runit)
+quantile(hcdat$Runit)
