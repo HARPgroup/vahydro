@@ -109,7 +109,7 @@ both_data <- sqldf(
 model_loflows <- IHA::group2(model_flows, year="calendar")
 gage_loflows <- IHA::group2(gage_flows, year="calendar")
 
-title_param <- paste0("\nrunid #",runid)
+title_param <- paste0("\nrunid #",runid, " Gage area-weighted ", round(area_factor,2))
 
 #l90 data ####################################################### 
 model_l90 <- model_loflows[c("year","90 Day Min")]

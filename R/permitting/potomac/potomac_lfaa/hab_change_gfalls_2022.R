@@ -1,6 +1,7 @@
+library(ggplot2)
 # load the Weighted Usable Area Table
 wua_gf <- read.table(
-  "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac_lfaa/wua_gf.csv"
+  "https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/permitting/potomac/potomac_lfaa/wua_gf.csv"
   , header=TRUE, sep=","
 )
 ifim_da_sqmi = 11010
@@ -24,7 +25,7 @@ plot(summer_plotdata$smb_adult ~ summer_plotdata$year)
 # SMB Adult
 boxplot(
   summer_plotdata$smb_adult ~ summer_plotdata$year,
-  main="Change in Habitat Due to Withdrawal for SMB(adult) 1930-2022",
+  main=paste("Change in Habitat Due to Withdrawal for SMB(adult)", "\n", min(summer_plotdata$Date), "to", max(summer_plotdata$Date)),
   ylab="% Change in Habitat",
   xlab="Year"
 )
