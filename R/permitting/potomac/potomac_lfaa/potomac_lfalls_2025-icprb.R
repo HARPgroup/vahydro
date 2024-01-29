@@ -2,7 +2,7 @@ library("sqldf")
 library("lubridate")
 # Load the IFIM feature and data
 # to do: put this on github as json data
-source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/ifim_data_lfalls.R")
+source("c:/usr/local/home/git/vahydro/R/permitting/potomac/potomac_lfaa/ifim_data_lfalls.R")
 
 # load PoR time series from Gage and ICPRB
 # compare PoR gage time series with

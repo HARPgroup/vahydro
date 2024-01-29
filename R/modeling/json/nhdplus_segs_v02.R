@@ -6,7 +6,8 @@ library("stringr")
 library("rjson")
 # Load Libraries
 basepath='/var/www/R';
-site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d.bet OR d.dh
+# site is specified in system config.local.private so this shouldn;t do anything but confuse stuff?
+#site <- "http://deq1.bse.vt.edu:81/d.dh"    #Specify the site of interest, either d.bet OR d.dh
 source(paste(basepath,'config.R',sep='/'))
 #> Linking to GEOS 3.9.0, GDAL 3.2.1, PROJ 7.2.1
 

@@ -14,26 +14,33 @@ source('/var/www/R/config.R')
 
 # Get arguments (or supply defaults)
 argst <- commandArgs(trailingOnly=T)
-if (length(argst) > 1) {
-  plat <- as.numeric(argst[2])
-  plon <- as.numeric(argst[3])
+if (length(argst) == 1) {
+  comid = as.integer(argst[1])
+  message(paste("Looking for info on comid", comid))
+  nhd_out <- get_nhdplus(comid=comid)
 } else {
-  cat("Outlet latitude:")
-  plat = readLines("stdin",n=1)
-  plat = as.numeric(plat)
-  cat("Outlet longitude:")
-  plon = readLines("stdin",n=1)
-  plon = as.numeric(plon)
-}
-
-out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
-nhd_out <- memo_get_nhdplus(out_point)
-# handle timeout in memo function
-if (is.null(nhd_out)) {
-  nhd_out <- get_nhdplus(out_point)
-}
-message(paste("NHD+ outlet: ", nhd_out$comid))
+  if (length(argst) > 1) {
+    plat <- as.numeric(argst[1])
+    plon <- as.numeric(argst[2])
+  } else {
+    cat("Outlet latitude:")
+    plat = readLines("stdin",n=1)
+    plat = as.numeric(plat)
+    cat("Outlet longitude:")
+    plon = readLines("stdin",n=1)
+    plon = as.numeric(plon)
+  }
+  message(paste("Trying to obtain NHD info for location", plat, plon))
+  out_point = sf::st_sfc(sf::st_point(c(plon, plat)), crs = 4326)
+  nhd_out <- memo_get_nhdplus(out_point)
+  # handle timeout in memo function
+  if (is.null(nhd_out)) {
+    nhd_out <- get_nhdplus(out_point)
+  }
+  message(paste("NHD+ outlet: ", nhd_out$comid))
   # 5.358322
+  
+}
 m_cat <- memo_plot_nhdplus(list(nhd_out$comid))
 nhd <- memo_get_nhdplus(m_cat$basin)
 trib_comids = memo_get_UT(nhd, nhd_out$comid, distance = NULL)

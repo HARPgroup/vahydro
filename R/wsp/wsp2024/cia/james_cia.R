@@ -166,3 +166,20 @@ kable(jacK_7330,'markdown')
 
 
 chan_jack_6950 <- om_get_rundata(213289, 400, site=omsite)
+
+
+# Baseline
+# GET VAHydro 1.0 RIVERSEG l90_Qout DATA
+df <- data.frame(
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0'),
+  'runid' = c('runid_0', 'runid_600'),
+  'metric' = c('Qout','Qout'),
+  'runlabel' = c('Qout_0', 'Qout_600')
+)
+wshed_data <- om_vahydro_metric_grid(
+  metric = metric, runids = df,
+  base_url = paste(site,'entity-model-prop-level-export',sep="/"),
+  ds = ds
+)
+
+jb_data <- sqldf("select * from wshed_data where riverseg like 'JB%'")

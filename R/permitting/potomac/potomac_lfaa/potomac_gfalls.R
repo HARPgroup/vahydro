@@ -3,6 +3,8 @@ site <- "http://deq1.bse.vt.edu/d.dh"    #Specify the site of interest, either d
 #----------------------------------------------
 # Load Libraries
 library(hydrotools)
+library(IHA)
+library("lubridate")
 basepath='/var/www/R';
 source(paste(basepath,'config.R',sep='/'))
 source(paste("https://raw.githubusercontent.com/HARPgroup/r-dh-ecohydro",'master/Analysis/habitat','ifim_wua_change_plot.R',sep='/'))
@@ -29,9 +31,9 @@ gage_sum_historic <- om_flow_table(historic, "X_00060_00003")
 
 # Load the IFIM feature and data
 # to do: put this on github as json data
-source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/ifim_data_gfalls.R")
+source("c:/usr/local/home/git/vahydro/R/permitting/potomac/potomac_lfaa/ifim_data_gfalls.R")
 # load demand data
-source("c:/usr/local/home/git/vahydro/R/permitting/potomac_lfaa/demands.R")
+source("c:/usr/local/home/git/vahydro/R/permitting/potomac/potomac_lfaa/demands.R")
 
 # load PoR time series from Gage and ICPRB
 # compare PoR gage time series with
@@ -168,7 +170,7 @@ bp <- barplot(
 #text(bp, 4500, round(100*gfb$pct_chg)) 
 
 bp
-quantile(gfb$pct_chg)
+quantile(gfb$pct_chg, na.rm = TRUE)
 
 alt_gf_aso <- sqldf("select * from agf_1997 where month in (8, 9, 10)")
 quantile(alt_gf_aso$cu_pct_curr)
@@ -202,7 +204,7 @@ bp <- barplot(
 
 
 bp
-quantile(gfb$pct_chg)
+quantile(gfb$pct_chg, na.rm = TRUE)
 
 alt_agf_aso <- sqldf("select * from alt_gf where month in (8, 9, 10)")
 quantile(alt_agf_aso$cu_pct_curr)

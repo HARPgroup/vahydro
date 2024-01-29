@@ -13,6 +13,30 @@ nhd_next_up <- function (comid, nhd_network) {
 }
 
 
+nhd_next_down <- function (comid, nhd_network, try_nav=TRUE) { 
+  # this only works if the nhd_network df has data downstream of the requested comid
+  next_down <- sqldf(
+    paste(
+      "select a.comid as from_comid, a.tonode as ws_to_node, b.* from nhd_network as a",
+      "left outer join nhd_network as b ",
+      " on (b.fromnode = a.tonode)",
+      " where a.comid = ", comid
+    )
+  )
+  if (is.na(next_down$comid[1])) {
+    if (try_nav == TRUE) {
+      message(paste("nhd_network data frame does not have downstream data for comid", comid, "trying navigate_network(",comid,",mode='DM')"))
+      nav_network <- as.data.frame(st_drop_geometry(nhdplusTools::navigate_network(comid, mode="DM")))
+      next_down <- nhd_next_down(comid, nav_network, FALSE)
+    } else {
+      message(paste("Could not find downstream node for comid=",comid))
+    }
+    
+  }
+  return(next_down)
+}
+
+
 om_handle_wshed_area <- function(wshed_info) {
   if ("local_area_sqmi" %in% names(wshed_info)) {
     area_sqmi = wshed_info$local_area_sqmi
@@ -54,23 +78,23 @@ om_watershed_container <- function(wshed_info) {
   wshed_props[['drainage_area_sqmi']] = list(
     name = 'drainage_area_sqmi', 
     object_class = 'Constant', 
-    value = area_sqmi
+    value = wshed_infoarea_sqmi
   )
   wshed_props[['run_mode']] = list(
     name = 'run_mode', 
     object_class = 'Constant', 
-    value = run_mode
+    value = wshed_info$run_mode
   )
   wshed_props[['flow_mode']] = list(
     name = 'flow_mode', 
     object_class = 'Constant', 
-    value = flow_mode
+    value = wshed_info$flow_mode
   )
   # inflow and unit area
   wshed_props[['IVOLin']] = list(
     name = 'IVOLin', 
     object_class = 'ModelLinkage',
-    right_path = paste0('/STATE/', rchres_id, '/HYDR/IVOL'),
+    right_path = paste0('/STATE/', wshed_info$rchres_id, '/HYDR/IVOL'),
     link_type = 2
   )
   # this is a fudge, only valid for headwater segments
@@ -103,6 +127,7 @@ om_local_channel <- function(wshed_info){
     object_class = "SimpleChannel",
     Qin = "Qtrib",
     Rin = "Qlocal",
+    local_area_sqmi = "local_area_sqmi",
     solver = 0
   )
   return(channel_props)
@@ -173,7 +198,7 @@ om_nestable_watershed <- function(wshed_info) {
   area_sqmi = om_handle_wshed_area(wshed_info)
   nested_props[['local_area_sqmi']] = list(
     name='local_area_sqmi', 
-    object_class = 'Constant', 
+    object_class = 'ModelConstant', 
     value=area_sqmi
   )
   # Get Upstream model inputs
@@ -227,6 +252,78 @@ om_nestable_watershed <- function(wshed_info) {
 }
 
 
+om_nestable_watershed2 <- function(wshed_info) {
+  # similar to the above but uses SimpleChannel objects for better speed
+  if (!("name" %in% names(wshed_info))) {
+    if ("comid" %in% names(wshed_info)) {
+      wshed_info$name = paste0('nhd_', wshed_info$comid)
+    } else {
+      message("Error: watershed info must have 'name' field")
+      return(FALSE)
+    }
+  }
+  nested_props = list(
+    name=wshed_info$name, 
+    object_class = 'ModelObject'
+  )
+  area_sqmi = om_handle_wshed_area(wshed_info)
+  nested_props[['local_area_sqmi']] = list(
+    name='local_area_sqmi', 
+    object_class = 'ModelConstant', 
+    value=area_sqmi
+  )
+  # Get Upstream model inputs
+  nested_props[['read_from_children']] = list(
+    name='read_from_children', 
+    object_class = 'ModelBroadcast', 
+    broadcast_type = 'read', 
+    broadcast_channel = 'hydroObject', 
+    broadcast_hub = 'self', 
+    broadcast_params = list(
+      list("Qtrib","Qtrib"),
+      list("trib_area_sqmi","trib_area_sqmi"),
+      list("child_wd_mgd","wd_mgd")
+    )
+  )
+  nested_props[['local_channel']] = om_local_channel(wshed_info)
+  # simulate flows
+  nested_props[['Qlocal']] = list(
+    name='Qlocal', 
+    object_class = 'Equation', 
+    value=paste('local_area_sqmi * Runit')
+  )
+  nested_props[['Qin']] = list(
+    name='Qin', 
+    object_class = 'Equation', 
+    equation=paste('Qlocal + Qtrib')
+  )
+  nested_props[['Qout']] = list(
+    name='Qout', 
+    object_class = 'Equation', 
+    equation=paste('Qin * 1.0')
+  )
+  # calculate secondary properties
+  nested_props[['drainage_area_sqmi']] = list(
+    name='drainage_area_sqmi', 
+    object_class = 'Equation', 
+    equation=paste('local_area_sqmi + trib_area_sqmi')
+  )
+  # send to parent object
+  nested_props[['send_to_parent']] = list(
+    name='send_to_parent', 
+    object_class = 'ModelBroadcast', 
+    broadcast_type = 'send', 
+    broadcast_channel = 'hydroObject', 
+    broadcast_hub = 'parent', 
+    broadcast_params = list(
+      list("Qout","Qtrib"),
+      list("drainage_area_sqmi","trib_area_sqmi")
+    )
+  )
+  return(nested_props)
+}
+
+
 nhd_model_network <- function (wshed_info, nhd_network, json_network) {
   comid = wshed_info$comid
   wshed_name = paste0('nhd_', comid)
@@ -237,8 +334,8 @@ nhd_model_network <- function (wshed_info, nhd_network, json_network) {
   # base attributes
   json_network[[wshed_name]][['local_area_sqmi']] = list(
     name='local_area_sqmi', 
-    object_class = 'Equation', 
-    value=paste(wshed_info$areasqkm,' * 0.386102')
+    object_class = 'ModelConstant', 
+    value = (wshed_info$areasqkm * 0.386102)
   )
   # Get Upstream model inputs
   json_network[[wshed_name]][['read_from_children']] = list(

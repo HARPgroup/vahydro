@@ -16,25 +16,27 @@ plat = 36.90784; plon = -82.76888 # Powell River intake
 
 # Entuire drainage above Powell confluence
 out_point_bb = sf::st_sfc(sf::st_point(c(plon_bb, plat_bb)), crs = 4326)
-nhd_out_bb <- get_nhdplus(out_point_bb)
+nhd_out_bb <- memo_get_nhdplus(out_point_bb)
 dasqmi_bb <- 0.386102 * nhd_out_bb$totdasqkm
 dasqmi_bb
-map_bb <- plot_nhdplus((list(nhd_out_bb$comid)))
+map_bb <- plot_nhdplus((list(nhd_out_bb$comid)), zoom = 14)
+nhd_out_bb$comid
+
 # DA Above dam
 out_point_imp = sf::st_sfc(sf::st_point(c(plon_imp, plat_imp)), crs = 4326)
-nhd_out_imp <- get_nhdplus(out_point_imp)
+nhd_out_imp <- memo_get_nhdplus(out_point_imp)
 dasqmi_imp <- 0.386102 * nhd_out_imp$totdasqkm
 dasqmi_imp
-map_imp <- plot_nhdplus((list(nhd_out_imp$comid)))
+map_imp <- plot_nhdplus((list(nhd_out_imp$comid)), zoom = 14)
 dasqmi_imp / dasqmi_bb
 
-bb_all <- get_nhdplus(map_bb$basin)
+bb_all <- memo_get_nhdplus(map_bb$basin)
 map_bb <- plot_nhdplus((list(nhd_out_bb$comid)))
 plot_nhdplus(list(map_bb$flowline$COMID))
 wb = nhdplusTools::get_waterbodies(id = nhdplus_id)
 wb_wkt = wellknown::sf_convert(wb$geometry)
 plot(wb$geometry)
-bb_network <- get_UT(nhd_out_bb, nhd_out_bb$comid, distance = NULL)
+bb_network <- memo_get_UT(nhd_out_bb, nhd_out_bb$comid, distance = NULL)
 
 elid = 353101 # Town of A reservoir
 relid = 247367 # Powell River
