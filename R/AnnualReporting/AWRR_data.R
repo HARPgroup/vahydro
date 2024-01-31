@@ -59,7 +59,7 @@ fips <- read.csv(file = "U:\\OWS\\Report Development\\Annual Water Resources Rep
 multi_yr_data <- read.csv(paste0(export_path,eyear+1,"/awrr_foundation_",eyear+1,".csv"))
 duplicate_check <- sqldf('SELECT *, count(mp_hydroid)
       FROM multi_yr_data
-      WHERE "Use.Type" NOT LIKE "gw2_%"
+      WHERE Use_Type NOT LIKE "gw2_%"
       GROUP BY mp_hydroid, year
       HAVING count(mp_hydroid) > 1')
 
@@ -67,23 +67,23 @@ duplicate_check <- sqldf('SELECT *, count(mp_hydroid)
 ## Added in locality name matching (corrects locality names form hydro)
 multi_yr_data <- sqldf('SELECT awrr.mp_hydroid as "MP_hydroid", awrr.hydrocode as "Hydrocode", 
 CASE
-  WHEN LOWER(awrr."Source.Type") LIKE "%well%" THEN "Groundwater"
-  WHEN LOWER(awrr."Source.Type") LIKE "%intake%" THEN "Surface Water"
-  ELSE LOWER(awrr."Source.Type")
+  WHEN LOWER(awrr.Source_Type) LIKE "%well%" THEN "Groundwater"
+  WHEN LOWER(awrr.Source_Type) LIKE "%intake%" THEN "Surface Water"
+  ELSE LOWER(awrr.Source_Type)
 END AS "Source_Type", 
-awrr."MP.Name" as "MP_Name", awrr.facility_hydroid as "Facility_hydroid", awrr.facility as "Facility", 
+awrr.MP_Name, awrr.facility_hydroid as "Facility_hydroid", awrr.facility as "Facility", 
 CASE 
-  WHEN LOWER(awrr."Use.Type") LIKE "%agriculture%" THEN "agriculture"
-  WHEN LOWER(awrr."Use.Type") LIKE "%industrial%" THEN "manufacturing"
-ELSE LOWER(awrr."Use.Type")
-END AS "Use_Type", awrr.latitude as "Latitude", awrr.longitude as "Longitude", awrr."FIPS.Code" as "FIPS_Code", 
-f.name as "Locality", awrr."OWS.Planner" as "OWS_Planner", MAX(awrr."year") AS Year, MAX(awrr.tsvalue) AS "Water_Use_MGY"
+  WHEN LOWER(awrr.Use_Type) LIKE "%agriculture%" THEN "agriculture"
+  WHEN LOWER(awrr.Use_Type) LIKE "%industrial%" THEN "manufacturing"
+  ELSE LOWER(awrr.Use_Type)
+END AS Use_Type, awrr.latitude as "Latitude", awrr.longitude as "Longitude", awrr.FIPS_Code, 
+f.name as "Locality", awrr.OWS_Planner, MAX(awrr."year") AS Year, MAX(awrr.tsvalue) AS "Water_Use_MGY"
 
 FROM multi_yr_data awrr
 LEFT JOIN fips f
-  ON awrr."FIPS.Code" = f.code
+  ON awrr.FIPS_Code = f.code
   
-WHERE awrr."Use.Type" NOT LIKE "gw2_%"
+WHERE awrr.Use_Type NOT LIKE "gw2_%"
 AND awrr."Facility" != "DALECARLIA WTP"
 GROUP BY "MP_hydroid", "Hydrocode","Source_Type", "MP_Name","FIPS_Code","Year" 
       ')
@@ -103,12 +103,12 @@ mp_foundation_dataset <- cbind(mp_foundation_dataset,fiveyr_avg_mgy)
 write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,"_5ya.csv"), row.names = F)
 
 ##split into 2 datasets: POWER & NON-POWER -------------------------------------------------------------------------------------------------
-#NON-POWER
+#Al
 mp_all <- sqldf(paste0('
 SELECT MP_hydroid, Hydrocode, Source_Type, MP_Name, Facility_hydroid, Facility, Use_Type, Latitude, 
 Longitude, FIPS_Code, "Locality", "OWS_Planner","',eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
 FROM mp_foundation_dataset
-WHERE "Use Type" NOT LIKE "%power%"'))
+WHERE "Use Type" NOT LIKE "%hydropower%"'))
 
 write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".csv"), row.names = F)  
 
@@ -482,7 +482,7 @@ table4_tex %>%
 #Chapter 3 Top5 tables
 #This section requires Table 4 Top 20 section to be run first, through the creation of data_all and data_all_fac
 
-### Ag Irr Com Min Pow Top5 -------------
+ ### Ag Irr Com Min Pow Top5 -------------
 #Table: Highest Reported  Withdrawals in eyear (MGD)
 use_types <- list("Agriculture", "Commercial", "Irrigation", "Mining", "Power")
 
@@ -539,24 +539,25 @@ use_types <- list("Municipal", "Manufacturing")
 for (u in use_types) {
   print(paste('PROCESSING TOP 5 TABLE: ',u),sep = '')
   for (s in list("Groundwater","Surface Water")) {
-  if (u == "Manufacturing"){
-    captiontext <- paste("Highest Reported Manufacturing and Industrial",s,"Withdrawals in",eyear,"(MGD)",sep=" ")
-    labeltext <- paste("Highest Reported Manufacturing and Industrial",s,"Withdrawals in",eyear,"(MGD)",sep=" ")
-    ut <- "Manufacturing"}
-  else {
-    captiontext = paste("Highest Reported Public Water Supply",s,"Withdrawals in",eyear,"(MGD)",sep=" ")
-    labeltext = paste("Highest Reported Public Water Supply",s,"Withdrawals in",eyear,"(MGD)",sep=" ")
-    ut <- "PublicWaterSupply"}
+    if (u == "Manufacturing"){
+      captiontext <- paste("Highest Reported Manufacturing and Industrial",s,"Withdrawals in",eyear,"(MGD)",sep=" ")
+      labeltext <- paste("Highest Reported Manufacturing and Industrial",s,"Withdrawals in",eyear,"(MGD)",sep=" ")
+      ut <- "Manufacturing"}
+    else {
+      captiontext = paste("Highest Reported Public Water Supply",s,"Withdrawals in",eyear,"(MGD)",sep=" ")
+      labeltext = paste("Highest Reported Public Water Supply",s,"Withdrawals in",eyear,"(MGD)",sep=" ")
+      ut <- "PublicWaterSupply"
+    }
     
     #group by source type from data_all
     #group by facility
     data_all_source <- sqldf(paste0('
-SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, 
- round((sum(',paste('"',eyearX,'"', sep = ''),')/365),1) AS mgd, 
- round((sum(fiveyr_avg_mgy)/365),1) as fiveyr_avg_mgd, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
-FROM data_all
-GROUP BY Facility_HydroID, Source_Type
-'))
+  SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, 
+   round((sum(',paste('"',eyearX,'"', sep = ''),')/365),1) AS mgd, 
+   round((sum(fiveyr_avg_mgy)/365),1) as fiveyr_avg_mgd, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
+  FROM data_all
+  GROUP BY Facility_HydroID, Source_Type
+  '))
     
     #top5
     top5 <- sqldf(paste('SELECT Facility_HydroID, Facility, 
