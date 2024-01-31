@@ -47,8 +47,11 @@ year.range <- (eyear-4):eyear
 fips <- read.csv(file = "U:\\OWS\\Report Development\\Annual Water Resources Report\\October 2022 Report\\fips_codes_propernames.csv")
 
 ##Legacy VAHydro code
-# tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",syear,"-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
-# multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
+# ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
+# ds$get_token(rest_pw)
+# tsdef_url <- paste0(site,"/ows-awrr-map-export/wd_mgy?ftype_op=%3D&ftype=&tstime_op=between&tstime%5Bvalue%5D=&tstime%5Bmin%5D=",
+#                     syear,"-01-01&tstime%5Bmax%5D=",eyear,"-12-31&bundle%5B0%5D=well&bundle%5B1%5D=intake")
+# # multi_yr_data <- ds$auth_read(tsdef_url, content_type = "text/csv", delim = ",")
 
 ################ PULL DIRECTLY FROM DEQ2 USING SQL ############################
 #Pull foundation data through SQL,VAHydro Issue #848
@@ -86,7 +89,10 @@ GROUP BY "MP_hydroid", "Hydrocode","Source_Type", "MP_Name","FIPS_Code","Year"
       ')
 
 ##MP FOUNDATION DATASET - BEGINNING 1982 -----------------------------------------------------------------------------------------------------------------
-mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydroid", "Hydrocode", "Source_Type", "MP_Name", "Facility_hydroid", "Facility", "Use_Type", "Latitude", "Longitude", "FIPS_Code", "Locality", "OWS_Planner"), names_from = "Year", values_from = "Water_Use_MGY", names_sort = T)
+mp_foundation_dataset <- pivot_wider(data = multi_yr_data, id_cols = c("MP_hydroid", "Hydrocode", 
+                        "Source_Type", "MP_Name", "Facility_hydroid", "Facility", "Use_Type", 
+                        "Latitude", "Longitude", "FIPS_Code", "Locality", "OWS_Planner"), 
+                           names_from = "Year", values_from = "Water_Use_MGY", names_sort = T)
 
 write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset_mgy_",syear,"-",eyear,".csv"), row.names = F)
 
@@ -98,16 +104,23 @@ write.csv(mp_foundation_dataset, paste0(export_path,eyear+1,"/foundation_dataset
 
 ##split into 2 datasets: POWER & NON-POWER -------------------------------------------------------------------------------------------------
 #NON-POWER
-mp_all <- sqldf(paste0('SELECT MP_hydroid, Hydrocode, Source_Type, MP_Name, Facility_hydroid, Facility, Use_Type, Latitude, Longitude, FIPS_Code, "Locality", "OWS_Planner","',eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
-                FROM mp_foundation_dataset
-                WHERE "Use Type" NOT LIKE "%power%"'))
+mp_all <- sqldf(paste0('
+SELECT MP_hydroid, Hydrocode, Source_Type, MP_Name, Facility_hydroid, Facility, Use_Type, Latitude, 
+Longitude, FIPS_Code, "Locality", "OWS_Planner","',eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
+FROM mp_foundation_dataset
+WHERE "Use Type" NOT LIKE "%power%"'))
 
 write.csv(mp_all, paste0(export_path,eyear+1,"/mp_all_mgy_",eyear-4,"-",eyear,".csv"), row.names = F)  
 
 #POWER
-mp_all_power <-  sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source_Type", "MP_Name", "Facility_hydroid", "Facility", "Use_Type", "Latitude", "Longitude", "FIPS_Code", "Locality", "OWS_Planner","',eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
-                FROM mp_foundation_dataset
-                WHERE "Use Type" LIKE "%power%"'))
+mp_all_power <-  sqldf(paste0('
+SELECT "MP_hydroid", "Hydrocode", "Source_Type", "MP_Name", "Facility_hydroid", "Facility", "Use_Type",
+"Latitude", "Longitude", "FIPS_Code", "Locality", "OWS_Planner","',
+eyear-4,'","',eyear-3,'","',eyear-2,'","',eyear-1,'","',eyear,'"
+FROM mp_foundation_dataset
+WHERE "Use Type" LIKE "%power%"
+'))
+
 write.csv(mp_all_power, paste0(export_path,eyear+1,"/mp_power_mgy_",eyear-4,"-",eyear,".csv"), row.names = F)  
 
 # TABLE 1 SUMMARY -----------------------------------------------------------------------------------
@@ -255,7 +268,8 @@ multi_yr_data$Facility <- str_to_title(multi_yr_data$Facility)
 #   kable_styling(latex_options = c("striped", "scale_down")) %>%
 #   column_spec(8, width = "5em") %>%
 #   column_spec(9, width = "5em") %>%
-#   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
+#   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",
+#   eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
 
 
 # Total Facilities Count ##################
@@ -267,9 +281,11 @@ mp_foundation <- read.csv(file = paste0(export_path,eyear+1,"/foundation_dataset
 
 #Remake long version so that we can sum the mgy for all MPs of each Facility hydroid
 mp_long <- pivot_longer(mp_foundation, cols = starts_with("X"), names_to = "Year", names_prefix = "X", values_to = "mgy")
-fac_all <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "Use_Type" as "Use_Type", "FIPS_Code" as FIPS
-                  FROM mp_long
-                  GROUP BY Facility_hydroid, Year')
+fac_all <- sqldf('
+SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") as mgy, sum(("mgy")/365) as mgd, "Use_Type" as "Use_Type", "FIPS_Code" as FIPS, Locality AS Locality
+FROM mp_long
+GROUP BY Facility_hydroid, Year
+')
 #export long format
 write.csv(fac_all, paste(export_path,eyear+1,"\\fac_all_1982-",eyear,".csv",sep = ""), row.names = F)
 
@@ -281,11 +297,14 @@ write.csv(fac_all, paste(export_path,eyear+1,"\\fac_all_1982-",eyear,".csv",sep 
 
 ### Including power
 fac_all <- sqldf('SELECT * FROM fac_all WHERE Use_Type NOT IN ("hydropower","facility")')
-mp_wide <- pivot_wider(data = fac_all, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
+fac_wide <- pivot_wider(data = fac_all, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS","Locality"), 
+                        names_from = "Year", values_from = "mgy", names_sort = T)
 
 year.range.f <- 1982:eyear
+#Put year range in empty dataframe
 count_3D <- data.frame(Year = year.range.f, "Num_Reporting_Fac"= NA, BGD = NA)
 
+#sapply with each year
 count_3D$BGD <- sapply(count_3D$Year,function(x) {sum(fac_all$mgd[fac_all$Year==x],na.rm = TRUE)})/1000
 count_3D$Num_Reporting_Fac <- sapply(count_3D$Year,function(x) {sum(fac_all$Year == x & !is.na(fac_all$mgy), na.rm = TRUE)})
 
@@ -311,7 +330,6 @@ count_3D$Num_Reporting_Fac <- sapply(count_3D$Year,function(x) {sum(fac_all$Year
 
 write.csv(count_3D_np, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\total_fac_nonpower_1982-",eyear,".csv",sep = ""), row.names = F)
 
-
 ## Just for eyear, use this for report ####################
 
 #Calculate the total number of facilities for current reporting year
@@ -324,7 +342,8 @@ count_fac <- sqldf(paste('SELECT *
                            Use_Type NOT LIKE "hydropower"
                           GROUP BY Facility_hydroid', sep=''))
 totalfac <- nrow(count_fac)
-print(paste0("The total number of facilities presented in the report includes nuclear & fossil power, excludes hydropower and includes Dalecarlia: ", totalfac+1," facilites"))
+print(paste0("The total number of facilities presented in the report includes nuclear & fossil power, 
+             excludes hydropower and includes Dalecarlia: ", totalfac+1," facilites"))
 
 
 #TABLE 1 : w/o power Summary ##########################################
@@ -409,9 +428,13 @@ data_all <- sqldf('SELECT a.*,
 
 
 #group by facility
-data_all_fac <- sqldf(paste('SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, round((sum(',paste('"',eyearX,'"', sep = ''),')/365),1) AS mgd, round((sum(fiveyr_avg_mgy)/365),1) as fiveyr_avg_mgd, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
-                      FROM data_all
-                      GROUP BY Facility_HydroID',sep = ''))
+data_all_fac <- sqldf(paste('
+SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality,
+round((sum(',paste('"',eyearX,'"', sep = ''),')/365),1) AS mgd, 
+round((sum(fiveyr_avg_mgy)/365),1) as fiveyr_avg_mgd, 
+sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
+FROM data_all
+GROUP BY Facility_HydroID',sep = ''))
 
 #limit 20
 top_20 <- sqldf('SELECT Facility_HydroID, Facility, 
@@ -527,9 +550,14 @@ for (u in use_types) {
     
     #group by source type from data_all
     #group by facility
-    data_all_source <- sqldf(paste('SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, round((sum(',paste('"',eyearX,'"', sep = ''),')/365),1) AS mgd, round((sum(fiveyr_avg_mgy)/365),1) as fiveyr_avg_mgd, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
-                      FROM data_all
-                      GROUP BY Facility_HydroID, Source_Type',sep = ''))
+    data_all_source <- sqldf(paste0('
+SELECT Facility_HydroID, Facility, Source_Type, Use_Type, Locality, 
+ round((sum(',paste('"',eyearX,'"', sep = ''),')/365),1) AS mgd, 
+ round((sum(fiveyr_avg_mgy)/365),1) as fiveyr_avg_mgd, sum(GW_type) AS GW_type, sum(SW_type) AS SW_type
+FROM data_all
+GROUP BY Facility_HydroID, Source_Type
+'))
+    
     #top5
     top5 <- sqldf(paste('SELECT Facility_HydroID, Facility, 
                         Locality, 
@@ -610,7 +638,8 @@ ag_tex %>%
 #   kable_styling(latex_options = c("striped", "scale_down")) %>%
 #   column_spec(8, width = "5em") %>%
 #   column_spec(9, width = "5em") %>%
-#   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
+#   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",
+#   eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
 
 ### BAR GRAPH ###################################################################################
 #transform wide to long table
@@ -966,12 +995,12 @@ Xyears <- array()
 ten <- 10:1
 for (y in ten) { Xyears[y] = paste0("X",(eyear+1)-ten[y]) }
 
-pws10 <- sqldf(paste0('SELECT "MP_hydroid", "Hydrocode", "Source_Type", "MP_Name", "Facility_hydroid", "Facility", "Use_Type", "Latitude", "Longitude", "FIPS_Code", "Locality", "OWS_Planner", ',
-                Xyears[1],', ',Xyears[2],', ',Xyears[3],', ',Xyears[4],', ',Xyears[5],', ',Xyears[6],', ',Xyears[7],', ',Xyears[8],', ',Xyears[9],', ',Xyears[10],'
-                FROM mp_foundation_dataset
-                WHERE "Use_Type" LIKE "municipal"'))
-
-#If we go back to the 15yr version, correct the reporting value for EARLYSVILLE FOREST WELL #2 (MP hydroid 64631), appears to be entered in gallons instead of MG #pws15[2120, 15] <- 0.0861
+pws10 <- sqldf(paste0('
+SELECT "MP_hydroid", "Hydrocode", "Source_Type", "MP_Name", "Facility_hydroid", "Facility",
+ "Use_Type", "Latitude", "Longitude", "FIPS_Code", "Locality", "OWS_Planner", ',
+ Xyears[1],', ',Xyears[2],', ',Xyears[3],', ',Xyears[4],', ',Xyears[5],', ',Xyears[6],', ',Xyears[7],', ',Xyears[8],', ',Xyears[9],', ',Xyears[10],'
+FROM mp_foundation_dataset
+WHERE "Use_Type" LIKE "municipal"'))
 
 pws10_sum <- data.frame(matrix(nrow = length(Xyears), ncol = 2))
 i=0
