@@ -22,7 +22,10 @@ wshed_data <- om_vahydro_metric_grid(
   ds = ds
 )
 
-powell_data = fn_extract_basin(wshed_data,'TU4_9260_0000')
+# because the cbp nomenclature for wshed connectivity stops at the TN border
+# we cannot use the normal fn_extrac_basin() method, so just a SQL like
+#powell_data = fn_extract_basin(wshed_data,'TU4_9260_0000')
+powell_data = sqldf("select * from wshed_data where riverseg like 'TU%'")
 
 # Get cbp-6.0 data for water balance comparison
 
@@ -56,3 +59,18 @@ ro_data <- om_vahydro_metric_grid(
 # RO too small, check for missing lrseg: JU2_7140_7330, JU2_7450_7360
 # - in these, a single Landseg was missing, from WV: N54063 
 jar_rodata = fn_extract_basin(ro_data,'JL7_7070_0001')
+
+# QA details
+felid = 351316
+runid = 111
+fdata <- om_get_rundata(felid, runid, site = omsite)
+quantile(fdata$fac_demand_mgy)
+m_stats <- om_quantile_table(
+  mdata, 
+  metrics = c(
+    "fac_demand_mgy", "Qintake", "available_mgd", "flowby", "flowby_cov", "min_release", "release"
+  ),
+  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
+  rdigits = 2
+)
+kable(m_stats,'markdown')
