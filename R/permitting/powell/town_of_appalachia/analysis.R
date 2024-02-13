@@ -38,34 +38,16 @@ wb_wkt = wellknown::sf_convert(wb$geometry)
 plot(wb$geometry)
 bb_network <- memo_get_UT(nhd_out_bb, nhd_out_bb$comid, distance = NULL)
 
-elid = 353101 # Town of A reservoir
+elid = 353105 # Town of A reservoir
 relid = 247367 # Powell River
-runid=400
-gage_number = '01667500' # Rapidan
-startdate <- "1984-10-01"
-enddate <- "2020-09-30"
-pstartdate <- "2008-04-01"
-penddate <- "2008-11-30"
-
-
-rmarkdown::render(
-  '/usr/local/home/git/vahydro/R/OWS_summaries/model_run_brief.Rmd', 
-  output_file = '/WorkSpace/modeling/projects/james_river/bedford_hydro/te_bedford_v01.docx', 
-  params = list( 
-    doc_title = 'Instream Flows Analysis – Bedford Hydropower', model_feature = 68319, 
-    scenario = "runid_401", model_version= "vahydro-1.0", cu_pre_var="Qreach", 
-    cu_post_var="Qbypass", table_cols=1, model_pid = 7276733,
-    image_names =c(), image_descriptions =c()
-  )
-)
-
+felid = 351742 # Town of A facility
+runid=401
 # 
-runid = 600
 hdata <- om_get_rundata(elid, runid, site=omsite)
 wr_stats <- om_quantile_table(
   hdata, 
   metrics = c(
-    "Qreach", "Qturbine", "Qavail_divert", "Qbypass", "flowby", "Qintake"
+    "Qreach", "release_cfs", "wd_child_mgd", "impoundment_Qin", "ps_refill_pump_mgd"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
   rdigits = 2
@@ -93,18 +75,17 @@ deets <- as.data.frame(hdata[,c(
   "year", "month", "day", "Qreach", "Qavail_divert", "Qturbine", "Qbypass", "flowby", "Qintake"
 )])
 
-# Lake Moomaw
-melid = 213673 
-mdata <- om_get_rundata(melid, runid, site=omsite)
-m_stats <- om_quantile_table(
-  mdata, 
+# facility
+fdata <- om_get_rundata(felid, runid, site=omsite)
+f_stats <- om_quantile_table(
+  fdata, 
   metrics = c(
-    "Qin", "Qout", "target", "flowby", "flowby_cov", "min_release", "release"
+    "release", "flowby", "lake_elev", "Qnextdown", "Qintake"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
   rdigits = 2
 )
-kable(m_stats,'markdown')
+kable(f_stats,'markdown')
 
 deets <- as.data.frame(mdata[,c(
   "year", "month", "day", "Qin", "Qout", "target", "flowby", "flowby_cov", "min_release", "release"
