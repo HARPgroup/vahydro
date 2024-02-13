@@ -24,8 +24,7 @@ wshed_data <- om_vahydro_metric_grid(
 
 # because the cbp nomenclature for wshed connectivity stops at the TN border
 # we cannot use the normal fn_extrac_basin() method, so just a SQL like
-#powell_data = fn_extract_basin(wshed_data,'OR3_7740_8271')
-powell_data = sqldf("select * from wshed_data where riverseg like 'TU%'")
+roaroa_data = fn_extract_basin(wshed_data,'OR3_7740_8271')
 
 # Get cbp-6.0 data for water balance comparison
 
@@ -42,3 +41,12 @@ wshed_data6 <- om_vahydro_metric_grid(
   ds = ds
 )
 or_data6 = fn_extract_basin(wshed_data6,'OR3_7740_8271')
+
+
+# Individual elements
+ccdat <- om_get_rundata(328319, 110, site=omsite)
+shdat <- om_get_rundata(328321, 110, site=omsite)
+rrdat <- om_get_rundata(252625, 110, site=omsite)
+rltdat <- om_get_rundata(252661, 110, site=omsite) # local trib container in Roanoke
+quantile(rrdat$wd_upstream_mgd)
+quantile(rltdat$wd_upstream_mgd)
