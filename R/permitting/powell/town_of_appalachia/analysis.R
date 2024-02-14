@@ -47,9 +47,12 @@ hdata <- om_get_rundata(elid, runid, site=omsite)
 wr_stats <- om_quantile_table(
   hdata, 
   metrics = c(
-    "Qreach", "release_cfs", "wd_child_mgd", "impoundment_Qin", "ps_refill_pump_mgd"
+    "Qreach", "child_wd_mgd", "child_ps_mgd",
+    "refill_allowed_mgd", "available_mgd","max_mgd","refill_plus_demand",
+    "impoundment_Qin", "impoundment_use_remain_mg", "impoundment_lake_elev",
+    "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd"
   ),
-  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
+  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 0.9, 0.95, 1.0),
   rdigits = 2
 )
 kable(wr_stats,'markdown')
@@ -80,7 +83,7 @@ fdata <- om_get_rundata(felid, runid, site=omsite)
 f_stats <- om_quantile_table(
   fdata, 
   metrics = c(
-    "release", "flowby", "lake_elev", "Qnextdown", "Qintake"
+    "release", "flowby", "lake_elev", "Qnextdown", "Qintake", "refill_current"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
   rdigits = 2
