@@ -39,6 +39,8 @@ params:
   downstream_rseg_ids: FALSE
   users_metric: "base_demand_mgy"
   elfgen: TRUE
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -51,6 +53,7 @@ library(officer)
 library(flextable)
 library(hydrotools)
 library(rjson)
+library(zoo)
 basepath='/var/www/R'
 source('/var/www/R/config.R')
 ds <- RomDataSource$new(site, rest_uname)
@@ -187,7 +190,8 @@ if (exists("json_obj_url")) {
       TRUE
     )
     imp_obj_url <- paste(json_obj_url, imp_model$pid, sep="/")
-    imp_model_info <- om_auth_read(imp_obj_url, token,  "text/json", "")
+    #Get model info using ds$auth_read to authenticate and grab model info+data
+    imp_model_info <- ds$auth_read(imp_obj_url,  "text/json", "")
     imp_model_info <- fromJSON(imp_model_info)
   }
 } else {
@@ -242,6 +246,7 @@ for (i in 1:length(runid.list)){
   run.i <- sub("runid_", "", runid.i)
   
   # TODO: prepopulate runid_XXX$report$facility_default_reports and riverseg_default_reports on the om_model_scenario variable to load as a default for these.  For example, runid11 is *always* the current WSP run, so there should be no need to give it a short name, or scenario name at the individual facility level.
+  
   # stash short names since they are used frequently
   fac_run_info <- find_name(fac_model_info,runid.i)
   f_rep <- find_name(fac_run_info,'reports')
@@ -273,7 +278,13 @@ cat(paste(fac_report_info$project_intro$value,"\n\n"))
 
 ```{r GrabLocationMap, include=FALSE, echo=FALSE}
 # fig_prop <- find_name(fac_model_info,"fig.location_map")
-fig_prop <- om_get_prop(site,fac.model$pid, "dh_properties", "fig.location_map")
+#Check database to find location map, will return a blank property if no map was
+#generated and kept in database
+fig_prop <- RomProperty$new(
+  ds,
+  list(propname = "fig.location_map",
+       featureid = fac.model$pid),
+  TRUE)
 ```
 
 ```{r LocationMap, echo=FALSE, results = "asis"}
@@ -381,6 +392,8 @@ __Historical Intake Flows and Drought Flow Indicators__
 The VAHydro model is used to estimate flows at the project intake, including the impact of all cumulative withdrawals and discharges upstream of the intake location and are presented in Table 1.  The Virginia Drought Assessment and Response Plan^[ [Virginia Drought Assessment and Response Plan](https://www.deq.virginia.gov/home/showpublisheddocument/5115/637490843054630000), developed by the Drought Response Technical Advisory Committee in response to Executive Order #39, March 28, 2003.] employs non-exceedance flow percentiles as indicators of drought conditions at particular stream-gaging stations used to monitor drought conditions.  Representative daily streamflows above the 25th percentile for return flow frequency represent normal conditions with respect to drought.  Representative daily streamflows between the 10th and 25th percentiles represent drought watch conditions. Representative daily streamflows between the 5th and 10th percentiles represent drought warning conditions.  Representative daily streamflows below the 5th percentile indicate drought emergency conditions.
 
 ```{r LoadSiteInfo, include=FALSE}
+#Current workaround for finfo bug in https://github.com/HARPgroup/hydro-tools/issues/381#issuecomment-1858190927
+# finfo <- fn_get_runfile_info(elid, runid, scenid, site=omsite)
 dat_current <- om_get_rundata(istats_elid, intake_stats_runid, omsite, FALSE)
 # catch instances where older models did not have Qintake
 # does this have an impoundment sub-comp and is imp_off = 0?
@@ -950,11 +963,32 @@ This new flow-ecology framework referred to as “elfgen” (*pronounced elf-jen
 # Ecological Limit Functions are not available for this location because the drainage area exceeds 800 square miles, which is beyond the applicable range of current mean flow based ecological limit functions.
 
 if (elfgen) {
-  run_container <- om_get_prop(site, rseg.model$pid, entity_type = 'dh_properties',runid.list[1])
+  run_container <- RomProperty$new(
+  ds,
+  list(propname = runid.list[1],
+       entity_type = "dh_properties",
+       featureid = rseg.model$pid
+       ),
+  TRUE)
+  
   fig_path = FALSE
-  elfgen_EDAS_huc8 <- om_get_prop(site, run_container$pid, entity_type = 'dh_properties','elfgen_EDAS_huc8')
+  elfgen_EDAS_huc8 <- RomProperty$new(
+    ds,
+    list(propname = "elfgen_EDAS_huc8",
+         entity_type = "dh_properties",
+         featureid = run_container$pid
+    ),
+    TRUE)
+  
   if (!is.logical(elfgen_EDAS_huc8)) {
-    fig.elfgen <- om_get_prop(site, elfgen_EDAS_huc8$pid, entity_type = 'dh_properties','fig.elfgen')
+    fig.elfgen <- RomProperty$new(
+      ds,
+      list(propname = "fig.elfgen",
+           entity_type = "dh_properties",
+           featureid = elfgen_EDAS_huc8$pid
+      ),
+      TRUE)
+    
     if (!is.logical(fig.elfgen)) {
       fig_path <- fig.elfgen$propcode
     }

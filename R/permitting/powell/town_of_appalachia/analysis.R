@@ -10,6 +10,7 @@ library("sqldf")
 library("stringr")
 library("rjson")
 
+#For identifying stream-watershed shape/GIS:
 plat_bb = 36.901388888889; plon_bb = -82.754166666667 # Ben's Branch downstream of impoundment
 plat_imp = 36.9022222222; plon_imp = -82.7525 # Impoundment intake
 plat = 36.90784; plon = -82.76888 # Powell River intake
@@ -37,12 +38,15 @@ wb = nhdplusTools::get_waterbodies(id = nhdplus_id)
 wb_wkt = wellknown::sf_convert(wb$geometry)
 plot(wb$geometry)
 bb_network <- memo_get_UT(nhd_out_bb, nhd_out_bb$comid, distance = NULL)
+############
 
 elid = 353105 # Town of A reservoir
 relid = 247367 # Powell River
 felid = 351742 # Town of A facility
 runid=401
 # 
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
+
 hdata <- om_get_rundata(elid, runid, site=omsite)
 wr_stats <- om_quantile_table(
   hdata, 
@@ -50,13 +54,13 @@ wr_stats <- om_quantile_table(
     "Qreach", "child_wd_mgd", "child_ps_mgd",
     "refill_allowed_mgd", "available_mgd","max_mgd","refill_plus_demand",
     "impoundment_Qin", "impoundment_use_remain_mg", "impoundment_lake_elev",
-    "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd"
+    "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd","refill_flowby"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 0.9, 0.95, 1.0),
   rdigits = 2
 )
 kable(wr_stats,'markdown')
-hdata[1:5,c("Qreach", "Qintake", "reach_area_sqmi", "intake_drainage_area")]
+hdata[1:5,c("Qreach")]#, "Qintake", "reach_area_sqmi", "intake_drainage_area")]
 quantile(hdata$wp_bypass, probs=c(0,0.25, 0.5, 0.75, 0.9, 0.95, 1.0), na.rm=TRUE)
 quantile(hdata$wp_pre, na.rm=TRUE)
 
