@@ -41,22 +41,43 @@ bb_network <- memo_get_UT(nhd_out_bb, nhd_out_bb$comid, distance = NULL)
 elid = 353105 # Town of A reservoir
 relid = 247367 # Powell River
 felid = 351742 # Town of A facility
-runid=401
+plelid = 353107 # Powell River above Looney Creek (App res is tributary)
+runid=601
 # 
 hdata <- om_get_rundata(elid, runid, site=omsite)
 wr_stats <- om_quantile_table(
   hdata, 
   metrics = c(
-    "Qreach", "child_wd_mgd", "child_ps_mgd",
+    "Qreach", "child_wd_mgd", "child_ps_mgd", "Runit_mode",
     "refill_allowed_mgd", "available_mgd","max_mgd","refill_plus_demand",
-    "impoundment_Qin", "impoundment_use_remain_mg", "impoundment_lake_elev",
-    "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd"
+    "impoundment_Qin", "impoundment_Qout", "refill_flowby",
+    "impoundment_use_remain_mg", "impoundment_lake_elev", "impoundment_local_inflow",
+    "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd",
+    "ps_bsg_mgd", "ps_nextdown_mgd"
   ),
-  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 0.9, 0.95, 1.0),
+  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 0.9, 1.0),
   rdigits = 2
 )
 kable(wr_stats,'markdown')
-hdata[1:5,c("Qreach", "Qintake", "reach_area_sqmi", "intake_drainage_area")]
+hdata[1360:1450,c("Qreach", "impoundment_area", "impoundment_Qin", "refill_flowby")]
+
+# facility
+fdata <- om_get_rundata(felid, runid, site=omsite)
+f_stats <- om_quantile_table(
+  fdata, 
+  metrics = c(
+    "release", "lake_elev", "Qnextdown", "Qintake", 
+    "flowby", "flowby_proposed", "mif_powell",
+    "refill_proposed", "refill_current", "refill_max_mgd",
+    "ps_other_mgd", "base_demand_mgd", "available_mgd", "impoundment_use_remain_mg"
+  ),
+  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
+  rdigits = 2
+)
+kable(f_stats,'markdown')
+
+
+hdata[1:5,c("Qreach", "impoundment_area", "impoundment_drainage_area")]
 quantile(hdata$wp_bypass, probs=c(0,0.25, 0.5, 0.75, 0.9, 0.95, 1.0), na.rm=TRUE)
 quantile(hdata$wp_pre, na.rm=TRUE)
 
@@ -67,7 +88,9 @@ rdata <- om_get_rundata(relid, runid, site=omsite)
 r_stats <- om_quantile_table(
   rdata, 
   metrics = c(
-    "Qout", "wd_cumulative_mgd", "Qup", "ps_cumulative_mgd"
+    "Qout", "wd_cumulative_mgd", "Qup", 
+    "ps_cumulative_mgd",
+    "wd_upstream_mgd", "wd_mgd", "wd_trib_mgd"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
   rdigits = 2
@@ -78,19 +101,94 @@ deets <- as.data.frame(hdata[,c(
   "year", "month", "day", "Qreach", "Qavail_divert", "Qturbine", "Qbypass", "flowby", "Qintake"
 )])
 
-# facility
-fdata <- om_get_rundata(felid, runid, site=omsite)
-f_stats <- om_quantile_table(
-  fdata, 
+# Powell above Looney
+plrdata <- om_get_rundata(plelid, runid, site=omsite)
+plr_stats <- om_quantile_table(
+  plrdata, 
   metrics = c(
-    "release", "flowby", "lake_elev", "Qnextdown", "Qintake", "refill_current"
+    "Qout", "Qtrib", "Qlocal", "local_channel_Qout",
+    "wd_cumulative_mgd", "ps_mgd", "ps_cumulative_mgd", "ps_nextdown_mgd",
+    "wd_upstream_mgd", "wd_mgd"
   ),
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
   rdigits = 2
 )
-kable(f_stats,'markdown')
+kable(plr_stats,'markdown')
+
+# facility Norton
+fndata <- om_get_rundata(247417, runid, site=omsite)
+fn_stats <- om_quantile_table(
+  fndata, 
+  metrics = c(
+    "wd_mgd",
+    "discharge_mgd"
+  ),
+  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
+  rdigits = 2
+)
+kable(fn_stats,'markdown')
+
 
 deets <- as.data.frame(mdata[,c(
   "year", "month", "day", "Qin", "Qout", "target", "flowby", "flowby_cov", "min_release", "release"
 )])
 
+
+tribs = om_get_rundata(247403, runid, site=omsite)
+bsg_data <- om_get_rundata(247415, runid, site=omsite)
+bc_data <- om_get_rundata(352078, runid, site=omsite) 
+bbc_data <- om_get_rundata(352123, runid, site=omsite) 
+
+quantile(bc_data$child_wd_mgd)
+quantile(bsg_data$wd_mgd)
+quantile(bbc_data$ps_mgd)
+quantile(bbc_data$wd_mgd)
+quantile(bc_data$ps_mgd)
+# note: example of a good use of broadcasts, this object has a separate broadcast to send 
+#       ps_bsg_wwtp_mgd to the parent container, as ps_nextdown_mgd using the hydroTools channel
+#       which results in the point source hitting the 3rd downstream container, which is the proper destination.
+
+quantile(bc_data$ps_bsg_wwtp_mgd) 
+quantile(bbc_data$ps_nextdown_mgd)
+
+
+deets <- as.data.frame(mdata[,c(
+  "year", "month", "day", "Qin", "Qout", "target", "flowby", "flowby_cov", "min_release", "release"
+)])
+
+
+
+## Runoff QA
+library('hydrotools')
+library('zoo')
+library("knitr")
+library("rapportools")
+basepath='/var/www/R';
+source("/var/www/R/config.R")
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
+ds <- RomDataSource$new(site, rest_uname = rest_uname)
+ds$get_token(rest_pw = rest_pw)
+
+# Get Runoff Data for QA - this loads lrseg model elements
+# this will not apply to new hsp2/hspf model as LRsegs are not stored explicitly
+# in the database, however, that is a potential.  IN the future we should add 
+# the ability to query the lang segments for a given river seg, then show those
+# summaries since landseg data *COULD BE* summarized in the database.
+rodf <- data.frame(
+  'model_version' = c('vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
+  'runid' = c('runid_0', 'runid_2', 'runid_401','runid_0', 'runid_401'),
+  'metric' = c('Runit','Runit','Runit', 'l90_RUnit', 'l90_RUnit'),
+  'runlabel' = c('Runit_0', 'Runit_2', 'Runit_401', 'l90_RUnit_0', 'l90_RUnit_401')
+)
+# ftype options,
+# sova: cbp532_lrseg
+# others: cbp6_lrseg
+ro_data <- om_vahydro_metric_grid(
+  metric = metric, runids = rodf, bundle = "landunit", ftype = "cbp532_lrseg",
+  base_url = paste(site,'entity-model-prop-level-export',sep="/"),
+  ds = ds
+)
+
+# RO too small, check for missing lrseg: JU2_7140_7330, JU2_7450_7360
+# - in these, a single Landseg was missing, from WV: N54063 
+pr_rodata = fn_extract_basin(ro_data,'TU3_8880_9230')
