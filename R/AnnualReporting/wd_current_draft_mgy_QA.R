@@ -4,6 +4,8 @@
 ##################################################################################
 
 library(sqldf)
+baseoath <- '/var/www/R'
+source(paste0(basepath,'/config.local.private'))
 
 #prevents scientific notation
 options(scipen = 20)
@@ -22,7 +24,7 @@ draft1 <- sqldf('SELECT *,
                FROM draft_qa
                ORDER BY diff_mgd desc
                ')
-write.csv(draft1, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft1_all.csv"))
+write.csv(draft1, file = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft1_all.csv"))
 
 #2021 annual report cycle: planners specifically expected municipal intakes to show a difference
 sqldf('SELECT sum("wd_current_draft_mgy_.propvalue.")/365 as draft_mgd, 
@@ -64,7 +66,7 @@ draft3.5 <- sqldf('SELECT *,
                WHERE "wd_current_draft_mgy_.enddate." - "wd_current_draft_mgy_.startdate." = 1
                ORDER BY diff_mgd desc
                ')
-#write.csv(draft3.5, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft3.5.csv"))
+#write.csv(draft3.5, file = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft3.5.csv"))
 
 
 #fourth round of QA - any MPs that are negative draft values OR have a percent change greater than 100% (only include MPs that are >= 2 years old)
@@ -94,7 +96,7 @@ draft5 <- sqldf('SELECT *,
                AND "wd_current_draft_mgy_.enddate." - "wd_current_draft_mgy_.startdate." > 1
                ORDER BY diff_mgd desc
                ')
-write.csv(draft5, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft5_pctchg_50.csv"))
+write.csv(draft5, file = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft5_pctchg_50.csv"))
 
 #short table summary of different changes
 top_sums <- sqldf('SELECT sum(diff_mgd) AS "Total MGD Difference",
@@ -113,13 +115,13 @@ top_sums <- sqldf('SELECT sum(diff_mgd) AS "Total MGD Difference",
                   FROM draft5 X
                   ')
 top_sums
-#write.csv(top_sums, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft5_top_sums.csv"))
+#write.csv(top_sums, file = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft5_top_sums.csv"))
 
 draft5_top <- sqldf('SELECT * FROM draft5 ORDER BY diff_mgd desc LIMIT 20')
 draft5_bottom <- sqldf('SELECT * FROM draft5 ORDER BY diff_mgd asc LIMIT 5')
 draft5_neg <- sqldf('SELECT * FROM draft5 WHERE "wd_current_draft_mgy_.propvalue." < 0 ORDER BY diff_mgd desc')
 draft5_check <- rbind(draft5_top,draft5_bottom,draft5_neg)
-write.csv(draft5_check, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft5_check.csv"))
+write.csv(draft5_check, file = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft5_check.csv"))
 
 ########################################################################################################################
 # OPTIONAL, COMPARE CURRENT YEAR TO PRIOR YEAR #########################################################################
@@ -185,7 +187,7 @@ QAannual <- sqldf('SELECT * FROM ChangeMGY
                   WHERE pct_chg < -80
                   OR pct_chg > 500
                   ORDER BY diff_mgy desc ')
-write.csv(QAannual, file = paste0("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft_annual_check.csv"))
+write.csv(QAannual, file = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft_annual_check.csv"))
 
 #if there are too many MPs to manually check in VAHydro
 #can develop the following line so the MPs already in the draft5_check QA are not repeated here
