@@ -17,18 +17,19 @@ library("hydrotools")
 library("RCurl")
 
 options(scipen = 999)
-
+baseoath <- '/var/www/R'
+source(paste0(basepath,'/config.local.private'))
 #NOTE: The start and end year need to be updated every year
 syear = 1982
 #syear = 2018
-eyear = 2022
+eyear = 2023
 
 #NOTE: switch between file types to save in common drive folder; html or latex
 #file_extension <- ".html"
 file_extension <- ".tex"
 
 #resume running here
-export_path <- "U:/OWS/foundation_datasets/awrr/"
+export_path <- paste0(onedrive_location,'/OWS/foundation_datasets/awrr/')
 
 #GLOBAL VARIABLES --------------------------------------------------------------------
 if (file_extension == ".html") {
@@ -44,7 +45,7 @@ latexoptions <- c("scale_down")
 year.range <- (eyear-4):eyear
 
 #Join in FIPS name to data
-fips <- read.csv(file = "U:\\OWS\\Report Development\\Annual Water Resources Report\\October 2022 Report\\fips_codes_propernames.csv")
+fips <- read.csv(file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October 2022 Report\\fips_codes_propernames.csv"))
 
 ##Legacy VAHydro code
 # ds <- RomDataSource$new("http://deq1.bse.vt.edu/d.dh", rest_uname)
@@ -67,23 +68,23 @@ duplicate_check <- sqldf('SELECT *, count(mp_hydroid)
 ## Added in locality name matching (corrects locality names form hydro)
 multi_yr_data <- sqldf('SELECT awrr.mp_hydroid as "MP_hydroid", awrr.hydrocode as "Hydrocode", 
 CASE
-  WHEN LOWER(awrr."Source.Type") LIKE "%well%" THEN "Groundwater"
-  WHEN LOWER(awrr."Source.Type") LIKE "%intake%" THEN "Surface Water"
-  ELSE LOWER(awrr."Source.Type")
+  WHEN LOWER(awrr.source_type) LIKE "%well%" THEN "Groundwater"
+  WHEN LOWER(awrr.source_type) LIKE "%intake%" THEN "Surface Water"
+  ELSE LOWER(awrr.source_type)
 END AS "Source_Type", 
-awrr."MP.Name" as "MP_Name", awrr.facility_hydroid as "Facility_hydroid", awrr.facility as "Facility", 
+awrr.mp_name as "MP_Name", awrr.facility_hydroid as "Facility_hydroid", awrr.facility as "Facility", 
 CASE 
-  WHEN LOWER(awrr."Use.Type") LIKE "%agriculture%" THEN "agriculture"
-  WHEN LOWER(awrr."Use.Type") LIKE "%industrial%" THEN "manufacturing"
-ELSE LOWER(awrr."Use.Type")
-END AS "Use_Type", awrr.latitude as "Latitude", awrr.longitude as "Longitude", awrr."FIPS.Code" as "FIPS_Code", 
-f.name as "Locality", awrr."OWS.Planner" as "OWS_Planner", MAX(awrr."year") AS Year, MAX(awrr.tsvalue) AS "Water_Use_MGY"
+  WHEN LOWER(awrr.Use_Type) LIKE "%agriculture%" THEN "agriculture"
+  WHEN LOWER(awrr.Use_Type) LIKE "%industrial%" THEN "manufacturing"
+ELSE LOWER(awrr.Use_Type)
+END AS "Use_Type", awrr.latitude as "Latitude", awrr.longitude as "Longitude", awrr."FIPS_Code" as "FIPS_Code", 
+f.name as "Locality", awrr."OWS_Planner" as "OWS_Planner", MAX(awrr."year") AS Year, MAX(awrr.tsvalue) AS "Water_Use_MGY"
 
 FROM multi_yr_data awrr
 LEFT JOIN fips f
-  ON awrr."FIPS.Code" = f.code
+  ON awrr."FIPS_Code" = f.code
   
-WHERE awrr."Use.Type" NOT LIKE "gw2_%"
+WHERE awrr.Use_Type NOT LIKE "gw2_%"
 AND awrr."Facility" != "DALECARLIA WTP"
 GROUP BY "MP_hydroid", "Hydrocode","Source_Type", "MP_Name","FIPS_Code","Year" 
       ')
@@ -226,7 +227,6 @@ write.csv(cat_table_np, paste(export_path,eyear+1,"/Table1_NoPower_",eyear-4,"-"
 
 #IS THERE A STATIC TABLE? READ THAT IN AND BEGIN FROM HERE ##########################################################
 
-export_path <- "U:/OWS/foundation_datasets/awrr/"
 
 #redefine year range
 syear <- 2018
@@ -268,7 +268,7 @@ multi_yr_data$Facility <- str_to_title(multi_yr_data$Facility)
 #   kable_styling(latex_options = c("striped", "scale_down")) %>%
 #   column_spec(8, width = "5em") %>%
 #   column_spec(9, width = "5em") %>%
-#   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",
+#   cat(., file = paste(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",
 #   eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
 
 
@@ -295,6 +295,9 @@ write.csv(fac_all, paste(export_path,eyear+1,"\\fac_all_1982-",eyear,".csv",sep 
 
 ## Counts total number of reporting facilities and total use for 1982-eyear, currently for internal analysis not for in report
 
+# fac_all <- fac_all[fac_all$permit_prop %in% c('exempt','Non-permitted'),]
+# fac_all <- sqldf('select * from fac_all group by facility_hydroid, year')
+
 ### Including power
 fac_all <- sqldf('SELECT * FROM fac_all WHERE Use_Type NOT IN ("hydropower","facility")')
 fac_wide <- pivot_wider(data = fac_all, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS","Locality"), 
@@ -308,8 +311,9 @@ count_3D <- data.frame(Year = year.range.f, "Num_Reporting_Fac"= NA, BGD = NA)
 count_3D$BGD <- sapply(count_3D$Year,function(x) {sum(fac_all$mgd[fac_all$Year==x],na.rm = TRUE)})/1000
 count_3D$Num_Reporting_Fac <- sapply(count_3D$Year,function(x) {sum(fac_all$Year == x & !is.na(fac_all$mgy), na.rm = TRUE)})
 
-write.csv(count_3D, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\total_fac_wpower_1982-",eyear,".csv",sep = ""), row.names = F)
+write.csv(count_3D, paste(export_path,eyear+1,"\\total_fac_wpower_1982-",eyear,".csv",sep = ""), row.names = F)
 
+ggplot(data = count_3D, aes(Year, Num_Reporting_Fac, group = 1)) + geom_line() + ylab('Reporting facilities')
 
 ### Excluding power
 mp_foundation_np <-  sqldf(paste0('SELECT * FROM mp_foundation WHERE "Use_Type" NOT LIKE "%power%"'))
@@ -322,13 +326,13 @@ fac_all_np <- sqldf('SELECT "Facility_hydroid", "Facility", "Year", sum("mgy") a
 mp_wide_np <- pivot_wider(data = fac_all_np, id_cols = c("Facility_hydroid", "Facility","Use_Type", "FIPS"), names_from = "Year", values_from = "mgy", names_sort = T)
 
 year.range.f <- 1982:eyear
-count_3D <- data.frame(Year = year.range.f, "Num_Reporting_Fac"= NA, BGD = NA)
+count_3D_np <- data.frame(Year = year.range.f, "Num_Reporting_Fac"= NA, BGD = NA)
 
-count_3D$BGD <- sapply(count_3D$Year,function(x) {sum(fac_all$mgd[fac_all$Year==x],na.rm = TRUE)})/1000
-count_3D$Num_Reporting_Fac <- sapply(count_3D$Year,function(x) {sum(fac_all$Year == x & !is.na(fac_all$mgy), na.rm = TRUE)})
+count_3D_np$BGD <- sapply(count_3D_np$Year,function(x) {sum(fac_all$mgd[fac_all$Year==x],na.rm = TRUE)})/1000
+count_3D_np$Num_Reporting_Fac <- sapply(count_3D_np$Year,function(x) {sum(fac_all$Year == x & !is.na(fac_all$mgy), na.rm = TRUE)})
 
 
-write.csv(count_3D_np, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\total_fac_nonpower_1982-",eyear,".csv",sep = ""), row.names = F)
+write.csv(count_3D_np, paste(export_path,eyear+1,"\\total_fac_nonpower_1982-",eyear,".csv",sep = ""), row.names = F)
 
 ## Just for eyear, use this for report ####################
 
@@ -372,7 +376,7 @@ table1_tex <- gsub(pattern = "{table}[t]",
 table1_tex
 
 table1_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\overleaf\\summary_table1_",eyear+1,".tex",sep = ''))
+  cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\overleaf\\summary_table1_",eyear+1,".tex"))
 
 ########### TABLE1: wPower ##############
 
@@ -424,7 +428,7 @@ data_all <- sqldf('SELECT a.*,
                   FROM data_all AS a')
 
 #no longer need to print a wide copy, foundation is now already wide
-#write.csv(data_all, paste("U:\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_wide_",syear,"-",eyear,".csv",sep = ""), row.names = F)
+#write.csv(data_all, paste(onedrive_location,"\\OWS\\foundation_datasets\\awrr\\",eyear+1,"\\mp_all_wide_",syear,"-",eyear,".csv",sep = ""), row.names = F)
 
 
 #group by facility
@@ -476,7 +480,7 @@ table4_tex <- gsub(pattern = "{table}[t]",
 table4_tex
 
 table4_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4.tex",sep = ''))
+  cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\summary_table4.tex"))
 
 # TOP USERS BY USE TYPE (TABLES 6, 8, 10, 12, 14, 15,  17, 20) ############################
 #Chapter 3 Top5 tables
@@ -528,7 +532,7 @@ for (u in use_types) {
     top5_tex
     
     top5_tex %>%
-      cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\",u,"_top5.tex",sep = ''))
+      cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\",u,"_top5.tex"))
     
   }
 
@@ -598,7 +602,7 @@ GROUP BY Facility_HydroID, Source_Type
     top5_tex
     
     top5_tex %>%
-      cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\",ut,"_",s,"_top5.tex",sep = ''))
+      cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\",ut,"_",s,"_top5.tex"))
   }
   }
 
@@ -631,14 +635,14 @@ ag_tex <- gsub(pattern = "{lccccccc}",
                x       = ag_tex, fixed = T )
 
 ag_tex %>%
-  cat(., file = paste("U:/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/overleaf/Agriculture_table",file_ext,sep = ''))
+  cat(., file = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/overleaf/Agriculture_table",file_ext))
 
 # #use this as an interim view and check
 # #kable(cat_table, booktabs = T) %>% 
 #   kable_styling(latex_options = c("striped", "scale_down")) %>%
 #   column_spec(8, width = "5em") %>%
 #   column_spec(9, width = "5em") %>%
-#   cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",
+#   cat(., file = paste(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",
 #   eyear+1," Report\\May_QA\\summary_table_vahydro_",eyear+1,"_",Sys.Date(),".html",sep = ""))
 
 ### BAR GRAPH ###################################################################################
@@ -674,7 +678,7 @@ ggplot(data=agtable5, aes(x=Year, y=MGD, fill = Source)) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
 filename <- "Agriculture_BarGraph.pdf"
-ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/overleaf",sep = " "), width=12, height=6)
+ggsave(file=filename, path = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/overleaf"), width=12, height=6)
 
 ### irrig ######################################################################################
 #irrig
@@ -700,7 +704,7 @@ irrig_tex <- gsub(pattern = "{lccccccc}",
                   x       = irrig_tex, fixed = T )
 
 irrig_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Irrigation_table",file_ext,sep = ''))
+  cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Irrigation_table",file_ext))
 
 ### BAR GRAPH ##################################################################################
 #transform wide to long table
@@ -735,7 +739,7 @@ ggplot(data=irrigtable7, aes(x=Year, y=MGD, fill = Source)) +
 
 
 filename <- "Irrigation_BarGraph.pdf"
-ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
+ggsave(file=filename, path = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/Overleaf"), width=12, height=6)
 
 ### commercial####################################################################################
 commtable9 <- cat_table[c(2,10,18),-2]
@@ -760,7 +764,7 @@ comm_tex <- gsub(pattern = "{lccccccc}",
                  x       = comm_tex, fixed = T )
 
 comm_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Commercial_table",file_ext,sep = ''))
+  cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Commercial_table",file_ext))
 
 ### BAR GRAPH ####################################################################################
 #transform wide to long table
@@ -794,7 +798,7 @@ ggplot(data=commtable9, aes(x=Year, y=MGD, fill = Source)) +
   scale_colour_brewer(palette = "Dark2", direction = -1, name = "5 Year Avg. (MGD)")
 
 filename <- "Commercial_BarGraph.pdf"
-ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
+ggsave(file=filename, path = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/Overleaf"), width=12, height=6)
 
 
 ###mining #########################################################################################
@@ -821,7 +825,7 @@ min_tex <- gsub(pattern = "{lccccccc}",
                 x       = min_tex, fixed = T )
 
 min_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Mining_table",file_ext,sep = ''))
+  cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Mining_table",file_ext))
 
 ### BAR GRAPH #############################################################################
 #transform wide to long table
@@ -858,7 +862,7 @@ ggplot(data=mintable11, aes(x=Year, y=MGD, fill = Source)) +
 #+ annotate("text", y=mintable11$Average-3, x=.79, label = paste('=',mintable11$Average, " MGD"))
 
 filename <- "Mining_BarGraph.pdf"
-ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
+ggsave(file=filename, path = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/Overleaf"), width=12, height=6)
 
 
 ###manufacturing #####################################################################################
@@ -885,7 +889,7 @@ man_tex <- gsub(pattern = "{lccccccc}",
                 x       = man_tex, fixed = T )
 
 man_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Manufacturing_table",file_ext,sep = ''))
+  cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Manufacturing_table",file_ext))
 
 ### BAR GRAPH #################################################################################
 #transform wide to long table
@@ -920,7 +924,7 @@ ggplot(data=mantable13, aes(x=Year, y=MGD, fill = Source)) +
 
 
 filename <- "Manufacturing_BarGraph.pdf"
-ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
+ggsave(file=filename, path = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/Overleaf"), width=12, height=6)
 
 
 ###municipal aka public water supply ########################################################
@@ -947,7 +951,7 @@ muni_tex <- gsub(pattern = "{lccccccc}",
                  x       = muni_tex, fixed = T )
 
 muni_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Public_Water_supply_table",file_ext,sep = ''))
+  cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Public_Water_supply_table",file_ext))
 
 
 ###BAR GRAPH ############################################################################
@@ -983,7 +987,7 @@ ggplot(data=munitable16, aes(x=Year, y=MGD, fill = Source)) +
 
 
 filename <- "PublicWaterSupply_BarGraph.pdf"
-ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
+ggsave(file=filename, path = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/Overleaf"), width=12, height=6)
 
 
 ###LINE GRAPH (municipal cont.) #############
@@ -1028,7 +1032,7 @@ ggplot(pws10_sum, aes(x = X1, y = X2)) +
   
 
 filename <- "PublicWaterSupply_LineGraph2.pdf"
-ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf",sep = " "), width=12, height=6)
+ggsave(file=filename, path = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/Overleaf"), width=12, height=6)
 
 
 
@@ -1061,7 +1065,7 @@ pow_tex <- gsub(pattern  = "{lccccccc}",
                 x       = pow_tex, fixed = T,useBytes = F )
 
 pow_tex %>%
-  cat(., file = paste("U:\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Power_table",file_ext,sep = ''))
+  cat(., file = paste0(onedrive_location,"\\OWS\\Report Development\\Annual Water Resources Report\\October ",eyear+1," Report\\Overleaf\\Power_table",file_ext))
 
 
 ### POWER BAR GRAPH ############################################################
@@ -1102,4 +1106,4 @@ ggplot(data=power, aes(x=Year, y=MGD, fill = Source)) +
   theme(strip.text.x = element_text(size = 15),strip.text.y = element_text(size = 12)) ##Changed facet title font sizes
 
 filename <-"Power_BarGraph.pdf"
-ggsave(file=filename, path = paste("U:/OWS/Report Development/Annual Water Resources Report/October",eyear+1,"Report/Overleaf/",sep = " "), width=12, height=6)
+ggsave(file=filename, path = paste0(onedrive_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/Overleaf/"), width=12, height=6)
