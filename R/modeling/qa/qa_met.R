@@ -18,3 +18,20 @@ ro_data <- om_vahydro_metric_grid(
   base_url = paste(site,'entity-model-prop-level-export',sep="/"),
   ds = ds
 )
+
+
+# Land seg NLDAS2 QA data only for Phase 5
+rodf <- data.frame(
+  'model_version' = c('cbp-5.3.2', 'cbp-5.3.2', 'cbp-5.3.2', 'cbp-5.3.2', 'cbp-5.3.2'),
+  'runid' = c('met2date', 'met2date', 'met2date', 'met2date', 'met2date'),
+  'metric' = c('PRC_anomaly_count','PRC_daily_error_count', 'precip_annual_max_in', 'precip_annual_min_in', 'precip_annual_min_year'),
+  'runlabel' = c('PRC_anomaly_count', 'PRC_daily_error_count', 'Max_Precip_in', 'Min_Precip_in', 'Min_Precip_year')
+)
+# ftype options,
+# sova: cbp532_lrseg
+# others: cbp6_lrseg
+ro_data <- om_vahydro_metric_grid(
+  metric = metric, runids = rodf, bundle = "landunit", ftype = "cbp532_landseg",
+  base_url = paste(site,'entity-model-prop-level-export',sep="/"),
+  ds = ds
+)
