@@ -33,3 +33,5 @@ ro_data <- om_vahydro_metric_grid(
 jar_rodata = fn_extract_basin(ro_data,'OR7_8490_0000')
 
 sqldf("select * from jar_rodata where abs((Runit_2 - Runit_0) / Runit_0) > 0.05")
+
+
