@@ -15,7 +15,7 @@ plat_bb = 36.901388888889; plon_bb = -82.754166666667 # Ben's Branch downstream 
 plat_imp = 36.9022222222; plon_imp = -82.7525 # Impoundment intake
 plat = 36.90784; plon = -82.76888 # Powell River intake
 
-# Entuire drainage above Powell confluence
+# Entire drainage above Powell confluence
 out_point_bb = sf::st_sfc(sf::st_point(c(plon_bb, plat_bb)), crs = 4326)
 nhd_out_bb <- memo_get_nhdplus(out_point_bb)
 dasqmi_bb <- 0.386102 * nhd_out_bb$totdasqkm
@@ -44,7 +44,7 @@ elid = 353105 # Town of A reservoir
 relid = 247367 # Powell River
 felid = 351742 # Town of A facility
 plelid = 353107 # Powell River above Looney Creek (App res is tributary)
-runid=601
+runid = 601
 # 
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
 
@@ -57,7 +57,7 @@ wr_stats <- om_quantile_table(
     "impoundment_Qin", "impoundment_Qout", "refill_flowby",
     "impoundment_use_remain_mg", "impoundment_lake_elev", "impoundment_local_inflow",
     "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd",
-    "ps_bsg_mgd", "ps_nextdown_mgd"
+    "ps_bsg_mgd", "ps_nextdown_mgd",
     "impoundment_Qin", "impoundment_use_remain_mg", "impoundment_lake_elev",
     "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd","refill_flowby"
   ),
@@ -198,3 +198,34 @@ ro_data <- om_vahydro_metric_grid(
 # RO too small, check for missing lrseg: JU2_7140_7330, JU2_7450_7360
 # - in these, a single Landseg was missing, from WV: N54063 
 pr_rodata = fn_extract_basin(ro_data,'TU3_8880_9230')
+
+
+#########################
+#Town of Norton:
+#Subdivide the watershed - Get the NHD area for Town of Norton
+
+#For identifying stream-watershed shape/GIS:
+# Town of Norton intake
+plat_imp = 36.916388888900; plon_imp = -82.626666666700 
+
+#Find the drainage area of the NHD segments at and above the reservoir. Note
+#that this takes the entire NHD segment the coords fall in and all upstream.
+#Create an sf object
+out_point_imp = sf::st_sfc(sf::st_point(c(plon_imp, plat_imp)), crs = 4326)
+#Get the NHD segemnt that this point falls in
+nhd_out_imp <- memo_get_nhdplus(out_point_imp)
+#Find the total DA in miles
+dasqmi_imp <- 0.386102 * nhd_out_imp$totdasqkm
+dasqmi_imp
+#Plot the basin
+map_imp <- plot_nhdplus((list(nhd_out_imp$comid)), zoom = 14)
+
+#map_imp creates a basin object. We can now get all nhd plus segments associated
+#with that basin
+basin <- get_nhdplus(map_imp$basin)
+#From here, we could area weight traits, compare between subsheds, etc.
+
+#The volume weight stage of the dam:
+((3215.9-3155) * 182 + (3287.5-3215) * 202) / (182+202)
+((3218-3155) * 200 + (3295.5-3215) * 277) / (200+277)
+

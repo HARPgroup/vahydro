@@ -24,8 +24,8 @@ ro_data <- om_vahydro_metric_grid(
 rodf <- data.frame(
   'model_version' = c('cbp-5.3.2', 'cbp-5.3.2', 'cbp-5.3.2', 'cbp-5.3.2', 'cbp-5.3.2'),
   'runid' = c('met2date', 'met2date', 'met2date', 'met2date', 'met2date'),
-  'metric' = c('PRC_anomaly_count','PRC_daily_error_count', 'precip_annual_max_in', 'precip_annual_min_in', 'precip_annual_min_year'),
-  'runlabel' = c('PRC_anomaly_count', 'PRC_daily_error_count', 'Max_Precip_in', 'Min_Precip_in', 'Min_Precip_year')
+  'metric' = c('PRC_anomaly_count','PRC_daily_error_count', 'precip_annual_max_in', 'precip_annual_min_in', 'precip_annual_min_year','precip_annual_max_year'),
+  'runlabel' = c('PRC_anomaly_count', 'PRC_daily_error_count', 'Max_Precip_in', 'Min_Precip_in', 'Min_Precip_year','precip_annual_max_year')
 )
 # ftype options,
 # sova: cbp532_lrseg
