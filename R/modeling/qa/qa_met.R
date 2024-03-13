@@ -68,9 +68,7 @@ reruns5 <- sqldf(
 ")
 # print in a format that can be easily tossed into a CSV (with minimal editing)
 cat(sprintf("%i %s\n\r", reruns5$Max_Precip_year, reruns5$hydrocode))
-# or try
-kable(sprintf("%i %s", reruns5$Max_Precip_year, reruns5$hydrocode))
-knitr::kable(reruns, )
+
 
 # QA for rerun p6
 reruns <- sqldf(
@@ -79,8 +77,4 @@ reruns <- sqldf(
    where \"Max_Precip_in\" > 100 
    order by \"Max_Precip_year\"
 ")
-knitr::kable(reruns, )
-reruns[which(reruns$Max_Precip_year == 2021),]
-cat(paste(reruns[which(reruns$Max_Precip_year == 2021),]$hydrocode))
-cat(paste(reruns[which(reruns$Max_Precip_year == 2022),]$hydrocode))
-cat(paste(reruns[which(reruns$Max_Precip_year == 2023),]$hydrocode))
+cat(sprintf("%i %s\n\r", reruns$Max_Precip_year, reruns$hydrocode))

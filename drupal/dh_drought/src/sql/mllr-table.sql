@@ -1,4 +1,4 @@
-\set thisyear 2022
+\set thisyear 2024
 copy (
   select gage_name as name, 
   gage_hydrocode as hydrocode, 
