@@ -47,7 +47,10 @@ trib_comids = memo_get_UT(nhd, nhd_out$comid, distance = NULL)
 nhd_df <- as.data.frame(st_drop_geometry(nhd))
 
 length_ft = as.numeric(sqldf(paste("select sum(lengthkm) from nhd_df where streamorde =",nhd_out$streamorde ))) * 3280.84
+length_mainstem_ft = as.numeric(sqldf(paste0("select sum(lengthkm) from nhd_df where gnis_name = '",nhd_out$gnis_name, "'" ))) * 3280.84
+
 da_sqmi = nhd_out$totdasqkm / 2.58999
 cslope = as.numeric(sqldf(paste("select sum(slope * totdasqkm)/sum(totdasqkm) from nhd_df where slope >= 0 and streamorde =",nhd_out$streamorde )))
 
 print(paste("length_ft, da_sqmi, cslope", length_ft, da_sqmi, cslope))
+print(paste("Length of mainstem by gnis_name = ", length_mainstem_ft, "ft (compare to stream order method", length_ft,"ft)"))

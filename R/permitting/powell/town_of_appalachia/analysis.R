@@ -44,6 +44,8 @@ elid = 353105 # Town of A reservoir
 relid = 247367 # Powell River
 felid = 351742 # Town of A facility
 plelid = 353107 # Powell River above Looney Creek (App res is tributary)
+bgbelid = 353109 # Benges Branch river/reservoir
+
 runid=601
 # 
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
@@ -57,15 +59,20 @@ wr_stats <- om_quantile_table(
     "impoundment_Qin", "impoundment_Qout", "refill_flowby",
     "impoundment_use_remain_mg", "impoundment_lake_elev", "impoundment_local_inflow",
     "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd",
-    "ps_bsg_mgd", "ps_nextdown_mgd"
-    "impoundment_Qin", "impoundment_use_remain_mg", "impoundment_lake_elev",
+    "ps_bsg_mgd", "ps_nextdown_mgd",
     "ps_refill_pump_mgd", "release_cfs", "refill_max_mgd","refill_flowby"
   ),
-  quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 0.9, 1.0),
+  quantiles=c(0,0.01,0.05,0.1, 0.5, 0.75, 1.0),
   rdigits = 2
 )
 kable(wr_stats,'markdown')
 hdata[1360:1450,c("Qreach", "impoundment_area", "impoundment_Qin", "refill_flowby")]
+hdata_df <- as.data.frame(hdata)
+sqldf("select max(annual_refill) from (select year, sum(ps_refill_pump_mgd) as annual_refill from hdata_df group by year) as foo")
+
+# Benges Branch (Norton water source)
+bgdata <- om_get_rundata(bgbelid, runid, site=omsite)
+
 
 # facility
 fdata <- om_get_rundata(felid, runid, site=omsite)
@@ -120,6 +127,26 @@ plr_stats <- om_quantile_table(
   rdigits = 2
 )
 kable(plr_stats,'markdown')
+om_flow_table(plrdata, "Qout")
+plrdata[which(plrdata$Qout < 1.5),c("local_channel_Qin", "Qtrib", "Qlocal", "Qout", "wd_mgd", "ps_mgd")]
+# show select columns when flow goes elow a given threshold, AND the day before and after
+ddates <- as.POSIXct(
+  rbind(
+    index(plrdata[which(plrdata$Qout < 1.5),]), 
+    index(plrdata[which(plrdata$Qout < 1.5),]) - days(2), 
+    index(plrdata[which(plrdata$Qout < 1.5),]) - days(1), 
+    index(plrdata[which(plrdata$Qout < 1.5),]) + days(1)
+  ), origin="1970-01-1"
+)
+plrdata$I2 <- plrdata$local_channel_Qin
+zcols = c("local_channel_last_S", "local_channel_Storage", "I2", "local_channel_demand", "local_channel_Qout", "local_channel_its")
+zdata <- as.data.frame(plrdata[ddates,zcols])
+names(zdata) <- c("last_S", "Storage", "Qin", "demand", "Qout", "its")
+target_start = "1999-12-16"
+target_ix = which(index(plrdata) == target_start)
+target_day_range = 5
+tdata <- as.data.frame(plrdata[(target_ix - target_day_range):(target_ix + target_day_range),zcols])
+plot(tdata$local_channel_Qout, type='l', lwd=5)
 
 # facility Norton
 fndata <- om_get_rundata(247417, runid, site=omsite)
