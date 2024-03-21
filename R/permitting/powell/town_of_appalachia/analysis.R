@@ -64,7 +64,7 @@ wr_stats <- om_quantile_table(
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 0.9, 1.0),
   rdigits = 2
 )
-kable(wr_stats,'markdown')
+knitr::kable(wr_stats,'markdown')
 hdata[1360:1450,c("Qreach", "impoundment_area", "impoundment_Qin", "refill_flowby")]
 
 # facility
@@ -108,7 +108,7 @@ deets <- as.data.frame(hdata[,c(
 )])
 
 # Powell above Looney
-plrdata <- om_get_rundata(plelid, runid, site=omsite)
+plrdata <- om_get_rundata(plelid, 0, site=omsite)
 plr_stats <- om_quantile_table(
   plrdata, 
   metrics = c(
@@ -119,7 +119,7 @@ plr_stats <- om_quantile_table(
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
   rdigits = 2
 )
-kable(plr_stats,'markdown')
+knitr::kable(plr_stats,'markdown')
 
 # facility Norton
 fndata <- om_get_rundata(247417, runid, site=omsite)
@@ -199,4 +199,47 @@ ro_data <- om_vahydro_metric_grid(
 # - in these, a single Landseg was missing, from WV: N54063 
 pr_rodata = fn_extract_basin(ro_data,'TU3_8880_9230')
 
+
+
+toaID = 353105 # Town of A reservoir
+toaData <- om_get_rundata(toaID, 600, site = omsite)
+View(toaData[ddates,c("local_channel_Qin","local_channel_Qout", "Qtrib", "Qlocal", "Qout",
+                      "local_channel_Storage","local_channel_last_S",
+                      "wd_mgd", "ps_mgd")])
+#Where does the minimum storage occur?
+index(toaData[which.min(toaData$impoundment_Storage),])
+#Add dates and convert to data frame:
+toaDataDF <- toaData
+toaDataDF$thisdate <- as.Date(index(toaDataDF))
+toaDataDF <- as.data.frame(toaDataDF)
+#Isolate the climate year of the minimum storage:
+toaDataDF_drought <- toaDataDF[toaDataDF$thisdate >= as.Date("2007-04-01") & 
+                                 toaDataDF$thisdate <= as.Date("2008-03-31"),]
+#Create a plot tat shows the storage vs. inflow into the impoundment
+png(paste0(export_path,"refillPlot.PNG"),width = 6,height = 4,units = "in",res = 300)
+par(mar=c(3, 4, 1, 6))
+plot(as.Date(toaDataDF_drought$thisdate),
+     toaDataDF_drought$impoundment_Storage,
+     type = "l", axes = FALSE, bty = "n",
+     xlab = "", ylab = "",col = "darkblue",
+     lwd = 2)
+axis(side = 4, at = pretty(range(toaDataDF_drought$impoundment_Storage)))
+mtext("Imp. Storage (MG)", side = 4, line = 3, cex.lab = 1)
+par(new = TRUE)
+# plot(as.Date(toaDataDF_drought$thisdate),
+#      toaDataDF_drought$Qreach,
+#      type = "l",lwd = 2,xlab = "", ylab = "Powell River Flow (cfs)")
+plot(as.Date(toaDataDF_drought$thisdate),
+     (toaDataDF_drought$impoundment_Qin + 
+        toaDataDF_drought$ps_refill_pump_mgd * 1000000 * 231 / 12 / 12 / 12 / 24 / 3600),col = "black",type = "l",
+     ylab = "Imp. Inflow + Refill (cfs)",xlab = "",lwd = 2)
+points(as.Date(toaDataDF_drought$thisdate[toaDataDF_drought$Qreach <= 8]),
+       rep(0,length(toaDataDF_drought$Qreach[toaDataDF_drought$Qreach <= 8])),
+       col = "red",pch = 16)
+lines(as.Date(toaDataDF_drought$thisdate),
+      toaDataDF_drought$impoundment_Qin,lwd = 2,col = "darkgreen")
+par(new = TRUE)
+legend("topleft",c("Imp. Inflow + Refill (cfs)","Imp. Storage (MG)","Imp. Qin (cfs)"),col = c("black","darkblue","darkgreen"),
+       lty = 1, lwd = 1,y.intersp = 0.75,cex = 0.5)
+dev.off()
 
