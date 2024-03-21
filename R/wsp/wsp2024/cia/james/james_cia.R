@@ -112,6 +112,9 @@ quantile(rdat6$Qup)
 mean(rdat4$Qup)
 mean(rdat6$Qup)
 
+# James Fall Line runoff data
+rodat_jfl <- om_get_rundata(209987, 200, site=omsite)
+
 
 # get Jackson
 rdat_jack400 <- om_get_rundata(214595, 400, site=omsite)
