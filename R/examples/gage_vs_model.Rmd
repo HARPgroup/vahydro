@@ -36,6 +36,7 @@ library(lubridate)
 
 basepath='/var/www/R'
 source('/var/www/R/config.R')
+source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R") #Used until fac_utils is packaged
 
 elid <- params$elid
 runid <- params$runid

@@ -68,7 +68,7 @@ plot(
 facdf <- data.frame(
   'model_version' = c('vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0', 'vahydro-1.0'),
   'runid' = c('runid_400', 'runid_400', 'runid_11', 'runid_11', 'runid_18', 'runid_18'),
-  'metric' = c('wd_mgd', 'unmet7_mgd', 'wd_mgd', 'unmet7_mgd', 'base_demand_mgd', 'unmet7_mgd'),
+  'metric' = c('wd_mgd', 'unmet7_mgd', 'wd_mgd', 'unmet7_mgd', 'wd_mgd', 'unmet7_mgd'),
   'runlabel' = c('demand_vwp', 'U7_vwp', 'demand_2020', 'U7_2020','demand_exempt', 'U7_exempt')
 )
 fac_data <- om_vahydro_metric_grid(
@@ -85,3 +85,5 @@ all_probs <- sqldf("select * from fac_data where demand_exempt <= 1.2 * demand_2
 all_probs <- sqldf("select * from fac_data where demand_exempt <= 1.5 * demand_vwp and demand_vwp > 0 ")
 all_probs <- sqldf("select * from fac_data where U7_exempt >= 0.3 * demand_vwp and U7_exempt <= U7_vwp and demand_vwp > 1.0")
 
+all_probs <- sqldf("select * from fac_data where U7_exempt >= 0.3 * demand_vwp and U7_exempt <= U7_vwp and demand_vwp > 1.0")
+all_probs <- sqldf("select * from fac_data where U7_exempt >= 0.3 * demand_vwp and U7_exempt <= U7_vwp and demand_vwp > 1.0")
