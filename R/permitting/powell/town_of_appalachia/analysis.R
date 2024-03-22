@@ -15,7 +15,7 @@ plat_bb = 36.901388888889; plon_bb = -82.754166666667 # Ben's Branch downstream 
 plat_imp = 36.9022222222; plon_imp = -82.7525 # Impoundment intake
 plat = 36.90784; plon = -82.76888 # Powell River intake
 
-# Entuire drainage above Powell confluence
+# Entire drainage above Powell confluence
 out_point_bb = sf::st_sfc(sf::st_point(c(plon_bb, plat_bb)), crs = 4326)
 nhd_out_bb <- memo_get_nhdplus(out_point_bb)
 dasqmi_bb <- 0.386102 * nhd_out_bb$totdasqkm
@@ -44,9 +44,8 @@ elid = 353105 # Town of A reservoir
 relid = 247367 # Powell River
 felid = 351742 # Town of A facility
 plelid = 353107 # Powell River above Looney Creek (App res is tributary)
-bgbelid = 353109 # Benges Branch river/reservoir
-
-runid=601
+bgbelid = 353109 # Benges Branch river/reser
+runid = 601
 # 
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
 
@@ -65,7 +64,7 @@ wr_stats <- om_quantile_table(
   quantiles=c(0,0.01,0.05,0.1, 0.5, 0.75, 1.0),
   rdigits = 2
 )
-kable(wr_stats,'markdown')
+knitr::kable(wr_stats,'markdown')
 hdata[1360:1450,c("Qreach", "impoundment_area", "impoundment_Qin", "refill_flowby")]
 hdata_df <- as.data.frame(hdata)
 sqldf("select max(annual_refill) from (select year, sum(ps_refill_pump_mgd) as annual_refill from hdata_df group by year) as foo")
@@ -115,7 +114,7 @@ deets <- as.data.frame(hdata[,c(
 )])
 
 # Powell above Looney
-plrdata <- om_get_rundata(plelid, runid, site=omsite)
+plrdata <- om_get_rundata(plelid, 0, site=omsite)
 plr_stats <- om_quantile_table(
   plrdata, 
   metrics = c(
@@ -126,7 +125,7 @@ plr_stats <- om_quantile_table(
   quantiles=c(0,0.01,0.05,0.1,0.25, 0.5, 0.75, 1.0),
   rdigits = 2
 )
-kable(plr_stats,'markdown')
+knitr::kable(plr_stats,'markdown')
 om_flow_table(plrdata, "Qout")
 plrdata[which(plrdata$Qout < 1.5),c("local_channel_Qin", "Qtrib", "Qlocal", "Qout", "wd_mgd", "ps_mgd")]
 # show select columns when flow goes elow a given threshold, AND the day before and after
@@ -147,7 +146,6 @@ target_ix = which(index(plrdata) == target_start)
 target_day_range = 5
 tdata <- as.data.frame(plrdata[(target_ix - target_day_range):(target_ix + target_day_range),zcols])
 plot(tdata$local_channel_Qout, type='l', lwd=5)
-
 # facility Norton
 fndata <- om_get_rundata(247417, runid, site=omsite)
 fn_stats <- om_quantile_table(
@@ -225,3 +223,48 @@ ro_data <- om_vahydro_metric_grid(
 # RO too small, check for missing lrseg: JU2_7140_7330, JU2_7450_7360
 # - in these, a single Landseg was missing, from WV: N54063 
 pr_rodata = fn_extract_basin(ro_data,'TU3_8880_9230')
+
+
+
+toaID = 353105 # Town of A reservoir
+toaData <- om_get_rundata(toaID, 600, site = omsite)
+View(toaData[ddates,c("local_channel_Qin","local_channel_Qout", "Qtrib", "Qlocal", "Qout",
+                      "local_channel_Storage","local_channel_last_S",
+                      "wd_mgd", "ps_mgd")])
+#Where does the minimum storage occur?
+index(toaData[which.min(toaData$impoundment_Storage),])
+#Add dates and convert to data frame:
+toaDataDF <- toaData
+toaDataDF$thisdate <- as.Date(index(toaDataDF))
+toaDataDF <- as.data.frame(toaDataDF)
+#Isolate the climate year of the minimum storage:
+toaDataDF_drought <- toaDataDF[toaDataDF$thisdate >= as.Date("2007-04-01") & 
+                                 toaDataDF$thisdate <= as.Date("2008-03-31"),]
+#Create a plot tat shows the storage vs. inflow into the impoundment
+png(paste0(export_path,"refillPlot.PNG"),width = 6,height = 4,units = "in",res = 300)
+par(mar=c(3, 4, 1, 6))
+plot(as.Date(toaDataDF_drought$thisdate),
+     toaDataDF_drought$impoundment_Storage,
+     type = "l", axes = FALSE, bty = "n",
+     xlab = "", ylab = "",col = "darkblue",
+     lwd = 2)
+axis(side = 4, at = pretty(range(toaDataDF_drought$impoundment_Storage)))
+mtext("Imp. Storage (MG)", side = 4, line = 3, cex.lab = 1)
+par(new = TRUE)
+# plot(as.Date(toaDataDF_drought$thisdate),
+#      toaDataDF_drought$Qreach,
+#      type = "l",lwd = 2,xlab = "", ylab = "Powell River Flow (cfs)")
+plot(as.Date(toaDataDF_drought$thisdate),
+     (toaDataDF_drought$impoundment_Qin + 
+        toaDataDF_drought$ps_refill_pump_mgd * 1000000 * 231 / 12 / 12 / 12 / 24 / 3600),col = "black",type = "l",
+     ylab = "Imp. Inflow + Refill (cfs)",xlab = "",lwd = 2)
+points(as.Date(toaDataDF_drought$thisdate[toaDataDF_drought$Qreach <= 8]),
+       rep(0,length(toaDataDF_drought$Qreach[toaDataDF_drought$Qreach <= 8])),
+       col = "red",pch = 16)
+lines(as.Date(toaDataDF_drought$thisdate),
+      toaDataDF_drought$impoundment_Qin,lwd = 2,col = "darkgreen")
+par(new = TRUE)
+legend("topleft",c("Imp. Inflow + Refill (cfs)","Imp. Storage (MG)","Imp. Qin (cfs)"),col = c("black","darkblue","darkgreen"),
+       lty = 1, lwd = 1,y.intersp = 0.75,cex = 0.5)
+dev.off()
+
