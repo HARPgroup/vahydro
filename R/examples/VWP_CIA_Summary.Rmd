@@ -683,22 +683,6 @@ has_imp = FALSE
 fig_md = ""
 # check river model for plots
 for (i in 1:length(runid.list)){
-  # get fac model run prop
-  # get river model run prop 
-  runid.i <- runid.list[i]
-  run_info <- find_name(rseg_model_info,runid.i)
-  fig_prop <- find_name(run_info, "fig.imp_storage.all")
-  if (!(is.null(fig_prop))) {
-    has_imp = TRUE
-    fig_path <- fig_prop$code
-    # we have an image, show it 
-    fig_md = paste(fig_md, "\n\n#### Reservoir Storage: ", short_names[[runid.i]],"\n\n")
-    fig_md = paste(fig_md, paste0("![](",fig_path,")"),"\n")
-    fig_md = paste(fig_md, "\n\n\\pagebreak\n")
-  } else {
-    # tbd: try impoundment linked to river segment.
-    fig_md = paste(fig_md, paste("No active impoundment found for run id",runid.i))
-  }
   if (!is.logical(impoundment_fid)) {
     run_info <- find_name(imp_model_info,runid.i)
     fig_prop <- find_name(run_info, "fig.imp_storage.all")
@@ -712,6 +696,22 @@ for (i in 1:length(runid.list)){
     } else {
       # tbd: try impoundment linked to river segment.
       fig_md = paste(fig_md, paste("No active impoundment found for run id",runid.i,"on impoundment feature", impoundment_fid)) 
+    }
+  } else {
+    # look for impoundment on river model run prop 
+    runid.i <- runid.list[i]
+    run_info <- find_name(rseg_model_info,runid.i)
+    fig_prop <- find_name(run_info, "fig.imp_storage.all")
+    if (!(is.null(fig_prop))) {
+      has_imp = TRUE
+      fig_path <- fig_prop$code
+      # we have an image, show it 
+      fig_md = paste(fig_md, "\n\n#### Reservoir Storage: ", short_names[[runid.i]],"\n\n")
+      fig_md = paste(fig_md, paste0("![](",fig_path,")"),"\n")
+      fig_md = paste(fig_md, "\n\n\\pagebreak\n")
+    } else {
+      # tbd: try impoundment linked to river segment.
+      fig_md = paste(fig_md, paste("No active impoundment found for run id",runid.i))
     }
   }
 }
@@ -734,6 +734,7 @@ for (i in 1:length(runid.list)){
   runid.i <- runid.list[i]
   # generate a CU table for each run
   run.i <- sub("runid_", "", runid.i)
+  fac_run <- find_name(fac_model_info, runid.i)
   base_msg = "" # a holder in case we have trouble we need to report
   if (cu_model == "river") {
     # use the river as the entity to compare
@@ -771,15 +772,14 @@ for (i in 1:length(runid.list)){
   } else {
     pr_data_cmp = pr_data
   }
-  
   fqcu_table <- om_cu_table(fac_report_info, pr_data_cmp, cu_post_var, use_pre_var, cu_threshold, cu_decimals) 
   fqcu_caption <- paste(
     "Modeled monthly consumptive use statistics in the ", 
-    rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive user % due to cumulative demands for", 
-    run_info$reports$scenario_name$value, 
-    ". Simulated demands include all up-stream demands and demands at ", 
+    rseg_feature$name, "in cubic feet per second (cfs). Columns show the modeled non-exceedance flow percentiles and the consumptive use % due to cumulative demands for", 
+    fac_run$reports$scenario_name$value, 
+    ". Simulated demands include demands at ", 
     fac_report_info$intake_name$value, 
-    " and all upstream point-source flows.  ", 
+    ", including all up-stream demands and all upstream point-source flows.  ", 
     "Fields that are marked as 'n/a' indicate that the baseline flow for that time period/percentile was below the model accuracy threshold of ", cu_min_valid,"cfs.",
     base_msg
   )
