@@ -415,8 +415,17 @@ demand_url <- drun_info$fig.monthly_demand$code
 ```
 
 ```{r SiteTable, echo=FALSE, results = "asis"}
-#Round Table Values (Following McGurk request: "The tabulated values should be rounded to the nearest whole number.  The flow estimates at the stream gages are not precise or accurate enough for digits to the right of the decimal, and are not reported that way.  Therefore, modeled values should not be considered more accurate.")
-# I allowed this to be 1 decimal place because when you have small watersheds, you can end up with a table of flows that are half populated with zeros. This results in the table being LESS accurate IMO than rounding to 1 place.  FWIW, the decimal places are not accuracy, they're precision so I'd argue that the model can be more precise cause it's a numerical calculation and therefore more precise :)
+#Round Table Values (Following McGurk request: "The tabulated values should be
+#rounded to the nearest whole number.  The flow estimates at the stream gages
+#are not precise or accurate enough for digits to the right of the decimal, and
+#are not reported that way.  Therefore, modeled values should not be considered
+#more accurate.")
+# I allowed this to be 1 decimal place because when you have small watersheds,
+# you can end up with a table of flows that are half populated with zeros. This
+# results in the table being LESS accurate IMO than rounding to 1 place.  FWIW,
+# the decimal places are not accuracy, they're precision so I'd argue that the
+# model can be more precise cause it's a numerical calculation and therefore
+# more precise :)
 
 round_intake_sum_current <- intake_sum_current[2:length(intake_sum_current)]
 round_intake_sum_current <- round(round_intake_sum_current,cu_decimals)
@@ -747,6 +756,8 @@ for (i in 1:length(runid.list)){
       cu_elid = cu_model
     }
   }
+  run_info <- find_name(fac_model_info,runid.i)
+  
   pr_data <- om_get_rundata(cu_elid, run.i, omsite, FALSE)
   # now, if the user has specified a scenario to use as baseline, 
   # get that data, then join it, using the same pre/post column but 
@@ -822,7 +833,7 @@ for (i in 1:length(runid.list)){
 \newpage
 
 ### Analysis of Potential Conservation/Unmet Demand at the River Intake:
-The following grids are data plotting tools that help visualize data as magnitudes of color intensity. These depict the number of days with required conservation demand reductions or unmet demands for each month of the simulation (due to drought triggers or demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The cells show the amount of reductuions/unmet demand for each month [Number of Unmet Days & Amount (MGD)]. Hydrographs are shown for the period of the simulation with greatest reduction/unmet demand.
+The following grids are data plotting tools that help visualize data as magnitudes of color intensity. These depict the number of days with required conservation demand reductions or unmet demands for each month of the simulation (due to drought triggers or demands exceeding allowable withdrawal at the intake based on the cumulative conditions in the watershed and the flow-by rules in effect). The cells show the amount of reductions/unmet demand for each month [Number of Unmet Days & Amount (MGD)]. Hydrographs are shown for the period of the simulation with greatest reduction/unmet demand.
 
 ```{r UnmetDemandPLOTS, echo=FALSE, message=FALSE, results = "asis"}
 
@@ -1038,7 +1049,7 @@ if (elfgen) {
   if (!is.logical(fig_path)) {
     cat(paste0("![](",fig_path,")"),"\n")
     ## Richness Change Metric Table:
-    cat("\newpage")
+    # cat("\newpage")
     cat("Estimates for richness change are presented both as an absolute number of species (Richness Change (abs)) and as a percentage of the total number of species present (Richness Change (%)). Richness change calculations are derived from the estimated percent total consumptive use^[Kleiner et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12876) & Rapp et al: [https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877](https://onlinelibrary.wiley.com/doi/full/10.1111/1752-1688.12877)]. Note: elfgen methodology only applicable for watersheds < 800 cfs mean annual flow.")
     elfgen_df
   } else {
