@@ -231,8 +231,9 @@ toaData <- om_get_rundata(toaID, 600, site = omsite)
 View(toaData[ddates,c("local_channel_Qin","local_channel_Qout", "Qtrib", "Qlocal", "Qout",
                       "local_channel_Storage","local_channel_last_S",
                       "wd_mgd", "ps_mgd")])
-#Where does the minimum storage occur?
+#Where does the minimum storage occur and what is the value as a percent of the full reservoir?
 index(toaData[which.min(toaData$impoundment_Storage),])
+min(toaData$impoundment_Storage) 
 #Add dates and convert to data frame:
 toaDataDF <- toaData
 toaDataDF$thisdate <- as.Date(index(toaDataDF))
