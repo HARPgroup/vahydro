@@ -1132,6 +1132,7 @@ users_sql <- paste(
     usersdf.polygon_name AS "Sub-Watershed",
     usersdf.mp_bundle AS "MP Type",
     usersdf.mp_name AS "MP Name",
+    usersdf.mp_fstatus AS "MP Status",
     usersdf.mp_wd_current_mgy AS "MP 5-yr Avg Use (MGY)",         
     usersdf.facility_name AS "Facility Name",
     usersdf.facility_wd_current_mgy AS "Facility 5-yr Avg Use (MGY)",
@@ -1140,7 +1141,7 @@ users_sql <- paste(
 '"FROM users_df AS usersdf
   LEFT OUTER JOIN metric_df as metricdf
   ON usersdf.mp_hydroid = metricdf.mp_hydroid
-  WHERE usersdf.mp_bundle = "intake" AND usersdf.mp_fstatus = "active"
+  WHERE usersdf.mp_bundle = "intake" 
   ORDER BY metricdf.metric_value DESC
 ')
 #ORDER BY mp_wd_current_mgy DESC
