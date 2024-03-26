@@ -5,6 +5,8 @@ library("knitr")
 basepath='/var/www/R';
 source("/var/www/R/config.R")
 source("https://raw.githubusercontent.com/HARPgroup/hydro-tools/master/R/fac_utils.R")
+source("https://raw.githubusercontent.com/HARPgroup/vahydro/master/R/wsp/wsp2020/FoundationDataset/exemptAnalysis_updated.R")
+
 ds <- RomDataSource$new(site, rest_uname = rest_uname)
 ds$get_token(rest_pw = rest_pw)
 

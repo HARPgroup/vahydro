@@ -258,15 +258,15 @@ sqldf(
 ")
 
 # All pre89
-all89 <- sqldf(
-  "select Facility_NAme, Facility_type, Facility_Status, Locality, 
-    CASE WHEN max_pre89_mgm > 0 THEN
-       max_pre89_mgm, max_pre89_mgm / 31.0 as exempt_1989_mgd
-    ELSE 
-  from Anydata
-  where final_exempt_propcode not in ('vwp_mgm', 'vwp_mgy', 'vwp_mgd', '401_certification')
-  and Facility_type not like '%power%'
-")
+# all89 <- sqldf(
+#   "select Facility_NAme, Facility_type, Facility_Status, Locality, 
+#     CASE WHEN max_pre89_mgm > 0 THEN
+#        max_pre89_mgm, max_pre89_mgm / 31.0 as exempt_1989_mgd
+#     ELSE 
+#   from Anydata
+#   where final_exempt_propcode not in ('vwp_mgm', 'vwp_mgy', 'vwp_mgd', '401_certification')
+#   and Facility_type not like '%power%'
+# ")
 
 sqldf(
   "
