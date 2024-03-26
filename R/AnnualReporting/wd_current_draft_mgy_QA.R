@@ -4,7 +4,7 @@
 ##################################################################################
 
 library(sqldf)
-baseoath <- '/var/www/R'
+basepath <- '/var/www/R'
 source(paste0(basepath,'/config.local.private'))
 
 #prevents scientific notation
@@ -153,6 +153,7 @@ write.csv(draft5_check, file = paste0(foundation_location,"/OWS/Report Developme
 
 ##### REPRODUCIBLE METHOD ############
 library('hydrotools')
+library('tidyverse')
 rest_uname = FALSE
 rest_pw = FALSE
 basepath ='/var/www/R'
@@ -214,10 +215,13 @@ WHERE MGY_2023 != 0
 ORDER BY diff_mgy desc 
 ')
 
-
-write.csv(QAannual, file = paste0(foundation_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft_annual_check.csv"))
+#write.csv(QAannual, file = paste0(foundation_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft_annual_check.csv"))
 
 #if there are too many MPs to manually check in VAHydro
 #can develop the following line so the MPs already in the draft5_check QA are not repeated here
-#sqldf('select * from QAannual where MP_hydoid NOT IN (select MP_hydroid from draft5)')
-#and consider reducing results by repeating the whole process at the facility level
+#print <- sqldf('select * from QAannual where mp_hydroid NOT IN (select MP_hydroid from draft5)')
+
+QAannual_adj <- sqldf('select * from QAannual where mp_hydroid NOT IN (select MP_hydroid from draft5)')
+write.csv(QAannual_adj, file = paste0(foundation_location,"/OWS/Report Development/Annual Water Resources Report/October ",eyear+1," Report/May_QA/draft_annual_check_working.csv"))
+
+#if there are still too many MPs to manually check in VAHydro, consider reducing results by repeating the whole process at the facility level
